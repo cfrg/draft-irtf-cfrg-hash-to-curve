@@ -124,7 +124,7 @@ attempts, i.e., when ctr=1, on average. See also {{Icart09}}.
 
 However, because the running time of algorithm depends on alpha, this
 algorithm SHOULD be avoided in applications where it is important
-that the VRF input alpha remain secret.
+that the VRF input alpha remain secret. 
 
 ~~~
 hash_to_curve_increment(alpha, x)
