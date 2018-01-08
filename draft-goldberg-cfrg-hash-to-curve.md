@@ -78,6 +78,40 @@ normative:
       -
         ins: D. Chaum
         org: University of California, Santa Barabara, USA
+  BLS01:
+    title: Short signatures from the Weil pairing
+    target: https://iacr.org/archive/asiacrypt2001/22480516.pdf
+    authors:
+      -
+        ins: Dan Boneh
+        org: Stanford University
+      -
+        ins: Ben Lynn
+        org: Stanford University
+      -
+        ins: Hovav Shacham
+        org: Stanford University
+  BMP00:
+    title: Provably secure password-authenticated key exchange using diffie-hellman
+    venue: EUROCRYPT, pages 156–171, 2000.
+    authors: 
+      -
+        ins: Victor Boyko
+        org: 
+      -
+        ins: Philip D. MacKenzie
+        org: 
+      -
+        ins: Sarvar Patel
+        org: 
+  Jablon96:
+    title: Strong password-only authenticated key exchange
+    venue: SIGCOMM Comput. Commun. Rev., 26(5), 5–26, 1996.
+    authors:
+      -
+        ins: David P. Jablon
+        org: 
+  
 
 --- abstract
 
@@ -87,18 +121,35 @@ XXX
 
 # Introduction
 
-XXX: intropduction, where it's used, and why
+Many cryptographic protocols require a procedure which maps arbitrary input, e.g.,
+passwords, to points on an elliptic curve (EC). Prominent examples include
+Simple Password Exponential Key Exchange {{Jablon96}}, Password Authenticated 
+Key exchange {{BMP00}}, and Boneh-Lynn-Shacham signatures {{BLS01}}. 
 
-This document specifies a number of different algorithms for deterministically hashing 
-into an elliptic curve. 
+Probabilistic algorithms for this procedure, e.g., the MapToGroup function described by Boneh et al.
+{{BLS01}}. Their algorithm fails with probability 2^I, where I is a tunable parameter
+that one can control. Deterministic algorothms are needed in cases where failures 
+are undesirable. Shallue and Woestijne {{9}} first introduced a deterministic 
+algorithm that maps elements in F_{q} to an EC in time O(log^4 q), where q = p^n for 
+some prime p, and time O(log^3 q) when q = 3 mod 4. Icart introduced yet another
+deterministic algorithm which maps F_{q} to any EC where q = 2 mod 3 in time O(log^3 q).
+Elligator (2) {{XXX}} is yet another deterministic algorithm for any odd-characteristic 
+EC that has a point of order 2. Elligator can be applied to Curve25519 and Curve448, which 
+CFRG-recommended curves {{RFC7748}}.
 
-XXX: try and increment
+This document specifies three algorithms for deterministically hashing into an elliptic curve
+with varying properties. Each algorithm conforms to a common interface, i.e., it maps
+an element from a base field F to a curve E. For each variant, we describe the requirements
+for F and E to make it work. Sample code for each variant is presented in the appendix. 
 
 ## Terminology
 
 The following terms are used throughout this document.
 
-- TODO: TODO
+- curve
+- base field
+- point of order
+- point compression
 
 ## Requirements
 
@@ -119,7 +170,8 @@ point to include in this computation.
 
 # Utility Functions
 
-
+Algorithms in this document make use of utility functions described below.
+Appendix XXX gives sample code for each of these variants. 
 
 - EC2OSP: is specified in Section 2.3.3 of [SECG1] with point
 compression on.  This implies m = 2n + 1 = 33.
@@ -130,7 +182,9 @@ defined in Section 4.2 of {{RFC8017}}.
 - RS2ECP(h): OS2ECP(0x02 || h). The input h is a 32-octet string
 and the output is either an EC point or "INVALID".
 
-# Try and Increment Hashing
+# Hashing Variants
+
+## Try and Increment Method
 
 The following hash_to_curve_increment(alpha, x) algorithm implements
 a generic "try and increment" variant of hash_to_curve(alpha, x)
@@ -174,16 +228,22 @@ Steps:
 5.  Output h
 ~~~
 
-# Icart Hashing
+## Icart Method
 
-The following hash_to_curve_constant(alpha, x) algorithm implements
-a constant-time variant of hash_to_curve(alpha, x). This variant MUST be used
-if the input -- alpha -- MUST be kept secret. 
+The following hash_to_curve_icart(alpha, x) algorithm implements
+a constant-time variant of hash_to_curve(alpha, x). This algorithm
+works for any curve over F_{p^n}, where p = 2 mod 3, including:
 
-- E is a curve with the given form
-- p = 2 mod 3
+- P384
+- Curve1174
+- Ed448-Goldilocks
 
-# https://iacr.org/archive/crypto2009/56770300/56770300.pdf
+Unsupported curves include: P224, P256, P521, and Curve25519 since,
+for each, p = 1 mod 3.
+
+
+<!-- https://iacr.org/archive/crypto2009/56770300/56770300.pdf -->
+<!-- http://www.crypto-uni.lu/jscoron/cours/mics3crypto/shash.pdf -->
 
 ~~~
 hash_to_curve_icart(alpha, x)
@@ -200,16 +260,43 @@ Output:
 
 Steps:
 
-1. u = OS2IP(alpha)
+1. u = OS2IP(alpha) // map to Fp
 2. v = (3a - u^4) / 6u
 3. beta = (v^2 - b - (u^6)/27)
 4. beta = beta ^ ((2p - 1) / 3)
 5. x = beta + ((u^2) / 3)
 6. y = ux + v
 
+## Elligator 2 Method
+
+The following hash_to_curve_elligator2(alpha, x) algorithm implements
+another constant0time variant of hash_to_curve(alpha, x). This algorithm
+works for any curve (over large characteristic field). 
+
+~~~
+hash_to_curve_elligator2(alpha, x)
+
+Input:
+
+  alpha - value to be hashed, an octet string
+
+  x - public key, an EC point
+
+Output:
+
+    h - hashed value, a finite EC point in G
+
+Steps:
+
+1. r = H(alpha) // H is a hash to the base field F
+
+
+* Compute whether f(-A/(1+ur^2)) is square.  If so, compute its square root.
+* If not, compute the square root of f(-Aur^2/(1+ur^2)) = ur^2 f(-A/(1+ur^2)).
+
 # Security Considerations
 
-TOOD
+TODO
 
 # Acknowledgements
 
@@ -219,5 +306,5 @@ TODO
 
 # Sage Sample Code
 
-TOOD
+((See poc/poc.sage))
 
