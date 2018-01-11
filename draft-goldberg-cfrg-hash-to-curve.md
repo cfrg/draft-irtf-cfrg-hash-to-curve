@@ -57,27 +57,6 @@ normative:
       -
         ins: T. Icart
         org: Sagem Securite and Universite du Luxembourg
-  PrivacyPass:
-    title: Privacy Pass
-    target: https://github.com/privacypass/challenge-bypass-server
-  ChaumPedersen:
-    title: Wallet Databases with Observers
-    target: https://chaum.com/publications/Wallet_Databases.pdf
-    authors:
-      -
-        ins: D. Chaum
-        org: CWI, The Netherlands
-      -
-        ins: T. P. Pedersen
-        org: Aarhus University, Denmark
-  
-  ChaumBlindSignature:
-    title: Blind Signatures for Untraceable Payments
-    target: http://sceweb.sce.uhcl.edu/yang/teaching/csci5234WebSecurityFall2011/Chaum-blind-signatures.PDF
-    authors:
-      -
-        ins: D. Chaum
-        org: University of California, Santa Barabara, USA
   BLS01:
     title: Short signatures from the Weil pairing
     target: https://iacr.org/archive/asiacrypt2001/22480516.pdf
@@ -111,6 +90,20 @@ normative:
       -
         ins: David P. Jablon
         org: 
+  ECOPRF:
+    title: TODO
+    venue: TODO
+    authors:
+      -
+        ins: TODO
+        org: 
+  Elligator2:
+    title: TODO
+    venue: TODO
+    authors:
+      -
+        ins: TODO
+        org: 
   
 
 --- abstract
@@ -126,21 +119,48 @@ passwords, to points on an elliptic curve (EC). Prominent examples include
 Simple Password Exponential Key Exchange {{Jablon96}}, Password Authenticated 
 Key exchange {{BMP00}}, and Boneh-Lynn-Shacham signatures {{BLS01}}. 
 
-Probabilistic algorithms for this procedure, e.g., the MapToGroup function described by Boneh et al.
+Let E be an elliptic curve over base field GF(p). In practice, efficient
+(polynomial-time) functions that hash arbitrary input to E can be constructed
+by composing a cryptographically secure hash function F1 : {0,1}^* ->GF(p)
+and an injection F2 : GF(p) -> E, i.e., Hash(m) = F2(F1(m)).
+Probabilistic constructions of Hash, e.g., the MapToGroup function described by Boneh et al.
 {{BLS01}}. Their algorithm fails with probability 2^I, where I is a tunable parameter
-that one can control. Deterministic algorothms are needed in cases where failures 
-are undesirable. Shallue and Woestijne {{9}} first introduced a deterministic 
+that one can control. Another variant, dubbed the "Try and Increment" approach,
+was described by Burns et al. {{ECOPRF}}. This function works by hashing 
+input m using a standard hash function, e.g., SHA256, and then checking to see 
+if the resulting point E(m, f(m)), for curve function f, belongs on E.
+This algorithm is expected to find a valid curve point after approximately two 
+attempts, i.e., when ctr=1, on average. See also {{Icart09}}.
+
+~~~
+1. ctr = 0
+3. h = "INVALID"
+4. While h is "INVALID" or h is EC point at infinity:
+   A.  CTR = I2OSP(ctr, 4)
+   B.  ctr = ctr + 1
+   C.  attempted_hash = Hash(m || CTR)
+   D.  h = RS2ECP(attempted_hash)
+   E.  If h is not "INVALID" and cofactor > 1, set h = h^cofactor
+5. Output h
+~~~
+
+Since the running time of algorithm depends on m, this algorithm is
+not safe for cases sensitive to timing side channel attacks. 
+Deterministic algorithms are needed in such cases where failures 
+are undesirable. Shallue and Woestijne ((TODO:cite)) first introduced a deterministic 
 algorithm that maps elements in F_{q} to an EC in time O(log^4 q), where q = p^n for 
 some prime p, and time O(log^3 q) when q = 3 mod 4. Icart introduced yet another
 deterministic algorithm which maps F_{q} to any EC where q = 2 mod 3 in time O(log^3 q).
-Elligator (2) {{XXX}} is yet another deterministic algorithm for any odd-characteristic 
+Elligator (2) {{Elligator2}} is yet another deterministic algorithm for any odd-characteristic 
 EC that has a point of order 2. Elligator can be applied to Curve25519 and Curve448, which 
 CFRG-recommended curves {{RFC7748}}.
 
-This document specifies three algorithms for deterministically hashing into an elliptic curve
+This document specifies N algorithms for deterministically hashing into an elliptic curve
 with varying properties. Each algorithm conforms to a common interface, i.e., it maps
 an element from a base field F to a curve E. For each variant, we describe the requirements
 for F and E to make it work. Sample code for each variant is presented in the appendix. 
+Unless otherwise stated, all elliptic curve points are assumed to be represented as affine
+coordinates, i.e., (x, y) points on a curve.
 
 ## Terminology
 
@@ -157,80 +177,48 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
 document are to be interpreted as described in {{RFC2119}}.
 
-# Interface
+# Interfaces
 
 The generic interface for hashing to elliptic curves is as follows:
 
 ~~~
-hash_to_curve(alpha, x)
+hash_to_curve(alpha)
 ~~~
 
-where alpha is a message to hash onto a curve and x is an additional 
-point to include in this computation.
+where alpha is a message to hash onto a curve. It is often useful to include
+an additional point on the curve to bind with this computation. This variant
+of "binding" hash has the following interface:
+
+~~~
+hash_to_curve_and_bind(alpha, beta)
+~~~
+
+where alpha is a message to hash onto a curve and beta is an additional
+point on the curve.
 
 # Utility Functions
 
 Algorithms in this document make use of utility functions described below.
-Appendix XXX gives sample code for each of these variants. 
 
-- EC2OSP: is specified in Section 2.3.3 of [SECG1] with point
-compression on.  This implies m = 2n + 1 = 33.
+((TODO: give sample code for each of these functions in the appendix.)) 
+
+- EC2OSP: is specified in Section 2.3.3 of {{SECG1}} with point
+compression on. This implies m = 2n + 1 = 33.
 - I2OSP: Coversion of a nonnegative integer to an octet string as
 defined in Section 4.1 of {{RFC8017}}.
 - OS2IP: Coversion of an octet string to a nonnegative integer as
 defined in Section 4.2 of {{RFC8017}}.
 - RS2ECP(h): OS2ECP(0x02 || h). The input h is a 32-octet string
 and the output is either an EC point or "INVALID".
+- HashToBase(x): H(x)[0:log2(p) + 1], where H is a cryptographic 
+hash function, such as SHA256, and p is the prime order of the 
+implicit base field Fp.
 
 # Hashing Variants
 
-## Try and Increment Method
+## Icart Method {#icart}
 
-The following hash_to_curve_increment(alpha, x) algorithm implements
-a generic "try and increment" variant of hash_to_curve(alpha, x)
-that works for any elliptic curve. Note that x is optional and, 
-if omitted, is set to the identity element of the curve.
-
-The running time of this algorithm depends on alpha. This algorithm 
-is expected to find a valid curve point after approximately two 
-attempts, i.e., when ctr=1, on average. See also {{Icart09}}.
-
-However, because the running time of algorithm depends on alpha, this
-algorithm SHOULD be avoided in applications where it is important
-that alpha remain secret. 
-
-This algorithm is suitable for NIST P-256 {{RFC6605}} and Curve25519 {{RFC7748}}.
-
-~~~
-hash_to_curve_increment(alpha, x)
-
-Input:
-
-  alpha - value to be hashed, an octet string
-
-  x - public key, an EC point
-
-Output:
-
-    h - hashed value, a finite EC point in G
-
-Steps:
-
-1.  ctr = 0
-2.  pk = EC2OSP(x)
-3.  h = "INVALID"
-4.  While h is "INVALID" or h is EC point at infinity:
-    A.  CTR = I2OSP(ctr, 4)
-    B.  ctr = ctr + 1
-    C.  attempted_hash = Hash(pk || alpha || CTR)
-    D.  h = RS2ECP(attempted_hash)
-    E.  If h is not "INVALID" and cofactor > 1, set h = h^cofactor
-5.  Output h
-~~~
-
-## Icart Method
-
-The following hash_to_curve_icart(alpha, x) algorithm implements
+The following hash_to_curve_icart(alpha) algorithm implements
 a constant-time variant of hash_to_curve(alpha, x). This algorithm
 works for any curve over F_{p^n}, where p = 2 mod 3, including:
 
@@ -239,60 +227,117 @@ works for any curve over F_{p^n}, where p = 2 mod 3, including:
 - Ed448-Goldilocks
 
 Unsupported curves include: P224, P256, P521, and Curve25519 since,
-for each, p = 1 mod 3.
+for each, p = 1 mod 3. Mathematically, given input integer u in Fp,
+and A and B from E, the Icart method works as follows:
 
+~~~
+x = (v^2 - b - (u^6 / 27))^(1/3) + (u^2 / 3)
+y = ux + v
+~~~
+
+where v = ((3A - u^4) / 6u).
+
+The following procedure implements this algorithm in a straight-line fashion.
+It requires knowledge of A and B, the constants from the curve Weierstrass form.
 
 <!-- https://iacr.org/archive/crypto2009/56770300/56770300.pdf -->
 <!-- http://www.crypto-uni.lu/jscoron/cours/mics3crypto/shash.pdf -->
 
 ~~~
-hash_to_curve_icart(alpha, x)
+hash_to_curve_icart(alpha)
 
 Input:
 
   alpha - value to be hashed, an octet string
 
-  x - public key, an EC point
+  A, B - Weierstrass form constants for E
 
 Output:
 
-    h - hashed value, a finite EC point in G
+  (x, y) - a point in E.
 
 Steps:
 
-1. u = OS2IP(alpha) // map to Fp
-2. v = (3a - u^4) / 6u
-3. beta = (v^2 - b - (u^6)/27)
-4. beta = beta ^ ((2p - 1) / 3)
-5. x = beta + ((u^2) / 3)
-6. y = ux + v
-
-## Elligator 2 Method
-
-The following hash_to_curve_elligator2(alpha, x) algorithm implements
-another constant0time variant of hash_to_curve(alpha, x). This algorithm
-works for any curve (over large characteristic field). 
+1.  u  = HashToBase(alpha)   // {0,1}^* -> Fp
+2.  u2 = u^2 (mod p)         // u^2
+3.  t2 = u2^2 (mod p)        // u^4
+4.  v1 = 3 * A (mod p)       // 3A
+5.  v1 = v1 - t2 (mod p)     // 3A - u^4
+6.  t1 = 6 * u (mod p)       // 6u
+7.  t3 = t1 ^ (-1) (mod p)   // Modular inverse
+8.  v  = v1 * t3 (mod p)     // (3A - u^4)/(6u)
+9.  x  = v^2 (mod p)         // v^2
+10. x  = x - B (mod p)       // v^2 - b
+11. t1 = 27 ^ (-1) (mod p)   // 1/27
+12. t1 = t1 * u2 (mod p)     // u^4 / 27
+13. t1 = t1 * t2 (mod p)     // u^6 / 27
+14. x  = x - t1 (mod p)      // v^2 - b - u^6/27
+15. t1 = (2 * p) - 1 (mod p) // 2p - 1
+16. t1 = t1 / 3 (mod p)      // (2p - 1)/3
+17. x  = x^(1/3) (mod p)     // (v^2 - b - u^6/27) ^ (1/3)
+18. t2 = u2 / 3 (mod p)      // u^2 / 3
+19. x  = x + t2 (mod p)      // (v^2 - b - u^6/27) ^ (1/3) + (u^2 / 3)
+20. y  = u * x (mod p)       // ux
+21. y  = y + v (mod p)       // ux + v
+22. Output (x, y)
 
 ~~~
-hash_to_curve_elligator2(alpha, x)
+
+## Elligator2 Method {#elligator2}
+
+The following hash_to_curve_elligator2(alpha) algorithm implements
+another constant-time variant of hash_to_curve(alpha). This algorithm
+works for any curve (over large characteristic field). The method is 
+simple to implement.
+
+~~~
+1. r = HashToBase(alpha)
+2. If f(-A/(1+ur^2)) is square, then output f(-A/(1+ur^2))^(1/2)
+3. Else, output f(-Aur^2/(1+ur^2))^(1/2)
+~~~
+
+The following procedure implements this algorithm in constant time.
+
+~~~
+hash_to_curve_elligator2(alpha)
 
 Input:
 
   alpha - value to be hashed, an octet string
 
-  x - public key, an EC point
-
 Output:
 
-    h - hashed value, a finite EC point in G
+  (x, y) - a point in E.
 
 Steps:
 
-1. r = H(alpha) // H is a hash to the base field F
+1. ((TODO: constant time steps here))
+~~~
 
+## Projective Elligator2 Method
 
-* Compute whether f(-A/(1+ur^2)) is square.  If so, compute its square root.
-* If not, compute the square root of f(-Aur^2/(1+ur^2)) = ur^2 f(-A/(1+ur^2)).
+The following hash_to_curve_elligator2(alpha) algorithm implements
+the Elligator2 method from Section {{elligator2}}, yet it uses projective
+coordinates for all arithmetic. This has the benefit of replacing
+division operations with multipliation operations.
+
+The following procedure implements this algorithm in constant time.
+
+~~~
+hash_to_curve_elligator2(alpha)
+
+Input:
+
+  alpha - value to be hashed, an octet string
+
+Output:
+
+  (x, y) - a point in E.
+
+Steps:
+
+1. ((TODO: constant time steps here))
+~~~
 
 # Security Considerations
 
