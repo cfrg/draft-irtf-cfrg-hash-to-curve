@@ -274,7 +274,7 @@ Steps:
 14. x  = x - t1 (mod p)      // v^2 - b - u^6/27
 15. t1 = (2 * p) - 1 (mod p) // 2p - 1
 16. t1 = t1 / 3 (mod p)      // (2p - 1)/3
-17. x  = x^(1/3) (mod p)     // (v^2 - b - u^6/27) ^ (1/3)
+17. x  = x^t1 (mod p)        // (v^2 - b - u^6/27) ^ (1/3)
 18. t2 = u2 / 3 (mod p)      // u^2 / 3
 19. x  = x + t2 (mod p)      // (v^2 - b - u^6/27) ^ (1/3) + (u^2 / 3)
 20. y  = u * x (mod p)       // ux
@@ -296,7 +296,7 @@ simple to implement.
 3. Else, output f(-Aur^2/(1+ur^2))^(1/2)
 ~~~
 
-The following procedure implements this algorithm in constant time.
+The following straight-line procedure implements this algorithm.
 
 ~~~
 hash_to_curve_elligator2(alpha)
@@ -311,7 +311,44 @@ Output:
 
 Steps:
 
-1. ((TODO: constant time steps here))
+1.  r  = HashToBase(alpha)
+2.  x  = r^2 (mod p)
+3.  L3 = x^2 (mod p)      // x^4
+4.  y  = L3 (mod p)       // x^4
+5.  L4 = -y (mod p)       // -x^4
+6.  L4 = L4 + 1 (mod p)   // y - 1
+7.  L2 = L4^2 (mod p)     // (y - 1)^2
+8.  L7 = L2 * (D - 1)^2 (mod p) // (y - 1)^2 - (D - 1)^2
+9.  L8 = L3 * 4(D + 1)^2 (mod p) // r^4 + 4(D + 1)^2
+10. y  = L8 * L7 (mod p)  // 
+11. L8 = L2 * 4D(D - 1) (mod p) // 
+12. L7 = y - L8 (mod p)   // 
+13. L6 = y * (-2 - 2D) (mod p) // 
+14. L5 = L7 * L6 (mod p)
+15. L8 = L5 * L4 (mod p)
+16. L4 = L5 * L6 (mod p)
+17. L5 = L7 * L8 (mod p)
+18. L8 = L5 * L4 (mod p)
+19. L4 = L7 * L8 (mod p)
+20. L6 = 1/sqrt(L4) (mod p)
+21. L4 = L5 * L6 (mod p)
+22. L5 = L6^2 (mod p)
+23. L6 = L8 * L5 (mod p)
+24. L8 = L7 * L6 (mod p)
+25. L6 = x
+26. x  = x + 1 (mod p)
+27. L5 = L5 + 1 (mod p)
+28. x  = L6 - L5 (mod p)
+29. L5 = L4 * x (mod p)
+30. L4 = L3 + L3 (mod p)
+31. L3 = L4 + L2 (mod p)
+32. L3 = L3 - 2 (mod p)
+33. L2 = L3 * L8 (mod p)
+34. L3 = L2 * 2(D + 1)(D - 1)
+35. L2 = L3 + y (mod p)
+36. y  = L7 * L2 (mod p)
+37. y  = y + (-L8) (mod p)
+38. Output (x, y)
 ~~~
 
 ## Projective Elligator2 Method
@@ -336,7 +373,8 @@ Output:
 
 Steps:
 
-1. ((TODO: constant time steps here))
+1. r = HashToBase(alpha)
+2. ((TODO: write me))
 ~~~
 
 # Security Considerations
