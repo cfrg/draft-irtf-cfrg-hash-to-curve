@@ -11,11 +11,11 @@ B = 1
 
 E = EllipticCurve(F, [0, A, 0, 1, 0])
 
+def curve25519(x):
+    # x(x^2 + Ax + B)
+    return x^3 + (A * x^2) + x
 
 def elligator2(alpha):
-    def curve25519(x):
-        # x(x^2 + Ax + B)
-        return x^3 + (A * x^2) + x
 
     r = F(alpha)
 
@@ -34,8 +34,8 @@ def elligator2(alpha):
         y = curve25519(x).square_root()
     
     # return E(f_input, y) # raises an exception if the point is not on the curve
-    # return E(x, y)
-    return x
+    return E(x, y)
+    # return x
 
 def elligator2_legendre(alpha):
     r = F(alpha)
@@ -59,7 +59,7 @@ def elligator2_legendre(alpha):
     
     u = u - v
 
-    return u
+    return E(u, curve25519(u).square_root())
 
 def elligator2_legendre_ct(alpha):
     r = F(alpha)
@@ -77,7 +77,7 @@ def elligator2_legendre_ct(alpha):
     v2 = v2 * A
     e = v2 + e
 
-    # Legendre symbol
+    # Legendre symbol -- is it a point on the curve?
     e = e^((p - 1) / 2)
 
     nv = v * -1
@@ -90,10 +90,11 @@ def elligator2_legendre_ct(alpha):
     
     u = v - v2
     
-    return u
+    return E(u, curve25519(u).square_root())
 
 inputs = [1, 7, 13, 1<<7, 1<<8, 1<<64, 1<<64-1, p-1, p+1]
 tts = [(alpha, elligator2(alpha), elligator2_legendre(alpha), elligator2_legendre_ct(alpha)) for alpha in inputs]
 
 for pair in tts:
     assert pair[1] == pair[2] == pair[3]
+    # print pair[0], pair[1], pair[2]
