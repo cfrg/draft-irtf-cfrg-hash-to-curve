@@ -227,10 +227,11 @@ works for any curve over F_{p^n}, where p = 2 mod 3, including:
 - Ed448-Goldilocks
 
 Unsupported curves include: P224, P256, P521, and Curve25519 since,
-for each, p = 1 mod 3. Mathematically, given input integer u in Fp,
+for each, p = 1 mod 3. Mathematically, given input alpha,
 and A and B from E, the Icart method works as follows:
 
 ~~~
+u = HashToBase(alpha)
 x = (v^2 - b - (u^6 / 27))^(1/3) + (u^2 / 3)
 y = ux + v
 ~~~
@@ -254,7 +255,7 @@ Input:
 
 Output:
 
-  (x, y) - a point in E.
+  (x, y) - a point in E
 
 Steps:
 
@@ -264,7 +265,7 @@ Steps:
 4.  v1 = 3 * A (mod p)       // 3A
 5.  v1 = v1 - t2 (mod p)     // 3A - u^4
 6.  t1 = 6 * u (mod p)       // 6u
-7.  t3 = t1 ^ (-1) (mod p)   // Modular inverse
+7.  t3 = t1 ^ (-1) (mod p)   // modular inverse
 8.  v  = v1 * t3 (mod p)     // (3A - u^4)/(6u)
 9.  x  = v^2 (mod p)         // v^2
 10. x  = x - B (mod p)       // v^2 - b
@@ -305,9 +306,11 @@ Input:
 
   alpha - value to be hashed, an octet string
 
+  D - Edward's curve coefficient
+
 Output:
 
-  (x, y) - a point in E.
+  (x, y) - a point in E
 
 Steps:
 
@@ -320,7 +323,7 @@ Steps:
 7.  L2 = L4^2 (mod p)     // (y - 1)^2
 8.  L7 = L2 * (D - 1)^2 (mod p) // (y - 1)^2 - (D - 1)^2
 9.  L8 = L3 * 4(D + 1)^2 (mod p) // r^4 + 4(D + 1)^2
-10. y  = L8 * L7 (mod p)  // 
+10. y  = L8 + L7 (mod p)  // 
 11. L8 = L2 * 4D(D - 1) (mod p) // 
 12. L7 = y - L8 (mod p)   // 
 13. L6 = y * (-2 - 2D) (mod p) // 
@@ -356,7 +359,7 @@ Steps:
 The following hash_to_curve_elligator2(alpha) algorithm implements
 the Elligator2 method from Section {{elligator2}}, yet it uses projective
 coordinates for all arithmetic. This has the benefit of replacing
-division operations with multipliation operations.
+division operations with multiplication operations.
 
 The following procedure implements this algorithm in constant time.
 
