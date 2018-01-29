@@ -354,7 +354,7 @@ the curve. (?)
 # Acknowledgements
 
 The authors would like to thank Adam Langley for this detailed writeup up Elligator2 with
-Curve25519, available online at {{CITE}}. 
+Curve25519 ((TODO:CITE)).
 
 --- back
 
