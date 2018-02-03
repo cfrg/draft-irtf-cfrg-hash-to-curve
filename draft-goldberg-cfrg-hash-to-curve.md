@@ -76,39 +76,83 @@ normative:
     authors: 
       -
         ins: Victor Boyko
-        org: 
+        org: MIT Laboratory for Computer Science
       -
         ins: Philip D. MacKenzie
-        org: 
+        org: Bell Laboratories, Lucent Technologies
       -
         ins: Sarvar Patel
-        org: 
+        org: Bell Laboratories, Lucent Technologies
   Jablon96:
     title: Strong password-only authenticated key exchange
     venue: SIGCOMM Comput. Commun. Rev., 26(5), 5–26, 1996.
     authors:
       -
         ins: David P. Jablon
-        org: 
+        org: Integrity Sciences, Inc. Westboro, MA.
   ECOPRF:
-    title: TODO
-    venue: TODO
+    title: EC-OPRF - Oblivious Pseudorandom Functions using Elliptic Curves
     authors:
       -
-        ins: TODO
-        org: 
+        ins: Jonathan Burns
+        org: Ionic Research
+      -
+        ins: Daniel Moore
+        org: Ionic Research
+      -
+        ins: Katrina Ray
+        org: Ionic Research
+      -
+        ins: Ryan Speers
+        org: Ionic Research
+      -
+        ins: Brian Vohaska
+        org: Ionic Research
   Elligator2:
-    title: TODO
-    venue: TODO
+    title: Elligator -- Elliptic-curve points indistinguishable from uniform random strings
+    venue: Proceedings of the 2013 ACM SIGSAC conference on Computer & communications security. ACM, 2013.
     authors:
       -
-        ins: TODO
-        org: 
+        ins: Daniel J. Bernstein
+        org: Department of Computer Science, University of Illinois at Chicago, USA
+      -
+        ins: Mike Hamburg
+        org: Cryptography Research, a division of Rambus, USA
+      -
+        ins: Anna Krasnova
+        org: Privacy & Identity lab, Institute for Computing and Information Sciences, Radboud University Nijmegen, The Netherlands
+      -
+        ins: Tanja Lange
+        org: Department of Mathematics and Computer Science, Technische Universiteit Eindhoven, The Netherlands
+  SWU:
+    title: Efficient Indifferentiable Hashing into Ordinary Elliptic Curves
+    venue: Annual Cryptology Conference (pp. 237-254). Springer, Berlin, Heidelberg.
+    authors:
+      -
+        ins: Eric Brier
+        org: Ingenico
+      -
+        ins: Jean-Sebastien Coron
+        org: Universite du Luxembourg
+      -
+        ins: Thomas Icart
+        org: Universite du Luxembourg
+      -
+        ins: David Madore
+        org: TELECOM-ParisTech
+      -
+        ins: Hugues Randriam
+        org: TELECOM-ParisTech
+      -
+        ins: Mehdi Tibouchi
+        org: Universite du Luxembourg, Ecole normale superieure
+ 
   
 
 --- abstract
 
-XXX
+This document specifies three algorithms that may be used to hash arbitrary
+strings to Elliptic Curves. 
 
 --- middle
 
@@ -117,7 +161,7 @@ XXX
 Many cryptographic protocols require a procedure which maps arbitrary input, e.g.,
 passwords, to points on an elliptic curve (EC). Prominent examples include
 Simple Password Exponential Key Exchange {{Jablon96}}, Password Authenticated 
-Key exchange {{BMP00}}, and Boneh-Lynn-Shacham signatures {{BLS01}}. 
+Key Exchange {{BMP00}}, and Boneh-Lynn-Shacham signatures {{BLS01}}. 
 
 Let E be an elliptic curve over base field GF(p). In practice, efficient
 (polynomial-time) functions that hash arbitrary input to E can be constructed
@@ -130,22 +174,8 @@ was described by Burns et al. {{ECOPRF}}. This function works by hashing
 input m using a standard hash function, e.g., SHA256, and then checking to see 
 if the resulting point E(m, f(m)), for curve function f, belongs on E.
 This algorithm is expected to find a valid curve point after approximately two 
-attempts, i.e., when ctr=1, on average. 
-
-~~~
-1. ctr = 0
-3. h = "INVALID"
-4. While h is "INVALID" or h is EC point at infinity:
-   A.  CTR = I2OSP(ctr, 4)
-   B.  ctr = ctr + 1
-   C.  attempted_hash = Hash(m || CTR)
-   D.  h = RS2ECP(attempted_hash)
-   E.  If h is not "INVALID" and cofactor > 1, set h = h^cofactor
-5. Output h
-~~~
-
-Since the running time of algorithm depends on m, this algorithm is
-not safe for cases sensitive to timing side channel attacks. 
+attempts, i.e., when ctr=1, on average. Since the running time of algorithm depends on m, 
+this algorithm is NOT safe for cases sensitive to timing side channel attacks. 
 Deterministic algorithms are needed in such cases where failures 
 are undesirable. Shallue and Woestijne ((TODO:cite)) first introduced a deterministic 
 algorithm that maps elements in F_{q} to an EC in time O(log^4 q), where q = p^n for 
@@ -177,6 +207,18 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
 document are to be interpreted as described in {{RFC2119}}.
 
+# Algorithm Recommendations
+
+The following table lists recommended algorithms to use for specific curves. 
+
+| Curve | Algorithm | 
+| P-256 | SWU {{swu}} |
+| P-384 | Icart {{icart}} |
+| Curve25519 | Elligator2 {{elligator2}} |
+| Curve25519 | Elligator2 {{elligator2}} |
+
+((TODO: should we have a table that summarizes requirements for each algorithm?))
+
 # Interfaces
 
 The generic interface for hashing to elliptic curves is as follows:
@@ -185,25 +227,21 @@ The generic interface for hashing to elliptic curves is as follows:
 hash_to_curve(alpha)
 ~~~
 
-where alpha is a message to hash onto a curve. It is often useful to include
-an additional point on the curve to bind with this computation. This variant
-of "binding" hash has the following interface:
-
-~~~
-hash_to_curve_and_bind(alpha, beta)
-~~~
-
-where alpha is a message to hash onto a curve and beta is an additional
-point on the curve.
+where alpha is a message to hash onto a curve. 
 
 # Utility Functions
 
 Algorithms in this document make use of utility functions described below.
 
-- HashToBase(x): H(x)[0:log2(p) + 1], where H is a cryptographic 
-hash function, such as SHA256, and p is the prime order of the 
-implicit base field Fp.
+- HashToBase(x): H(x)[0:log2(p) + 1], i.e., hash-truncate-reduce, where 
+H is a cryptographic hash function, such as SHA256, and p is the prime order 
+of base field Fp.
 - CMOV(a, b, c): If c = 1, return a, else return b.
+
+Note: We assume that HashToBase maps its input to the base field uniformly. In practice,
+there may be inherent biases in p. 
+
+((TODO: more should be said about this))
 
 # Hashing Variants
 
@@ -241,8 +279,6 @@ Input:
 
   alpha - value to be hashed, an octet string
 
-  A, B - Weierstrass form constants for E
-
 Output:
 
   (x, y) - a point in E
@@ -274,13 +310,73 @@ Steps:
 
 ~~~
 
+## Shallue-Woestijne-Ulas Method {#swu}
+
+The following hash_to_curve_swu(alpha) implements the simple
+Shallue-Woestijne-Ulas algorithm from {{SWU}}. This algorithm
+works for any curve over F_{p^n}, where p = 3 mod 4, including:
+
+- P256
+- ...
+
+Given curve equation g(x) = x^3 + Ax + B, this algorithm works as follows:
+
+~~~
+1. t = HashToBase(alpha)
+2. alpha = (−b􏰈 / a) * (1 + (1 / (t^4 + t^2))) 
+3. beta = −t^2 * alpha
+4. z = t^3 * g(alpha)
+5. Output (−g * alpha􏰂) * (g􏰁 * beta)
+~~~
+
+The following procedure implements this algorithm.
+
+~~~
+hash_to_curve_swu(alpha)
+
+Input:
+
+  alpha - value to be hashed, an octet string
+
+Output:
+
+  (x, y) - a point in E
+
+Steps:
+
+1.     t = HashToBase(alpha)
+2. alpha = t^2 (mod p)
+3. alpha = alpha * -1 (mod p)
+4. right = alpha^2 + alpha (mod p)
+5. right = right^(-1) (mod p)
+6. right = right + 1 (mod p)
+7. left  = B * -1 (mod p)
+8. left  = left / A (mod p) 
+9.    x2 = left * right (mod p)
+10.   x3 = alpha * x2 (mod p)
+11.   h2 = x2 ^ 3 (mod p)
+12.   i2 = x2 * A (mod p)
+13.   i2 = i2 + B (mod p)
+14.   h2 = h2 + i2 (mod p)
+15.   h3 = x3 ^ 3 (mod p)
+16.   i3 = x3 * A (mod p)
+17.   i3 = i3 + B (mod p)
+18.   h3 = h3 + i3 (mod p)
+19.    e = h2^((p - 1) / 2) (mod p)
+20.    x = CMOV(x2, x3, e)    // If e = 1, choose x2, else choose x3
+21.   y1 = h2^((p + 1) // 4) (mod p)
+22.   y2 = h3^((p + 1) // 4) (mod p)
+23.   y  = CMOV(y1, y2, e)   // If e = 1, choose y1, else choose y2
+24. Output (x, y)
+~~~
+
 ## Elligator2 Method {#elligator2}
 
-The following hash_to_curve_elligator2(alpha) algorithm implements
+The following hash_to_curve_elligator2(alpha) implements
 another constant-time variant of hash_to_curve(alpha). This algorithm
 works for any curve (over large characteristic field). The method is 
 simple to implement. Below, let f(x) = y^2 = x(x^2 + Ax + B), i.e., a
-Weierstrass form with the point of order 2 at (0,0). Any curve with a 
+Montgomery form with the point of order 2 at (0,0). Any curve with a 
 point of order 2 is isomorphic to this representation.
 
 ~~~
@@ -320,7 +416,6 @@ Output:
 Steps:
 
 1.  r  = HashToBase(alpha)
-
 2.  r  = r^2 (mod p) 
 3. nu  = r * u (mod p)
 4.  r  = nu
@@ -328,14 +423,12 @@ Steps:
 6.  r  = r^(-1) (mod p) 
 7.  v  = A * r (mod p) 
 8.  v  = v * -1 (mod p)   // -A / (1 + ur^2)
-
 9.  v2 = v^2 (mod p)
 10.  v3 = v * v2 (mod p)
 11.  e = v3 * v (mod p)
 12. v2 = v2 * A (mod p)
 13.  e = v2 * e (mod p)
 14.  e = e^((p - 1) / 2)  // Legendre symbol
-
 15. nv = v * -1
 16.  v = CMOV(v, nv, e)   // If e = 1, choose v, else choose nv
 17. v2 = CMOV(0, A, e)    // If e = 1, choose 0, else choose A
@@ -343,13 +436,25 @@ Steps:
 19. Output (u, f(u))
 ~~~
 
-Elligator2 can be simplified with projective coordinates. ((TODO: write that up.))
+Elligator2 can be simplified with projective coordinates. ((TODO: should we write this variant?))
+
+# Cost Comparison
+
+The following table summarizes the cost of each hash_to_curve variant. We express this cost in 
+terms of additions (A), multiplications (M), squares (SQ), and square roots (SR). 
+
+((TODO: finish me))
+
+| Algorithm | Cost (Operations) | 
+| hash_to_curve_icart | ? |
+| hash_to_curve_swu | ? |
+| hash_to_curve_elligator2 | ? |
 
 # Security Considerations
 
 Each hash function variant accepts arbitrary input and maps it to a pseudorandom
 point on the curve. Points will be indistinguishable from randomly chosen elements on
-the curve. (?)
+the curve.
 
 # Acknowledgements
 
@@ -358,9 +463,11 @@ Curve25519 ((TODO:CITE)).
 
 --- back
 
-# Sage Sample Code
+# Sample Code
 
 ## Icart Method
+
+The following Sage program implements hash_to_curve_icart(alpha) for P-384.
 
 ~~~
 # P384
@@ -370,7 +477,8 @@ A = p - 3
 B = 0xb3312fa7e23ee7e4988e056be3f82d19181d9c6efe8141120314088f5013875ac656398d8a2ed19d2a85c8edd3ec2aef
 q = 39402006196394479212279040100143613805079739270465446667946905279627659399113263569398956308152294913554433653942643
 E = EllipticCurve([F(A), F(B)])
-g = E(0xaa87ca22be8b05378eb1c71ef320ad746e1d3b628ba79b9859f741e082542a385502f25dbf55296c3a545e3872760ab7, 0x3617de4a96262c6f5d9e98bf9292dc29f8f41dbd289a147ce9da3113b5f0b8c00a60b1ce1d7e819d7a431d7c90ea0e5f)
+g = E(0xaa87ca22be8b05378eb1c71ef320ad746e1d3b628ba79b9859f741e082542a385502f25dbf55296c3a545e3872760ab7, \
+    0x3617de4a96262c6f5d9e98bf9292dc29f8f41dbd289a147ce9da3113b5f0b8c00a60b1ce1d7e819d7a431d7c90ea0e5f)
 E.set_order(q)
 
 def icart(u):
@@ -378,9 +486,9 @@ def icart(u):
   v = (3*A - u^4)//(6*u)
   x = (v^2 - B - u^6/27)^((2*p-1)//3) + u^2/3
   y = u*x + v
-  return E(x, y) # raises expection if not on curve
+  return E(x, y) 
 
-def icart_slp(u):
+def icart_straight(u):
     u = F(u)
     u2 = u ^ 2
     t2 = u2 ^ 2
@@ -408,7 +516,6 @@ def icart_slp(u):
     assert t1 == ((2*p) - 1) / 3
 
     x = x ^ t1
-    assert x == ((v^2 - B - u^6/27)^((2*p-1)//3))
     
     t2 = u2 / 3
     x = x + t2
@@ -417,9 +524,81 @@ def icart_slp(u):
     return E(x, y)
 ~~~
 
-## Elligator2 Methods
+## Shallue-Woestijne-Ulas Method
 
+The following Sage program implements hash_to_curve_swu(alpha) for P-256.
 
+~~~
+# P256
+p = 115792089210356248762697446949407573530086143415290314195533631308867097853951
+F = GF(p)
+A = F(p - 3)
+B = F(ZZ("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16))
+E = EllipticCurve([A, B])
+
+def simple_swu(alpha):
+    t = F(alpha)
+    
+    alpha = -(t^2)
+    frac = (1 / (alpha^2 + alpha))
+    x2 = (-B / A) * (1 + frac)
+    
+    x3 = alpha * x2
+    h2 = x2^3 + A * x2 + B
+    h3 = x3^3 + A * x3 + B
+
+    if is_square(h2):
+        return E(x2, h2^((p + 1) // 4))
+    else:
+        return E(x3, h3^((p + 1) // 4))
+
+def simple_swu_straight(alpha):
+    t = F(alpha)
+    
+    alpha = t^2
+    alpha = alpha * -1
+    
+    right = alpha^2 + alpha
+    right = right^(-1)
+    right = right + 1
+
+    left = B * -1
+    left = left / A
+
+    x2 = left * right
+    x3 = alpha * x2
+
+    h2 = x2 ^ 3
+    i2 = x2 * A
+    i2 = i2 + B
+    h2 = h2 + i2
+
+    h3 = x3 ^ 3
+    i3 = x3 * A
+    i3 = i3 + B
+    h3 = h3 + i3
+
+    # Compute the Legendre symbol: is it square?
+    e = h2^((p - 1) / 2)
+
+    x = x2
+    if e != 1:
+        x = x3
+
+    y1 = h2^((p + 1) // 4)
+    y2 = h3^((p + 1) // 4)
+    y = y1
+    if e != 1:
+        y = y2
+
+    return E(x, y)
+~~~
+
+## Elligator2 Method
+
+The following Sage program implements hash_to_curve_elligator2(alpha) for Curve25519.
+
+~~~
 # Curve25519
 p = 2**255 - 19
 F = GF(p)
@@ -450,7 +629,7 @@ def elligator2(alpha):
     
     return (x, curve25519(x))
 
-def elligator2_legendre_ct(alpha):
+def elligator2_straight(alpha):
     r = F(alpha)
 
     r = r^2
@@ -469,7 +648,7 @@ def elligator2_legendre_ct(alpha):
     # Legendre symbol -- is it a point on the curve?
     e = e^((p - 1) / 2)
 
-    # TODO: make these conditional moves
+    # TODO: these must be CMOVs
     nv = v * -1
     if e != 1:
         v = nv
@@ -480,3 +659,4 @@ def elligator2_legendre_ct(alpha):
     u = v - v2
     
     return (u, curve25519(u))
+~~~
