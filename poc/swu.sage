@@ -1,27 +1,29 @@
 # P256
-p = 2^256 - 2^224 + 2^192 + 2^96 - 1 
+p = 115792089210356248762697446949407573530086143415290314195533631308867097853951
 F = GF(p)
-A = 3
-B = 41058363725152142129326129780047268409114441015993725554835256314039467401291
-E = EllipticCurve(F, [0, A, 0, B, 0])
+A = p - 3
+B = ZZ("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16)
+E = EllipticCurve([F(A), F(B)])
 
+# Section 7 of https://link.springer.com/content/pdf/10.1007/978-3-642-14623-7_13.pdf
 def simple_swu(alpha):
     t = F(alpha)
-    a = A
-    b = B
+
+    a = F(A)
+    b = F(B)
     
-    alpha = -t^2
-    x2 = -b / a * (1 + 1 / (alpha^2 + alpha))
+    alpha = -(t^2)
+    frac = (1 / (alpha^2 + alpha))
+    x2 = (-b / a) * (1 + frac)
+    
     x3 = alpha * x2
     h2 = x2^3 + a * x2 + b
     h3 = x3^3 + a * x3 + b
     if is_square(h2):
-        return (x2,h2^((p+1)//4))
+        return E(x2, h2^((p + 1) // 4))
     else:
-        return (x3,h3^((p+1)//4))
+        return E(x3, h3^((p + 1) // 4))
 
-inputs = [1, 7, 13, 1<<7, 1<<8, 1<<64, 1<<64-1, p-1, p+1]
-tts = [(u, icart(u), icart_slp(u)) for u in inputs]
-
-for pair in tts:
-    assert pair[1] == pair[2]
+inputs = [7, 13, 1<<7, 1<<8, 1<<64, 1<<64-1]
+for t in inputs:
+    point = simple_swu(t)
