@@ -302,7 +302,7 @@ address {
 
   <meta name="dct.creator" content="Goldberg, S., Sullivan, N., and C. Wood" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-goldberg-hash-to-curve-latest" />
-  <meta name="dct.issued" scheme="ISO8601" content="2018-2-07" />
+  <meta name="dct.issued" scheme="ISO8601" content="2018-2-10" />
   <meta name="dct.abstract" content="This document specifies three algorithms that may be used to hash arbitrary strings to Elliptic Curves." />
   <meta name="description" content="This document specifies three algorithms that may be used to hash arbitrary strings to Elliptic Curves." />
 
@@ -326,7 +326,7 @@ address {
   <td class="right">N. Sullivan</td>
 </tr>
 <tr>
-  <td class="left">Expires: August 11, 2018</td>
+  <td class="left">Expires: August 14, 2018</td>
   <td class="right">Cloudflare</td>
 </tr>
 <tr>
@@ -339,7 +339,7 @@ address {
 </tr>
 <tr>
   <td class="left"></td>
-  <td class="right">February 07, 2018</td>
+  <td class="right">February 10, 2018</td>
 </tr>
 
     	
@@ -359,7 +359,7 @@ address {
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on August 11, 2018.</p>
+<p>This Internet-Draft will expire on August 14, 2018.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -522,10 +522,10 @@ Steps:
 <p id="rfc.section.5.2.p.3">Given curve equation g(x) = x^3 + Ax + B, this algorithm works as follows:</p>
 <pre>
 1. t = HashToBase(alpha)
-2. alpha = (&#8722;b&#1113096; / a) * (1 + (1 / (t^4 + t^2))) 
+2. alpha = (-b / a) * (1 + (1 / (t^4 + t^2))) 
 3. beta = &#8722;t^2 * alpha
 4. z = t^3 * g(alpha)
-5. Output (&#8722;g * alpha&#1113090;) * (g&#1113089; * beta)
+5. Output (&#8722;g * alpha) * (g * beta)
 </pre>
 <p id="rfc.section.5.2.p.4">The following procedure implements this algorithm.</p>
 <pre>

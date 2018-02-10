@@ -323,10 +323,10 @@ Given curve equation g(x) = x^3 + Ax + B, this algorithm works as follows:
 
 ~~~
 1. t = HashToBase(alpha)
-2. alpha = (−b􏰈 / a) * (1 + (1 / (t^4 + t^2))) 
+2. alpha = (-b / a) * (1 + (1 / (t^4 + t^2))) 
 3. beta = −t^2 * alpha
 4. z = t^3 * g(alpha)
-5. Output (−g * alpha􏰂) * (g􏰁 * beta)
+5. Output (−g * alpha) * (g * beta)
 ~~~
 
 The following procedure implements this algorithm.

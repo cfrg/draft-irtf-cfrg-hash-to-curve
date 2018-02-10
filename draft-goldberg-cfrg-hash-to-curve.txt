@@ -5,10 +5,10 @@
 Network Working Group                                        S. Goldberg
 Internet-Draft                                         Boston University
 Intended status: Informational                               N. Sullivan
-Expires: August 11, 2018                                      Cloudflare
+Expires: August 14, 2018                                      Cloudflare
                                                                  C. Wood
                                                               Apple Inc.
-                                                       February 07, 2018
+                                                       February 10, 2018
 
 
                        Hashing to Elliptic Curves
@@ -34,7 +34,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on August 11, 2018.
+   This Internet-Draft will expire on August 14, 2018.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Goldberg, et al.         Expires August 11, 2018                [Page 1]
+Goldberg, et al.         Expires August 14, 2018                [Page 1]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Goldberg, et al.         Expires August 11, 2018                [Page 2]
+Goldberg, et al.         Expires August 14, 2018                [Page 2]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -165,7 +165,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 11, 2018                [Page 3]
+Goldberg, et al.         Expires August 14, 2018                [Page 3]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -221,7 +221,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 11, 2018                [Page 4]
+Goldberg, et al.         Expires August 14, 2018                [Page 4]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -277,7 +277,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 11, 2018                [Page 5]
+Goldberg, et al.         Expires August 14, 2018                [Page 5]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -333,16 +333,16 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 11, 2018                [Page 6]
+Goldberg, et al.         Expires August 14, 2018                [Page 6]
 
 Internet-Draft                hash-to-curve                February 2018
 
 
    1. t = HashToBase(alpha)
-   2. alpha = (-b&#56319;&#56328; / a) * (1 + (1 / (t^4 + t^2)))
+   2. alpha = (-b / a) * (1 + (1 / (t^4 + t^2)))
    3. beta = -t^2 * alpha
    4. z = t^3 * g(alpha)
-   5. Output (-g * alpha&#56319;&#56322;) * (g&#56319;&#56321; * beta)
+   5. Output (-g * alpha) * (g * beta)
 
    The following procedure implements this algorithm.
 
@@ -389,7 +389,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 11, 2018                [Page 7]
+Goldberg, et al.         Expires August 14, 2018                [Page 7]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -445,7 +445,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 11, 2018                [Page 8]
+Goldberg, et al.         Expires August 14, 2018                [Page 8]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -501,7 +501,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 11, 2018                [Page 9]
+Goldberg, et al.         Expires August 14, 2018                [Page 9]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -557,7 +557,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 11, 2018               [Page 10]
+Goldberg, et al.         Expires August 14, 2018               [Page 10]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -613,7 +613,7 @@ def icart(u):
 
 
 
-Goldberg, et al.         Expires August 11, 2018               [Page 11]
+Goldberg, et al.         Expires August 14, 2018               [Page 11]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -669,7 +669,7 @@ E = EllipticCurve([A, B])
 
 
 
-Goldberg, et al.         Expires August 11, 2018               [Page 12]
+Goldberg, et al.         Expires August 14, 2018               [Page 12]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -725,7 +725,7 @@ def simple_swu_straight(alpha):
 
 
 
-Goldberg, et al.         Expires August 11, 2018               [Page 13]
+Goldberg, et al.         Expires August 14, 2018               [Page 13]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -781,7 +781,7 @@ A.3.  Elligator2 Method
 
 
 
-Goldberg, et al.         Expires August 11, 2018               [Page 14]
+Goldberg, et al.         Expires August 14, 2018               [Page 14]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -837,7 +837,7 @@ Authors' Addresses
 
 
 
-Goldberg, et al.         Expires August 11, 2018               [Page 15]
+Goldberg, et al.         Expires August 14, 2018               [Page 15]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -893,4 +893,4 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 11, 2018               [Page 16]
+Goldberg, et al.         Expires August 14, 2018               [Page 16]
