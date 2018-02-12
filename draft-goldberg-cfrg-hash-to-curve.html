@@ -302,7 +302,7 @@ address {
 
   <meta name="dct.creator" content="Goldberg, S., Sullivan, N., and C. Wood" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-goldberg-hash-to-curve-latest" />
-  <meta name="dct.issued" scheme="ISO8601" content="2018-2-10" />
+  <meta name="dct.issued" scheme="ISO8601" content="2018-2-11" />
   <meta name="dct.abstract" content="This document specifies three algorithms that may be used to hash arbitrary strings to Elliptic Curves." />
   <meta name="description" content="This document specifies three algorithms that may be used to hash arbitrary strings to Elliptic Curves." />
 
@@ -326,7 +326,7 @@ address {
   <td class="right">N. Sullivan</td>
 </tr>
 <tr>
-  <td class="left">Expires: August 14, 2018</td>
+  <td class="left">Expires: August 15, 2018</td>
   <td class="right">Cloudflare</td>
 </tr>
 <tr>
@@ -339,7 +339,7 @@ address {
 </tr>
 <tr>
   <td class="left"></td>
-  <td class="right">February 10, 2018</td>
+  <td class="right">February 11, 2018</td>
 </tr>
 
     	
@@ -359,7 +359,7 @@ address {
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on August 14, 2018.</p>
+<p>This Internet-Draft will expire on August 15, 2018.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -457,7 +457,7 @@ hash_to_curve(alpha)
 <p id="rfc.section.4.p.4">((TODO: more should be said about this))</p>
 <h1 id="rfc.section.5"><a href="#rfc.section.5">5.</a> <a href="#hashing-variants" id="hashing-variants">Hashing Variants</a></h1>
 <h1 id="rfc.section.5.1"><a href="#rfc.section.5.1">5.1.</a> <a href="#icart" id="icart">Icart Method</a></h1>
-<p id="rfc.section.5.1.p.1">The following hash_to_curve_icart(alpha) algorithm implements a constant-time variant of hash_to_curve(alpha, x). This algorithm works for any curve over F_{p^n}, where p = 2 mod 3, including:</p>
+<p id="rfc.section.5.1.p.1">The following hash_to_curve_icart(alpha) algorithm implements a constant-time variant of hash_to_curve(alpha, x). This algorithm works for any curve over F_{p^n}, where p^n = 2 mod 3 (or p = 2 mod 3 and for odd n), including:</p>
 <p/>
 
 <ul>
@@ -559,11 +559,11 @@ Steps:
 16.   i3 = x3 * A (mod p)
 17.   i3 = i3 + B (mod p)
 18.   h3 = h3 + i3 (mod p)
-19.    e = h2^((p - 1) / 2) (mod p)
-20.    x = CMOV(x2, x3, e)    // If e = 1, choose x2, else choose x3
-21.   y1 = h2^((p + 1) // 4) (mod p)
-22.   y2 = h3^((p + 1) // 4) (mod p)
-23.   y  = CMOV(y1, y2, e)   // If e = 1, choose y1, else choose y2
+19.   y1 = h2 ^ ((p + 1) // 4) (mod p)
+20.   y2 = h3 ^ ((p + 1) // 4) (mod p)
+21.    e = (y1 ^ 2 == h2)
+22.    x = CMOV(x2, x3, e)    // If e = 1, choose x2, else choose x3
+23.    y = CMOV(y1, y2, e)    // If e = 1, choose y1, else choose y2
 24. Output (x, y)
 </pre>
 <h1 id="rfc.section.5.3"><a href="#rfc.section.5.3">5.3.</a> <a href="#elligator2" id="elligator2">Elligator2 Method</a></h1>
@@ -573,8 +573,15 @@ Steps:
 2. If f(-A/(1+ur^2)) is square, then output f(-A/(1+ur^2))^(1/2)
 3. Else, output f(-Aur^2/(1+ur^2))^(1/2)
 </pre>
-<p id="rfc.section.5.3.p.2">Another way to express this algorithm is as follows: ~~~ 1. r = HashToBase(alpha) 2. d = -A / (1 + ur^2) 3. e = f(d)^((p-1)/2) 4. u = ed - (1 - e)A/u ~~~ Here, e is the Legendre symbol of y = (d^3 + Ad^2 + d), which will be 1 if y is a quadratic ressidue (square) mod p, and -1 otherwise.  (Note that raising y to ((p -1) / 2) is a common way to compute the Legendre symbol.)</p>
-<p id="rfc.section.5.3.p.3">The following procedure implements this algorithm.</p>
+<p id="rfc.section.5.3.p.2">Another way to express this algorithm is as follows:</p>
+<pre>
+1. r = HashToBase(alpha)
+2. d = -A / (1 + ur^2)
+3. e = f(d)^((p-1)/2)
+4. u = ed - (1 - e)A/u
+</pre>
+<p id="rfc.section.5.3.p.3">Here, e is the Legendre symbol of y = (d^3 + Ad^2 + d), which will be 1 if y is a quadratic residue (square) mod p, and -1 otherwise.  (Note that raising y to ((p -1) / 2) is a common way to compute the Legendre symbol.)</p>
+<p id="rfc.section.5.3.p.4">The following procedure implements this algorithm.</p>
 <pre>
 hash_to_curve_elligator2(alpha)
 
@@ -611,7 +618,7 @@ Steps:
 18.  u = v - v2 (mod p)
 19. Output (u, f(u))
 </pre>
-<p id="rfc.section.5.3.p.4">Elligator2 can be simplified with projective coordinates. ((TODO: should we write this variant?))</p>
+<p id="rfc.section.5.3.p.5">Elligator2 can be simplified with projective coordinates. ((TODO: should we write this variant?))</p>
 <h1 id="rfc.section.6"><a href="#rfc.section.6">6.</a> <a href="#cost-comparison" id="cost-comparison">Cost Comparison</a></h1>
 <p id="rfc.section.6.p.1">The following table summarizes the cost of each hash_to_curve variant. We express this cost in terms of additions (A), multiplications (M), squares (SQ), and square roots (SR).</p>
 <p id="rfc.section.6.p.2">((TODO: finish me))</p>
@@ -640,7 +647,7 @@ Steps:
 <h1 id="rfc.section.7"><a href="#rfc.section.7">7.</a> <a href="#security-considerations" id="security-considerations">Security Considerations</a></h1>
 <p id="rfc.section.7.p.1">Each hash function variant accepts arbitrary input and maps it to a pseudorandom point on the curve. Points will be indistinguishable from randomly chosen elements on the curve.</p>
 <h1 id="rfc.section.8"><a href="#rfc.section.8">8.</a> <a href="#acknowledgements" id="acknowledgements">Acknowledgements</a></h1>
-<p id="rfc.section.8.p.1">The authors would like to thank Adam Langley for this detailed writeup up Elligator2 with Curve25519 ((TODO:CITE)).</p>
+<p id="rfc.section.8.p.1">The authors would like to thank Adam Langley for this detailed writeup up Elligator2 with Curve25519 <a href="#ElligatorAGL">[ElligatorAGL]</a>. We also thank Sean Devlin for feedback on earlier versions of this document.</p>
 <h1 id="rfc.references"><a href="#rfc.references">9.</a> Normative References</h1>
 <table>
   <tbody>
@@ -648,6 +655,7 @@ Steps:
     <tr><td class="reference"><b id="BMP00">[BMP00]</b></td><td class="top"><a>Provably secure password-authenticated key exchange using diffie-hellman</a>", n.d..</td>, "</tr>
     <tr><td class="reference"><b id="ECOPRF">[ECOPRF]</b></td><td class="top"><a>EC-OPRF - Oblivious Pseudorandom Functions using Elliptic Curves</a>", n.d..</td>, "</tr>
     <tr><td class="reference"><b id="Elligator2">[Elligator2]</b></td><td class="top"><a>Elligator -- Elliptic-curve points indistinguishable from uniform random strings</a>", n.d..</td>, "</tr>
+    <tr><td class="reference"><b id="ElligatorAGL">[ElligatorAGL]</b></td><td class="top"><a href="https://www.imperialviolet.org/2013/12/25/elligator.html">Implementing Elligator for Curve25519</a>", n.d..</td>, "</tr>
     <tr><td class="reference"><b id="Icart09">[Icart09]</b></td><td class="top"><a href="https://eprint.iacr.org/2009/226.pdf">How to Hash into Elliptic Curves</a>", n.d..</td>, "</tr>
     <tr><td class="reference"><b id="Jablon96">[Jablon96]</b></td><td class="top"><a>Strong password-only authenticated key exchange</a>", n.d..</td>, "</tr>
     <tr>
@@ -793,15 +801,16 @@ def simple_swu_straight(alpha):
     i3 = i3 + B
     h3 = h3 + i3
 
-    # Compute the Legendre symbol: is it square?
-    e = h2^((p - 1) / 2)
+    y1 = h2^((p + 1) // 4)
+    y2 = h3^((p + 1) // 4)
+
+    # Is it square?
+    e = y1^2 == h2
 
     x = x2
     if e != 1:
         x = x3
-
-    y1 = h2^((p + 1) // 4)
-    y2 = h3^((p + 1) // 4)
+    
     y = y1
     if e != 1:
         y = y2
@@ -857,13 +866,13 @@ def elligator2_straight(alpha):
     v2 = v2 * A
     e = v2 + e
 
-    # Legendre symbol -- is it a point on the curve?
+    # Legendre symbol
     e = e^((p - 1) / 2)
 
-    # TODO: these must be CMOVs
     nv = v * -1
     if e != 1:
         v = nv
+
     v2 = 0
     if e != 1:
         v2 = A

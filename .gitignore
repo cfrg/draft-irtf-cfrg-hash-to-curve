@@ -1,5 +1,3 @@
 .refcache
 .targets.mk
 lib/
-*.html
-*.txt

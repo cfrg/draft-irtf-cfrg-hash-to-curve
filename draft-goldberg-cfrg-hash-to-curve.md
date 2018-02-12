@@ -90,6 +90,12 @@ normative:
       -
         ins: David P. Jablon
         org: Integrity Sciences, Inc. Westboro, MA.
+  ElligatorAGL:
+    title: Implementing Elligator for Curve25519
+    target: https://www.imperialviolet.org/2013/12/25/elligator.html
+    authors:
+      -
+        ins: Adam Langley
   ECOPRF:
     title: EC-OPRF - Oblivious Pseudorandom Functions using Elliptic Curves
     authors:
@@ -462,7 +468,8 @@ the curve.
 # Acknowledgements
 
 The authors would like to thank Adam Langley for this detailed writeup up Elligator2 with
-Curve25519 ((TODO:CITE)).
+Curve25519 {{ElligatorAGL}}. We also thank Sean Devlin for feedback on earlier versions of
+this document.
 
 --- back
 
@@ -649,13 +656,13 @@ def elligator2_straight(alpha):
     v2 = v2 * A
     e = v2 + e
 
-    # Legendre symbol -- is it a point on the curve?
+    # Legendre symbol
     e = e^((p - 1) / 2)
 
-    # TODO: these must be CMOVs
     nv = v * -1
     if e != 1:
         v = nv
+
     v2 = 0
     if e != 1:
         v2 = A

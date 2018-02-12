@@ -5,10 +5,10 @@
 Network Working Group                                        S. Goldberg
 Internet-Draft                                         Boston University
 Intended status: Informational                               N. Sullivan
-Expires: August 14, 2018                                      Cloudflare
+Expires: August 15, 2018                                      Cloudflare
                                                                  C. Wood
                                                               Apple Inc.
-                                                       February 10, 2018
+                                                       February 11, 2018
 
 
                        Hashing to Elliptic Curves
@@ -34,7 +34,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on August 14, 2018.
+   This Internet-Draft will expire on August 15, 2018.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Goldberg, et al.         Expires August 14, 2018                [Page 1]
+Goldberg, et al.         Expires August 15, 2018                [Page 1]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Goldberg, et al.         Expires August 14, 2018                [Page 2]
+Goldberg, et al.         Expires August 15, 2018                [Page 2]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -165,7 +165,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 14, 2018                [Page 3]
+Goldberg, et al.         Expires August 15, 2018                [Page 3]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -215,16 +215,18 @@ Internet-Draft                hash-to-curve                February 2018
 
    The following hash_to_curve_icart(alpha) algorithm implements a
    constant-time variant of hash_to_curve(alpha, x).  This algorithm
-   works for any curve over F_{p^n}, where p = 2 mod 3, including:
-
-   o  P384
-
+   works for any curve over F_{p^n}, where p^n = 2 mod 3 (or p = 2 mod 3
+   and for odd n), including:
 
 
-Goldberg, et al.         Expires August 14, 2018                [Page 4]
+
+
+Goldberg, et al.         Expires August 15, 2018                [Page 4]
 
 Internet-Draft                hash-to-curve                February 2018
 
+
+   o  P384
 
    o  Curve1174
 
@@ -275,9 +277,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-
-
-Goldberg, et al.         Expires August 14, 2018                [Page 5]
+Goldberg, et al.         Expires August 15, 2018                [Page 5]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -333,7 +333,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 14, 2018                [Page 6]
+Goldberg, et al.         Expires August 15, 2018                [Page 6]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -376,11 +376,11 @@ Internet-Draft                hash-to-curve                February 2018
    16.   i3 = x3 * A (mod p)
    17.   i3 = i3 + B (mod p)
    18.   h3 = h3 + i3 (mod p)
-   19.    e = h2^((p - 1) / 2) (mod p)
-   20.    x = CMOV(x2, x3, e)    // If e = 1, choose x2, else choose x3
-   21.   y1 = h2^((p + 1) // 4) (mod p)
-   22.   y2 = h3^((p + 1) // 4) (mod p)
-   23.   y  = CMOV(y1, y2, e)   // If e = 1, choose y1, else choose y2
+   19.   y1 = h2 ^ ((p + 1) // 4) (mod p)
+   20.   y2 = h3 ^ ((p + 1) // 4) (mod p)
+   21.    e = (y1 ^ 2 == h2)
+   22.    x = CMOV(x2, x3, e)    // If e = 1, choose x2, else choose x3
+   23.    y = CMOV(y1, y2, e)    // If e = 1, choose y1, else choose y2
    24. Output (x, y)
 
 
@@ -389,7 +389,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 14, 2018                [Page 7]
+Goldberg, et al.         Expires August 15, 2018                [Page 7]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -407,12 +407,17 @@ Internet-Draft                hash-to-curve                February 2018
    2. If f(-A/(1+ur^2)) is square, then output f(-A/(1+ur^2))^(1/2)
    3. Else, output f(-Aur^2/(1+ur^2))^(1/2)
 
-   Another way to express this algorithm is as follows: ~~~ 1. r =
-   HashToBase(alpha) 2. d = -A / (1 + ur^2) 3. e = f(d)^((p-1)/2) 4. u =
-   ed - (1 - e)A/u ~~~ Here, e is the Legendre symbol of y = (d^3 + Ad^2
-   + d), which will be 1 if y is a quadratic ressidue (square) mod p,
-   and -1 otherwise.  (Note that raising y to ((p -1) / 2) is a common
-   way to compute the Legendre symbol.)
+   Another way to express this algorithm is as follows:
+
+   1. r = HashToBase(alpha)
+   2. d = -A / (1 + ur^2)
+   3. e = f(d)^((p-1)/2)
+   4. u = ed - (1 - e)A/u
+
+   Here, e is the Legendre symbol of y = (d^3 + Ad^2 + d), which will be
+   1 if y is a quadratic residue (square) mod p, and -1 otherwise.
+   (Note that raising y to ((p -1) / 2) is a common way to compute the
+   Legendre symbol.)
 
    The following procedure implements this algorithm.
 
@@ -440,12 +445,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-
-
-
-
-
-Goldberg, et al.         Expires August 14, 2018                [Page 8]
+Goldberg, et al.         Expires August 15, 2018                [Page 8]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -501,7 +501,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 14, 2018                [Page 9]
+Goldberg, et al.         Expires August 15, 2018                [Page 9]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -525,7 +525,8 @@ Internet-Draft                hash-to-curve                February 2018
 8.  Acknowledgements
 
    The authors would like to thank Adam Langley for this detailed
-   writeup up Elligator2 with Curve25519 ((TODO:CITE)).
+   writeup up Elligator2 with Curve25519 [ElligatorAGL].  We also thank
+   Sean Devlin for feedback on earlier versions of this document.
 
 9.  Normative References
 
@@ -542,25 +543,29 @@ Internet-Draft                hash-to-curve                February 2018
               "Elligator -- Elliptic-curve points indistinguishable from
               uniform random strings", n.d..
 
+   [ElligatorAGL]
+              "Implementing Elligator for Curve25519", n.d.,
+              <https://www.imperialviolet.org/2013/12/25/
+              elligator.html>.
+
    [Icart09]  "How to Hash into Elliptic Curves", n.d.,
               <https://eprint.iacr.org/2009/226.pdf>.
 
    [Jablon96]
               "Strong password-only authenticated key exchange", n.d..
 
+
+
+
+Goldberg, et al.         Expires August 15, 2018               [Page 10]
+
+Internet-Draft                hash-to-curve                February 2018
+
+
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
               editor.org/info/rfc2119>.
-
-
-
-
-
-Goldberg, et al.         Expires August 14, 2018               [Page 10]
-
-Internet-Draft                hash-to-curve                February 2018
-
 
    [RFC6605]  Hoffman, P. and W. Wijngaards, "Elliptic Curve Digital
               Signature Algorithm (DSA) for DNSSEC", RFC 6605,
@@ -605,19 +610,19 @@ g = E(0xaa87ca22be8b05378eb1c71ef320ad746e1d3b628ba79b9859f741e082542a385502f25d
     0x3617de4a96262c6f5d9e98bf9292dc29f8f41dbd289a147ce9da3113b5f0b8c00a60b1ce1d7e819d7a431d7c90ea0e5f)
 E.set_order(q)
 
+
+
+
+Goldberg, et al.         Expires August 15, 2018               [Page 11]
+
+Internet-Draft                hash-to-curve                February 2018
+
+
 def icart(u):
   u = F(u)
   v = (3*A - u^4)//(6*u)
   x = (v^2 - B - u^6/27)^((2*p-1)//3) + u^2/3
   y = u*x + v
-
-
-
-Goldberg, et al.         Expires August 14, 2018               [Page 11]
-
-Internet-Draft                hash-to-curve                February 2018
-
-
   return E(x, y)
 
 def icart_straight(u):
@@ -661,18 +666,19 @@ A.2.  Shallue-Woestijne-Ulas Method
    P-256.
 
 # P256
+
+
+
+Goldberg, et al.         Expires August 15, 2018               [Page 12]
+
+Internet-Draft                hash-to-curve                February 2018
+
+
 p = 115792089210356248762697446949407573530086143415290314195533631308867097853951
 F = GF(p)
 A = F(p - 3)
 B = F(ZZ("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16))
 E = EllipticCurve([A, B])
-
-
-
-Goldberg, et al.         Expires August 14, 2018               [Page 12]
-
-Internet-Draft                hash-to-curve                February 2018
-
 
 def simple_swu(alpha):
     t = F(alpha)
@@ -716,22 +722,24 @@ def simple_swu_straight(alpha):
     i3 = i3 + B
     h3 = h3 + i3
 
-    # Compute the Legendre symbol: is it square?
-    e = h2^((p - 1) / 2)
-
-    x = x2
-    if e != 1:
-        x = x3
 
 
 
-Goldberg, et al.         Expires August 14, 2018               [Page 13]
+Goldberg, et al.         Expires August 15, 2018               [Page 13]
 
 Internet-Draft                hash-to-curve                February 2018
 
 
     y1 = h2^((p + 1) // 4)
     y2 = h3^((p + 1) // 4)
+
+    # Is it square?
+    e = y1^2 == h2
+
+    x = x2
+    if e != 1:
+        x = x3
+
     y = y1
     if e != 1:
         y = y2
@@ -771,6 +779,13 @@ A.3.  Elligator2 Method
            x = (-A * u * r^2) / (1 + (u * r^2))
            y = curve25519(x).square_root()
 
+
+
+Goldberg, et al.         Expires August 15, 2018               [Page 14]
+
+Internet-Draft                hash-to-curve                February 2018
+
+
        return (x, curve25519(x))
 
    def elligator2_straight(alpha):
@@ -778,14 +793,6 @@ A.3.  Elligator2 Method
 
        r = r^2
        r = r * 2
-
-
-
-Goldberg, et al.         Expires August 14, 2018               [Page 14]
-
-Internet-Draft                hash-to-curve                February 2018
-
-
        r = r + 1
        r = r^(-1)
        v = A * r
@@ -797,13 +804,13 @@ Internet-Draft                hash-to-curve                February 2018
        v2 = v2 * A
        e = v2 + e
 
-       # Legendre symbol -- is it a point on the curve?
+       # Legendre symbol
        e = e^((p - 1) / 2)
 
-       # TODO: these must be CMOVs
        nv = v * -1
        if e != 1:
            v = nv
+
        v2 = 0
        if e != 1:
            v2 = A
@@ -823,6 +830,18 @@ Authors' Addresses
    Email: goldbe@cs.bu.edu
 
 
+
+
+
+
+
+
+
+Goldberg, et al.         Expires August 15, 2018               [Page 15]
+
+Internet-Draft                hash-to-curve                February 2018
+
+
    Nick Sullivan
    Cloudflare
    101 Townsend St
@@ -830,16 +849,6 @@ Authors' Addresses
    United States of America
 
    Email: nick@cloudflare.com
-
-
-
-
-
-
-
-Goldberg, et al.         Expires August 14, 2018               [Page 15]
-
-Internet-Draft                hash-to-curve                February 2018
 
 
    Christopher A. Wood
@@ -884,13 +893,4 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-
-
-
-
-
-
-
-
-
-Goldberg, et al.         Expires August 14, 2018               [Page 16]
+Goldberg, et al.         Expires August 15, 2018               [Page 16]
