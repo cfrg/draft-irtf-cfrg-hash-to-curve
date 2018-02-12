@@ -249,7 +249,8 @@ there may be inherent biases in p.
 
 The following hash_to_curve_icart(alpha) algorithm implements
 a constant-time variant of hash_to_curve(alpha, x). This algorithm
-works for any curve over F_{p^n}, where p = 2 mod 3, including:
+works for any curve over F_{p^n}, where p^n = 2 mod 3 
+(or p = 2 mod 3 and for odd n), including:
 
 - P384
 - Curve1174
@@ -362,11 +363,11 @@ Steps:
 16.   i3 = x3 * A (mod p)
 17.   i3 = i3 + B (mod p)
 18.   h3 = h3 + i3 (mod p)
-19.    e = h2^((p - 1) / 2) (mod p)
-20.    x = CMOV(x2, x3, e)    // If e = 1, choose x2, else choose x3
-21.   y1 = h2^((p + 1) // 4) (mod p)
-22.   y2 = h3^((p + 1) // 4) (mod p)
-23.   y  = CMOV(y1, y2, e)   // If e = 1, choose y1, else choose y2
+19.   y1 = h2 ^ ((p + 1) // 4) (mod p)
+20.   y2 = h3 ^ ((p + 1) // 4) (mod p)
+21.    e = (y1 ^ 2 == h2)
+22.    x = CMOV(x2, x3, e)    // If e = 1, choose x2, else choose x3
+23.    y = CMOV(y1, y2, e)    // If e = 1, choose y1, else choose y2
 24. Output (x, y)
 ~~~
 
@@ -386,14 +387,16 @@ point of order 2 is isomorphic to this representation.
 ~~~
 
 Another way to express this algorithm is as follows:
+
 ~~~
 1. r = HashToBase(alpha)
 2. d = -A / (1 + ur^2)
 3. e = f(d)^((p-1)/2)
 4. u = ed - (1 - e)A/u
 ~~~
+
 Here, e is the Legendre symbol of y = (d^3 + Ad^2 + d), which will be
-1 if y is a quadratic ressidue (square) mod p, and -1 otherwise.
+1 if y is a quadratic residue (square) mod p, and -1 otherwise.
 (Note that raising y to ((p -1) / 2) is a common way to compute
 the Legendre symbol.)
 
@@ -578,15 +581,16 @@ def simple_swu_straight(alpha):
     i3 = i3 + B
     h3 = h3 + i3
 
-    # Compute the Legendre symbol: is it square?
-    e = h2^((p - 1) / 2)
+    y1 = h2^((p + 1) // 4)
+    y2 = h3^((p + 1) // 4)
+
+    # Is it square?
+    e = y1^2 == h2
 
     x = x2
     if e != 1:
         x = x3
-
-    y1 = h2^((p + 1) // 4)
-    y2 = h3^((p + 1) // 4)
+    
     y = y1
     if e != 1:
         y = y2

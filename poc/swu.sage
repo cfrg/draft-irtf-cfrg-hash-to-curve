@@ -81,15 +81,16 @@ def simple_swu_straight(alpha):
     assert h2 == th2
     assert h3 == th3
 
-    # Compute the Legendre symbol: is it square?
-    e = h2^((p - 1) / 2)
+    y1 = h2^((p + 1) // 4)
+    y2 = h3^((p + 1) // 4)
+
+    # Is it square?
+    e = y1^2 == h2
 
     x = x2
     if e != 1:
         x = x3
-
-    y1 = h2^((p + 1) // 4)
-    y2 = h3^((p + 1) // 4)
+    
     y = y1
     if e != 1:
         y = y2
