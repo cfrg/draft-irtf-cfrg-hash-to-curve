@@ -1,7 +1,6 @@
-# Hashing to Elliptic Curves Drafts
+# Hashing to Elliptic Curves 
 
 This is the working area for individual Internet-Drafts.
-
 
 ## Building the Draft
 
