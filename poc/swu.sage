@@ -97,7 +97,7 @@ def simple_swu_straight(alpha):
 
     return E(x, y)
 
-def swu_jac(alpha):
+def swu_jac_into_affine(alpha):
     t = F(alpha)
 
     alpha = t^2
@@ -129,6 +129,39 @@ def swu_jac(alpha):
         return E(X2/z^2, Th2/z^3)
     else:
         return E(X3/z^2, TU/z^3)
+
+def swu_jac_into_projective(alpha):
+    t = F(alpha)
+
+    alpha = t^2
+    alpha = alpha * -1
+
+    right = alpha^2 + alpha
+    z = A * right
+
+    X2 = - B * z * (right + 1)
+    X3 = alpha * X2
+
+    z2 = z^2
+    z4 = z2^2
+    z6 = z4 * z2
+
+    Az4 = A * z4
+    Bz6 = B * z6
+
+    h2 = X2 ^ 3 + Az4 * X2 + Bz6
+    h3 = X3 ^ 3 + Az4 * X3 + Bz6
+
+    U = - alpha * t * h2
+    T = h2 ^ (p - 1 - (p + 1)/4)
+
+    Th2 = T * h2
+    TU =  T  * U
+
+    if (T * Th2 == 1):
+        return E(X2 * z, Th2, z ^ 3)
+    else:
+        return E(X3 * z, TU, z ^ 3)
 
 
 inputs = [7, 13, 1<<7, 1<<8, 1<<64, 1<<64-1]

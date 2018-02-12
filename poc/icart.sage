@@ -51,13 +51,27 @@ def icart_slp(u):
     y = y + v
     return E(x, y)
 
-def icart_jac(t):
+def icart_jac_into_affine(t):
     t = F(t)
     v = 36 * (3* A * t^4 - 1)
     x = (v^2 - 46656 * B * t ^6 - 1728) ^ ((2*p-1)//3) + 12
     y = 6 * x + v
     z = 6 * t
     return E(x/z^2, y/z^3) # raises expection if not on curve
+
+def icart_jac_into_projective(t):
+    t = F(t)
+    t2 = t ^ 2
+    t3 = t2 * t
+    t4 = t2 ^ 2
+    t6 = t3 ^ 2
+    v = 36 * (3* A * t4 - 1)
+    x = (v^2 - 46656 * B * t6 - 1728) ^ ((2*p-1)//3) + 12
+    y = 6 * x + v
+    z = 6 * t
+    z3 = 216 * t3
+    return E(x * z, y, z3) # raises exception if not on curve
+
 
 inputs = [1, 7, 13, 1<<7, 1<<8, 1<<64, 1<<64-1, p-1, p+1]
 tts = [(u, icart(u), icart_slp(u)) for u in inputs]
