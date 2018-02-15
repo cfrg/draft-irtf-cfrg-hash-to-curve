@@ -468,8 +468,8 @@ the curve.
 # Acknowledgements
 
 The authors would like to thank Adam Langley for this detailed writeup up Elligator2 with
-Curve25519 {{ElligatorAGL}}. We also thank Sean Devlin for feedback on earlier versions of
-this document.
+Curve25519 {{ElligatorAGL}}. We also thank Sean Devlin and Thomas Icart for feedback on 
+earlier versions of this document.
 
 --- back
 
