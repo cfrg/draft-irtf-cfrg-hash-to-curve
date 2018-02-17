@@ -5,10 +5,10 @@
 Network Working Group                                        S. Goldberg
 Internet-Draft                                         Boston University
 Intended status: Informational                               N. Sullivan
-Expires: August 15, 2018                                      Cloudflare
+Expires: August 21, 2018                                      Cloudflare
                                                                  C. Wood
                                                               Apple Inc.
-                                                       February 11, 2018
+                                                       February 17, 2018
 
 
                        Hashing to Elliptic Curves
@@ -34,7 +34,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on August 15, 2018.
+   This Internet-Draft will expire on August 21, 2018.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Goldberg, et al.         Expires August 15, 2018                [Page 1]
+Goldberg, et al.         Expires August 21, 2018                [Page 1]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Goldberg, et al.         Expires August 15, 2018                [Page 2]
+Goldberg, et al.         Expires August 21, 2018                [Page 2]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -165,7 +165,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 15, 2018                [Page 3]
+Goldberg, et al.         Expires August 21, 2018                [Page 3]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -221,7 +221,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 15, 2018                [Page 4]
+Goldberg, et al.         Expires August 21, 2018                [Page 4]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -277,7 +277,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 15, 2018                [Page 5]
+Goldberg, et al.         Expires August 21, 2018                [Page 5]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -333,7 +333,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 15, 2018                [Page 6]
+Goldberg, et al.         Expires August 21, 2018                [Page 6]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -389,7 +389,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 15, 2018                [Page 7]
+Goldberg, et al.         Expires August 21, 2018                [Page 7]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -445,7 +445,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 15, 2018                [Page 8]
+Goldberg, et al.         Expires August 21, 2018                [Page 8]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -501,7 +501,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 15, 2018                [Page 9]
+Goldberg, et al.         Expires August 21, 2018                [Page 9]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -526,7 +526,8 @@ Internet-Draft                hash-to-curve                February 2018
 
    The authors would like to thank Adam Langley for this detailed
    writeup up Elligator2 with Curve25519 [ElligatorAGL].  We also thank
-   Sean Devlin for feedback on earlier versions of this document.
+   Sean Devlin and Thomas Icart for feedback on earlier versions of this
+   document.
 
 9.  Normative References
 
@@ -556,8 +557,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-
-Goldberg, et al.         Expires August 15, 2018               [Page 10]
+Goldberg, et al.         Expires August 21, 2018               [Page 10]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -613,7 +613,7 @@ E.set_order(q)
 
 
 
-Goldberg, et al.         Expires August 15, 2018               [Page 11]
+Goldberg, et al.         Expires August 21, 2018               [Page 11]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -669,7 +669,7 @@ A.2.  Shallue-Woestijne-Ulas Method
 
 
 
-Goldberg, et al.         Expires August 15, 2018               [Page 12]
+Goldberg, et al.         Expires August 21, 2018               [Page 12]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -725,7 +725,7 @@ def simple_swu_straight(alpha):
 
 
 
-Goldberg, et al.         Expires August 15, 2018               [Page 13]
+Goldberg, et al.         Expires August 21, 2018               [Page 13]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -781,7 +781,7 @@ A.3.  Elligator2 Method
 
 
 
-Goldberg, et al.         Expires August 15, 2018               [Page 14]
+Goldberg, et al.         Expires August 21, 2018               [Page 14]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -837,7 +837,7 @@ Authors' Addresses
 
 
 
-Goldberg, et al.         Expires August 15, 2018               [Page 15]
+Goldberg, et al.         Expires August 21, 2018               [Page 15]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -893,4 +893,4 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 15, 2018               [Page 16]
+Goldberg, et al.         Expires August 21, 2018               [Page 16]
