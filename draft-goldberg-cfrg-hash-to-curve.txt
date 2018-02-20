@@ -5,10 +5,10 @@
 Network Working Group                                        S. Goldberg
 Internet-Draft                                         Boston University
 Intended status: Informational                               N. Sullivan
-Expires: August 21, 2018                                      Cloudflare
+Expires: August 24, 2018                                      Cloudflare
                                                                  C. Wood
                                                               Apple Inc.
-                                                       February 17, 2018
+                                                       February 20, 2018
 
 
                        Hashing to Elliptic Curves
@@ -27,14 +27,14 @@ Status of This Memo
    Internet-Drafts are working documents of the Internet Engineering
    Task Force (IETF).  Note that other groups may also distribute
    working documents as Internet-Drafts.  The list of current Internet-
-   Drafts is at http://datatracker.ietf.org/drafts/current/.
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
 
    Internet-Drafts are draft documents valid for a maximum of six months
    and may be updated, replaced, or obsoleted by other documents at any
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on August 21, 2018.
+   This Internet-Draft will expire on August 24, 2018.
 
 Copyright Notice
 
@@ -43,7 +43,7 @@ Copyright Notice
 
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents
-   (http://trustee.ietf.org/license-info) in effect on the date of
+   (https://trustee.ietf.org/license-info) in effect on the date of
    publication of this document.  Please review these documents
    carefully, as they describe your rights and restrictions with respect
    to this document.  Code Components extracted from this document must
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Goldberg, et al.         Expires August 21, 2018                [Page 1]
+Goldberg, et al.         Expires August 24, 2018                [Page 1]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -61,24 +61,23 @@ Internet-Draft                hash-to-curve                February 2018
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
-     1.1.  Terminology . . . . . . . . . . . . . . . . . . . . . . .   3
-     1.2.  Requirements  . . . . . . . . . . . . . . . . . . . . . .   3
+     1.1.  Requirements  . . . . . . . . . . . . . . . . . . . . . .   3
    2.  Algorithm Recommendations . . . . . . . . . . . . . . . . . .   3
-   3.  Interfaces  . . . . . . . . . . . . . . . . . . . . . . . . .   4
+   3.  Interfaces  . . . . . . . . . . . . . . . . . . . . . . . . .   3
    4.  Utility Functions . . . . . . . . . . . . . . . . . . . . . .   4
    5.  Hashing Variants  . . . . . . . . . . . . . . . . . . . . . .   4
      5.1.  Icart Method  . . . . . . . . . . . . . . . . . . . . . .   4
-     5.2.  Shallue-Woestijne-Ulas Method . . . . . . . . . . . . . .   6
-     5.3.  Elligator2 Method . . . . . . . . . . . . . . . . . . . .   8
-   6.  Cost Comparison . . . . . . . . . . . . . . . . . . . . . . .   9
-   7.  Security Considerations . . . . . . . . . . . . . . . . . . .  10
-   8.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  10
-   9.  Normative References  . . . . . . . . . . . . . . . . . . . .  10
-   Appendix A.  Sample Code  . . . . . . . . . . . . . . . . . . . .  11
-     A.1.  Icart Method  . . . . . . . . . . . . . . . . . . . . . .  11
-     A.2.  Shallue-Woestijne-Ulas Method . . . . . . . . . . . . . .  12
-     A.3.  Elligator2 Method . . . . . . . . . . . . . . . . . . . .  14
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  15
+     5.2.  Shallue-Woestijne-Ulas Method . . . . . . . . . . . . . .   5
+     5.3.  Elligator2 Method . . . . . . . . . . . . . . . . . . . .   7
+   6.  Cost Comparison . . . . . . . . . . . . . . . . . . . . . . .   8
+   7.  Security Considerations . . . . . . . . . . . . . . . . . . .   9
+   8.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   9
+   9.  Normative References  . . . . . . . . . . . . . . . . . . . .   9
+   Appendix A.  Sample Code  . . . . . . . . . . . . . . . . . . . .  10
+     A.1.  Icart Method  . . . . . . . . . . . . . . . . . . . . . .  10
+     A.2.  Shallue-Woestijne-Ulas Method . . . . . . . . . . . . . .  11
+     A.3.  Elligator2 Method . . . . . . . . . . . . . . . . . . . .  13
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  14
 
 1.  Introduction
 
@@ -106,15 +105,15 @@ Table of Contents
    sensitive to timing side channel attacks.  Deterministic algorithms
    are needed in such cases where failures are undesirable.  Shallue and
    Woestijne ((TODO:cite)) first introduced a deterministic algorithm
+   that maps elements in F_{q} to an EC in time O(log^4 q), where q =
 
 
 
-Goldberg, et al.         Expires August 21, 2018                [Page 2]
+Goldberg, et al.         Expires August 24, 2018                [Page 2]
 
 Internet-Draft                hash-to-curve                February 2018
 
 
-   that maps elements in F_{q} to an EC in time O(log^4 q), where q =
    p^n for some prime p, and time O(log^3 q) when q = 3 mod 4.  Icart
    introduced yet another deterministic algorithm which maps F_{q} to
    any EC where q = 2 mod 3 in time O(log^3 q).  Elligator (2)
@@ -132,19 +131,7 @@ Internet-Draft                hash-to-curve                February 2018
    elliptic curve points are assumed to be represented as affine
    coordinates, i.e., (x, y) points on a curve.
 
-1.1.  Terminology
-
-   The following terms are used throughout this document.
-
-   o  curve
-
-   o  base field
-
-   o  point of order
-
-   o  point compression
-
-1.2.  Requirements
+1.1.  Requirements
 
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
@@ -154,21 +141,6 @@ Internet-Draft                hash-to-curve                February 2018
 
    The following table lists recommended algorithms to use for specific
    curves.
-
-
-
-
-
-
-
-
-
-
-
-Goldberg, et al.         Expires August 21, 2018                [Page 3]
-
-Internet-Draft                hash-to-curve                February 2018
-
 
                   +------------+------------------------+
                   | Curve      | Algorithm              |
@@ -191,6 +163,13 @@ Internet-Draft                hash-to-curve                February 2018
 
    hash_to_curve(alpha)
 
+
+
+Goldberg, et al.         Expires August 24, 2018                [Page 3]
+
+Internet-Draft                hash-to-curve                February 2018
+
+
    where alpha is a message to hash onto a curve.
 
 4.  Utility Functions
@@ -207,7 +186,7 @@ Internet-Draft                hash-to-curve                February 2018
    Note: We assume that HashToBase maps its input to the base field
    uniformly.  In practice, there may be inherent biases in p.
 
-   ((TODO: more should be said about this))
+   ((TODO: should more be said about this?))
 
 5.  Hashing Variants
 
@@ -217,14 +196,6 @@ Internet-Draft                hash-to-curve                February 2018
    constant-time variant of hash_to_curve(alpha, x).  This algorithm
    works for any curve over F_{p^n}, where p^n = 2 mod 3 (or p = 2 mod 3
    and for odd n), including:
-
-
-
-
-Goldberg, et al.         Expires August 21, 2018                [Page 4]
-
-Internet-Draft                hash-to-curve                February 2018
-
 
    o  P384
 
@@ -250,34 +221,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Goldberg, et al.         Expires August 21, 2018                [Page 5]
+Goldberg, et al.         Expires August 24, 2018                [Page 4]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -333,7 +277,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 21, 2018                [Page 6]
+Goldberg, et al.         Expires August 24, 2018                [Page 5]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -389,7 +333,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 21, 2018                [Page 7]
+Goldberg, et al.         Expires August 24, 2018                [Page 6]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -445,7 +389,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 21, 2018                [Page 8]
+Goldberg, et al.         Expires August 24, 2018                [Page 7]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -501,7 +445,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 21, 2018                [Page 9]
+Goldberg, et al.         Expires August 24, 2018                [Page 8]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -557,20 +501,20 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 21, 2018               [Page 10]
+Goldberg, et al.         Expires August 24, 2018                [Page 9]
 
 Internet-Draft                hash-to-curve                February 2018
 
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
-              DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
-              editor.org/info/rfc2119>.
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
 
    [RFC6605]  Hoffman, P. and W. Wijngaards, "Elliptic Curve Digital
               Signature Algorithm (DSA) for DNSSEC", RFC 6605,
-              DOI 10.17487/RFC6605, April 2012, <https://www.rfc-
-              editor.org/info/rfc6605>.
+              DOI 10.17487/RFC6605, April 2012,
+              <https://www.rfc-editor.org/info/rfc6605>.
 
    [RFC7748]  Langley, A., Hamburg, M., and S. Turner, "Elliptic Curves
               for Security", RFC 7748, DOI 10.17487/RFC7748, January
@@ -583,8 +527,8 @@ Internet-Draft                hash-to-curve                February 2018
 
    [RFC8032]  Josefsson, S. and I. Liusvaara, "Edwards-Curve Digital
               Signature Algorithm (EdDSA)", RFC 8032,
-              DOI 10.17487/RFC8032, January 2017, <https://www.rfc-
-              editor.org/info/rfc8032>.
+              DOI 10.17487/RFC8032, January 2017,
+              <https://www.rfc-editor.org/info/rfc8032>.
 
    [SECG1]    "SEC 1 -- Elliptic Curve Cryptography", n.d.,
               <http://www.secg.org/sec1-v2.pdf>.
@@ -613,7 +557,7 @@ E.set_order(q)
 
 
 
-Goldberg, et al.         Expires August 21, 2018               [Page 11]
+Goldberg, et al.         Expires August 24, 2018               [Page 10]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -669,7 +613,7 @@ A.2.  Shallue-Woestijne-Ulas Method
 
 
 
-Goldberg, et al.         Expires August 21, 2018               [Page 12]
+Goldberg, et al.         Expires August 24, 2018               [Page 11]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -725,7 +669,7 @@ def simple_swu_straight(alpha):
 
 
 
-Goldberg, et al.         Expires August 21, 2018               [Page 13]
+Goldberg, et al.         Expires August 24, 2018               [Page 12]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -781,7 +725,7 @@ A.3.  Elligator2 Method
 
 
 
-Goldberg, et al.         Expires August 21, 2018               [Page 14]
+Goldberg, et al.         Expires August 24, 2018               [Page 13]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -837,7 +781,7 @@ Authors' Addresses
 
 
 
-Goldberg, et al.         Expires August 21, 2018               [Page 15]
+Goldberg, et al.         Expires August 24, 2018               [Page 14]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -893,4 +837,4 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 21, 2018               [Page 16]
+Goldberg, et al.         Expires August 24, 2018               [Page 15]

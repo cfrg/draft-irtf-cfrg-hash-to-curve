@@ -198,15 +198,6 @@ describe the requirements for F and E to make it work. Sample code for each vari
 presented in the appendix.  Unless otherwise stated, all elliptic curve points are assumed to 
 be represented as affine coordinates, i.e., (x, y) points on a curve. 
 
-## Terminology
-
-The following terms are used throughout this document.
-
-- curve
-- base field
-- point of order
-- point compression
-
 ## Requirements
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
@@ -247,7 +238,7 @@ of base field Fp.
 Note: We assume that HashToBase maps its input to the base field uniformly. In practice,
 there may be inherent biases in p. 
 
-((TODO: more should be said about this))
+((TODO: should more be said about this?))
 
 # Hashing Variants
 
