@@ -40,15 +40,6 @@ jobs:
       - store_artifacts:
           path: /tmp/artifacts
 
-      # Update gh-pages and gh-issues branches
-      - run:
-          name: "Update GitHub Pages"
-          command: "make gh-pages"
-
-      - run:
-          name: "Save Issues"
-          command: "make gh-issues || true"
-
       # For tagged builds, upload to the datatracker.
       - deploy:
           name: "Upload to Datatracker"
