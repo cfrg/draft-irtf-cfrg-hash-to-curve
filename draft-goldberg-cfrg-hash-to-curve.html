@@ -286,10 +286,11 @@ address {
 <link href="#rfc.section.4.2" rel="Chapter" title="4.2 Shallue-Woestijne-Ulas Method"/>
 <link href="#rfc.section.4.3" rel="Chapter" title="4.3 Simplified SWU Method"/>
 <link href="#rfc.section.4.4" rel="Chapter" title="4.4 Elligator2 Method"/>
-<link href="#rfc.section.5" rel="Chapter" title="5 Cost Comparison"/>
-<link href="#rfc.section.6" rel="Chapter" title="6 Security Considerations"/>
-<link href="#rfc.section.7" rel="Chapter" title="7 Acknowledgements"/>
-<link href="#rfc.references" rel="Chapter" title="8 Normative References"/>
+<link href="#rfc.section.5" rel="Chapter" title="5 Curve Transformations"/>
+<link href="#rfc.section.6" rel="Chapter" title="6 Cost Comparison"/>
+<link href="#rfc.section.7" rel="Chapter" title="7 Security Considerations"/>
+<link href="#rfc.section.8" rel="Chapter" title="8 Acknowledgements"/>
+<link href="#rfc.references" rel="Chapter" title="9 Normative References"/>
 <link href="#rfc.appendix.A" rel="Chapter" title="A Try-and-Increment Method"/>
 <link href="#rfc.appendix.B" rel="Chapter" title="B Sample Code"/>
 <link href="#rfc.appendix.B.1" rel="Chapter" title="B.1 Icart Method"/>
@@ -383,10 +384,11 @@ address {
 <li>4.2.   <a href="#rfc.section.4.2">Shallue-Woestijne-Ulas Method</a></li>
 <li>4.3.   <a href="#rfc.section.4.3">Simplified SWU Method</a></li>
 <li>4.4.   <a href="#rfc.section.4.4">Elligator2 Method</a></li>
-</ul><li>5.   <a href="#rfc.section.5">Cost Comparison</a></li>
-<li>6.   <a href="#rfc.section.6">Security Considerations</a></li>
-<li>7.   <a href="#rfc.section.7">Acknowledgements</a></li>
-<li>8.   <a href="#rfc.references">Normative References</a></li>
+</ul><li>5.   <a href="#rfc.section.5">Curve Transformations</a></li>
+<li>6.   <a href="#rfc.section.6">Cost Comparison</a></li>
+<li>7.   <a href="#rfc.section.7">Security Considerations</a></li>
+<li>8.   <a href="#rfc.section.8">Acknowledgements</a></li>
+<li>9.   <a href="#rfc.references">Normative References</a></li>
 <li>Appendix A.   <a href="#rfc.appendix.A">Try-and-Increment Method</a></li>
 <li>Appendix B.   <a href="#rfc.appendix.B">Sample Code</a></li>
 <ul><li>B.1.   <a href="#rfc.appendix.B.1">Icart Method</a></li>
@@ -473,11 +475,12 @@ hash_to_curve(alpha)
   <li>HashToBase(x): H(x)[0:log2(p) + 1], i.e., hash-truncate-reduce, where H is a cryptographic hash function, such as SHA256, and p is the prime order of base field Fp.</li>
   <li>CMOV(a, b, c): If c = 1, return a, else return b.</li>
 </ul>
-<p id="rfc.section.3.1.p.3">Note: We assume that HashToBase maps its input to the base field uniformly. In practice, there may be inherent biases in p.</p>
-<p id="rfc.section.3.1.p.4">((TODO: should more be said about this?))</p>
+<p id="rfc.section.3.1.p.3">Note: We assume that HashToBase maps its input to the base field uniformly.  In practice, there may be inherent biases in p, e.g., p = 2^k - 1 will have non-negligible bias in higher bits.</p>
+<p id="rfc.section.3.1.p.4">((TODO: expand on this problem))</p>
 <h1 id="rfc.section.4"><a href="#rfc.section.4">4.</a> <a href="#hashing-variants" id="hashing-variants">Hashing Variants</a></h1>
 <h1 id="rfc.section.4.1"><a href="#rfc.section.4.1">4.1.</a> <a href="#icart" id="icart">Icart Method</a></h1>
-<p id="rfc.section.4.1.p.1">The following hash_to_curve_icart(alpha) algorithm implements a constant-time variant of hash_to_curve(alpha, x). This algorithm works for any curve over F_{p^n}, where p^n = 2 mod 3 (or p = 2 mod 3 and for odd n), including:</p>
+<p id="rfc.section.4.1.p.1">((TODO: Weierstrass form curves with affine coordinates.))</p>
+<p id="rfc.section.4.1.p.2">The following hash_to_curve_icart(alpha) algorithm implements a constant-time variant of hash_to_curve(alpha, x). This algorithm works for any curve over F_{p^n}, where p^n = 2 mod 3 (or p = 2 mod 3 and for odd n), including:</p>
 <p/>
 
 <ul>
@@ -485,15 +488,15 @@ hash_to_curve(alpha)
   <li>Curve1174</li>
   <li>Curve448</li>
 </ul>
-<p id="rfc.section.4.1.p.3">Unsupported curves include: P224, P256, P521, and Curve25519 since, for each, p = 1 mod 3.</p>
-<p id="rfc.section.4.1.p.4">Mathematically, given input alpha, and A and B from E, the Icart method works as follows:</p>
+<p id="rfc.section.4.1.p.4">Unsupported curves include: P224, P256, P521, and Curve25519 since, for each, p = 1 mod 3.</p>
+<p id="rfc.section.4.1.p.5">Mathematically, given input alpha, and A and B from E, the Icart method works as follows:</p>
 <pre>
 u = HashToBase(alpha)
 x = (v^2 - b - (u^6 / 27))^(1/3) + (u^2 / 3)
 y = ux + v
 </pre>
-<p id="rfc.section.4.1.p.5">where v = ((3A - u^4) / 6u).</p>
-<p id="rfc.section.4.1.p.6">The following procedure implements this algorithm in a straight-line fashion.  It requires knowledge of A and B, the constants from the curve Weierstrass form.</p>
+<p id="rfc.section.4.1.p.6">where v = ((3A - u^4) / 6u).</p>
+<p id="rfc.section.4.1.p.7">The following procedure implements this algorithm in a straight-line fashion.  It requires knowledge of A and B, the constants from the curve Weierstrass form.</p>
 <pre>
 hash_to_curve_icart(alpha)
 
@@ -534,14 +537,15 @@ Steps:
 <h1 id="rfc.section.4.2"><a href="#rfc.section.4.2">4.2.</a> <a href="#swu" id="swu">Shallue-Woestijne-Ulas Method</a></h1>
 <p id="rfc.section.4.2.p.1">((TODO: write this section))</p>
 <h1 id="rfc.section.4.3"><a href="#rfc.section.4.3">4.3.</a> <a href="#simple-swu" id="simple-swu">Simplified SWU Method</a></h1>
-<p id="rfc.section.4.3.p.1">The following hash_to_curve_swu(alpha) implements the simplfied Shallue-Woestijne-Ulas algorithm from <a href="#SWU">[SWU]</a>. This algorithm works for any curve over F_{p^n}, where p = 3 mod 4, including:</p>
+<p id="rfc.section.4.3.p.1">((TODO: Weierstrass form curves with affine coordinates.))</p>
+<p id="rfc.section.4.3.p.2">The following hash_to_curve_swu(alpha) implements the simplfied Shallue-Woestijne-Ulas algorithm from <a href="#SWU">[SWU]</a>. This algorithm works for any curve over F_{p^n}, where p = 3 mod 4, including:</p>
 <p/>
 
 <ul>
   <li>P256</li>
   <li>&#8230;</li>
 </ul>
-<p id="rfc.section.4.3.p.3">Given curve equation g(x) = x^3 + Ax + B, this algorithm works as follows:</p>
+<p id="rfc.section.4.3.p.4">Given curve equation g(x) = x^3 + Ax + B, this algorithm works as follows:</p>
 <pre>
 1. t = HashToBase(alpha)
 2. alpha = (-b / a) * (1 + (1 / (t^4 + t^2))) 
@@ -549,7 +553,7 @@ Steps:
 4. z = t^3 * g(alpha)
 5. Output (&#8722;g * alpha) * (g * beta)
 </pre>
-<p id="rfc.section.4.3.p.4">The following procedure implements this algorithm.</p>
+<p id="rfc.section.4.3.p.5">The following procedure implements this algorithm.</p>
 <pre>
 hash_to_curve_swu(alpha)
 
@@ -641,9 +645,11 @@ Steps:
 19. Output (u, f(u))
 </pre>
 <p id="rfc.section.4.4.p.5">Elligator2 can be simplified with projective coordinates. ((TODO: should we write this variant?))</p>
-<h1 id="rfc.section.5"><a href="#rfc.section.5">5.</a> <a href="#cost-comparison" id="cost-comparison">Cost Comparison</a></h1>
-<p id="rfc.section.5.p.1">The following table summarizes the cost of each hash_to_curve variant. We express this cost in terms of additions (A), multiplications (M), squares (SQ), and square roots (SR).</p>
-<p id="rfc.section.5.p.2">((TODO: finish me))</p>
+<h1 id="rfc.section.5"><a href="#rfc.section.5">5.</a> <a href="#curve-transformations" id="curve-transformations">Curve Transformations</a></h1>
+<p id="rfc.section.5.p.1">((TODO: write this section))</p>
+<h1 id="rfc.section.6"><a href="#rfc.section.6">6.</a> <a href="#cost-comparison" id="cost-comparison">Cost Comparison</a></h1>
+<p id="rfc.section.6.p.1">The following table summarizes the cost of each hash_to_curve variant. We express this cost in terms of additions (A), multiplications (M), squares (SQ), and square roots (SR).</p>
+<p id="rfc.section.6.p.2">((TODO: finish me))</p>
 <table cellpadding="3" cellspacing="0" class="tt full center">
   <thead>
     <tr>
@@ -666,11 +672,11 @@ Steps:
     </tr>
   </tbody>
 </table>
-<h1 id="rfc.section.6"><a href="#rfc.section.6">6.</a> <a href="#security-considerations" id="security-considerations">Security Considerations</a></h1>
-<p id="rfc.section.6.p.1">Each hash function variant accepts arbitrary input and maps it to a pseudorandom point on the curve. Points are close to indistinguishable from randomly chosen elements on the curve. Some variants variants are not full-domain hashes. Elligator2, for example, only maps strings to &#8220;about half of all curve points.&#8221;</p>
-<h1 id="rfc.section.7"><a href="#rfc.section.7">7.</a> <a href="#acknowledgements" id="acknowledgements">Acknowledgements</a></h1>
-<p id="rfc.section.7.p.1">The authors would like to thank Adam Langley for this detailed writeup up Elligator2 with Curve25519 <a href="#ElligatorAGL">[ElligatorAGL]</a>. We also thank Sean Devlin and Thomas Icart for feedback on earlier versions of this document.</p>
-<h1 id="rfc.references"><a href="#rfc.references">8.</a> Normative References</h1>
+<h1 id="rfc.section.7"><a href="#rfc.section.7">7.</a> <a href="#security-considerations" id="security-considerations">Security Considerations</a></h1>
+<p id="rfc.section.7.p.1">Each hash function variant accepts arbitrary input and maps it to a pseudorandom point on the curve. Points are close to indistinguishable from randomly chosen elements on the curve. Some variants variants are not full-domain hashes. Elligator2, for example, only maps strings to &#8220;about half of all curve points.&#8221;</p>
+<h1 id="rfc.section.8"><a href="#rfc.section.8">8.</a> <a href="#acknowledgements" id="acknowledgements">Acknowledgements</a></h1>
+<p id="rfc.section.8.p.1">The authors would like to thank Adam Langley for this detailed writeup up Elligator2 with Curve25519 <a href="#ElligatorAGL">[ElligatorAGL]</a>. We also thank Sean Devlin and Thomas Icart for feedback on earlier versions of this document.</p>
+<h1 id="rfc.references"><a href="#rfc.references">9.</a> Normative References</h1>
 <table>
   <tbody>
     <tr><td class="reference"><b id="BLS01">[BLS01]</b></td><td class="top"><a href="https://iacr.org/archive/asiacrypt2001/22480516.pdf">Short signatures from the Weil pairing</a>", n.d..</td>, "</tr>

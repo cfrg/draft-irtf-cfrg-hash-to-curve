@@ -245,14 +245,17 @@ H is a cryptographic hash function, such as SHA256, and p is the prime order
 of base field Fp.
 - CMOV(a, b, c): If c = 1, return a, else return b.
 
-Note: We assume that HashToBase maps its input to the base field uniformly. In practice,
-there may be inherent biases in p. 
+Note: We assume that HashToBase maps its input to the base field uniformly. 
+In practice, there may be inherent biases in p, e.g., p = 2^k - 1 will
+have non-negligible bias in higher bits.
 
-((TODO: should more be said about this?))
+((TODO: expand on this problem))
 
 # Hashing Variants
 
 ## Icart Method {#icart}
+
+((TODO: Weierstrass form curves with affine coordinates.))
 
 The following hash_to_curve_icart(alpha) algorithm implements
 a constant-time variant of hash_to_curve(alpha, x). This algorithm
@@ -323,6 +326,8 @@ Steps:
 ((TODO: write this section))
 
 ## Simplified SWU Method {#simple-swu}
+
+((TODO: Weierstrass form curves with affine coordinates.))
 
 The following hash_to_curve_swu(alpha) implements the simplfied
 Shallue-Woestijne-Ulas algorithm from {{SWU}}. This algorithm
@@ -451,6 +456,10 @@ Steps:
 ~~~
 
 Elligator2 can be simplified with projective coordinates. ((TODO: should we write this variant?))
+
+# Curve Transformations
+
+((TODO: write this section))
 
 # Cost Comparison
 

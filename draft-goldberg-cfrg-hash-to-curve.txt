@@ -66,14 +66,15 @@ Table of Contents
    3.  Generic Interface . . . . . . . . . . . . . . . . . . . . . .   4
      3.1.  Utility Functions . . . . . . . . . . . . . . . . . . . .   4
    4.  Hashing Variants  . . . . . . . . . . . . . . . . . . . . . .   4
-     4.1.  Icart Method  . . . . . . . . . . . . . . . . . . . . . .   4
+     4.1.  Icart Method  . . . . . . . . . . . . . . . . . . . . . .   5
      4.2.  Shallue-Woestijne-Ulas Method . . . . . . . . . . . . . .   6
      4.3.  Simplified SWU Method . . . . . . . . . . . . . . . . . .   6
      4.4.  Elligator2 Method . . . . . . . . . . . . . . . . . . . .   8
-   5.  Cost Comparison . . . . . . . . . . . . . . . . . . . . . . .  10
-   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  11
-   7.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  11
-   8.  Normative References  . . . . . . . . . . . . . . . . . . . .  11
+   5.  Curve Transformations . . . . . . . . . . . . . . . . . . . .  10
+   6.  Cost Comparison . . . . . . . . . . . . . . . . . . . . . . .  10
+   7.  Security Considerations . . . . . . . . . . . . . . . . . . .  11
+   8.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  11
+   9.  Normative References  . . . . . . . . . . . . . . . . . . . .  11
    Appendix A.  Try-and-Increment Method . . . . . . . . . . . . . .  12
    Appendix B.  Sample Code  . . . . . . . . . . . . . . . . . . . .  13
      B.1.  Icart Method  . . . . . . . . . . . . . . . . . . . . . .  13
@@ -105,7 +106,6 @@ Table of Contents
    expected to find a valid curve point after approximately two
    attempts, i.e., when ctr=1, on average.  (See Appendix Appendix A for
    a more detailed description of this algorithm.)  Since the running
-   time of algorithm depends on m, this algorithm is NOT safe for cases
 
 
 
@@ -114,6 +114,7 @@ Goldberg, et al.         Expires August 28, 2018                [Page 2]
 Internet-Draft                hash-to-curve                February 2018
 
 
+   time of algorithm depends on m, this algorithm is NOT safe for cases
    sensitive to timing side channel attacks.  Deterministic algorithms
    are needed in such cases where failures are undesirable.  Shallue and
    Woestijne [SWU] first introduced a deterministic algorithm that maps
@@ -160,8 +161,7 @@ Internet-Draft                hash-to-curve                February 2018
    The SWU variant from Section Section 4.2 applies to any curve.  As
    such, this algorithm SHOULD be used if no other better alternative is
    known.  More efficient variants and their curve requirements are
-   shown in the table below.  These MAY be used if the target curve
-   meets the listed criteria.
+
 
 
 
@@ -169,6 +169,9 @@ Goldberg, et al.         Expires August 28, 2018                [Page 3]
 
 Internet-Draft                hash-to-curve                February 2018
 
+
+   shown in the table below.  These MAY be used if the target curve
+   meets the listed criteria.
 
    +--------------------+----------------------------------------------+
    | Algorithm          | Requirement                                  |
@@ -204,20 +207,17 @@ Internet-Draft                hash-to-curve                February 2018
    o  CMOV(a, b, c): If c = 1, return a, else return b.
 
    Note: We assume that HashToBase maps its input to the base field
-   uniformly.  In practice, there may be inherent biases in p.
+   uniformly.  In practice, there may be inherent biases in p, e.g., p =
+   2^k - 1 will have non-negligible bias in higher bits.
 
-   ((TODO: should more be said about this?))
+   ((TODO: expand on this problem))
 
 4.  Hashing Variants
 
-4.1.  Icart Method
 
-   The following hash_to_curve_icart(alpha) algorithm implements a
-   constant-time variant of hash_to_curve(alpha, x).  This algorithm
-   works for any curve over F_{p^n}, where p^n = 2 mod 3 (or p = 2 mod 3
-   and for odd n), including:
 
-   o  P384
+
+
 
 
 
@@ -225,6 +225,17 @@ Goldberg, et al.         Expires August 28, 2018                [Page 4]
 
 Internet-Draft                hash-to-curve                February 2018
 
+
+4.1.  Icart Method
+
+   ((TODO: Weierstrass form curves with affine coordinates.))
+
+   The following hash_to_curve_icart(alpha) algorithm implements a
+   constant-time variant of hash_to_curve(alpha, x).  This algorithm
+   works for any curve over F_{p^n}, where p^n = 2 mod 3 (or p = 2 mod 3
+   and for odd n), including:
+
+   o  P384
 
    o  Curve1174
 
@@ -245,17 +256,6 @@ Internet-Draft                hash-to-curve                February 2018
    The following procedure implements this algorithm in a straight-line
    fashion.  It requires knowledge of A and B, the constants from the
    curve Weierstrass form.
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -324,11 +324,11 @@ Internet-Draft                hash-to-curve                February 2018
 
 4.3.  Simplified SWU Method
 
+   ((TODO: Weierstrass form curves with affine coordinates.))
+
    The following hash_to_curve_swu(alpha) implements the simplfied
    Shallue-Woestijne-Ulas algorithm from [SWU].  This algorithm works
    for any curve over F_{p^n}, where p = 3 mod 4, including:
-
-   o  P256
 
 
 
@@ -337,6 +337,8 @@ Goldberg, et al.         Expires August 28, 2018                [Page 6]
 
 Internet-Draft                hash-to-curve                February 2018
 
+
+   o  P256
 
    o  ...
 
@@ -350,8 +352,6 @@ Internet-Draft                hash-to-curve                February 2018
    5. Output (-g * alpha) * (g * beta)
 
    The following procedure implements this algorithm.
-
-
 
 
 
@@ -544,15 +544,15 @@ Internet-Draft                hash-to-curve                February 2018
    Elligator2 can be simplified with projective coordinates.  ((TODO:
    should we write this variant?))
 
-5.  Cost Comparison
+5.  Curve Transformations
+
+   ((TODO: write this section))
+
+6.  Cost Comparison
 
    The following table summarizes the cost of each hash_to_curve
    variant.  We express this cost in terms of additions (A),
    multiplications (M), squares (SQ), and square roots (SR).
-
-   ((TODO: finish me))
-
-
 
 
 
@@ -561,6 +561,8 @@ Goldberg, et al.         Expires August 28, 2018               [Page 10]
 
 Internet-Draft                hash-to-curve                February 2018
 
+
+   ((TODO: finish me))
 
              +--------------------------+-------------------+
              | Algorithm                | Cost (Operations) |
@@ -572,7 +574,7 @@ Internet-Draft                hash-to-curve                February 2018
              | hash_to_curve_elligator2 | ?                 |
              +--------------------------+-------------------+
 
-6.  Security Considerations
+7.  Security Considerations
 
    Each hash function variant accepts arbitrary input and maps it to a
    pseudorandom point on the curve.  Points are close to
@@ -580,14 +582,14 @@ Internet-Draft                hash-to-curve                February 2018
    variants variants are not full-domain hashes.  Elligator2, for
    example, only maps strings to "about half of all curve points."
 
-7.  Acknowledgements
+8.  Acknowledgements
 
    The authors would like to thank Adam Langley for this detailed
    writeup up Elligator2 with Curve25519 [ElligatorAGL].  We also thank
    Sean Devlin and Thomas Icart for feedback on earlier versions of this
    document.
 
-8.  Normative References
+9.  Normative References
 
    [BLS01]    "Short signatures from the Weil pairing", n.d.,
               <https://iacr.org/archive/asiacrypt2001/22480516.pdf>.
@@ -607,8 +609,6 @@ Internet-Draft                hash-to-curve                February 2018
               <https://www.imperialviolet.org/2013/12/25/
               elligator.html>.
 
-   [Icart09]  "How to Hash into Elliptic Curves", n.d.,
-              <https://eprint.iacr.org/2009/226.pdf>.
 
 
 
@@ -617,6 +617,9 @@ Goldberg, et al.         Expires August 28, 2018               [Page 11]
 
 Internet-Draft                hash-to-curve                February 2018
 
+
+   [Icart09]  "How to Hash into Elliptic Curves", n.d.,
+              <https://eprint.iacr.org/2009/226.pdf>.
 
    [Jablon96]
               "Strong password-only authenticated key exchange", n.d..
@@ -659,9 +662,6 @@ Appendix A.  Try-and-Increment Method
    standard hash function ("Hash"), e.g., SHA256, and then checking to
    see if the resulting point E(m, f(m)), for curve function f, belongs
    on E.  This is detailed below.
-
-
-
 
 
 
