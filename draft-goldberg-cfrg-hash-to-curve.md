@@ -184,7 +184,7 @@ attempts, i.e., when ctr=1, on average. (See Appendix {{try}} for a more detaile
 description of this algorithm.) Since the running time of algorithm depends on m, 
 this algorithm is NOT safe for cases sensitive to timing side channel attacks. 
 Deterministic algorithms are needed in such cases where failures 
-are undesirable. Shallue and Woestijne ((TODO:cite)) first introduced a deterministic 
+are undesirable. Shallue and Woestijne {{SWU}} first introduced a deterministic 
 algorithm that maps elements in F_{q} to an EC in time O(log^4 q), where q = p^n for 
 some prime p, and time O(log^3 q) when q = 3 mod 4. Icart introduced yet another
 deterministic algorithm which maps F_{q} to any EC where q = 2 mod 3 in time O(log^3 q).
@@ -209,15 +209,24 @@ document are to be interpreted as described in {{RFC2119}}.
 
 The following table lists recommended algorithms to use for specific curves. 
 
-| Curve | Algorithm | 
-| P-256 | SWU {{swu}} |
+| Curve | Algorithm |
+| P-256 | SWU {{simple-swu}} |
 | P-384 | Icart {{icart}} |
 | Curve25519 | Elligator2 {{elligator2}} |
-| Curve25519 | Elligator2 {{elligator2}} |
+| Curve448 | Elligator2 {{elligator2}} |
 
-((TODO: should we have a table that summarizes requirements for each algorithm?))
+The SWU variant from Section {{swu}} applies to any curve. As such, this algorithm
+SHOULD be used if no other better alternative is known. More efficient variants and
+their curve requirements are shown in the table below. These MAY be used if the target
+curve meets the listed criteria.
 
-# Interfaces
+| Algorithm | Requirement |
+| Icart {{icart}} | p = 2 mod 3 |
+| SWU {{swu}} | None |
+| Simplified SWU {{simple-swu}} | p = 3 mod 4 |
+| Elligator2 {{elligator2}} | p is large and there is a point of order two and j-invariant != 1728 |
+
+# Generic Interface
 
 The generic interface for hashing to elliptic curves is as follows:
 
@@ -227,7 +236,7 @@ hash_to_curve(alpha)
 
 where alpha is a message to hash onto a curve. 
 
-# Utility Functions
+## Utility Functions
 
 Algorithms in this document make use of utility functions described below.
 
@@ -252,9 +261,9 @@ works for any curve over F_{p^n}, where p^n = 2 mod 3
 
 - P384
 - Curve1174
-- Ed448-Goldilocks
+- Curve448
 
-Unsupported curves include: P224, P256, P521, Curve25519, and Curve448 since,
+Unsupported curves include: P224, P256, P521, and Curve25519 since,
 for each, p = 1 mod 3. 
 
 Mathematically, given input alpha, and A and B from E, the Icart method works 
@@ -311,7 +320,11 @@ Steps:
 
 ## Shallue-Woestijne-Ulas Method {#swu}
 
-The following hash_to_curve_swu(alpha) implements the simple
+((TODO: write this section))
+
+## Simplified SWU Method {#simple-swu}
+
+The following hash_to_curve_swu(alpha) implements the simplfied
 Shallue-Woestijne-Ulas algorithm from {{SWU}}. This algorithm
 works for any curve over F_{p^n}, where p = 3 mod 4, including:
 
@@ -454,8 +467,9 @@ terms of additions (A), multiplications (M), squares (SQ), and square roots (SR)
 # Security Considerations
 
 Each hash function variant accepts arbitrary input and maps it to a pseudorandom
-point on the curve. Points will be indistinguishable from randomly chosen elements on
-the curve.
+point on the curve. Points are close to indistinguishable from randomly chosen 
+elements on the curve. Some variants variants are not full-domain hashes. Elligator2,
+for example, only maps strings to "about half of all curve points."
 
 # Acknowledgements
 
@@ -551,6 +565,10 @@ def icart_straight(u):
 ~~~
 
 ## Shallue-Woestijne-Ulas Method
+
+((TODO: write this section))
+
+## Simplified SWU Method
 
 The following Sage program implements hash_to_curve_swu(alpha) for P-256.
 
