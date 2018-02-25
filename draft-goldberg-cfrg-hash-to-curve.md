@@ -157,12 +157,12 @@ normative:
 
 --- abstract
 
-This document specifies three algorithms that may be used to hash arbitrary
+This document specifies a number of algorithms that may be used to hash arbitrary
 strings to Elliptic Curves. 
 
 --- middle
 
-# Introduction
+# Introduction {#introduction}
 
 Many cryptographic protocols require a procedure which maps arbitrary input, e.g.,
 passwords, to points on an elliptic curve (EC). Prominent examples include
@@ -180,7 +180,8 @@ was described by Burns et al. {{ECOPRF}}. This function works by hashing
 input m using a standard hash function, e.g., SHA256, and then checking to see 
 if the resulting point E(m, f(m)), for curve function f, belongs on E.
 This algorithm is expected to find a valid curve point after approximately two 
-attempts, i.e., when ctr=1, on average. Since the running time of algorithm depends on m, 
+attempts, i.e., when ctr=1, on average. (See Appendix {{try}} for a more detailed
+description of this algorithm.) Since the running time of algorithm depends on m, 
 this algorithm is NOT safe for cases sensitive to timing side channel attacks. 
 Deterministic algorithms are needed in such cases where failures 
 are undesirable. Shallue and Woestijne ((TODO:cite)) first introduced a deterministic 
@@ -191,8 +192,8 @@ Elligator (2) {{Elligator2}} is yet another deterministic algorithm for any odd-
 EC that has a point of order 2. Elligator can be applied to Curve25519 and Curve448, which 
 are both CFRG-recommended curves {{RFC7748}}.
 
-This document specifies 2 algorithms for deterministically hashing onto a curve
-with varying properties: Icart and Elligator2. Each algorithm conforms to a common 
+This document specifies several algorithms for deterministically hashing onto a curve
+with varying properties: Icart, SWU, Simplified SWU, and Elligator2. Each algorithm conforms to a common 
 interface, i.e., it maps an element from a base field F to a curve E. For each variant, we 
 describe the requirements for F and E to make it work. Sample code for each variant is 
 presented in the appendix.  Unless otherwise stated, all elliptic curve points are assumed to 
@@ -463,6 +464,30 @@ Curve25519 {{ElligatorAGL}}. We also thank Sean Devlin and Thomas Icart for feed
 earlier versions of this document.
 
 --- back
+
+# Try-and-Increment Method {#try}
+
+In cases where constant time execution is not required, the so-called
+try-and-increment method may be appropriate. As discussion in Section {{introduction}},
+this variant works by hashing input m using a standard hash function ("Hash"), e.g., SHA256, and 
+then checking to see if the resulting point E(m, f(m)), for curve function f, belongs on E.
+This is detailed below.
+
+~~~
+1. ctr = 0
+3. h = "INVALID"
+4. While h is "INVALID" or h is EC point at infinity:
+   A.  CTR = I2OSP(ctr, 4)
+   B.  ctr = ctr + 1
+   C.  attempted_hash = Hash(m || CTR)
+   D.  h = RS2ECP(attempted_hash)
+   E.  If h is not "INVALID" and cofactor > 1, set h = h^cofactor
+5. Output h
+~~~
+
+I2OSP is a function that converts a nonnegative integer to octet string as 
+defined in Section 4.1 of {{RFC8017}}, and RS2ECP is a function that converts of a random 
+2n-octet string to an EC point as specified in Section 5.1.3 of {{RFC8032}}.
 
 # Sample Code
 
