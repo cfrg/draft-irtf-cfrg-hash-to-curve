@@ -117,6 +117,7 @@ normative:
   Elligator2:
     title: Elligator -- Elliptic-curve points indistinguishable from uniform random strings
     venue: Proceedings of the 2013 ACM SIGSAC conference on Computer & communications security. ACM, 2013.
+    target: https://dl.acm.org/ft_gateway.cfm?id=2516734&type=pdf
     authors:
       -
         ins: Daniel J. Bernstein
@@ -131,6 +132,14 @@ normative:
         ins: Tanja Lange
         org: Department of Mathematics and Computer Science, Technische Universiteit Eindhoven, The Netherlands
   SWU:
+    title: Rational points on certain hyperelliptic curves over finite fields
+    target: https://arxiv.org/pdf/0706.1448
+    authors:
+      -
+        ins: Maciej Ulas
+        org: 
+
+  SimpleSWU:
     title: Efficient Indifferentiable Hashing into Ordinary Elliptic Curves
     venue: Annual Cryptology Conference (pp. 237-254). Springer, Berlin, Heidelberg.
     authors:
@@ -255,11 +264,8 @@ have non-negligible bias in higher bits.
 
 ## Icart Method {#icart}
 
-((TODO: Weierstrass form curves with affine coordinates.))
-
-The following hash_to_curve_icart(alpha) algorithm implements
-a constant-time variant of hash_to_curve(alpha, x). This algorithm
-works for any curve over F_{p^n}, where p^n = 2 mod 3 
+The following hash_to_curve_icart(alpha) algorithm implements a constant-time hashing variant. 
+This algorithm works for any curve over F_{p^n}, where p^n = 2 mod 3 
 (or p = 2 mod 3 and for odd n), including:
 
 - P384
@@ -282,6 +288,7 @@ where v = ((3A - u^4) / 6u).
 
 The following procedure implements this algorithm in a straight-line fashion.
 It requires knowledge of A and B, the constants from the curve Weierstrass form.
+It outputs a point with affine coordinates.
 
 ~~~
 hash_to_curve_icart(alpha)
@@ -327,10 +334,8 @@ Steps:
 
 ## Simplified SWU Method {#simple-swu}
 
-((TODO: Weierstrass form curves with affine coordinates.))
-
-The following hash_to_curve_swu(alpha) implements the simplfied
-Shallue-Woestijne-Ulas algorithm from {{SWU}}. This algorithm
+The following hash_to_curve_simple_swu(alpha) implements the simplfied
+Shallue-Woestijne-Ulas algorithm from {{SimpleSWU}}. This algorithm
 works for any curve over F_{p^n}, where p = 3 mod 4, including:
 
 - P256
@@ -346,10 +351,11 @@ Given curve equation g(x) = x^3 + Ax + B, this algorithm works as follows:
 5. Output (−g * alpha) * (g * beta)
 ~~~
 
-The following procedure implements this algorithm.
+The following procedure implements this algorithm. It outputs a point with
+affine coordinates.
 
 ~~~
-hash_to_curve_swu(alpha)
+hash_to_curve_simple_swu(alpha)
 
 Input:
 
@@ -466,11 +472,12 @@ Elligator2 can be simplified with projective coordinates. ((TODO: should we writ
 The following table summarizes the cost of each hash_to_curve variant. We express this cost in 
 terms of additions (A), multiplications (M), squares (SQ), and square roots (SR). 
 
-((TODO: finish me))
+((TODO: finish this section))
 
 | Algorithm | Cost (Operations) | 
 | hash_to_curve_icart | ? |
 | hash_to_curve_swu | ? |
+| hash_to_curve_simple_swu | ? |
 | hash_to_curve_elligator2 | ? |
 
 # Security Considerations
@@ -478,7 +485,8 @@ terms of additions (A), multiplications (M), squares (SQ), and square roots (SR)
 Each hash function variant accepts arbitrary input and maps it to a pseudorandom
 point on the curve. Points are close to indistinguishable from randomly chosen 
 elements on the curve. Some variants variants are not full-domain hashes. Elligator2,
-for example, only maps strings to "about half of all curve points."
+for example, only maps strings to "about half of all curve points," whereas Icart's
+method only covers about 5/8 of the points.
 
 # Acknowledgements
 
@@ -519,7 +527,6 @@ defined in Section 4.1 of {{RFC8017}}, and RS2ECP is a function that converts of
 The following Sage program implements hash_to_curve_icart(alpha) for P-384.
 
 ~~~
-# P384
 p = 39402006196394479212279040100143613805079739270465446667948293404245721771496870329047266088258938001861606973112319
 F = GF(p)
 A = p - 3
@@ -582,7 +589,6 @@ def icart_straight(u):
 The following Sage program implements hash_to_curve_swu(alpha) for P-256.
 
 ~~~
-# P256
 p = 115792089210356248762697446949407573530086143415290314195533631308867097853951
 F = GF(p)
 A = F(p - 3)
@@ -653,7 +659,6 @@ def simple_swu_straight(alpha):
 The following Sage program implements hash_to_curve_elligator2(alpha) for Curve25519.
 
 ~~~
-# Curve25519
 p = 2**255 - 19
 F = GF(p)
 A = 486662

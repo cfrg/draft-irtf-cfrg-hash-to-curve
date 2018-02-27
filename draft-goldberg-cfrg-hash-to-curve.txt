@@ -5,10 +5,10 @@
 Network Working Group                                        S. Goldberg
 Internet-Draft                                         Boston University
 Intended status: Informational                               N. Sullivan
-Expires: August 28, 2018                                      Cloudflare
+Expires: August 31, 2018                                      Cloudflare
                                                                  C. Wood
                                                               Apple Inc.
-                                                       February 24, 2018
+                                                       February 27, 2018
 
 
                        Hashing to Elliptic Curves
@@ -27,14 +27,14 @@ Status of This Memo
    Internet-Drafts are working documents of the Internet Engineering
    Task Force (IETF).  Note that other groups may also distribute
    working documents as Internet-Drafts.  The list of current Internet-
-   Drafts is at http://datatracker.ietf.org/drafts/current/.
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
 
    Internet-Drafts are draft documents valid for a maximum of six months
    and may be updated, replaced, or obsoleted by other documents at any
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on August 28, 2018.
+   This Internet-Draft will expire on August 31, 2018.
 
 Copyright Notice
 
@@ -43,7 +43,7 @@ Copyright Notice
 
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents
-   (http://trustee.ietf.org/license-info) in effect on the date of
+   (https://trustee.ietf.org/license-info) in effect on the date of
    publication of this document.  Please review these documents
    carefully, as they describe your rights and restrictions with respect
    to this document.  Code Components extracted from this document must
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Goldberg, et al.         Expires August 28, 2018                [Page 1]
+Goldberg, et al.         Expires August 31, 2018                [Page 1]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -75,7 +75,7 @@ Table of Contents
    7.  Security Considerations . . . . . . . . . . . . . . . . . . .  11
    8.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  11
    9.  Normative References  . . . . . . . . . . . . . . . . . . . .  11
-   Appendix A.  Try-and-Increment Method . . . . . . . . . . . . . .  12
+   Appendix A.  Try-and-Increment Method . . . . . . . . . . . . . .  13
    Appendix B.  Sample Code  . . . . . . . . . . . . . . . . . . . .  13
      B.1.  Icart Method  . . . . . . . . . . . . . . . . . . . . . .  13
      B.2.  Shallue-Woestijne-Ulas Method . . . . . . . . . . . . . .  14
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Goldberg, et al.         Expires August 28, 2018                [Page 2]
+Goldberg, et al.         Expires August 31, 2018                [Page 2]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -165,7 +165,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 28, 2018                [Page 3]
+Goldberg, et al.         Expires August 31, 2018                [Page 3]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -221,19 +221,17 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 28, 2018                [Page 4]
+Goldberg, et al.         Expires August 31, 2018                [Page 4]
 
 Internet-Draft                hash-to-curve                February 2018
 
 
 4.1.  Icart Method
 
-   ((TODO: Weierstrass form curves with affine coordinates.))
-
    The following hash_to_curve_icart(alpha) algorithm implements a
-   constant-time variant of hash_to_curve(alpha, x).  This algorithm
-   works for any curve over F_{p^n}, where p^n = 2 mod 3 (or p = 2 mod 3
-   and for odd n), including:
+   constant-time hashing variant.  This algorithm works for any curve
+   over F_{p^n}, where p^n = 2 mod 3 (or p = 2 mod 3 and for odd n),
+   including:
 
    o  P384
 
@@ -255,7 +253,7 @@ Internet-Draft                hash-to-curve                February 2018
 
    The following procedure implements this algorithm in a straight-line
    fashion.  It requires knowledge of A and B, the constants from the
-   curve Weierstrass form.
+   curve Weierstrass form.  It outputs a point with affine coordinates.
 
 
 
@@ -277,7 +275,9 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 28, 2018                [Page 5]
+
+
+Goldberg, et al.         Expires August 31, 2018                [Page 5]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -324,21 +324,19 @@ Internet-Draft                hash-to-curve                February 2018
 
 4.3.  Simplified SWU Method
 
-   ((TODO: Weierstrass form curves with affine coordinates.))
+   The following hash_to_curve_simple_swu(alpha) implements the
+   simplfied Shallue-Woestijne-Ulas algorithm from [SimpleSWU].  This
+   algorithm works for any curve over F_{p^n}, where p = 3 mod 4,
+   including:
 
-   The following hash_to_curve_swu(alpha) implements the simplfied
-   Shallue-Woestijne-Ulas algorithm from [SWU].  This algorithm works
-   for any curve over F_{p^n}, where p = 3 mod 4, including:
+   o  P256
 
 
 
-
-Goldberg, et al.         Expires August 28, 2018                [Page 6]
+Goldberg, et al.         Expires August 31, 2018                [Page 6]
 
 Internet-Draft                hash-to-curve                February 2018
 
-
-   o  P256
 
    o  ...
 
@@ -351,7 +349,8 @@ Internet-Draft                hash-to-curve                February 2018
    4. z = t^3 * g(alpha)
    5. Output (-g * alpha) * (g * beta)
 
-   The following procedure implements this algorithm.
+   The following procedure implements this algorithm.  It outputs a
+   point with affine coordinates.
 
 
 
@@ -389,12 +388,13 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 28, 2018                [Page 7]
+
+Goldberg, et al.         Expires August 31, 2018                [Page 7]
 
 Internet-Draft                hash-to-curve                February 2018
 
 
-   hash_to_curve_swu(alpha)
+   hash_to_curve_simple_swu(alpha)
 
    Input:
 
@@ -445,7 +445,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 28, 2018                [Page 8]
+Goldberg, et al.         Expires August 31, 2018                [Page 8]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -501,7 +501,7 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 28, 2018                [Page 9]
+Goldberg, et al.         Expires August 31, 2018                [Page 9]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -557,12 +557,12 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 28, 2018               [Page 10]
+Goldberg, et al.         Expires August 31, 2018               [Page 10]
 
 Internet-Draft                hash-to-curve                February 2018
 
 
-   ((TODO: finish me))
+   ((TODO: finish this section))
 
              +--------------------------+-------------------+
              | Algorithm                | Cost (Operations) |
@@ -570,6 +570,8 @@ Internet-Draft                hash-to-curve                February 2018
              | hash_to_curve_icart      | ?                 |
              |                          |                   |
              | hash_to_curve_swu        | ?                 |
+             |                          |                   |
+             | hash_to_curve_simple_swu | ?                 |
              |                          |                   |
              | hash_to_curve_elligator2 | ?                 |
              +--------------------------+-------------------+
@@ -580,7 +582,8 @@ Internet-Draft                hash-to-curve                February 2018
    pseudorandom point on the curve.  Points are close to
    indistinguishable from randomly chosen elements on the curve.  Some
    variants variants are not full-domain hashes.  Elligator2, for
-   example, only maps strings to "about half of all curve points."
+   example, only maps strings to "about half of all curve points,"
+   whereas Icart's method only covers about 5/8 of the points.
 
 8.  Acknowledgements
 
@@ -602,21 +605,23 @@ Internet-Draft                hash-to-curve                February 2018
 
    [Elligator2]
               "Elligator -- Elliptic-curve points indistinguishable from
-              uniform random strings", n.d..
+              uniform random strings", n.d.,
+              <https://dl.acm.org/ft_gateway.cfm?id=2516734&type=pdf>.
+
+
+
+
+
+
+Goldberg, et al.         Expires August 31, 2018               [Page 11]
+
+Internet-Draft                hash-to-curve                February 2018
+
 
    [ElligatorAGL]
               "Implementing Elligator for Curve25519", n.d.,
               <https://www.imperialviolet.org/2013/12/25/
               elligator.html>.
-
-
-
-
-
-Goldberg, et al.         Expires August 28, 2018               [Page 11]
-
-Internet-Draft                hash-to-curve                February 2018
-
 
    [Icart09]  "How to Hash into Elliptic Curves", n.d.,
               <https://eprint.iacr.org/2009/226.pdf>.
@@ -626,13 +631,13 @@ Internet-Draft                hash-to-curve                February 2018
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
-              DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
-              editor.org/info/rfc2119>.
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
 
    [RFC6605]  Hoffman, P. and W. Wijngaards, "Elliptic Curve Digital
               Signature Algorithm (DSA) for DNSSEC", RFC 6605,
-              DOI 10.17487/RFC6605, April 2012, <https://www.rfc-
-              editor.org/info/rfc6605>.
+              DOI 10.17487/RFC6605, April 2012,
+              <https://www.rfc-editor.org/info/rfc6605>.
 
    [RFC7748]  Langley, A., Hamburg, M., and S. Turner, "Elliptic Curves
               for Security", RFC 7748, DOI 10.17487/RFC7748, January
@@ -645,14 +650,29 @@ Internet-Draft                hash-to-curve                February 2018
 
    [RFC8032]  Josefsson, S. and I. Liusvaara, "Edwards-Curve Digital
               Signature Algorithm (EdDSA)", RFC 8032,
-              DOI 10.17487/RFC8032, January 2017, <https://www.rfc-
-              editor.org/info/rfc8032>.
+              DOI 10.17487/RFC8032, January 2017,
+              <https://www.rfc-editor.org/info/rfc8032>.
 
    [SECG1]    "SEC 1 -- Elliptic Curve Cryptography", n.d.,
               <http://www.secg.org/sec1-v2.pdf>.
 
-   [SWU]      "Efficient Indifferentiable Hashing into Ordinary Elliptic
+   [SimpleSWU]
+              "Efficient Indifferentiable Hashing into Ordinary Elliptic
               Curves", n.d..
+
+   [SWU]      "Rational points on certain hyperelliptic curves over
+              finite fields", n.d., <https://arxiv.org/pdf/0706.1448>.
+
+
+
+
+
+
+
+Goldberg, et al.         Expires August 31, 2018               [Page 12]
+
+Internet-Draft                hash-to-curve                February 2018
+
 
 Appendix A.  Try-and-Increment Method
 
@@ -662,17 +682,6 @@ Appendix A.  Try-and-Increment Method
    standard hash function ("Hash"), e.g., SHA256, and then checking to
    see if the resulting point E(m, f(m)), for curve function f, belongs
    on E.  This is detailed below.
-
-
-
-
-
-
-
-Goldberg, et al.         Expires August 28, 2018               [Page 12]
-
-Internet-Draft                hash-to-curve                February 2018
-
 
    1. ctr = 0
    3. h = "INVALID"
@@ -696,7 +705,6 @@ B.1.  Icart Method
    The following Sage program implements hash_to_curve_icart(alpha) for
    P-384.
 
-# P384
 p = 39402006196394479212279040100143613805079739270465446667948293404245721771496870329047266088258938001861606973112319
 F = GF(p)
 A = p - 3
@@ -714,6 +722,14 @@ def icart(u):
   y = u*x + v
   return E(x, y)
 
+
+
+
+Goldberg, et al.         Expires August 31, 2018               [Page 13]
+
+Internet-Draft                hash-to-curve                February 2018
+
+
 def icart_straight(u):
     u = F(u)
     u2 = u ^ 2
@@ -722,14 +738,6 @@ def icart_straight(u):
 
     v1 = 3 * A
     v1 = v1 - t2
-
-
-
-Goldberg, et al.         Expires August 28, 2018               [Page 13]
-
-Internet-Draft                hash-to-curve                February 2018
-
-
     t1 = 6 * u
     t3 = t1 ^ (-1)
     v = v1 * t3
@@ -766,11 +774,18 @@ B.3.  Simplified SWU Method
    The following Sage program implements hash_to_curve_swu(alpha) for
    P-256.
 
-# P256
 p = 115792089210356248762697446949407573530086143415290314195533631308867097853951
 F = GF(p)
 A = F(p - 3)
 B = F(ZZ("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16))
+
+
+
+Goldberg, et al.         Expires August 31, 2018               [Page 14]
+
+Internet-Draft                hash-to-curve                February 2018
+
+
 E = EllipticCurve([A, B])
 
 def simple_swu(alpha):
@@ -778,14 +793,6 @@ def simple_swu(alpha):
 
     alpha = -(t^2)
     frac = (1 / (alpha^2 + alpha))
-
-
-
-Goldberg, et al.         Expires August 28, 2018               [Page 14]
-
-Internet-Draft                hash-to-curve                February 2018
-
-
     x2 = (-B / A) * (1 + frac)
 
     x3 = alpha * x2
@@ -827,6 +834,14 @@ def simple_swu_straight(alpha):
     y2 = h3^((p + 1) // 4)
 
     # Is it square?
+
+
+
+Goldberg, et al.         Expires August 31, 2018               [Page 15]
+
+Internet-Draft                hash-to-curve                February 2018
+
+
     e = y1^2 == h2
 
     x = x2
@@ -834,14 +849,6 @@ def simple_swu_straight(alpha):
         x = x3
 
     y = y1
-
-
-
-Goldberg, et al.         Expires August 28, 2018               [Page 15]
-
-Internet-Draft                hash-to-curve                February 2018
-
-
     if e != 1:
         y = y2
 
@@ -852,7 +859,6 @@ B.4.  Elligator2 Method
    The following Sage program implements hash_to_curve_elligator2(alpha)
    for Curve25519.
 
-   # Curve25519
    p = 2**255 - 19
    F = GF(p)
    A = 486662
@@ -885,19 +891,18 @@ B.4.  Elligator2 Method
    def elligator2_straight(alpha):
        r = F(alpha)
 
+
+
+Goldberg, et al.         Expires August 31, 2018               [Page 16]
+
+Internet-Draft                hash-to-curve                February 2018
+
+
        r = r^2
        r = r * 2
        r = r + 1
        r = r^(-1)
        v = A * r
-
-
-
-Goldberg, et al.         Expires August 28, 2018               [Page 16]
-
-Internet-Draft                hash-to-curve                February 2018
-
-
        v = v * -1 # d
 
        v2 = v^2
@@ -944,12 +949,7 @@ Authors' Addresses
 
 
 
-
-
-
-
-
-Goldberg, et al.         Expires August 28, 2018               [Page 17]
+Goldberg, et al.         Expires August 31, 2018               [Page 17]
 
 Internet-Draft                hash-to-curve                February 2018
 
@@ -1005,4 +1005,4 @@ Internet-Draft                hash-to-curve                February 2018
 
 
 
-Goldberg, et al.         Expires August 28, 2018               [Page 18]
+Goldberg, et al.         Expires August 31, 2018               [Page 18]

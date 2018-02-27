@@ -278,7 +278,7 @@ address {
   .github-fork-ribbon-wrapper {
     position: fixed;
   }
-  /*]]>*/</style>
+/*]]>*/</style>
 
 
   <link href="#rfc.toc" rel="Contents">
@@ -306,12 +306,12 @@ address {
 <link href="#rfc.authors" rel="Chapter">
 
 
-  <meta name="generator" content="xml2rfc version 2.9.4 - https://tools.ietf.org/tools/xml2rfc" />
+  <meta name="generator" content="xml2rfc version 2.8.5 - https://tools.ietf.org/tools/xml2rfc" />
   <link rel="schema.dct" href="http://purl.org/dc/terms/" />
 
   <meta name="dct.creator" content="Goldberg, S., Sullivan, N., and C. Wood" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-goldberg-hash-to-curve-latest" />
-  <meta name="dct.issued" scheme="ISO8601" content="2018-02-25" />
+  <meta name="dct.issued" scheme="ISO8601" content="2018-2-27" />
   <meta name="dct.abstract" content="This document specifies a number of algorithms that may be used to hash arbitrary strings to Elliptic Curves." />
   <meta name="description" content="This document specifies a number of algorithms that may be used to hash arbitrary strings to Elliptic Curves." />
 
@@ -335,7 +335,7 @@ address {
 <td class="right">N. Sullivan</td>
 </tr>
 <tr>
-<td class="left">Expires: August 29, 2018</td>
+<td class="left">Expires: August 31, 2018</td>
 <td class="right">Cloudflare</td>
 </tr>
 <tr>
@@ -348,7 +348,7 @@ address {
 </tr>
 <tr>
 <td class="left"></td>
-<td class="right">February 25, 2018</td>
+<td class="right">February 27, 2018</td>
 </tr>
 
     	
@@ -364,7 +364,7 @@ address {
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at https://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on August 29, 2018.</p>
+<p>This Internet-Draft will expire on August 31, 2018.</p>
 <h1 id="rfc.copyrightnotice"><a href="#rfc.copyrightnotice">Copyright Notice</a></h1>
 <p>Copyright (c) 2018 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
 <p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
@@ -519,8 +519,7 @@ hash_to_curve(alpha)
 <h1 id="rfc.section.4.1">
 <a href="#rfc.section.4.1">4.1.</a> <a href="#icart" id="icart">Icart Method</a>
 </h1>
-<p id="rfc.section.4.1.p.1">((TODO: Weierstrass form curves with affine coordinates.))</p>
-<p id="rfc.section.4.1.p.2">The following hash_to_curve_icart(alpha) algorithm implements a constant-time variant of hash_to_curve(alpha, x). This algorithm works for any curve over F_{p^n}, where p^n = 2 mod 3 (or p = 2 mod 3 and for odd n), including:</p>
+<p id="rfc.section.4.1.p.1">The following hash_to_curve_icart(alpha) algorithm implements a constant-time hashing variant.  This algorithm works for any curve over F_{p^n}, where p^n = 2 mod 3 (or p = 2 mod 3 and for odd n), including:</p>
 <p></p>
 
 <ul>
@@ -528,15 +527,15 @@ hash_to_curve(alpha)
 <li>Curve1174</li>
 <li>Curve448</li>
 </ul>
-<p id="rfc.section.4.1.p.4">Unsupported curves include: P224, P256, P521, and Curve25519 since, for each, p = 1 mod 3.</p>
-<p id="rfc.section.4.1.p.5">Mathematically, given input alpha, and A and B from E, the Icart method works as follows:</p>
+<p id="rfc.section.4.1.p.3">Unsupported curves include: P224, P256, P521, and Curve25519 since, for each, p = 1 mod 3.</p>
+<p id="rfc.section.4.1.p.4">Mathematically, given input alpha, and A and B from E, the Icart method works as follows:</p>
 <pre>
 u = HashToBase(alpha)
 x = (v^2 - b - (u^6 / 27))^(1/3) + (u^2 / 3)
 y = ux + v
 </pre>
-<p id="rfc.section.4.1.p.6">where v = ((3A - u^4) / 6u).</p>
-<p id="rfc.section.4.1.p.7">The following procedure implements this algorithm in a straight-line fashion.  It requires knowledge of A and B, the constants from the curve Weierstrass form.</p>
+<p id="rfc.section.4.1.p.5">where v = ((3A - u^4) / 6u).</p>
+<p id="rfc.section.4.1.p.6">The following procedure implements this algorithm in a straight-line fashion.  It requires knowledge of A and B, the constants from the curve Weierstrass form.  It outputs a point with affine coordinates.</p>
 <pre>
 hash_to_curve_icart(alpha)
 
@@ -581,15 +580,14 @@ Steps:
 <h1 id="rfc.section.4.3">
 <a href="#rfc.section.4.3">4.3.</a> <a href="#simple-swu" id="simple-swu">Simplified SWU Method</a>
 </h1>
-<p id="rfc.section.4.3.p.1">((TODO: Weierstrass form curves with affine coordinates.))</p>
-<p id="rfc.section.4.3.p.2">The following hash_to_curve_swu(alpha) implements the simplfied Shallue-Woestijne-Ulas algorithm from <a href="#SWU" class="xref">[SWU]</a>. This algorithm works for any curve over F_{p^n}, where p = 3 mod 4, including:</p>
+<p id="rfc.section.4.3.p.1">The following hash_to_curve_simple_swu(alpha) implements the simplfied Shallue-Woestijne-Ulas algorithm from <a href="#SimpleSWU" class="xref">[SimpleSWU]</a>. This algorithm works for any curve over F_{p^n}, where p = 3 mod 4, including:</p>
 <p></p>
 
 <ul>
 <li>P256</li>
 <li>&#8230;</li>
 </ul>
-<p id="rfc.section.4.3.p.4">Given curve equation g(x) = x^3 + Ax + B, this algorithm works as follows:</p>
+<p id="rfc.section.4.3.p.3">Given curve equation g(x) = x^3 + Ax + B, this algorithm works as follows:</p>
 <pre>
 1. t = HashToBase(alpha)
 2. alpha = (-b / a) * (1 + (1 / (t^4 + t^2))) 
@@ -597,9 +595,9 @@ Steps:
 4. z = t^3 * g(alpha)
 5. Output (&#8722;g * alpha) * (g * beta)
 </pre>
-<p id="rfc.section.4.3.p.5">The following procedure implements this algorithm.</p>
+<p id="rfc.section.4.3.p.4">The following procedure implements this algorithm. It outputs a point with affine coordinates.</p>
 <pre>
-hash_to_curve_swu(alpha)
+hash_to_curve_simple_swu(alpha)
 
 Input:
 
@@ -699,7 +697,7 @@ Steps:
 <a href="#rfc.section.6">6.</a> <a href="#cost-comparison" id="cost-comparison">Cost Comparison</a>
 </h1>
 <p id="rfc.section.6.p.1">The following table summarizes the cost of each hash_to_curve variant. We express this cost in terms of additions (A), multiplications (M), squares (SQ), and square roots (SR).</p>
-<p id="rfc.section.6.p.2">((TODO: finish me))</p>
+<p id="rfc.section.6.p.2">((TODO: finish this section))</p>
 <table cellpadding="3" cellspacing="0" class="tt full center">
 <thead><tr>
 <th class="left">Algorithm</th>
@@ -715,6 +713,10 @@ Steps:
 <td class="left">?</td>
 </tr>
 <tr>
+<td class="left">hash_to_curve_simple_swu</td>
+<td class="left">?</td>
+</tr>
+<tr>
 <td class="left">hash_to_curve_elligator2</td>
 <td class="left">?</td>
 </tr>
@@ -723,7 +725,7 @@ Steps:
 <h1 id="rfc.section.7">
 <a href="#rfc.section.7">7.</a> <a href="#security-considerations" id="security-considerations">Security Considerations</a>
 </h1>
-<p id="rfc.section.7.p.1">Each hash function variant accepts arbitrary input and maps it to a pseudorandom point on the curve. Points are close to indistinguishable from randomly chosen elements on the curve. Some variants variants are not full-domain hashes. Elligator2, for example, only maps strings to &#8220;about half of all curve points.&#8221;</p>
+<p id="rfc.section.7.p.1">Each hash function variant accepts arbitrary input and maps it to a pseudorandom point on the curve. Points are close to indistinguishable from randomly chosen elements on the curve. Some variants variants are not full-domain hashes. Elligator2, for example, only maps strings to &#8220;about half of all curve points,&#8221; whereas Icart&#8217;s method only covers about 5/8 of the points.</p>
 <h1 id="rfc.section.8">
 <a href="#rfc.section.8">8.</a> <a href="#acknowledgements" id="acknowledgements">Acknowledgements</a>
 </h1>
@@ -745,7 +747,7 @@ Steps:
 </tr>
 <tr>
 <td class="reference"><b id="Elligator2">[Elligator2]</b></td>
-<td class="top">"<a>Elligator -- Elliptic-curve points indistinguishable from uniform random strings</a>", n.d..</td>
+<td class="top">"<a href="https://dl.acm.org/ft_gateway.cfm?id=2516734&amp;type=pdf">Elligator -- Elliptic-curve points indistinguishable from uniform random strings</a>", n.d..</td>
 </tr>
 <tr>
 <td class="reference"><b id="ElligatorAGL">[ElligatorAGL]</b></td>
@@ -789,8 +791,12 @@ Steps:
 <td class="top">"<a href="http://www.secg.org/sec1-v2.pdf">SEC 1 -- Elliptic Curve Cryptography</a>", n.d..</td>
 </tr>
 <tr>
-<td class="reference"><b id="SWU">[SWU]</b></td>
+<td class="reference"><b id="SimpleSWU">[SimpleSWU]</b></td>
 <td class="top">"<a>Efficient Indifferentiable Hashing into Ordinary Elliptic Curves</a>", n.d..</td>
+</tr>
+<tr>
+<td class="reference"><b id="SWU">[SWU]</b></td>
+<td class="top">"<a href="https://arxiv.org/pdf/0706.1448">Rational points on certain hyperelliptic curves over finite fields</a>", n.d..</td>
 </tr>
 </tbody></table>
 <h1 id="rfc.appendix.A">
@@ -817,7 +823,6 @@ Steps:
 </h1>
 <p id="rfc.section.B.1.p.1">The following Sage program implements hash_to_curve_icart(alpha) for P-384.</p>
 <pre>
-# P384
 p = 39402006196394479212279040100143613805079739270465446667948293404245721771496870329047266088258938001861606973112319
 F = GF(p)
 A = p - 3
@@ -879,7 +884,6 @@ def icart_straight(u):
 </h1>
 <p id="rfc.section.B.3.p.1">The following Sage program implements hash_to_curve_swu(alpha) for P-256.</p>
 <pre>
-# P256
 p = 115792089210356248762697446949407573530086143415290314195533631308867097853951
 F = GF(p)
 A = F(p - 3)
@@ -949,7 +953,6 @@ def simple_swu_straight(alpha):
 </h1>
 <p id="rfc.section.B.4.p.1">The following Sage program implements hash_to_curve_elligator2(alpha) for Curve25519.</p>
 <pre>
-# Curve25519
 p = 2**255 - 19
 F = GF(p)
 A = 486662
