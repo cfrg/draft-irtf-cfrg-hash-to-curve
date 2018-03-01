@@ -39,7 +39,6 @@ author:
 
 normative:
   RFC2119:
-  RFC6605:
   RFC7748:
   RFC8017:
   RFC8032:
@@ -190,7 +189,7 @@ input m using a standard hash function, e.g., SHA256, and then checking to see
 if the resulting point E(m, f(m)), for curve function f, belongs on E.
 This algorithm is expected to find a valid curve point after approximately two 
 attempts, i.e., when ctr=1, on average. (See Appendix {{try}} for a more detailed
-description of this algorithm.) Since the running time of algorithm depends on m, 
+description of this algorithm.) Since the running time of the algorithm depends on m, 
 this algorithm is NOT safe for cases sensitive to timing side channel attacks. 
 Deterministic algorithms are needed in such cases where failures 
 are undesirable. Shallue and Woestijne {{SWU}} first introduced a deterministic 
@@ -396,9 +395,8 @@ Steps:
 ## Elligator2 Method {#elligator2}
 
 The following hash_to_curve_elligator2(alpha) implements
-another constant-time variant of hash_to_curve(alpha). This algorithm
-works for any curve (over large characteristic field). The method is 
-simple to implement. Below, let f(x) = y^2 = x(x^2 + Ax + B), i.e., a
+another constant-time variant of hash_to_curve(alpha). 
+Below, let f(x) = y^2 = x(x^2 + Ax + B), i.e., a
 Montgomery form with the point of order 2 at (0,0). Any curve with a 
 point of order 2 is isomorphic to this representation.
 
@@ -461,7 +459,9 @@ Steps:
 19. Output (u, f(u))
 ~~~
 
-Elligator2 can be simplified with projective coordinates. ((TODO: should we write this variant?))
+Elligator2 can be simplified with projective coordinates. 
+
+((TODO: write this variant))
 
 # Curve Transformations
 
