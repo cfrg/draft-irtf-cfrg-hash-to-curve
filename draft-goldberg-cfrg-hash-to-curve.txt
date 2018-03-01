@@ -525,13 +525,13 @@ Internet-Draft                hash-to-curve                   March 2018
              +--------------------------+-------------------+
              | Algorithm                | Cost (Operations) |
              +--------------------------+-------------------+
-             | hash_to_curve_icart      | ?                 |
+             | hash_to_curve_icart      | TODO              |
              |                          |                   |
-             | hash_to_curve_swu        | ?                 |
+             | hash_to_curve_swu        | TODO              |
              |                          |                   |
-             | hash_to_curve_simple_swu | ?                 |
+             | hash_to_curve_simple_swu | TODO              |
              |                          |                   |
-             | hash_to_curve_elligator2 | ?                 |
+             | hash_to_curve_elligator2 | TODO              |
              +--------------------------+-------------------+
 
 7.  Security Considerations
@@ -909,8 +909,8 @@ Internet-Draft                hash-to-curve                   March 2018
 
    Christopher A. Wood
    Apple Inc.
-   1 Infinite Loop
-   Cupertino, Califoarnia 95014
+   One Apple Park Way
+   Cupertino, California 95014
    United States of America
 
    Email: cawood@apple.com

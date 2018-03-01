@@ -36,7 +36,7 @@ jobs:
       # Create and store artifacts
       - run:
           name: "Create Artifacts"
-          command: "make artifacts CI_ARTIFACTS=/tmp/artifacts && cp /tmp/artifacts/* . && git config --local user.email \"git@circle.com\" && git config --local user.name \"CircleCI\" && (git commit -a -m \"Script update\" && git push) || echo \"No changes to commit\""
+          command: "make artifacts CI_ARTIFACTS=/tmp/artifacts"
 
       - store_artifacts:
           path: /tmp/artifacts

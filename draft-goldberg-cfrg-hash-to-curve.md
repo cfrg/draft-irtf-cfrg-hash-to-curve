@@ -32,8 +32,8 @@ author:
     ins: C. A. Wood
     name: Christopher A. Wood
     org: Apple Inc.
-    street: 1 Infinite Loop
-    city: Cupertino, Califoarnia 95014
+    street: One Apple Park Way
+    city: Cupertino, California 95014
     country: United States of America
     email: cawood@apple.com
 
@@ -475,10 +475,10 @@ terms of additions (A), multiplications (M), squares (SQ), and square roots (SR)
 ((TODO: finish this section))
 
 | Algorithm | Cost (Operations) | 
-| hash_to_curve_icart | ? |
-| hash_to_curve_swu | ? |
-| hash_to_curve_simple_swu | ? |
-| hash_to_curve_elligator2 | ? |
+| hash_to_curve_icart | TODO |
+| hash_to_curve_swu | TODO |
+| hash_to_curve_simple_swu | TODO |
+| hash_to_curve_elligator2 | TODO |
 
 # Security Considerations
 
