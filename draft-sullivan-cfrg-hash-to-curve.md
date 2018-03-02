@@ -1,7 +1,7 @@
 ---
 title: Hashing to Elliptic Curves
 abbrev: hash-to-curve
-docname: draft-goldberg-hash-to-curve-latest
+docname: draft-sullivan-hash-to-curve-latest
 date:
 category: info
 
@@ -12,14 +12,6 @@ stand_alone: yes
 pi: [toc, sortrefs, symrefs]
 
 author:
- -
-    ins: S. Goldberg
-    name: Sharon Goldberg
-    org: Boston University
-    street: 111 Cummington St, MCS135
-    city: Boston
-    country: United States of America
-    email: goldbe@cs.bu.edu
  -
     ins: N. Sullivan
     name: Nick Sullivan
@@ -494,6 +486,12 @@ method only covers about 5/8 of the points.
 The authors would like to thank Adam Langley for this detailed writeup up Elligator2 with
 Curve25519 {{ElligatorAGL}}. We also thank Sean Devlin and Thomas Icart for feedback on 
 earlier versions of this document.
+
+# Contributors
+
+* Sharon Goldberg \\
+  Boston University \\
+  goldbe@cs.bu.edu
 
 --- back
 
