@@ -184,7 +184,7 @@ and an injection F2 : GF(p) -> E, i.e., Hash(m) = F2(F1(m)).
 Probabilistic constructions of Hash, e.g., the MapToGroup function described by Boneh et al.
 {{BLS01}}. Their algorithm fails with probability 2^I, where I is a tunable parameter
 that one can control. Another variant, dubbed the "Try and Increment" approach,
-was described by Burns et al. {{ECOPRF}}. This function works by hashing 
+was described by Boneh et al. {{BLS01}}. This function works by hashing 
 input m using a standard hash function, e.g., SHA256, and then checking to see 
 if the resulting point E(m, f(m)), for curve function f, belongs on E.
 This algorithm is expected to find a valid curve point after approximately two 
@@ -195,7 +195,7 @@ Deterministic algorithms are needed in such cases where failures
 are undesirable. Shallue and Woestijne {{SWU}} first introduced a deterministic 
 algorithm that maps elements in F_{q} to an EC in time O(log^4 q), where q = p^n for 
 some prime p, and time O(log^3 q) when q = 3 mod 4. Icart introduced yet another
-deterministic algorithm which maps F_{q} to any EC where q = 2 mod 3 in time O(log^3 q).
+deterministic algorithm which maps F_{q} to any EC where q = 2 mod 3 in time O(log^3 q) {{Icart09}}.
 Elligator (2) {{Elligator2}} is yet another deterministic algorithm for any odd-characteristic 
 EC that has a point of order 2. Elligator can be applied to Curve25519 and Curve448, which 
 are both CFRG-recommended curves {{RFC7748}}.
@@ -263,7 +263,7 @@ have non-negligible bias in higher bits.
 
 ## Icart Method {#icart}
 
-The following hash_to_curve_icart(alpha) algorithm implements a constant-time hashing variant. 
+The following hash_to_curve_icart(alpha) implements the Icart method from {{Icart09}}.
 This algorithm works for any curve over F_{p^n}, where p^n = 2 mod 3 
 (or p = 2 mod 3 and for odd n), including:
 
@@ -302,27 +302,27 @@ Output:
 
 Steps:
 
-1.  u  = HashToBase(alpha)   // {0,1}^* -> Fp
+1.   u = HashToBase(alpha)   // {0,1}^* -> Fp
 2.  u2 = u^2 (mod p)         // u^2
 3.  t2 = u2^2 (mod p)        // u^4
 4.  v1 = 3 * A (mod p)       // 3A
 5.  v1 = v1 - t2 (mod p)     // 3A - u^4
 6.  t1 = 6 * u (mod p)       // 6u
 7.  t3 = t1 ^ (-1) (mod p)   // modular inverse
-8.  v  = v1 * t3 (mod p)     // (3A - u^4)/(6u)
-9.  x  = v^2 (mod p)         // v^2
-10. x  = x - B (mod p)       // v^2 - b
+8.   v = v1 * t3 (mod p)     // (3A - u^4)/(6u)
+9.   x = v^2 (mod p)         // v^2
+10.  x = x - B (mod p)       // v^2 - b
 11. t1 = 27 ^ (-1) (mod p)   // 1/27
 12. t1 = t1 * u2 (mod p)     // u^4 / 27
 13. t1 = t1 * t2 (mod p)     // u^6 / 27
-14. x  = x - t1 (mod p)      // v^2 - b - u^6/27
+14.  x = x - t1 (mod p)      // v^2 - b - u^6/27
 15. t1 = (2 * p) - 1 (mod p) // 2p - 1
 16. t1 = t1 / 3 (mod p)      // (2p - 1)/3
-17. x  = x^t1 (mod p)        // (v^2 - b - u^6/27) ^ (1/3)
+17.  x = x^t1 (mod p)        // (v^2 - b - u^6/27) ^ (1/3)
 18. t2 = u2 / 3 (mod p)      // u^2 / 3
-19. x  = x + t2 (mod p)      // (v^2 - b - u^6/27) ^ (1/3) + (u^2 / 3)
-20. y  = u * x (mod p)       // ux
-21. y  = y + v (mod p)       // ux + v
+19.  x = x + t2 (mod p)      // (v^2 - b - u^6/27) ^ (1/3) + (u^2 / 3)
+20.  y = u * x (mod p)       // ux
+21.  y = y + v (mod p)       // ux + v
 22. Output (x, y)
 
 ~~~
@@ -372,8 +372,8 @@ Steps:
 4. right = alpha^2 + alpha (mod p)
 5. right = right^(-1) (mod p)
 6. right = right + 1 (mod p)
-7. left  = B * -1 (mod p)
-8. left  = left / A (mod p) 
+7.  left = B * -1 (mod p)
+8.  left = left / A (mod p) 
 9.    x2 = left * right (mod p)
 10.   x3 = alpha * x2 (mod p)
 11.   h2 = x2 ^ 3 (mod p)
@@ -394,11 +394,12 @@ Steps:
 
 ## Elligator2 Method {#elligator2}
 
-The following hash_to_curve_elligator2(alpha) implements
-another constant-time variant of hash_to_curve(alpha). 
-Below, let f(x) = y^2 = x(x^2 + Ax + B), i.e., a
-Montgomery form with the point of order 2 at (0,0). Any curve with a 
-point of order 2 is isomorphic to this representation.
+The following hash_to_curve_elligator2(alpha) implements the Elligator2
+method from {{Elligator2}}. This algorithm works for any curve
+with a point of order 2 and j-invariant != 1728. Given curve equation 
+f(x) = y^2 = x(x^2 + Ax + B), i.e., a Montgomery form with the point of 
+order 2 at (0,0), this algorithm works as shown below. (Note that any curve 
+with a point of order 2 is isomorphic to this representation.)
 
 ~~~
 1. r = HashToBase(alpha)
@@ -438,21 +439,21 @@ Output:
 
 Steps:
 
-1.  r  = HashToBase(alpha)
-2.  r  = r^2 (mod p) 
-3. nu  = r * u (mod p)
-4.  r  = nu
-5.  r  = r + 1 (mod p) 
-6.  r  = r^(-1) (mod p) 
-7.  v  = A * r (mod p) 
-8.  v  = v * -1 (mod p)   // -A / (1 + ur^2)
+1.   r = HashToBase(alpha)
+2.   r = r^2 (mod p) 
+3.  nu = r * u (mod p)
+4.   r = nu
+5.   r = r + 1 (mod p) 
+6.   r = r^(-1) (mod p) 
+7.   v = A * r (mod p) 
+8.   v = v * -1 (mod p)   // -A / (1 + ur^2)
 9.  v2 = v^2 (mod p)
-10.  v3 = v * v2 (mod p)
+10. v3 = v * v2 (mod p)
 11.  e = v3 * v (mod p)
 12. v2 = v2 * A (mod p)
 13.  e = v2 * e (mod p)
 14.  e = e^((p - 1) / 2)  // Legendre symbol
-15. nv = v * -1
+15. nv = v * -1 (mod p)
 16.  v = CMOV(v, nv, e)   // If e = 1, choose v, else choose nv
 17. v2 = CMOV(0, A, e)    // If e = 1, choose 0, else choose A
 18.  u = v - v2 (mod p)
