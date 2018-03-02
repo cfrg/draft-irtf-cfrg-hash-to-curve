@@ -189,12 +189,13 @@ algorithm that maps elements in F_{q} to an EC in time O(log^4 q), where q = p^n
 some prime p, and time O(log^3 q) when q = 3 mod 4. Icart introduced yet another
 deterministic algorithm which maps F_{q} to any EC where q = 2 mod 3 in time O(log^3 q) {{Icart09}}.
 Elligator (2) {{Elligator2}} is yet another deterministic algorithm for any odd-characteristic 
-EC that has a point of order 2. Elligator can be applied to Curve25519 and Curve448, which 
+EC that has a point of order 2. Elligator2 can be applied to Curve25519 and Curve448, which 
 are both CFRG-recommended curves {{RFC7748}}.
 
 This document specifies several algorithms for deterministically hashing onto a curve
-with varying properties: Icart, SWU, Simplified SWU, and Elligator2. Each algorithm conforms to a common 
-interface, i.e., it maps an element from a base field F to a curve E. For each variant, we 
+with varying properties: Icart, SWU, Simplified SWU, and Elligator2. 
+Each algorithm conforms to a common  interface, i.e., it maps an element from 
+a base field F to a curve E. For each variant, we 
 describe the requirements for F and E to make it work. Sample code for each variant is 
 presented in the appendix.  Unless otherwise stated, all elliptic curve points are assumed to 
 be represented as affine coordinates, i.e., (x, y) points on a curve. 
@@ -422,7 +423,7 @@ Input:
 
   alpha - value to be hashed, an octet string
 
-  u - fixed nonsquare value in Fp.
+  u - fixed non-square value in Fp.
   f() - Curve function
 
 Output:
