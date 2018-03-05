@@ -5,12 +5,12 @@
 Network Working Group                                        N. Sullivan
 Internet-Draft                                                Cloudflare
 Intended status: Informational                                   C. Wood
-Expires: September 3, 2018                                    Apple Inc.
-                                                          March 02, 2018
+Expires: September 6, 2018                                    Apple Inc.
+                                                          March 05, 2018
 
 
                        Hashing to Elliptic Curves
-                  draft-sullivan-hash-to-curve-latest
+               draft-sullivan-cfrg-hash-to-curve-latest
 
 Abstract
 
@@ -32,7 +32,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on September 3, 2018.
+   This Internet-Draft will expire on September 6, 2018.
 
 Copyright Notice
 
@@ -41,7 +41,7 @@ Copyright Notice
 
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents
-   (https://trustee.ietf.org/license-info) in effect on the date of
+   (http://trustee.ietf.org/license-info) in effect on the date of
    publication of this document.  Please review these documents
    carefully, as they describe your rights and restrictions with respect
    to this document.  Code Components extracted from this document must
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Sullivan & Wood         Expires September 3, 2018               [Page 1]
+Sullivan & Wood         Expires September 6, 2018               [Page 1]
 
 Internet-Draft                hash-to-curve                   March 2018
 
@@ -65,22 +65,23 @@ Table of Contents
    2.  Algorithm Recommendations . . . . . . . . . . . . . . . . . .   3
    3.  Generic Interface . . . . . . . . . . . . . . . . . . . . . .   4
      3.1.  Utility Functions . . . . . . . . . . . . . . . . . . . .   4
-   4.  Hashing Variants  . . . . . . . . . . . . . . . . . . . . . .   4
+   4.  Hashing Variants  . . . . . . . . . . . . . . . . . . . . . .   5
      4.1.  Icart Method  . . . . . . . . . . . . . . . . . . . . . .   5
      4.2.  Shallue-Woestijne-Ulas Method . . . . . . . . . . . . . .   6
      4.3.  Simplified SWU Method . . . . . . . . . . . . . . . . . .   6
      4.4.  Elligator2 Method . . . . . . . . . . . . . . . . . . . .   8
    5.  Curve Transformations . . . . . . . . . . . . . . . . . . . .  10
    6.  Cost Comparison . . . . . . . . . . . . . . . . . . . . . . .  10
-   7.  Security Considerations . . . . . . . . . . . . . . . . . . .  11
-   8.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  11
-   9.  Contributors  . . . . . . . . . . . . . . . . . . . . . . . .  11
-   10. Normative References  . . . . . . . . . . . . . . . . . . . .  11
+   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  11
+   8.  Security Considerations . . . . . . . . . . . . . . . . . . .  11
+   9.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  11
+   10. Contributors  . . . . . . . . . . . . . . . . . . . . . . . .  11
+   11. Normative References  . . . . . . . . . . . . . . . . . . . .  11
    Appendix A.  Try-and-Increment Method . . . . . . . . . . . . . .  13
    Appendix B.  Sample Code  . . . . . . . . . . . . . . . . . . . .  13
      B.1.  Icart Method  . . . . . . . . . . . . . . . . . . . . . .  13
      B.2.  Shallue-Woestijne-Ulas Method . . . . . . . . . . . . . .  14
-     B.3.  Simplified SWU Method . . . . . . . . . . . . . . . . . .  14
+     B.3.  Simplified SWU Method . . . . . . . . . . . . . . . . . .  15
      B.4.  Elligator2 Method . . . . . . . . . . . . . . . . . . . .  16
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  17
 
@@ -105,15 +106,15 @@ Table of Contents
    e.g., SHA256, and then checking to see if the resulting point E(m,
    f(m)), for curve function f, belongs on E.  This algorithm is
    expected to find a valid curve point after approximately two
-   attempts, i.e., when ctr=1, on average.  (See Appendix Appendix A for
 
 
 
-Sullivan & Wood         Expires September 3, 2018               [Page 2]
+Sullivan & Wood         Expires September 6, 2018               [Page 2]
 
 Internet-Draft                hash-to-curve                   March 2018
 
 
+   attempts, i.e., when ctr=1, on average.  (See Appendix Appendix A for
    a more detailed description of this algorithm.)  Since the running
    time of the algorithm depends on m, this algorithm is NOT safe for
    cases sensitive to timing side channel attacks.  Deterministic
@@ -160,16 +161,17 @@ Internet-Draft                hash-to-curve                   March 2018
                   | Curve448   | Elligator2 Section 4.4 |
                   +------------+------------------------+
 
-   The SWU variant from Section Section 4.2 applies to any curve.  As
-   such, this algorithm SHOULD be used if no other better alternative is
 
 
 
-Sullivan & Wood         Expires September 3, 2018               [Page 3]
+
+Sullivan & Wood         Expires September 6, 2018               [Page 3]
 
 Internet-Draft                hash-to-curve                   March 2018
 
 
+   The SWU variant from Section Section 4.2 applies to any curve.  As
+   such, this algorithm SHOULD be used if no other better alternative is
    known.  More efficient variants and their curve requirements are
    shown in the table below.  These MAY be used if the target curve
    meets the listed criteria.
@@ -213,18 +215,18 @@ Internet-Draft                hash-to-curve                   March 2018
 
    ((TODO: expand on this problem))
 
-4.  Hashing Variants
 
 
 
 
 
 
-
-Sullivan & Wood         Expires September 3, 2018               [Page 4]
+Sullivan & Wood         Expires September 6, 2018               [Page 4]
 
 Internet-Draft                hash-to-curve                   March 2018
 
+
+4.  Hashing Variants
 
 4.1.  Icart Method
 
@@ -275,9 +277,7 @@ Internet-Draft                hash-to-curve                   March 2018
 
 
 
-
-
-Sullivan & Wood         Expires September 3, 2018               [Page 5]
+Sullivan & Wood         Expires September 6, 2018               [Page 5]
 
 Internet-Draft                hash-to-curve                   March 2018
 
@@ -333,7 +333,7 @@ Internet-Draft                hash-to-curve                   March 2018
 
 
 
-Sullivan & Wood         Expires September 3, 2018               [Page 6]
+Sullivan & Wood         Expires September 6, 2018               [Page 6]
 
 Internet-Draft                hash-to-curve                   March 2018
 
@@ -389,7 +389,7 @@ Internet-Draft                hash-to-curve                   March 2018
 
 
 
-Sullivan & Wood         Expires September 3, 2018               [Page 7]
+Sullivan & Wood         Expires September 6, 2018               [Page 7]
 
 Internet-Draft                hash-to-curve                   March 2018
 
@@ -445,7 +445,7 @@ Internet-Draft                hash-to-curve                   March 2018
 
 
 
-Sullivan & Wood         Expires September 3, 2018               [Page 8]
+Sullivan & Wood         Expires September 6, 2018               [Page 8]
 
 Internet-Draft                hash-to-curve                   March 2018
 
@@ -501,7 +501,7 @@ Internet-Draft                hash-to-curve                   March 2018
 
 
 
-Sullivan & Wood         Expires September 3, 2018               [Page 9]
+Sullivan & Wood         Expires September 6, 2018               [Page 9]
 
 Internet-Draft                hash-to-curve                   March 2018
 
@@ -557,7 +557,7 @@ Internet-Draft                hash-to-curve                   March 2018
 
 
 
-Sullivan & Wood         Expires September 3, 2018              [Page 10]
+Sullivan & Wood         Expires September 6, 2018              [Page 10]
 
 Internet-Draft                hash-to-curve                   March 2018
 
@@ -576,7 +576,11 @@ Internet-Draft                hash-to-curve                   March 2018
              | hash_to_curve_elligator2 | TODO              |
              +--------------------------+-------------------+
 
-7.  Security Considerations
+7.  IANA Considerations
+
+   This document has no IANA actions.
+
+8.  Security Considerations
 
    Each hash function variant accepts arbitrary input and maps it to a
    pseudorandom point on the curve.  Points are close to
@@ -585,20 +589,20 @@ Internet-Draft                hash-to-curve                   March 2018
    example, only maps strings to "about half of all curve points,"
    whereas Icart's method only covers about 5/8 of the points.
 
-8.  Acknowledgements
+9.  Acknowledgements
 
    The authors would like to thank Adam Langley for this detailed
    writeup up Elligator2 with Curve25519 [ElligatorAGL].  We also thank
    Sean Devlin and Thomas Icart for feedback on earlier versions of this
    document.
 
-9.  Contributors
+10.  Contributors
 
    o  Sharon Goldberg
       Boston University
       goldbe@cs.bu.edu
 
-10.  Normative References
+11.  Normative References
 
    [BLS01]    "Short signatures from the Weil pairing", n.d.,
               <https://iacr.org/archive/asiacrypt2001/22480516.pdf>.
@@ -606,22 +610,21 @@ Internet-Draft                hash-to-curve                   March 2018
    [BMP00]    "Provably secure password-authenticated key exchange using
               diffie-hellman", n.d..
 
-   [ECOPRF]   "EC-OPRF - Oblivious Pseudorandom Functions using Elliptic
-              Curves", n.d..
 
 
 
-
-
-Sullivan & Wood         Expires September 3, 2018              [Page 11]
+Sullivan & Wood         Expires September 6, 2018              [Page 11]
 
 Internet-Draft                hash-to-curve                   March 2018
 
 
+   [ECOPRF]   "EC-OPRF - Oblivious Pseudorandom Functions using Elliptic
+              Curves", n.d..
+
    [Elligator2]
               "Elligator -- Elliptic-curve points indistinguishable from
-              uniform random strings", n.d.,
-              <https://dl.acm.org/ft_gateway.cfm?id=2516734&type=pdf>.
+              uniform random strings", n.d., <https://dl.acm.org/
+              ft_gateway.cfm?id=2516734&type=pdf>.
 
    [ElligatorAGL]
               "Implementing Elligator for Curve25519", n.d.,
@@ -636,8 +639,8 @@ Internet-Draft                hash-to-curve                   March 2018
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
-              DOI 10.17487/RFC2119, March 1997,
-              <https://www.rfc-editor.org/info/rfc2119>.
+              DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
+              editor.org/info/rfc2119>.
 
    [RFC7748]  Langley, A., Hamburg, M., and S. Turner, "Elliptic Curves
               for Security", RFC 7748, DOI 10.17487/RFC7748, January
@@ -650,8 +653,8 @@ Internet-Draft                hash-to-curve                   March 2018
 
    [RFC8032]  Josefsson, S. and I. Liusvaara, "Edwards-Curve Digital
               Signature Algorithm (EdDSA)", RFC 8032,
-              DOI 10.17487/RFC8032, January 2017,
-              <https://www.rfc-editor.org/info/rfc8032>.
+              DOI 10.17487/RFC8032, January 2017, <https://www.rfc-
+              editor.org/info/rfc8032>.
 
    [SECG1]    "SEC 1 -- Elliptic Curve Cryptography", n.d.,
               <http://www.secg.org/sec1-v2.pdf>.
@@ -666,10 +669,7 @@ Internet-Draft                hash-to-curve                   March 2018
 
 
 
-
-
-
-Sullivan & Wood         Expires September 3, 2018              [Page 12]
+Sullivan & Wood         Expires September 6, 2018              [Page 12]
 
 Internet-Draft                hash-to-curve                   March 2018
 
@@ -705,30 +705,35 @@ B.1.  Icart Method
    The following Sage program implements hash_to_curve_icart(alpha) for
    P-384.
 
-p = 39402006196394479212279040100143613805079739270465446667948293404245721771496870329047266088258938001861606973112319
+p = 394020061963944792122790401001436138050797392704654466679482934042 \
+45721771496870329047266088258938001861606973112319
 F = GF(p)
 A = p - 3
-B = 0xb3312fa7e23ee7e4988e056be3f82d19181d9c6efe8141120314088f5013875ac656398d8a2ed19d2a85c8edd3ec2aef
-q = 39402006196394479212279040100143613805079739270465446667946905279627659399113263569398956308152294913554433653942643
+B = 0xb3312fa7e23ee7e4988e056be3f82d19181d9c6efe8141120314088f5013875a \
+c656398d8a2ed19d2a85c8edd3ec2aef
+q = 394020061963944792122790401001436138050797392704654466679469052796 \
+27659399113263569398956308152294913554433653942643
 E = EllipticCurve([F(A), F(B)])
-g = E(0xaa87ca22be8b05378eb1c71ef320ad746e1d3b628ba79b9859f741e082542a385502f25dbf55296c3a545e3872760ab7, \
-    0x3617de4a96262c6f5d9e98bf9292dc29f8f41dbd289a147ce9da3113b5f0b8c00a60b1ce1d7e819d7a431d7c90ea0e5f)
+g = E(0xaa87ca22be8b05378eb1c71ef320ad746e1d3b628ba79b9859f741e082542a \
+385502f25dbf55296c3a545e3872760ab7, \
+    0x3617de4a96262c6f5d9e98bf9292dc29f8f41dbd289a147ce9da3113b5f0b8c0 \
+0a60b1ce1d7e819d7a431d7c90ea0e5f)
 E.set_order(q)
 
 def icart(u):
   u = F(u)
+
+
+
+Sullivan & Wood         Expires September 6, 2018              [Page 13]
+
+Internet-Draft                hash-to-curve                   March 2018
+
+
   v = (3*A - u^4)//(6*u)
   x = (v^2 - B - u^6/27)^((2*p-1)//3) + u^2/3
   y = u*x + v
   return E(x, y)
-
-
-
-
-Sullivan & Wood         Expires September 3, 2018              [Page 13]
-
-Internet-Draft                hash-to-curve                   March 2018
-
 
 def icart_straight(u):
     u = F(u)
@@ -769,23 +774,29 @@ B.2.  Shallue-Woestijne-Ulas Method
 
    ((TODO: write this section))
 
+
+
+
+
+
+
+
+Sullivan & Wood         Expires September 6, 2018              [Page 14]
+
+Internet-Draft                hash-to-curve                   March 2018
+
+
 B.3.  Simplified SWU Method
 
    The following Sage program implements hash_to_curve_swu(alpha) for
    P-256.
 
-p = 115792089210356248762697446949407573530086143415290314195533631308867097853951
+p = 115792089210356248762697446949407573530086143415290314195533631308 \
+867097853951
 F = GF(p)
 A = F(p - 3)
-B = F(ZZ("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16))
-
-
-
-Sullivan & Wood         Expires September 3, 2018              [Page 14]
-
-Internet-Draft                hash-to-curve                   March 2018
-
-
+B = F(ZZ("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2 \
+604b", 16))
 E = EllipticCurve([A, B])
 
 def simple_swu(alpha):
@@ -823,6 +834,14 @@ def simple_swu_straight(alpha):
     h2 = x2 ^ 3
     i2 = x2 * A
     i2 = i2 + B
+
+
+
+Sullivan & Wood         Expires September 6, 2018              [Page 15]
+
+Internet-Draft                hash-to-curve                   March 2018
+
+
     h2 = h2 + i2
 
     h3 = x3 ^ 3
@@ -834,14 +853,6 @@ def simple_swu_straight(alpha):
     y2 = h3^((p + 1) // 4)
 
     # Is it square?
-
-
-
-Sullivan & Wood         Expires September 3, 2018              [Page 15]
-
-Internet-Draft                hash-to-curve                   March 2018
-
-
     e = y1^2 == h2
 
     x = x2
@@ -879,6 +890,14 @@ B.4.  Elligator2 Method
        # If f(-A/(1+ur^2)) is square, return its square root.
        # Else, return the square root of f(-Aur^2/(1+ur^2)).
        x = -A / (1 + (u * r^2))
+
+
+
+Sullivan & Wood         Expires September 6, 2018              [Page 16]
+
+Internet-Draft                hash-to-curve                   March 2018
+
+
        y = curve25519(x)
        if y.is_square(): # is this point square?
            y = y.square_root()
@@ -890,13 +909,6 @@ B.4.  Elligator2 Method
 
    def elligator2_straight(alpha):
        r = F(alpha)
-
-
-
-Sullivan & Wood         Expires September 3, 2018              [Page 16]
-
-Internet-Draft                hash-to-curve                   March 2018
-
 
        r = r^2
        r = r * 2
@@ -928,6 +940,20 @@ Internet-Draft                hash-to-curve                   March 2018
 
 Authors' Addresses
 
+
+
+
+
+
+
+
+
+
+Sullivan & Wood         Expires September 6, 2018              [Page 17]
+
+Internet-Draft                hash-to-curve                   March 2018
+
+
    Nick Sullivan
    Cloudflare
    101 Townsend St
@@ -949,4 +975,34 @@ Authors' Addresses
 
 
 
-Sullivan & Wood         Expires September 3, 2018              [Page 17]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Sullivan & Wood         Expires September 6, 2018              [Page 18]
