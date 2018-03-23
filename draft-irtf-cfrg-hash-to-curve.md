@@ -1,7 +1,7 @@
 ---
 title: Hashing to Elliptic Curves
 abbrev: hash-to-curve
-docname: draft-sullivan-cfrg-hash-to-curve-latest
+docname: draft-irtf-cfrg-hash-to-curve-latest
 date:
 category: info
 
