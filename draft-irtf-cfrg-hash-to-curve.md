@@ -28,6 +28,14 @@ author:
     city: Cupertino, California 95014
     country: United States of America
     email: cawood@apple.com
+ -
+    ins: S. Scott
+    name: Sam Scott
+    org: Cornell Tech
+    street: 2 West Loop Rd
+    city: New York, New York 10044
+    country: United States of America
+    email: sam.scott@cornell.edu
 
 normative:
   RFC2119:
@@ -48,6 +56,15 @@ normative:
       -
         ins: T. Icart
         org: Sagem Securite and Universite du Luxembourg
+  BF01:
+    title: Identity-based encryption from the Weil pairing
+    authors:
+      -
+        ins: Dan Boneh
+        org: Stanford University
+      - 
+        ins: Matthew Franklin
+        org: UC Davis
   BLS01:
     title: Short signatures from the Weil pairing
     target: https://iacr.org/archive/asiacrypt2001/22480516.pdf
@@ -129,7 +146,6 @@ normative:
       -
         ins: Maciej Ulas
         org: 
-
   SimpleSWU:
     title: Efficient Indifferentiable Hashing into Ordinary Elliptic Curves
     venue: Annual Cryptology Conference (pp. 237-254). Springer, Berlin, Heidelberg.
@@ -152,6 +168,24 @@ normative:
       -
         ins: Mehdi Tibouchi
         org: Universite du Luxembourg, Ecole normale superieure
+  FFSTV13:
+    title: Indifferentiable deterministic hashing to elliptic and hyperelliptic curves
+    authors:
+      -
+        ins: Reza R. Farashahi
+        org: Macquarie Universit
+      -
+        ins: Pierre-Alain Fouque
+        org: Ecole normale superieure
+      -
+        ins: gor E. Shparlinski
+        org: Macquarie Universit
+      -
+        ins: Mehdi Tibouch
+        org: Ecole normale superieure
+      -
+        ins:  J. Felipe Voloch
+        org: University of Texas
  
   
 
@@ -167,33 +201,40 @@ strings to Elliptic Curves.
 Many cryptographic protocols require a procedure which maps arbitrary input, e.g.,
 passwords, to points on an elliptic curve (EC). Prominent examples include
 Simple Password Exponential Key Exchange {{Jablon96}}, Password Authenticated 
-Key Exchange {{BMP00}}, and Boneh-Lynn-Shacham signatures {{BLS01}}. 
+Key Exchange {{BMP00}}, Identity-Based Encryption {{BF01}} and 
+Boneh-Lynn-Shacham signatures {{BLS01}}.
 
-Let E be an elliptic curve over base field GF(p). In practice, efficient
-(polynomial-time) functions that hash arbitrary input to E can be constructed
-by composing a cryptographically secure hash function F1 : {0,1}^* ->GF(p)
-and an injection F2 : GF(p) -> E, i.e., Hash(m) = F2(F1(m)).
-Probabilistic constructions of Hash, e.g., the MapToGroup function described by Boneh et al.
-{{BLS01}}. Their algorithm fails with probability 2^I, where I is a tunable parameter
-that one can control. Another variant, dubbed the "Try and Increment" approach,
-was described by Boneh et al. {{BLS01}}. This function works by hashing 
-input m using a standard hash function, e.g., SHA256, and then checking to see 
-if the resulting point E(m, f(m)), for curve function f, belongs on E.
-This algorithm is expected to find a valid curve point after approximately two 
-attempts, i.e., when ctr=1, on average. (See Appendix {{try}} for a more detailed
-description of this algorithm.) Since the running time of the algorithm depends on m, 
-this algorithm is NOT safe for cases sensitive to timing side channel attacks. 
-Deterministic algorithms are needed in such cases where failures 
-are undesirable. Shallue and Woestijne {{SWU}} first introduced a deterministic 
-algorithm that maps elements in F_{q} to an EC in time O(log^4 q), where q = p^n for 
-some prime p, and time O(log^3 q) when q = 3 mod 4. Icart introduced yet another
-deterministic algorithm which maps F_{q} to any EC where q = 2 mod 3 in time O(log^3 q) {{Icart09}}.
-Elligator (2) {{Elligator2}} is yet another deterministic algorithm for any odd-characteristic 
-EC that has a point of order 2. Elligator2 can be applied to Curve25519 and Curve448, which 
-are both CFRG-recommended curves {{RFC7748}}.
+The general term "encoding" is used to refer to the process of producing an elliptic
+curve point given as input a bitstring. In some protocols, the original message may
+also be recovered through a decoding procedure.
 
-This document specifies several algorithms for deterministically hashing onto a curve
-with varying properties: Icart, SWU, Simplified SWU, and Elligator2. 
+A related issue is the conversion of an elliptic curve point to a bitstring. We refer
+to this process as "serialization", since it is typically used for compactly storing and
+transporting points, or for producing canonicalized outputs. Since a deserialization
+algorithm can often be used as a type of encoding algorithm, we also briefly
+document properties of these functions.
+
+It is often the case that the output of the encoding function should be
+distributed uniformly at random on the elliptic curve. That is, there is no
+discernible relation existing between outputs that can be computed based on
+the inputs. In practice, this requirement stems from needing a random oracle
+which outputs elliptic curve points:  one way to construct this is by first
+taking a regular random oracle, operating entirely on bitstrings, and applying
+a suitable encoding function to the output.
+
+This motivates the term "hashing to the curve", since cryptographic hash
+functions are typically modeled as random oracles. However, this still leaves open
+the question of what constitutes a suitable encoding method, which is a primary
+concern of this document.
+
+A random oracle onto an elliptic curve can also be instantiated using
+direct constructions, however these tend to rely on many group operations
+and are less efficient than hash and encode methods.
+
+This document specifies several algorithms for mapping arbitrary inputs to elliptic
+curve points with varying properties: Icart, SWU, Simplified SWU, and Elligator2.
+For each algorithm, we identify suitable use cases, with a particular emphasis
+on hashing to the curve, to produce a random oracle.
 Each algorithm conforms to a common  interface, i.e., it maps an element from 
 a base field F to a curve E. For each variant, we 
 describe the requirements for F and E to make it work. Sample code for each variant is 
@@ -206,7 +247,98 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
 document are to be interpreted as described in {{RFC2119}}.
 
-# Algorithm Recommendations
+# Background
+
+In this chapter, we  give a background to some common methods to encode or
+hash to the curve, motivated by the similar exposition in {{Icart09}}.
+Understanding of this material is not required in order to choose a
+suitable encoding function - we defer this to {{recommendations}}
+ - the background covered here can work as a template for analyzing encoding
+functions not found in this document, and as a guide for further research
+into the topics covered.
+
+Let E be an elliptic curve over base field GF(p). Elliptic curves come in
+many variants, including: Weierstrass, Montgomery, and Edwards. A point
+on these curves is represented by some tuple of variables, with each variable
+being a value in GF(p). A curve point is generally represented by a pair
+(x, y), known as affine coordinates, but are commonly expressed in other
+ways for the sake of efficient group operations. 
+
+We consider encoding functions of the form F : {0, 1}^* -> E, or 
+F : GF(p) -> E. Note that the number of points on an elliptic curve E
+is within 2\*sqrt(p) of p by Hasse's Theorem. As a rule of thumb, for every x in GF(p),
+there is approximately a 1/2 chance that there exist a corresponding
+y value such that (x, y) is on the curve E. Since the point (x, -y)
+is also on the curve, then this sums to approximately p points.
+
+This motivates the construction of the MapToGroup method described by Boneh et
+al. {{BLS01}}. For an input message m, a counter i, and a standard hash
+function H : {0, 1}^* -> GF(p) x {0, 1}, one computes (x, b) = H(i || m),
+where i || m denotes concatenation of the two values.
+Next, test to see whether there exists a corresponding y value such that (x, y)
+is on the curve, returning (x, y) if successful, where b determines whether
+to take +/- y. If there does not exist such a y, then
+increment i and repeat. A maximum counter value is set to I, and since each
+iteration succeeds with probability approximately 1/2, this process
+fails with probability 2^-I. (See {{try}} for a more detailed
+description of this algorithm.)
+
+Although MapToGroup describes a method to hash to the curve, it can also be
+adapted to a simple encoding mechanism. For a bitstring of length strictly
+less than log2(p), one can make use of the spare bits in order to encode
+the counter value. Allocating more space for the counter increases the expansion,
+but reduces the failure probability.
+
+Since the running time of the MapToGroup algorithm depends on m, 
+this algorithm is NOT safe for cases sensitive to timing side channel attacks. 
+Deterministic algorithms are needed in such cases where failures 
+are undesirable.
+
+A naive solution includes computing H(m)\*G, where H is a standard hash
+function H : {0, 1}^* -> GF(p), and G is a generator of the curve. Although
+efficient, this solution is unsuitable for constructing a random oracle onto
+E, since the discrete logarithm with respect to G is known. This causes
+catastrophic failure in many cases. However, one exception is found in SPEKE
+{{Jablon96}}, which constructs a base for a Diffie-Hellman key exchange by
+hashing the password to a curve point. Notably the use of a hash function is
+purely for encoding an arbitrary length string to a curve point, and does not
+need to be a random oracle.
+
+Shallue and Woestijne {{SWU}} first introduced a deterministic 
+algorithm that maps elements in F_{q} to a curve in time O(log^4 q), where q = p^n for
+some prime p, and time O(log^3 q) when q = 3 mod 4. Icart introduced yet another
+deterministic algorithm which maps F_{q} to any EC where q = 2 mod 3 in time O(log^3 q) {{Icart09}}.
+Elligator (2) {{Elligator2}} is yet another deterministic algorithm for any odd-characteristic 
+EC that has a point of order 2. Elligator2 can be applied to Curve25519 and Curve448, which 
+are both CFRG-recommended curves {{RFC7748}}.
+
+However, an important caveat to all of the above deterministic encoding functions,
+is that none of them map injectively to the entire curve, but rather
+some fraction of the points. This makes them unable to use to directly
+construct a random oracle on the curve.
+
+Brier et al. {{SimpleSWU}} proposed a couple of solutions to this problem, The
+first applies solely to Icart's method described above, by computing F(H1(m))
++ F(H2(m)) for two distinct hash functions H1, H2. The second uses a generator
+G, and computes F(H1(m)) + H2(m)\*G. Later, Farashahi et al. {{FFSTV13}}
+showed the generality of the F(H1(m)) + F(H2(m)) method, as well as the
+applicability to hyperelliptic curves (not covered here).
+
+For supersingular curves, for every y in GF(p) (with p>3), there exists a value
+x such that (x, y) is on the curve E. Hence we can construct a bijection
+F : GF(p) -> E (ignoring the point at infinity). This is the case for
+{{BF01}}, but is not common.
+
+We can also consider curves which have twisted variants, E^d. For such curves,
+for any x in GF(p), there exists y in GF(p) such that (x, y) is either a point
+on E or E^d. Hence one can construct a bijection F : GF(p) x {0,1} -> E ∪ E^d, 
+where the extra bit is needed to choose the sign of the point. This can be
+particularly useful for constructions which only need the x-coordinate of the
+point. For example, x-only scalar multiplication can be computed on Montgomery
+curves. In this case, there is no need for an encoding function, since the output
+of F in GF(p) is sufficient to define a point on one of E or E^d.
+
+# Algorithm Recommendations {#recommendations}
 
 The following table lists recommended algorithms to use for specific curves. 
 
