@@ -204,23 +204,88 @@ Simple Password Exponential Key Exchange {{Jablon96}}, Password Authenticated
 Key Exchange {{BMP00}}, Identity-Based Encryption {{BF01}} and 
 Boneh-Lynn-Shacham signatures {{BLS01}}.
 
-The general term "encoding" is used to refer to the process of producing an elliptic
-curve point given as input a bitstring. In some protocols, the original message may
-also be recovered through a decoding procedure.
+Unfortunately for implementors, the precise mapping which is suitable for a
+given scheme is not necessarily included in the description of the protocol.
+Compounding this problem is the need to pick a suitable curve for the specific
+protocol.
 
-A related issue is the conversion of an elliptic curve point to a bitstring. We refer
-to this process as "serialization", since it is typically used for compactly storing and
-transporting points, or for producing canonicalized outputs. Since a deserialization
-algorithm can often be used as a type of encoding algorithm, we also briefly
-document properties of these functions.
+This document aims to address this lapse by providing a thorough set of
+recommendations across a range of implementations, and curve types. We provide
+implementation and perfomance details for each mechanism, along with references
+to the security rationale behind each recommendation and guidance for
+applications not yet covered.
 
-It is often the case that the output of the encoding function should be
-distributed uniformly at random on the elliptic curve. That is, there is no
-discernible relation existing between outputs that can be computed based on
-the inputs. In practice, this requirement stems from needing a random oracle
+Each algorithm conforms to a common interface, i.e., it maps an element from a
+base field F to a curve E. For each variant, we describe the requirements for F
+and E to make it work. Sample code for each variant is presented in the
+appendix.  Unless otherwise stated, all elliptic curve points are assumed to be
+represented as affine coordinates, i.e., (x, y) points on a curve.
+
+## Requirements
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+"SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+document are to be interpreted as described in {{RFC2119}}.
+
+
+# Background {#background}
+
+Let E be an elliptic curve over base field GF(p). Elliptic curves come in
+many variants, including: Weierstrass, Montgomery, and Edwards. A point
+on these curves is represented by some tuple of variables, with each variable
+being a value in GF(p). A curve point is generally represented by a pair
+(x, y), known as affine coordinates, but are commonly expressed in other
+ways for the sake of efficient group operations. 
+
+In practice, the input of a given cryptographic algorithm will be a bitstring of
+arbitrary length, denoted {0, 1}^*. Hence, a concern for virtually all protocols
+involving elliptic curves, is how to convert this input into a point of the form
+(x, y) with x, y in the finite field GF(p).
+
+Note that the number of points on an elliptic curve E is within 2\*sqrt(p) of p
+by Hasse's Theorem. As a rule of thumb, for every x in GF(p), there is
+approximately a 1/2 chance that there exist a corresponding y value such that
+(x, y) is on the curve E. Since the point (x, -y) is also on the curve, then
+this sums to approximately p points.
+
+Therefore, even assuming a method to convert a bitstring into a representation
+in GF(p), there is not necessarily a direct means to produce an elliptic curve
+point.
+
+
+## Terminology {#terminology}
+
+In the following, we categorize the terminology for mapping between bitstrings
+and elliptic curves.
+
+### Encoding {#term-encoding}
+
+The general term "encoding" is used to refer to the process of producing an
+elliptic curve point given as input a bitstring. In some protocols, the original
+message may also be recovered through a decoding procedure.
+
+An injective encoding may be used to map some fixed-length bitstring of length
+`L < log2(p) - 1` to and elliptic curve point. An encoding may be deterministic
+or probabilistic, although the latter is problematic in potentially leaking
+plaintext information as a side-channel.
+
+### Serialization {#term-serialization}
+
+A related issue is the conversion of an elliptic curve point to a bitstring. We
+refer to this process as "serialization", since it is typically used for
+compactly storing and transporting points, or for producing canonicalized
+outputs. Since a deserialization algorithm can often be used as a type of
+encoding algorithm, we also briefly document properties of these functions.
+
+### Random Oracle {#term-rom}
+
+It is often the case that the output of the encoding function {{term-encoding}}
+should be distributed uniformly at random on the elliptic curve. That is, there
+is no discernible relation existing between outputs that can be computed based
+on the inputs. In practice, this requirement stems from needing a random oracle
 which outputs elliptic curve points:  one way to construct this is by first
-taking a regular random oracle, operating entirely on bitstrings, and applying
-a suitable encoding function to the output.
+taking a regular random oracle, operating entirely on bitstrings, and applying a
+suitable encoding function to the output.
 
 This motivates the term "hashing to the curve", since cryptographic hash
 functions are typically modeled as random oracles. However, this still leaves open
@@ -231,112 +296,6 @@ A random oracle onto an elliptic curve can also be instantiated using
 direct constructions, however these tend to rely on many group operations
 and are less efficient than hash and encode methods.
 
-This document specifies several algorithms for mapping arbitrary inputs to elliptic
-curve points with varying properties: Icart, SWU, Simplified SWU, and Elligator2.
-For each algorithm, we identify suitable use cases, with a particular emphasis
-on hashing to the curve, to produce a random oracle.
-Each algorithm conforms to a common  interface, i.e., it maps an element from 
-a base field F to a curve E. For each variant, we 
-describe the requirements for F and E to make it work. Sample code for each variant is 
-presented in the appendix.  Unless otherwise stated, all elliptic curve points are assumed to 
-be represented as affine coordinates, i.e., (x, y) points on a curve. 
-
-## Requirements
-
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-"SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
-document are to be interpreted as described in {{RFC2119}}.
-
-# Background
-
-In this chapter, we  give a background to some common methods to encode or
-hash to the curve, motivated by the similar exposition in {{Icart09}}.
-Understanding of this material is not required in order to choose a
-suitable encoding function - we defer this to {{recommendations}}
- - the background covered here can work as a template for analyzing encoding
-functions not found in this document, and as a guide for further research
-into the topics covered.
-
-Let E be an elliptic curve over base field GF(p). Elliptic curves come in
-many variants, including: Weierstrass, Montgomery, and Edwards. A point
-on these curves is represented by some tuple of variables, with each variable
-being a value in GF(p). A curve point is generally represented by a pair
-(x, y), known as affine coordinates, but are commonly expressed in other
-ways for the sake of efficient group operations. 
-
-We consider encoding functions of the form F : {0, 1}^* -> E, or 
-F : GF(p) -> E. Note that the number of points on an elliptic curve E
-is within 2\*sqrt(p) of p by Hasse's Theorem. As a rule of thumb, for every x in GF(p),
-there is approximately a 1/2 chance that there exist a corresponding
-y value such that (x, y) is on the curve E. Since the point (x, -y)
-is also on the curve, then this sums to approximately p points.
-
-This motivates the construction of the MapToGroup method described by Boneh et
-al. {{BLS01}}. For an input message m, a counter i, and a standard hash
-function H : {0, 1}^* -> GF(p) x {0, 1}, one computes (x, b) = H(i || m),
-where i || m denotes concatenation of the two values.
-Next, test to see whether there exists a corresponding y value such that (x, y)
-is on the curve, returning (x, y) if successful, where b determines whether
-to take +/- y. If there does not exist such a y, then
-increment i and repeat. A maximum counter value is set to I, and since each
-iteration succeeds with probability approximately 1/2, this process
-fails with probability 2^-I. (See {{try}} for a more detailed
-description of this algorithm.)
-
-Although MapToGroup describes a method to hash to the curve, it can also be
-adapted to a simple encoding mechanism. For a bitstring of length strictly
-less than log2(p), one can make use of the spare bits in order to encode
-the counter value. Allocating more space for the counter increases the expansion,
-but reduces the failure probability.
-
-Since the running time of the MapToGroup algorithm depends on m, 
-this algorithm is NOT safe for cases sensitive to timing side channel attacks. 
-Deterministic algorithms are needed in such cases where failures 
-are undesirable.
-
-A naive solution includes computing H(m)\*G, where H is a standard hash
-function H : {0, 1}^* -> GF(p), and G is a generator of the curve. Although
-efficient, this solution is unsuitable for constructing a random oracle onto
-E, since the discrete logarithm with respect to G is known. This causes
-catastrophic failure in many cases. However, one exception is found in SPEKE
-{{Jablon96}}, which constructs a base for a Diffie-Hellman key exchange by
-hashing the password to a curve point. Notably the use of a hash function is
-purely for encoding an arbitrary length string to a curve point, and does not
-need to be a random oracle.
-
-Shallue and Woestijne {{SWU}} first introduced a deterministic 
-algorithm that maps elements in F_{q} to a curve in time O(log^4 q), where q = p^n for
-some prime p, and time O(log^3 q) when q = 3 mod 4. Icart introduced yet another
-deterministic algorithm which maps F_{q} to any EC where q = 2 mod 3 in time O(log^3 q) {{Icart09}}.
-Elligator (2) {{Elligator2}} is yet another deterministic algorithm for any odd-characteristic 
-EC that has a point of order 2. Elligator2 can be applied to Curve25519 and Curve448, which 
-are both CFRG-recommended curves {{RFC7748}}.
-
-However, an important caveat to all of the above deterministic encoding functions,
-is that none of them map injectively to the entire curve, but rather
-some fraction of the points. This makes them unable to use to directly
-construct a random oracle on the curve.
-
-Brier et al. {{SimpleSWU}} proposed a couple of solutions to this problem, The
-first applies solely to Icart's method described above, by computing F(H1(m))
-+ F(H2(m)) for two distinct hash functions H1, H2. The second uses a generator
-G, and computes F(H1(m)) + H2(m)\*G. Later, Farashahi et al. {{FFSTV13}}
-showed the generality of the F(H1(m)) + F(H2(m)) method, as well as the
-applicability to hyperelliptic curves (not covered here).
-
-For supersingular curves, for every y in GF(p) (with p>3), there exists a value
-x such that (x, y) is on the curve E. Hence we can construct a bijection
-F : GF(p) -> E (ignoring the point at infinity). This is the case for
-{{BF01}}, but is not common.
-
-We can also consider curves which have twisted variants, E^d. For such curves,
-for any x in GF(p), there exists y in GF(p) such that (x, y) is either a point
-on E or E^d. Hence one can construct a bijection F : GF(p) x {0,1} -> E ∪ E^d, 
-where the extra bit is needed to choose the sign of the point. This can be
-particularly useful for constructions which only need the x-coordinate of the
-point. For example, x-only scalar multiplication can be computed on Montgomery
-curves. In this case, there is no need for an encoding function, since the output
-of F in GF(p) is sufficient to define a point on one of E or E^d.
 
 # Algorithm Recommendations {#recommendations}
 
@@ -631,6 +590,97 @@ earlier versions of this document.
   goldbe@cs.bu.edu
 
 --- back
+
+
+# Related Work {#related}
+
+In this chapter, we  give a background to some common methods to encode or
+hash to the curve, motivated by the similar exposition in {{Icart09}}.
+Understanding of this material is not required in order to choose a
+suitable encoding function - we defer this to {{recommendations}}
+ - the background covered here can work as a template for analyzing encoding
+functions not found in this document, and as a guide for further research
+into the topics covered.
+
+## Probabilistic Encoding
+
+As mentioned in {{background}}, as a rule of thumb, for every x in GF(p), there
+is approximately a 1/2 chance that there exist a corresponding y value such that
+(x, y) is on the curve E.
+
+This motivates the construction of the MapToGroup
+method described by Boneh et al. {{BLS01}}. For an input message m, a counter i,
+and a standard hash function H : {0, 1}^* -> GF(p) x {0, 1}, one computes (x, b)
+= H(i || m), where i || m denotes concatenation of the two values. Next, test to
+see whether there exists a corresponding y value such that (x, y) is on the
+curve, returning (x, y) if successful, where b determines whether to take +/- y.
+If there does not exist such a y, then increment i and repeat. A maximum counter
+value is set to I, and since each iteration succeeds with probability
+approximately 1/2, this process fails with probability 2^-I. (See {{try}} for a
+more detailed description of this algorithm.)
+
+Although MapToGroup describes a method to hash to the curve, it can also be
+adapted to a simple encoding mechanism. For a bitstring of length strictly
+less than log2(p), one can make use of the spare bits in order to encode
+the counter value. Allocating more space for the counter increases the expansion,
+but reduces the failure probability.
+
+Since the running time of the MapToGroup algorithm depends on m, 
+this algorithm is NOT safe for cases sensitive to timing side channel attacks. 
+Deterministic algorithms are needed in such cases where failures 
+are undesirable.
+
+## Naive Encoding
+
+A naive solution includes computing H(m)\*G, where H is a standard hash
+function H : {0, 1}^* -> GF(p), and G is a generator of the curve. Although
+efficient, this solution is unsuitable for constructing a random oracle onto
+E, since the discrete logarithm with respect to G is known. This causes
+catastrophic failure in many cases. However, one exception is found in SPEKE
+{{Jablon96}}, which constructs a base for a Diffie-Hellman key exchange by
+hashing the password to a curve point. Notably the use of a hash function is
+purely for encoding an arbitrary length string to a curve point, and does not
+need to be a random oracle.
+
+## Deterministic Encoding
+
+Shallue and Woestijne {{SWU}} first introduced a deterministic 
+algorithm that maps elements in F_{q} to a curve in time O(log^4 q), where q = p^n for
+some prime p, and time O(log^3 q) when q = 3 mod 4. Icart introduced yet another
+deterministic algorithm which maps F_{q} to any EC where q = 2 mod 3 in time O(log^3 q) {{Icart09}}.
+Elligator (2) {{Elligator2}} is yet another deterministic algorithm for any odd-characteristic 
+EC that has a point of order 2. Elligator2 can be applied to Curve25519 and Curve448, which 
+are both CFRG-recommended curves {{RFC7748}}.
+
+However, an important caveat to all of the above deterministic encoding functions,
+is that none of them map injectively to the entire curve, but rather
+some fraction of the points. This makes them unable to use to directly
+construct a random oracle on the curve.
+
+Brier et al. {{SimpleSWU}} proposed a couple of solutions to this problem, The
+first applies solely to Icart's method described above, by computing F(H1(m))
++ F(H2(m)) for two distinct hash functions H1, H2. The second uses a generator
+G, and computes F(H1(m)) + H2(m)\*G. Later, Farashahi et al. {{FFSTV13}}
+showed the generality of the F(H1(m)) + F(H2(m)) method, as well as the
+applicability to hyperelliptic curves (not covered here).
+
+## Supersingular Curves
+
+For supersingular curves, for every y in GF(p) (with p>3), there exists a value
+x such that (x, y) is on the curve E. Hence we can construct a bijection
+F : GF(p) -> E (ignoring the point at infinity). This is the case for
+{{BF01}}, but is not common.
+
+## Twisted Variants
+
+We can also consider curves which have twisted variants, E^d. For such curves,
+for any x in GF(p), there exists y in GF(p) such that (x, y) is either a point
+on E or E^d. Hence one can construct a bijection F : GF(p) x {0,1} -> E ∪ E^d, 
+where the extra bit is needed to choose the sign of the point. This can be
+particularly useful for constructions which only need the x-coordinate of the
+point. For example, x-only scalar multiplication can be computed on Montgomery
+curves. In this case, there is no need for an encoding function, since the output
+of F in GF(p) is sufficient to define a point on one of E or E^d.
 
 # Try-and-Increment Method {#try}
 
