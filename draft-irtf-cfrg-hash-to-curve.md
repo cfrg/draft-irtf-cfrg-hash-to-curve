@@ -211,13 +211,13 @@ protocol.
 
 This document aims to address this lapse by providing a thorough set of
 recommendations across a range of implementations, and curve types. We provide
-implementation and perfomance details for each mechanism, along with references
+implementation and performance details for each mechanism, along with references
 to the security rationale behind each recommendation and guidance for
 applications not yet covered.
 
 Each algorithm conforms to a common interface, i.e., it maps an element from a
-base field F to a curve E. For each variant, we describe the requirements for F
-and E to make it work. Sample code for each variant is presented in the
+bitstring {0, 1}^\* to a curve E. For each variant, we describe the requirements for
+E to make it work. Sample code for each variant is presented in the
 appendix.  Unless otherwise stated, all elliptic curve points are assumed to be
 represented as affine coordinates, i.e., (x, y) points on a curve.
 
@@ -230,17 +230,33 @@ document are to be interpreted as described in {{RFC2119}}.
 
 # Background {#background}
 
-Let E be an elliptic curve over base field GF(p). Elliptic curves come in
-many variants, including: Weierstrass, Montgomery, and Edwards. A point
-on these curves is represented by some tuple of variables, with each variable
-being a value in GF(p). A curve point is generally represented by a pair
-(x, y), known as affine coordinates, but are commonly expressed in other
-ways for the sake of efficient group operations. 
+Here we give a brief definition of elliptic curves, with an emphasis
+on defining important parameters and their relation to encoding.
+
+Let F be the finite field GF(p^k). We say that F is a field of characteristic
+p. For most applications, F is a prime field, in which case k=1 and we will
+simply write GF(p).
+
+Elliptic curves come in
+many variants, including, but not limited to: Weierstrass, Montgomery, and Edwards. Each
+of these variants correspond to a different category of curve equation.
+For example, the short Weierstrauss equation is of the form
+`y^2 = x^3 + Ax + B`. Certain encoding functions may have requirements
+on the curve form and the parameters, such as A and B in the previous example.
+
+An elliptic curve E is specified by the equation, and a finite field F.
+The curve E forms a group, whose elements correspond to those who satisfy the 
+curve equation, with values taken from the field F. As a group, E has order
+n, which is the number of points on the curve. When n is not prime,
+we write n = qh + r, where q is prime, and h is said to be the cofactor.
+It is frequently a requirement that all cryptographic operations take place
+in a prime order group. In this case, we may wish an encoding to return
+elements of order q. For a mapping outputting elements on E, we can
+multiply by the cofactor h to obtain an element in ths subgroup.
 
 In practice, the input of a given cryptographic algorithm will be a bitstring of
-arbitrary length, denoted {0, 1}^*. Hence, a concern for virtually all protocols
-involving elliptic curves, is how to convert this input into a point of the form
-(x, y) with x, y in the finite field GF(p).
+arbitrary length, denoted  {0, 1}^\*. Hence, a concern for virtually all protocols
+involving elliptic curves is how to convert this input into a curve point.
 
 Note that the number of points on an elliptic curve E is within 2\*sqrt(p) of p
 by Hasse's Theorem. As a rule of thumb, for every x in GF(p), there is
@@ -248,9 +264,17 @@ approximately a 1/2 chance that there exist a corresponding y value such that
 (x, y) is on the curve E. Since the point (x, -y) is also on the curve, then
 this sums to approximately p points.
 
-Therefore, even assuming a method to convert a bitstring into a representation
-in GF(p), there is not necessarily a direct means to produce an elliptic curve
-point.
+Ultimately, an encoding function takes a bitstring {0, 1}^\* to an element
+of E, of order n (or q), and represnted by variables in GF(p).
+
+Summary of quantities:
+
+| Symbol | Meaning | Relevance
+|:------:|---------|----------
+| p | Order of finite field, F = GF(p) | Curve points need to be represented in terms of p. For prime powers, we write F = GF(p^k).
+| n | Number of curve points, #E(F) = n |  For map to E, needs to produce n elements.
+| q | Order of prime subgroup of E, n = qh + r | If n is not prime, may need mapping to q. 
+| h | Cofactor of prime subgroup | For mapping to subgroup, need to multiply by cofactor. 
 
 
 ## Terminology {#terminology}
@@ -265,7 +289,7 @@ elliptic curve point given as input a bitstring. In some protocols, the original
 message may also be recovered through a decoding procedure.
 
 An injective encoding may be used to map some fixed-length bitstring of length
-`L < log2(p) - 1` to and elliptic curve point. An encoding may be deterministic
+`L < log2(n) - 1` to an elliptic curve point. An encoding may be deterministic
 or probabilistic, although the latter is problematic in potentially leaking
 plaintext information as a side-channel.
 
