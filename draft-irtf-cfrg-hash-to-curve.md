@@ -298,7 +298,7 @@ an encoding function cannot be both deterministic and bijective.
 
 We can instead use an injective encoding from {0, 1}^L to E, with
 `L < log2(n)- 1`,  which is a bijection over a subset of points in E.
-This ensures that encode plaintext messages can be recovered.
+This ensures that encoded plaintext messages can be recovered.
 
 ### Serialization {#term-serialization}
 
