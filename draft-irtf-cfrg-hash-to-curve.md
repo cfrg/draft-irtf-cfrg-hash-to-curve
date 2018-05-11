@@ -302,19 +302,6 @@ and elliptic curves.
 
 ### Encoding {#term-encoding}
 
-Fouque and Tibouchi {{FT12}} also used the F(H1(m))+F(H2(m)) method to construct a hash
-function on to BN-curves, using an encoding function F of their construction. BN curves {{BN05}} are
-pairing-friendly and offer 128 bits of security, making them ideal for implementing
-cryptographic schemes which rely on pairings. Other encoding functions are not suitable for
-BN-curves, as they rely on assumptions about the geometric properties of the curve which
-BN-curves do not have. Their method is both efficient and runs in constant time, making it
-secure for applications where timing attacks are of concern.
-
-For supersingular curves, for every y in GF(p) (with p>3), there exists a value
-x such that (x, y) is on the curve E. Hence we can construct a bijection
-F : GF(p) -> E (ignoring the point at infinity). This is the case for
-{{BF01}}, but is not common.
-
 The general term "encoding" is used to refer to the process of producing an
 elliptic curve point given as input a bitstring. In some protocols, the original
 message may also be recovered through a decoding procedure.
@@ -813,6 +800,16 @@ For supersingular curves, for every y in GF(p) (with p>3), there exists a value
 x such that (x, y) is on the curve E. Hence we can construct a bijection
 F : GF(p) -> E (ignoring the point at infinity). This is the case for
 {{BF01}}, but is not common.
+
+## BN Curves (pairing-friendly)
+
+Fouque and Tibouchi {{FT12}} also used the F(H1(m))+F(H2(m)) method to construct a hash
+function on to BN-curves, using an encoding function F of their construction. BN curves {{BN05}} are
+pairing-friendly and offer 128 bits of security, making them ideal for implementing
+cryptographic schemes which rely on pairings. Other encoding functions are not suitable for
+BN-curves, as they rely on assumptions about the geometric properties of the curve which
+BN-curves do not have. Their method is both efficient and runs in constant time, making it
+secure for applications where timing attacks are of concern.
 
 ## Twisted Variants
 
