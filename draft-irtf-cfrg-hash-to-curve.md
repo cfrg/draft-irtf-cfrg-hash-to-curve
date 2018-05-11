@@ -287,11 +287,18 @@ and elliptic curves.
 The general term "encoding" is used to refer to the process of producing an
 elliptic curve point given as input a bitstring. In some protocols, the original
 message may also be recovered through a decoding procedure.
-
-An injective encoding may be used to map some fixed-length bitstring of length
-`L < log2(n) - 1` to an elliptic curve point. An encoding may be deterministic
+An encoding may be deterministic
 or probabilistic, although the latter is problematic in potentially leaking
 plaintext information as a side-channel.
+
+In most cases, the curve E is over a finite field GF(p^k), with p > 2.
+Suppose as the input to the encoding function we wish to use a fixed-length
+bitstring of length L. Comparing sizes of the sets, 2^L and n,
+an encoding function cannot be both deterministic and bijective.
+
+We can instead use an injective encoding from {0, 1}^L to E, with
+`L < log2(n)- 1`,  which is a bijection over a subset of points in E.
+This ensures that encode plaintext messages can be recovered.
 
 ### Serialization {#term-serialization}
 
@@ -300,6 +307,14 @@ refer to this process as "serialization", since it is typically used for
 compactly storing and transporting points, or for producing canonicalized
 outputs. Since a deserialization algorithm can often be used as a type of
 encoding algorithm, we also briefly document properties of these functions.
+
+A naive serialization algorithm maps a point (x, y) on E to a bitstring of length
+2\*log(p), given that x, y are both elements in GF(p). However, since
+there are only n points in E (with n approximately equal to p), it is possible
+to serialize to a bitstring of length log(n). For example, one common method
+is to store the x-coordinate and a single bit to determine whether the point
+is (x, y) or (x, -y), thus requiring log(p)+1 bits. Thus exchanging computation
+(recovering the y coordinate) for storage.
 
 ### Random Oracle {#term-rom}
 
