@@ -36,6 +36,14 @@ author:
     city: New York, New York 10044
     country: United States of America
     email: sam.scott@cornell.edu
+ -
+    ins: E. Berners-Lee
+    name: Ela Berners-Lee
+    org: Royal Holloway, University of London
+    street: Egham Hill
+    city: Egham
+    Country: United Kingdom
+    email: ela.berners-lee.2010@live.rhul.ac.uk
 
 normative:
   RFC2119:
@@ -186,7 +194,41 @@ normative:
       -
         ins:  J. Felipe Voloch
         org: University of Texas
- 
+  FT12:
+    title: Indifferentiable Hashing to Barreto-Naehrig Curves
+    venue: LATINCRYPT 2012, pages 1-17.
+    target: https://link.springer.com/chapter/10.1007/978-3-642-33481-8_1
+    authors:
+      -
+        ins: Pierre-Alain Fouque
+        org: Ecole Normale Superieure and INRIA Rennes
+      -
+        ins: Mehdi Tibouchi
+        org: NTT Secure Platform Laboratories
+  BN05:
+    title: Pairing-Friendly Elliptic Curves of Prime Order
+    authors:
+    -
+      ins: Paulo S. L. M. Barreto
+    -
+      ins: Michael Naehrig
+   draft-BN:
+     title: Barreto-Naehrig Curves
+     venue: Internet Engineering Task Force, March 2016, Work in progress (draft-ietf-network-kasamatsu-bncurves-02.txt)
+     target: https://tools.ietf.org/id/draft-kasamatsu-bncurves-02.html
+     authors:
+     -
+       ins: Akihiro Kato
+       org: NTT Software Corporation
+     -
+       ins: Michael Scott
+       org: CertiVox
+     -
+       ins: Tetsutaro Kobayashi
+       org: NTT
+     -
+       ins: Yuto Kawahara
+       org: NTT
   
 
 --- abstract
@@ -324,6 +366,14 @@ G, and computes F(H1(m)) + H2(m)\*G. Later, Farashahi et al. {{FFSTV13}}
 showed the generality of the F(H1(m)) + F(H2(m)) method, as well as the
 applicability to hyperelliptic curves (not covered here).
 
+Fouque and Tibouchi {{FT12}} also used the F(H1(m))+F(H2(m)) method to construct a hash
+function on to BN-curves, using an encoding function F of their construction. BN curves {{BN05}} are
+pairing-friendly and offer 128 bits of security, making them ideal for implementing
+cryptographic schemes which rely on pairings. Other encoding functions are not suitable for
+BN-curves, as they rely on assumptions about the geometric properties of the curve which
+BN-curves do not have. Their method is both efficient and runs in constant time, making it
+secure for applications where timing attacks are of concern.
+
 For supersingular curves, for every y in GF(p) (with p>3), there exists a value
 x such that (x, y) is on the curve E. Hence we can construct a bijection
 F : GF(p) -> E (ignoring the point at infinity). This is the case for
@@ -347,6 +397,7 @@ The following table lists recommended algorithms to use for specific curves.
 | P-384 | Icart {{icart}} |
 | Curve25519 | Elligator2 {{elligator2}} |
 | Curve448 | Elligator2 {{elligator2}} |
+| BN-curves | {{BN05}} |
 
 The SWU variant from Section {{swu}} applies to any curve. As such, this algorithm
 SHOULD be used if no other better alternative is known. More efficient variants and
@@ -358,6 +409,7 @@ curve meets the listed criteria.
 | SWU {{swu}} | None |
 | Simplified SWU {{simple-swu}} | p = 3 mod 4 |
 | Elligator2 {{elligator2}} | p is large and there is a point of order two and j-invariant != 1728 |
+| FT-hash  | p = 7 mod 12, 1 + b bnonzero square in Fp, E: y^2 = x^3 + b |
 
 # Generic Interface
 
@@ -588,6 +640,92 @@ Steps:
 Elligator2 can be simplified with projective coordinates. 
 
 ((TODO: write this variant))
+
+## FT-hash
+
+{{FT12}} outline a method for hashing onto a set of curves which includes BN curves, which are suitable
+for bilinear pairings. A number of cryptographic schemes rely on pairings, including some identity-based
+encryption (IBE) and attribute-based encryption (ABE) schemes.  BN curves are not one specific curve but a
+class of curves which can be constructed using Barreto and Naehrig's algorithm {{BN05}}. BN curves are a
+preferred option for asymmetric pairings as they provide relatively efficient computation for pairings, which are
+usually the slowest computation in any cryptosystem using them. There is also work giving parameter selection
+for 256-bit BN-curves, resulting in 128 bits of security for hashing onto BN curves. Suggestions for suitable BN
+curves can be found in {{draft-BN}} (work in progress).
+
+This method is suitable for BN-curves, which have the form E: f(x) = y^2 = x^3 + b, where operations
+are over a field Fp,  where p = 7 (mod 12) and 1 + b is a nonzero square in Fp. Fouque and Tibouchi give an 
+encoding F which makes the hash function Hash(m) = F(H1(m)) + F(H2(m)) indifferentiable from a random oracle,
+where  H1 and H2 are independent hash functions into Fp. We give this encoding and hash function construction
+in the steps below.  In the following, Xp() is the Legendre symbol (Xp(0) = 0, for a != 0 Xp(a) = 1 if a is a square in
+Fp and -1 otherwise), which can be computed by Xp(a) = a ^ ((p -1) / 2).
+
+~~~
+FT-encoding(t)
+
+Input:
+
+  t - the input, an element in Fp
+
+  f() - Curve function
+
+Output:
+
+  (x, y) - a point in E
+
+Steps:
+
+1.   s = (-3)^(1/2) (mod p)
+2.   x1 = (-1 + s)/2  -  (s t^2) / (1 + b + t^2) (mod p)
+3.   x2 = (-1 - s)/2  +  (s t^2) / (1 + b + t^2) (mod p)
+4.   x3 = 1 - ((1 + b + t^2)^2)  /  (3 t^2) (mod p)
+5.   s1 = Xp(g(x1))  // calculate quadratic residue of g(x1)
+6.   s2 = Xp(g(x2))  // calculate quadratic residue of g(x2)
+7.   s3 = Xp(g(x3))  // calculate quadratic residue of g(x3)
+8.   if s1 = 1: x = x1  // choose the smallest index i such that g(xi) is a square in Fp
+9.   else if s2 = 1: x = x2 
+10. else: x = x3
+11. y = f(x)^(1/2) (mod p)
+12. y = Xp(t) * y (mod p)
+13. Output ( x,  y )
+~~~
+Note that s will always be an integer in the field, due our base assumptions about p. If it is necessary to
+specifically define a point for F(0), then a suitable suggestion is f(0) = ( (-1 + s)  /  2, (1+b)^(1/2) ).
+In steps 5-7 all relevant quadric residues are calculated in order to prevent possible timing attacks where
+s2 and s3 are not calculated if s1 = 1.
+
+Whilst this encoding function works for BN curves and is efficient, it only reaches roughly 9/16ths of
+the curve. However, this is enough to be a suitable encoding function for Hash = F(H1(m)) +
+F(H2(m)) as explained in {{FFSTV13}}, which will be indifferentiable from a random oracle.  We give this function
+explicitly in the steps below.
+
+~~~
+hash_to_BN_curve(alpha)
+
+Input:
+
+  alpha - value to be hashed, an octet string
+  
+  HashToBase1(): H1(x)[0:log2(p) + 1] - a cryptographic hash function into the field Fp (where p is the
+  prime order of base field Fp), such as SHA256.
+  
+  HashToBase2(): H2(x)[0:log2(p) + 1] - another cryptographic hash function into the field Fp, independent from
+  HashToBase1, such as SHA3.
+
+  f() - Curve function
+
+Output:
+
+  (x, y) - a point in E
+
+Steps:
+
+1.   t1 = HashToBase1(alpha)
+2.   (a1, b1) = FT-encoding(t1)
+2.   t2 = HashToBase2(alpha)
+3.   (a2, b2) = FT-encoding(t2)
+4.   (x, y) = (a1, b1) + (a2, b2) // Elliptic curve addition
+5.   Output (x,  y)
+~~~
 
 # Curve Transformations
 
