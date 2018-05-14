@@ -338,6 +338,28 @@ and are less efficient than hash and encode methods.
 
 # Algorithm Recommendations {#recommendations}
 
+The following table lists algorithms recommended by use-case:
+
+| Application       | Requirement   | Additional Details
+|-------------------|---------------|---------|
+| SPEKE {{Jablon96}}| Naive         | H(x)*G |
+| PAKE  {{BMP00}}   | Random Oracle |   -    | 
+| BLS {{BLS01}}     | Random Oracle            |    -   |
+| IBE {{BF01}}      | Random Oracle | Supersingular, pairing-friendly curve |
+| PRF | Injective encoding | F(k, m) = k*H(m) |
+
+To find the suitable algorithm, lookup the requirement from above, with 
+the chosen curve in the below:
+
+
+| Curve  | Inj. Encoding | Random Oracle |
+|--------|---------------|------|
+| P-256 | SWU {{simple-swu}} | FFSTV(SWU)
+| P-384 | Icart {{icart}} | FFSTV(Icart)
+| Curve25519 | Elligator2 {{elligator2}} | ...
+| Curve448 | Elligator2 {{elligator2}} | ...
+
+
 The following table lists recommended algorithms to use for specific curves. 
 
 | Curve | Algorithm |
