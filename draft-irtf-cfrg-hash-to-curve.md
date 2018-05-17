@@ -207,29 +207,96 @@ normative:
         org: NTT Secure Platform Laboratories
   BN05:
     title: Pairing-Friendly Elliptic Curves of Prime Order
+    target: https://link.springer.com/chapter/10.1007/11693383_22
     authors:
     -
       ins: Paulo S. L. M. Barreto
+      org: Escola Politecnica, Universidade de Sao Paulo
     -
       ins: Michael Naehrig
-   draft-BN:
-     title: Barreto-Naehrig Curves
-     venue: Internet Engineering Task Force, March 2016, Work in progress (draft-ietf-network-kasamatsu-bncurves-02.txt)
-     target: https://tools.ietf.org/id/draft-kasamatsu-bncurves-02.html
-     authors:
-     -
-       ins: Akihiro Kato
-       org: NTT Software Corporation
-     -
-       ins: Michael Scott
-       org: CertiVox
-     -
-       ins: Tetsutaro Kobayashi
-       org: NTT
-     -
-       ins: Yuto Kawahara
-       org: NTT
-  
+      org: Lehrstuhl fur Theoretische Informationstechnik, Rheinisch-Westfalische Technische Hochschule Aachen
+  ISO09EC:
+    title: Information Technology - Security Techniques -- Cryptographic techniques based on elliptic curves . Part 5: Elliptic curve generation"
+    venue: ISO/IEC 15946-5, 2009
+    target: https://www.iso.org/obp/ui/#iso:std:iso-iec:15946:-5:ed-1:v1:en
+    authors:
+    -
+      ins: International Organization for Standardization
+      org: ISO/IEC
+  BGMO+10
+    title: High-Speed Software Implementation of the Optimal Ate Pairing over Barreto-Naehrig Curves
+    venue: Proceedings Lecture notes in computer sciences; Pairing-Based Cryptography 2010
+    target: https://link.springer.com/chapter/10.1007/978-3-642-17455-1_2
+    authors: 
+    -
+      ins: Jean-Luc Beuchat
+      org: Graduate School of Systems and Information Engineering, University of Tsukuba
+    -
+      ins: Jorge Enrique González-Díaz
+      org: Computer Science Department, Centro de Investigacion y de Estudios Avanzados del IPN, Av. Instituto Politecnico Nacional
+    -
+      ins: Shigeo Mitsunari
+      org: Cybozu Labs, Inc.
+    -
+      ins: Eiji Okamoto
+      org: Graduate School of Systems and Information Engineering, University of Tsukuba
+    -
+      ins: Francisco Rodríguez-Henríquez
+      org: Computer Science Department, Centro de Investigacion y de Estudios Avanzados del IPN, Av. Instituto Politecnico Nacional
+    -
+      ins: Tadanori Teruya
+      org: Graduate School of Systems and Information Engineering, University of Tsukuba
+  AKLG+11
+    title: Faster Explicit Formulas for Computing Pairings over Ordinary Curves
+    venue: Proceedings Lecture notes in computer sciences; EUROCRYPT 2011
+    target: https://link.springer.com/chapter/10.1007%2F978-3-642-20465-4_5
+    authors:
+    _
+      ins: Diego F. Aranha
+      org: University of Campinas
+    -
+      ins: Koray Karabina
+      org: Certicom Research
+    -
+      ins: Patrick Longa
+      org: University of Waterloo
+    -
+      ins: Catherine H. Gebotys
+      org: University of Waterloo
+    -
+      ins: Julio López
+      org: University of Campinas
+  Scott13
+    title: Unbalancing Pairing-Based Key Exchange Protocols"
+    target: http://eprint.iacr.org/2013/688
+    authors:
+    _
+      ins: Michael Scott
+      org: Certivox Labs
+  BCMN+16
+    title: Subgroup security in pairing-based cryptography
+    venue: Latincrypt 2016
+    target: https://link.springer.com/chapter/10.1007/978-3-319-22174-8_14
+    authors:
+    -
+      ins: Paulo S. L. M. Barreto
+      org: Escola Politecnica, University of Sao Paulo
+    -
+      ins: Craig Costello
+      org: Microsoft Research
+    -
+      ins: Rafael Misoczki
+      org: 
+    -
+      ins: Michael Naehrig
+      org: Escola Politecnica, University of Sao Paulo
+    -
+      ins: Geovandro C. C. F. Pereira
+      org: Escola Politecnica, University of Sao Paulo
+    -
+      ins: Gustavo Zanon
+      org: Escola Politecnica, University of Sao Paulo
+
 
 --- abstract
 
@@ -360,7 +427,7 @@ curve meets the listed criteria.
 | SWU {{swu}} | None |
 | Simplified SWU {{simple-swu}} | p = 3 mod 4 |
 | Elligator2 {{elligator2}} | p is large and there is a point of order two and j-invariant != 1728 |
-| FT-hash  | p = 7 mod 12, 1 + b bnonzero square in Fp, E: y^2 = x^3 + b |
+| FT-hash  | p = 7 mod 12, 1 + b b nonzero square in Fp, E: y^2 = x^3 + b |
 
 # Generic Interface
 
@@ -600,8 +667,10 @@ encryption (IBE) and attribute-based encryption (ABE) schemes.  BN curves are no
 class of curves which can be constructed using Barreto and Naehrig's algorithm {{BN05}}. BN curves are a
 preferred option for asymmetric pairings as they provide relatively efficient computation for pairings, which are
 usually the slowest computation in any cryptosystem using them. There is also work giving parameter selection
-for 256-bit BN-curves, resulting in 128 bits of security for hashing onto BN curves. Suggestions for suitable BN
-curves can be found in {{draft-BN}} (work in progress).
+for 256-bit BN-curves, resulting in 128 bits of security for hashing onto BN curves. Suggestions for suitable 224,
+256, 384, and 512-bit curves which are compliant with the ISO document and are based on M-type twisted curve can
+be found in {{ISO09EC}}. Other work on parameter selection for suitable curves can be found in {{BGMO+10}}
+{{AKLG+11}} {{Scott13}} {{BCMN+16}}.
 
 This method is suitable for BN-curves, which have the form E: f(x) = y^2 = x^3 + b, where operations
 are over a field Fp,  where p = 7 (mod 12) and 1 + b is a nonzero square in Fp. Fouque and Tibouchi give an 
