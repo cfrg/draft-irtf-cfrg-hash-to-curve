@@ -617,7 +617,7 @@ where alpha is a message to encode on a curve.
 
 When applications need a Random Oracle (RO), they can be constructed from deterministic encoding 
 functions. In particular, let F : {0,1}^* -> E be a deterministic encoding function onto 
-curve E, and let H1 and H2 be two hash functions modeled as random oracles that map input 
+curve E, and let H0 and H1 be two hash functions modeled as random oracles that map input 
 messages to the base field of E, i.e., Z_q. Farashahi et al. {{FFSTV13}} showed that the 
 following mapping is indistinguishable from a RO:
 
@@ -627,7 +627,7 @@ hash2curve(alpha) = F(H0(alpha)) + F(H1(alpha))
 
 This construction works for the Icart, SWU, and Simplfied SWU encodings. 
 
-Here, H1 and H2 could be constructed as follows:
+Here, H0 and H1 could be constructed as follows:
 
 ~~~
 H0(alpha) = HashToBase(0 || alpha)
