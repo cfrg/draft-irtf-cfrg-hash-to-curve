@@ -27,7 +27,7 @@ def U(t, u):
 
 def swu(alpha):
     t = F(alpha)
-    u = F(alpha)
+    u = F(alpha + 1)
     x1v = x1(t, u)
     x2v = x2(t, u)
     x3v = x3(t, u)
@@ -42,6 +42,12 @@ def swu(alpha):
         return E(x2v, sqrt(g(x2v))) 
     else:
         return E(x3v, sqrt(g(x3v)))
+
+def swu_straight(alpha):
+    t = F(alpha)
+    u = F(alpha + 1)
+
+    return 0
 
 inputs = [7, 13, 1<<7, 1<<8, 1<<64, 1<<64-1]
 for t in inputs:
