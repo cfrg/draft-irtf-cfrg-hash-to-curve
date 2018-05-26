@@ -211,13 +211,13 @@ protocol.
 
 This document aims to address this lapse by providing a thorough set of
 recommendations across a range of implementations, and curve types. We provide
-implementation and perfomance details for each mechanism, along with references
+implementation and performance details for each mechanism, along with references
 to the security rationale behind each recommendation and guidance for
 applications not yet covered.
 
 Each algorithm conforms to a common interface, i.e., it maps an element from a
-base field F to a curve E. For each variant, we describe the requirements for F
-and E to make it work. Sample code for each variant is presented in the
+bitstring {0, 1}^\* to a curve E. For each variant, we describe the requirements for
+E to make it work. Sample code for each variant is presented in the
 appendix.  Unless otherwise stated, all elliptic curve points are assumed to be
 represented as affine coordinates, i.e., (x, y) points on a curve.
 
@@ -230,17 +230,33 @@ document are to be interpreted as described in {{RFC2119}}.
 
 # Background {#background}
 
-Let E be an elliptic curve over base field GF(p). Elliptic curves come in
-many variants, including: Weierstrass, Montgomery, and Edwards. A point
-on these curves is represented by some tuple of variables, with each variable
-being a value in GF(p). A curve point is generally represented by a pair
-(x, y), known as affine coordinates, but are commonly expressed in other
-ways for the sake of efficient group operations. 
+Here we give a brief definition of elliptic curves, with an emphasis
+on defining important parameters and their relation to encoding.
+
+Let F be the finite field GF(p^k). We say that F is a field of characteristic
+p. For most applications, F is a prime field, in which case k=1 and we will
+simply write GF(p).
+
+Elliptic curves come in
+many variants, including, but not limited to: Weierstrass, Montgomery, and Edwards. Each
+of these variants correspond to a different category of curve equation.
+For example, the short Weierstrauss equation is of the form
+`y^2 = x^3 + Ax + B`. Certain encoding functions may have requirements
+on the curve form and the parameters, such as A and B in the previous example.
+
+An elliptic curve E is specified by the equation, and a finite field F.
+The curve E forms a group, whose elements correspond to those who satisfy the 
+curve equation, with values taken from the field F. As a group, E has order
+n, which is the number of points on the curve. When n is not prime,
+we write n = qh + r, where q is prime, and h is said to be the cofactor.
+It is frequently a requirement that all cryptographic operations take place
+in a prime order group. In this case, we may wish an encoding to return
+elements of order q. For a mapping outputting elements on E, we can
+multiply by the cofactor h to obtain an element in the subgroup.
 
 In practice, the input of a given cryptographic algorithm will be a bitstring of
-arbitrary length, denoted {0, 1}^*. Hence, a concern for virtually all protocols
-involving elliptic curves, is how to convert this input into a point of the form
-(x, y) with x, y in the finite field GF(p).
+arbitrary length, denoted  {0, 1}^\*. Hence, a concern for virtually all protocols
+involving elliptic curves is how to convert this input into a curve point.
 
 Note that the number of points on an elliptic curve E is within 2\*sqrt(p) of p
 by Hasse's Theorem. As a rule of thumb, for every x in GF(p), there is
@@ -248,9 +264,17 @@ approximately a 1/2 chance that there exist a corresponding y value such that
 (x, y) is on the curve E. Since the point (x, -y) is also on the curve, then
 this sums to approximately p points.
 
-Therefore, even assuming a method to convert a bitstring into a representation
-in GF(p), there is not necessarily a direct means to produce an elliptic curve
-point.
+Ultimately, an encoding function takes a bitstring {0, 1}^\* to an element
+of E, of order n (or q), and represented by variables in GF(p).
+
+Summary of quantities:
+
+| Symbol | Meaning | Relevance
+|:------:|---------|----------
+| p | Order of finite field, F = GF(p) | Curve points need to be represented in terms of p. For prime powers, we write F = GF(p^k).
+| n | Number of curve points, #E(F) = n |  For map to E, needs to produce n elements.
+| q | Order of prime subgroup of E, n = qh + r | If n is not prime, may need mapping to q. 
+| h | Cofactor of prime subgroup | For mapping to subgroup, need to multiply by cofactor. 
 
 
 ## Terminology {#terminology}
@@ -263,11 +287,18 @@ and elliptic curves.
 The general term "encoding" is used to refer to the process of producing an
 elliptic curve point given as input a bitstring. In some protocols, the original
 message may also be recovered through a decoding procedure.
-
-An injective encoding may be used to map some fixed-length bitstring of length
-`L < log2(p) - 1` to and elliptic curve point. An encoding may be deterministic
+An encoding may be deterministic
 or probabilistic, although the latter is problematic in potentially leaking
 plaintext information as a side-channel.
+
+In most cases, the curve E is over a finite field GF(p^k), with p > 2.
+Suppose as the input to the encoding function we wish to use a fixed-length
+bitstring of length L. Comparing sizes of the sets, 2^L and n,
+an encoding function cannot be both deterministic and bijective.
+
+We can instead use an injective encoding from {0, 1}^L to E, with
+`L < log2(n)- 1`,  which is a bijection over a subset of points in E.
+This ensures that encoded plaintext messages can be recovered.
 
 ### Serialization {#term-serialization}
 
@@ -276,6 +307,14 @@ refer to this process as "serialization", since it is typically used for
 compactly storing and transporting points, or for producing canonicalized
 outputs. Since a deserialization algorithm can often be used as a type of
 encoding algorithm, we also briefly document properties of these functions.
+
+A naive serialization algorithm maps a point (x, y) on E to a bitstring of length
+2\*log(p), given that x, y are both elements in GF(p). However, since
+there are only n points in E (with n approximately equal to p), it is possible
+to serialize to a bitstring of length log(n). For example, one common method
+is to store the x-coordinate and a single bit to determine whether the point
+is (x, y) or (x, -y), thus requiring log(p)+1 bits. Thus exchanging computation
+(recovering the y coordinate) for storage.
 
 ### Random Oracle {#term-rom}
 
@@ -299,36 +338,27 @@ and are less efficient than hash and encode methods.
 
 # Algorithm Recommendations {#recommendations}
 
-The following table lists recommended algorithms to use for specific curves. 
+The following table lists algorithms recommended by use-case:
 
-| Curve | Algorithm |
-| P-256 | SWU {{simple-swu}} |
-| P-384 | Icart {{icart}} |
-| Curve25519 | Elligator2 {{elligator2}} |
-| Curve448 | Elligator2 {{elligator2}} |
+| Application       | Requirement   | Additional Details
+|-------------------|---------------|---------|
+| SPEKE {{Jablon96}}| Naive         | H(x)*G |
+| PAKE  {{BMP00}}   | Random Oracle |   -    | 
+| BLS {{BLS01}}     | Random Oracle            |    -   |
+| IBE {{BF01}}      | Random Oracle | Supersingular, pairing-friendly curve |
+| PRF | Injective encoding | F(k, m) = k*H(m) |
 
-The SWU variant from Section {{swu}} applies to any curve. As such, this algorithm
-SHOULD be used if no other better alternative is known. More efficient variants and
-their curve requirements are shown in the table below. These MAY be used if the target
-curve meets the listed criteria.
+To find the suitable algorithm, lookup the requirement from above, with 
+the chosen curve in the below:
 
-| Algorithm | Requirement |
-| Icart {{icart}} | p = 2 mod 3 |
-| SWU {{swu}} | None |
-| Simplified SWU {{simple-swu}} | p = 3 mod 4 |
-| Elligator2 {{elligator2}} | p is large and there is a point of order two and j-invariant != 1728 |
+| Curve  | Inj. Encoding | Random Oracle |
+|--------|---------------|------|
+| P-256 | SWU {{simple-swu}} | FFSTV(SWU) 
+| P-384 | Icart {{icart}} | FFSTV(Icart) 
+| Curve25519 | Elligator2 {{elligator2}} | ... 
+| Curve448 | Elligator2 {{elligator2}} | ... 
 
-# Generic Interface
-
-The generic interface for hashing to elliptic curves is as follows:
-
-~~~
-hash_to_curve(alpha)
-~~~
-
-where alpha is a message to hash onto a curve. 
-
-## Utility Functions
+# Utility Functions
 
 Algorithms in this document make use of utility functions described below.
 
@@ -341,13 +371,23 @@ Note: We assume that HashToBase maps its input to the base field uniformly.
 In practice, there may be inherent biases in p, e.g., p = 2^k - 1 will
 have non-negligible bias in higher bits.
 
-((TODO: expand on this problem))
+# Deterministic Encodings
 
-# Hashing Variants
+## Interface
 
-## Icart Method {#icart}
+The generic interface for deterministic encoding functions to elliptic curves is as follows:
 
-The following hash_to_curve_icart(alpha) implements the Icart method from {{Icart09}}.
+~~~
+map2curve(alpha)
+~~~
+
+where alpha is a message to encode on a curve. 
+
+## Encoding Variants
+
+### Icart Method {#icart}
+
+The following map2curve_icart(alpha) implements the Icart method from {{Icart09}}.
 This algorithm works for any curve over F_{p^n}, where p^n = 2 mod 3 
 (or p = 2 mod 3 and for odd n), including:
 
@@ -374,7 +414,7 @@ It requires knowledge of A and B, the constants from the curve Weierstrass form.
 It outputs a point with affine coordinates.
 
 ~~~
-hash_to_curve_icart(alpha)
+map2curve_icart(alpha)
 
 Input:
 
@@ -411,13 +451,13 @@ Steps:
 
 ~~~
 
-## Shallue-Woestijne-Ulas Method {#swu}
+### Shallue-Woestijne-Ulas Method {#swu}
 
 ((TODO: write this section))
 
-## Simplified SWU Method {#simple-swu}
+### Simplified SWU Method {#simple-swu}
 
-The following hash_to_curve_simple_swu(alpha) implements the simplfied
+The following map2curve_simple_swu(alpha) implements the simplfied
 Shallue-Woestijne-Ulas algorithm from {{SimpleSWU}}. This algorithm
 works for any curve over F_{p^n}, where p = 3 mod 4, including:
 
@@ -438,11 +478,11 @@ The following procedure implements this algorithm. It outputs a point with
 affine coordinates.
 
 ~~~
-hash_to_curve_simple_swu(alpha)
+map2curve_simple_swu(alpha)
 
 Input:
 
-  alpha - value to be hashed, an octet string
+  alpha - value to be encoded, an octet string
 
 Output:
 
@@ -476,9 +516,9 @@ Steps:
 24. Output (x, y)
 ~~~
 
-## Elligator2 Method {#elligator2}
+### Elligator2 Method {#elligator2}
 
-The following hash_to_curve_elligator2(alpha) implements the Elligator2
+The following map2curve_elligator2(alpha) implements the Elligator2
 method from {{Elligator2}}. This algorithm works for any curve
 with a point of order 2 and j-invariant != 1728. Given curve equation 
 f(x) = y^2 = x(x^2 + Ax + B), i.e., a Montgomery form with the point of 
@@ -508,11 +548,11 @@ the Legendre symbol.)
 The following procedure implements this algorithm.
 
 ~~~
-hash_to_curve_elligator2(alpha)
+map2curve_elligator2(alpha)
 
 Input:
 
-  alpha - value to be hashed, an octet string
+  alpha - value to be encoded, an octet string
 
   u - fixed non-square value in Fp.
   f() - Curve function
@@ -548,22 +588,59 @@ Elligator2 can be simplified with projective coordinates.
 
 ((TODO: write this variant))
 
-# Curve Transformations
+## Cost Comparison
 
-((TODO: write this section))
-
-# Cost Comparison
-
-The following table summarizes the cost of each hash_to_curve variant. We express this cost in 
+The following table summarizes the cost of each map2curve variant. We express this cost in 
 terms of additions (A), multiplications (M), squares (SQ), and square roots (SR). 
 
 ((TODO: finish this section))
 
 | Algorithm | Cost (Operations) | 
-| hash_to_curve_icart | TODO |
-| hash_to_curve_swu | TODO |
-| hash_to_curve_simple_swu | TODO |
-| hash_to_curve_elligator2 | TODO |
+| map2curve_icart | TODO |
+| map2curve_swu | TODO |
+| map2curve_simple_swu | TODO |
+| map2curve_elligator2 | TODO |
+
+# Random Oracles
+
+## Interface
+
+The generic interface for deterministic encoding functions to elliptic curves is as follows:
+
+~~~
+hash2curve(alpha)
+~~~
+
+where alpha is a message to encode on a curve. 
+
+## General Construction (FFSTV13)
+
+When applications need a Random Oracle (RO), they can be constructed from deterministic encoding 
+functions. In particular, let F : {0,1}^* -> E be a deterministic encoding function onto 
+curve E, and let H0 and H1 be two hash functions modeled as random oracles that map input 
+messages to the base field of E, i.e., Z_q. Farashahi et al. {{FFSTV13}} showed that the 
+following mapping is indistinguishable from a RO:
+
+~~~
+hash2curve(alpha) = F(H0(alpha)) + F(H1(alpha))
+~~~
+
+This construction works for the Icart, SWU, and Simplfied SWU encodings. 
+
+Here, H0 and H1 could be constructed as follows:
+
+~~~
+H0(alpha) = HashToBase(0 || alpha)
+H1(alpha) = HashToBase(1 || alpha)
+~~~
+
+## Curve-Specific Variants
+
+((TODO: write this section))
+
+# Curve Transformations
+
+((TODO: write this section))
 
 # IANA Considerations
 
@@ -571,9 +648,9 @@ This document has no IANA actions.
 
 # Security Considerations
 
-Each hash function variant accepts arbitrary input and maps it to a pseudorandom
+Each encoding function variant accepts arbitrary input and maps it to a pseudorandom
 point on the curve. Points are close to indistinguishable from randomly chosen 
-elements on the curve. Some variants variants are not full-domain hashes. Elligator2,
+elements on the curve. Not all encoding functions are full-domain hashes. Elligator2,
 for example, only maps strings to "about half of all curve points," whereas Icart's
 method only covers about 5/8 of the points.
 
@@ -710,7 +787,7 @@ defined in Section 4.1 of {{RFC8017}}, and RS2ECP is a function that converts of
 
 ## Icart Method
 
-The following Sage program implements hash_to_curve_icart(alpha) for P-384.
+The following Sage program implements map2curve_icart(alpha) for P-384.
 
 ~~~
 p = 394020061963944792122790401001436138050797392704654466679482934042 \
@@ -777,7 +854,7 @@ def icart_straight(u):
 
 ## Simplified SWU Method
 
-The following Sage program implements hash_to_curve_swu(alpha) for P-256.
+The following Sage program implements map2curve_swu(alpha) for P-256.
 
 ~~~
 p = 115792089210356248762697446949407573530086143415290314195533631308 \
@@ -849,7 +926,7 @@ def simple_swu_straight(alpha):
 
 ## Elligator2 Method
 
-The following Sage program implements hash_to_curve_elligator2(alpha) for Curve25519.
+The following Sage program implements map2curve_elligator2(alpha) for Curve25519.
 
 ~~~
 p = 2**255 - 19
