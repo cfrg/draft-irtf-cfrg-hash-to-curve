@@ -32,6 +32,9 @@ def swu(alpha):
     x2v = x2(t, u)
     x3v = x3(t, u)
     Utu = U(t, u)^2
+
+    #print x1v, x2v, x3v
+    #print g(x1v), g(x2v), g(x3v)
     
     assert is_square(Utu)
     assert Utu == (g(x1v) * g(x2v) * g(x3v))
@@ -47,8 +50,49 @@ def swu_straight(alpha):
     t = F(alpha)
     u = F(alpha + 1)
 
-    return 0
+    t2 = t^2
+    t4 = t2^2
+    gu = u^3
+    gu = gu + (A * u)
+    gu = gu + B
+
+    x1 = u
+    x2 = B * -1
+    x2 = x2 / A
+    gx1 = x1^3
+    gx1 = gx1 + (A * x1)
+    gx1 = gx1 + B
+
+    d1 = gu^2
+    d1 = d1 * t4
+    d2 = t2 * gu
+    d3 = d1 + d2
+    d3 = d3^(-1)
+    n1 = 1 + d3
+    x2 = x2 * n1
+    gx2 = x2^3
+    gx2 = gx2 + (A * x2)
+    gx2 = gx2 + B
+
+    x3 = t2 * gu
+    x3 = x3 * x2
+    gx3 = x3^3
+    gx3 = gx3 + (A * x3)
+    gx3 = gx3 + B
+
+    #print x1, x2, x3
+    #print gx1, gx2, gx3
+
+    l1 = gx1^((p - 1) / 2)
+    if l1 == 1:
+        return E(x1, sqrt(gx1))
+
+    l2 = gx2^((p - 1) / 2)
+    if l2 == 1:
+        return E(x2, sqrt(gx2))
+
+    return E(x3, sqrt(gx3))
 
 inputs = [7, 13, 1<<7, 1<<8, 1<<64, 1<<64-1]
 for t in inputs:
-    print swu(t)
+    assert swu(t) == swu_straight(t)
