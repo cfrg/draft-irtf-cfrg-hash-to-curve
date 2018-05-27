@@ -505,9 +505,44 @@ Output:
 
 Steps:
 
-1.   t = H0(alpha)   // {0,1}^* -> Fp
-2.   u = H1(alpha)   // {0,1}^* -> Fp
-
+1.    t = H0(alpha)   // {0,1}^* -> Fp
+2.    u = H1(alpha)   // {0,1}^* -> Fp
+3.   t2 = t^2
+4.   t4 = t2^2
+5.   gu = u^3
+6.   gu = gu + (A * u)
+7.   gu = gu + B      // gu = g(u)
+8.   x1 = u           // x1 = X1(t, u) = u
+9.   x2 = B * -1
+10.  x2 = x2 / A     
+11.  gx1 = x1^3
+12.  gx1 = gx1 + (A * x1)
+13.  gx1 = gx1 + B    // gx1 = g(X1(t, u))
+14.  d1 = gu^2
+15.  d1 = d1 * t4
+16.  d2 = t2 * gu
+17.  d3 = d1 + d2
+18.  d3 = d3^(-1)
+19.  n1 = 1 + d3
+20.  x2 = x2 * n1     // x2 = X2(t, u)
+21. gx2 = x2^3
+22. gx2 = gx2 + (A * x2)
+23. gx2 = gx2 + B     // gx2 = g(X2(t, u))
+24.  x3 = t2 * gu
+25.  x3 = x3 * x2     // x3 = X3(t, u)
+26. gx3 = x3^3
+27. gx3 = gx3 + (A * x3)
+28. gx3 = gx3 + B     // gx3 = g(X3(t, u))
+29.  l1 = gx1^((p - 1) / 2)
+30.  l2 = gx2^((p - 1) / 2)
+31.  s1 = gx1^(1/2)
+32.  s2 = gx2^(1/2)
+33.  s3 = gx3^(1/2)
+34. if l1 == 1:
+35.   Output (x1, s1)
+36. if l2 == 1:
+37.   Output (x2, s2)
+38. Output (x3, s3)
 ~~~
 
 ### Simplified SWU Method {#simple-swu}
