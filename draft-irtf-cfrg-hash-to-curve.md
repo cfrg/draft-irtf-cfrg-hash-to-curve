@@ -470,12 +470,12 @@ this algorithm works as follows:
 ~~~
 1. t = H0(alpha)
 2. u = H1(alpha)
-3. X1(t, u) = u
-4. X2(t, u) = (-B / A)(1 + 1 / (t^4 * g(u)^2 + t^2 * g(u)))
-5. X3(t, u) = t^3 * g(u)^2  * g(X2(t, u))
-6. If g(X1(t, u)) is square, output (X1(t, u), sqrt(g(X1(t, u))))
-7. If g(X2(t, u)) is square, output (X2(t, u), sqrt(g(X2(t, u))))
-8. Output (X3(t, u), sqrt(g(X3(t, u))))
+3. X1 = u
+4. X2 = (-B / A)(1 + 1 / (t^4 * g(u)^2 + t^2 * g(u)))
+5. X3 = t^3 * g(u)^2  * g(X2)
+6. If g(X1) is square, output (X1, sqrt(g(X1)))
+7. If g(X2) is square, output (X2, sqrt(g(X2)))
+8. Output (X3(t, u), sqrt(g(X3)))
 ~~~
 
 The algorithm relies on the following equality:
@@ -484,8 +484,8 @@ The algorithm relies on the following equality:
 t^3 * g(u)^2  * g(X2(t, u)) = g(X1(t, u)) * g(X2(t, u)) * g(X3(t, u))
 ~~~
 
-Thus, at least one of X1(t, u), X2(t, u), X3(t, u) is the x-coordinate of a point
-on the curve. Computing the corresponding y value requires computing a square root.
+The algorithm computes three candidate points, constructed such that at least one of 
+them lies on the curve.
 
 The following procedure implements this algorithm. It outputs a point with affine
 coordinates.
