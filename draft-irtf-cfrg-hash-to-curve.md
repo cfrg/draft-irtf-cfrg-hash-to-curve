@@ -488,7 +488,8 @@ The algorithm computes three candidate points, constructed such that at least on
 them lies on the curve.
 
 The following procedure implements this algorithm. It outputs a point with affine
-coordinates.
+coordinates. It requires knowledge of A and B, the constants from the curve 
+Weierstrass form.
 
 ~~~
 map2curve_squ(alpha)
@@ -565,7 +566,8 @@ Given curve equation g(x) = x^3 + Ax + B, this algorithm works as follows:
 ~~~
 
 The following procedure implements this algorithm. It outputs a point with
-affine coordinates.
+affine coordinates. It requires knowledge of A and B, the constants from the 
+curve Weierstrass form.
 
 ~~~
 map2curve_simple_swu(alpha)
