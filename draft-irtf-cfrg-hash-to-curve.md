@@ -139,7 +139,15 @@ normative:
       -
         ins: Tanja Lange
         org: Department of Mathematics and Computer Science, Technische Universiteit Eindhoven, The Netherlands
-  SWU:
+  SW06:
+    title: Construction of rational points on elliptic curves over finite fields
+    venue: ANTS, volume 4076 of Lecture Notes in Computer Science, pages 510–524. Springer, 2006.
+    authors:
+      -
+        ins: Andrew Shallue
+      -
+        ins: Christiaan van de Woestijne
+  SWU07:
     title: Rational points on certain hyperelliptic curves over finite fields
     target: https://arxiv.org/pdf/0706.1448
     authors:
@@ -237,8 +245,8 @@ Let F be the finite field GF(p^k). We say that F is a field of characteristic
 p. For most applications, F is a prime field, in which case k=1 and we will
 simply write GF(p).
 
-Elliptic curves come in
-many variants, including, but not limited to: Weierstrass, Montgomery, and Edwards. Each
+Elliptic curves come in many variants, including, but not limited to: Weierstrass, 
+Montgomery, and Edwards. Each
 of these variants correspond to a different category of curve equation.
 For example, the short Weierstrauss equation is of the form
 `y^2 = x^3 + Ax + B`. Certain encoding functions may have requirements
@@ -353,7 +361,7 @@ the chosen curve in the below:
 
 | Curve  | Inj. Encoding | Random Oracle |
 |--------|---------------|------|
-| P-256 | SWU {{simple-swu}} | FFSTV(SWU) 
+| P-256 | Simple SWU {{simple-swu}} | FFSTV(SWU) 
 | P-384 | Icart {{icart}} | FFSTV(Icart) 
 | Curve25519 | Elligator2 {{elligator2}} | ... 
 | Curve448 | Elligator2 {{elligator2}} | ... 
@@ -448,12 +456,95 @@ Steps:
 20.  y = u * x (mod p)       // ux
 21.  y = y + v (mod p)       // ux + v
 22. Output (x, y)
-
 ~~~
 
 ### Shallue-Woestijne-Ulas Method {#swu}
 
-((TODO: write this section))
+The Shallue-Woestijne-Ulas (SWU) method, originated in part by
+Shallue and Woestijne {{SW06}} and later simplified and extended by Ulas {{SWU07}},
+deterministically encodes an artbirary string to a point on a curve. 
+This algorithm works for any curve over F_{p^n}. Given curve equation 
+g(x) = x^3 + Ax + B, two separate HashToBase implementations, H0 and H1, 
+this algorithm works as follows:
+
+~~~
+1. t = H0(alpha)
+2. u = H1(alpha)
+3. X1 = u
+4. X2 = (-B / A)(1 + 1 / (t^4 * g(u)^2 + t^2 * g(u)))
+5. X3 = t^3 * g(u)^2  * g(X2)
+6. If g(X1) is square, output (X1, sqrt(g(X1)))
+7. If g(X2) is square, output (X2, sqrt(g(X2)))
+8. Output (X3(t, u), sqrt(g(X3)))
+~~~
+
+The algorithm relies on the following equality:
+
+~~~
+t^3 * g(u)^2  * g(X2(t, u)) = g(X1(t, u)) * g(X2(t, u)) * g(X3(t, u))
+~~~
+
+The algorithm computes three candidate points, constructed such that at least one of 
+them lies on the curve.
+
+The following procedure implements this algorithm. It outputs a point with affine
+coordinates. It requires knowledge of A and B, the constants from the curve 
+Weierstrass form.
+
+~~~
+map2curve_squ(alpha)
+
+Input:
+
+  alpha - value to be hashed, an octet string
+  H0 - HashToBase implementation
+  H1 - HashToBase implementation
+
+Output:
+
+  (x, y) - a point in E
+
+Steps:
+
+1.    t = H0(alpha)   // {0,1}^* -> Fp
+2.    u = H1(alpha)   // {0,1}^* -> Fp
+3.   t2 = t^2
+4.   t4 = t2^2
+5.   gu = u^3
+6.   gu = gu + (A * u)
+7.   gu = gu + B      // gu = g(u)
+8.   x1 = u           // x1 = X1(t, u) = u
+9.   x2 = B * -1
+10.  x2 = x2 / A     
+11.  gx1 = x1^3
+12.  gx1 = gx1 + (A * x1)
+13.  gx1 = gx1 + B    // gx1 = g(X1(t, u))
+14.  d1 = gu^2
+15.  d1 = d1 * t4
+16.  d2 = t2 * gu
+17.  d3 = d1 + d2
+18.  d3 = d3^(-1)
+19.  n1 = 1 + d3
+20.  x2 = x2 * n1     // x2 = X2(t, u)
+21. gx2 = x2^3
+22. gx2 = gx2 + (A * x2)
+23. gx2 = gx2 + B     // gx2 = g(X2(t, u))
+24.  x3 = t2 * gu
+25.  x3 = x3 * x2     // x3 = X3(t, u)
+26. gx3 = x3^3
+27. gx3 = gx3 + (A * x3)
+28. gx3 = gx3 + B     // gx3 = g(X3(t, u))
+29.  l1 = gx1^((p - 1) / 2)
+30.  l2 = gx2^((p - 1) / 2)
+31.  s1 = gx1^(1/2)
+32.  s2 = gx2^(1/2)
+33.  s3 = gx3^(1/2)
+34. if l1 == 1:
+35.   Output (x1, s1)
+36. if l2 == 1:
+37.   Output (x2, s2)
+38. Output (x3, s3)
+~~~
 
 ### Simplified SWU Method {#simple-swu}
 
@@ -470,12 +561,13 @@ Given curve equation g(x) = x^3 + Ax + B, this algorithm works as follows:
 1. t = HashToBase(alpha)
 2. alpha = (-b / a) * (1 + (1 / (t^4 + t^2))) 
 3. beta = −t^2 * alpha
-4. z = t^3 * g(alpha)
-5. Output (−g * alpha) * (g * beta)
+4. If g(alpha) is square, output (alpha, sqrt(g(alpha)))
+5. Output (beta, sqrt(g(beta)))
 ~~~
 
 The following procedure implements this algorithm. It outputs a point with
-affine coordinates.
+affine coordinates. It requires knowledge of A and B, the constants from the 
+curve Weierstrass form.
 
 ~~~
 map2curve_simple_swu(alpha)
@@ -721,7 +813,7 @@ need to be a random oracle.
 
 ## Deterministic Encoding
 
-Shallue and Woestijne {{SWU}} first introduced a deterministic 
+Shallue, Woestijne, and Ulas {{SW06}} first introduced a deterministic 
 algorithm that maps elements in F_{q} to a curve in time O(log^4 q), where q = p^n for
 some prime p, and time O(log^3 q) when q = 3 mod 4. Icart introduced yet another
 deterministic algorithm which maps F_{q} to any EC where q = 2 mod 3 in time O(log^3 q) {{Icart09}}.
