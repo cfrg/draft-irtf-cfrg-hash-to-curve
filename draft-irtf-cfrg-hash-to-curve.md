@@ -676,8 +676,7 @@ This method is suitable for BN-curves, which have the form E: f(x) = y^2 = x^3 +
 are over a field Fp,  where p = 7 (mod 12) and 1 + b is a nonzero square in Fp. Fouque and Tibouchi give an 
 encoding F which makes the hash function Hash(m) = F(H1(m)) + F(H2(m)) indifferentiable from a random oracle,
 where  H1 and H2 are independent hash functions into Fp. We give this encoding and hash function construction
-in the steps below.  In the following, Xp() is the Legendre symbol (Xp(0) = 0, for a != 0 Xp(a) = 1 if a is a square in
-Fp and -1 otherwise), which can be computed by Xp(a) = a ^ ((p -1) / 2).
+in the steps below.
 
 ~~~
 FT-encoding(t)
@@ -698,15 +697,15 @@ Steps:
 2.   x1 = (-1 + s)/2  -  (s t^2) / (1 + b + t^2) (mod p)
 3.   x2 = (-1 - s)/2  +  (s t^2) / (1 + b + t^2) (mod p)
 4.   x3 = 1 - ((1 + b + t^2)^2)  /  (3 t^2) (mod p)
-5.   s1 = Xp(g(x1))  // calculate quadratic residue of g(x1)
-6.   s2 = Xp(g(x2))  // calculate quadratic residue of g(x2)
-7.   s3 = Xp(g(x3))  // calculate quadratic residue of g(x3)
+5.   s1 = (f(x1) ^ ((p -1) / 2))  // calculate quadratic residue of f(x1)
+6.   s2 = (f(x2) ^ ((p -1) / 2))  // calculate quadratic residue of f(x2)
+7.   s3 = (f(x3) ^ ((p -1) / 2))  // calculate quadratic residue of f(x3)
 8.   if s1 = 1: x = x1  // choose the smallest index i such that g(xi) is a square in Fp
 9.   else if s2 = 1: x = x2 
 10. else: x = x3
 11. y = f(x)^(1/2) (mod p)
-12. y = Xp(t) * y (mod p)
-13. Output ( x,  y )
+12. y = (t ^ ((p -1) / 2)) * y (mod p)
+13. Output (x,  y)
 ~~~
 Note that s will always be an integer in the field, due our base assumptions about p. If it is necessary to
 specifically define a point for F(0), then a suitable suggestion is f(0) = ( (-1 + s)  /  2, (1+b)^(1/2) ).
