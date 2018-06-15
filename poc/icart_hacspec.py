@@ -42,6 +42,7 @@ def finv(x: felem_t) -> felem_t:
 a384 = to_felem(prime - 3)
 b384 = to_felem(27580193559959705877849011840389048093056905856361568521428707301988689241309860865136260764883745107765439761230575)
 
+@typechecked 
 def map2p384(u:felem_t) -> affine_t:
     v = fmul(fsub(fmul(to_felem(3), a384), fexp(u, 4)), finv(fmul(to_felem(6), u)))
     u2 = fmul(fexp(u, 6), finv(to_felem(27)))
@@ -51,7 +52,3 @@ def map2p384(u:felem_t) -> affine_t:
     x = fadd(x, fmul(fsqr(u), finv(to_felem(3))))
     y = fadd(fmul(u, x), v)
     return (x, y)
-
-inputs = [1, 7, 13, 1<<7, 1<<8, 1<<64, 1<<64-1, prime-1, prime+1]
-for u in inputs:
-    print(u, map2p384(to_felem(u)))

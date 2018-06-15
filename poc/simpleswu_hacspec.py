@@ -25,7 +25,3 @@ def map2p256(t:felem_t) -> affine_t:
     	return (x2, fexp(f_p256(x2), exp))
     else:
     	return (x3, fexp(f_p256(x3), exp))
-
-inputs = [1, 7, 13, 1<<7, 1<<8, 1<<64, 1<<64-1, prime-1, prime+1]
-for u in inputs:
-    print(u, map2p256(to_felem(u)))
