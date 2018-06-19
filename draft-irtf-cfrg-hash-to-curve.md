@@ -13,6 +13,14 @@ pi: [toc, sortrefs, symrefs]
 
 author:
  -
+    ins: S. Scott
+    name: Sam Scott
+    org: Cornell Tech
+    street: 2 West Loop Rd
+    city: New York, New York 10044
+    country: United States of America
+    email: sam.scott@cornell.edu
+ -
     ins: N. Sullivan
     name: Nick Sullivan
     org: Cloudflare
@@ -28,14 +36,6 @@ author:
     city: Cupertino, California 95014
     country: United States of America
     email: cawood@apple.com
- -
-    ins: S. Scott
-    name: Sam Scott
-    org: Cornell Tech
-    street: 2 West Loop Rd
-    city: New York, New York 10044
-    country: United States of America
-    email: sam.scott@cornell.edu
 
 normative:
   RFC2119:
@@ -98,6 +98,9 @@ normative:
       -
         ins: David P. Jablon
         org: Integrity Sciences, Inc. Westboro, MA.
+  hacspec:
+    title: hacspec
+    target: https://github.com/HACS-workshop/hacspec
   ElligatorAGL:
     title: Implementing Elligator for Curve25519
     target: https://www.imperialviolet.org/2013/12/25/elligator.html
@@ -726,10 +729,6 @@ H0(alpha) = HashToBase(0 || alpha)
 H1(alpha) = HashToBase(1 || alpha)
 ~~~
 
-## Curve-Specific Variants
-
-((TODO: write this section))
-
 # Curve Transformations
 
 ((TODO: write this section))
@@ -877,207 +876,182 @@ defined in Section 4.1 of {{RFC8017}}, and RS2ECP is a function that converts of
 
 # Sample Code
 
+This section contains reference implementations for each map2curve variant built
+using {{hacspec}}. 
+
 ## Icart Method
 
-The following Sage program implements map2curve_icart(alpha) for P-384.
+The following hacspec program implements map2curve_icart(alpha) for P-384.
 
 ~~~
-p = 394020061963944792122790401001436138050797392704654466679482934042 \
-45721771496870329047266088258938001861606973112319
-F = GF(p)
-A = p - 3
-B = 0xb3312fa7e23ee7e4988e056be3f82d19181d9c6efe8141120314088f5013875a \
-c656398d8a2ed19d2a85c8edd3ec2aef
-q = 394020061963944792122790401001436138050797392704654466679469052796 \
-27659399113263569398956308152294913554433653942643
-E = EllipticCurve([F(A), F(B)])
-g = E(0xaa87ca22be8b05378eb1c71ef320ad746e1d3b628ba79b9859f741e082542a \
-385502f25dbf55296c3a545e3872760ab7, \
-    0x3617de4a96262c6f5d9e98bf9292dc29f8f41dbd289a147ce9da3113b5f0b8c0 \
-0a60b1ce1d7e819d7a431d7c90ea0e5f)
-E.set_order(q)
+from hacspec.speclib import *
 
-def icart(u):
-  u = F(u)
-  v = (3*A - u^4)//(6*u)
-  x = (v^2 - B - u^6/27)^((2*p-1)//3) + u^2/3
-  y = u*x + v
-  return E(x, y) 
+prime = 2**384 - 2**128 - 2**96 + 2**32 - 1
 
-def icart_straight(u):
-    u = F(u)
-    u2 = u ^ 2
-    t2 = u2 ^ 2
-    assert t2 == u^4
+felem_t = refine(nat, lambda x: x < prime)
+affine_t = tuple2(felem_t, felem_t)
 
-    v1 = 3 * A
-    v1 = v1 - t2
-    t1 = 6 * u
-    t3 = t1 ^ (-1)
-    v = v1 * t3
-    assert v == (3 * A - u^4) // (6 * u)
+@typechecked
+def to_felem(x: nat_t) -> felem_t:
+    return felem_t(nat(x % prime))
 
-    x = v ^ 2
-    x = x - B
-    assert x == (v^2 - B)
 
-    t1 = F(27) ^ (-1)
-    t1 = t1 * u2
-    t1 = t1 * t2
-    assert t1 == ((u^6) / 27)
-    
-    x = x - t1
-    t1 = (2 * p) - 1
-    t1 = t1 / 3
-    assert t1 == ((2*p) - 1) / 3
+@typechecked
+def fadd(x: felem_t, y: felem_t) -> felem_t:
+    return to_felem(x + y)
 
-    x = x ^ t1
-    
-    t2 = u2 / 3
-    x = x + t2
-    y = u * x
-    y = y + v
-    return E(x, y)
+
+@typechecked
+def fsub(x: felem_t, y: felem_t) -> felem_t:
+    return to_felem(x - y)
+
+
+@typechecked
+def fmul(x: felem_t, y: felem_t) -> felem_t:
+    return to_felem(x * y)
+
+
+@typechecked
+def fsqr(x: felem_t) -> felem_t:
+    return to_felem(x * x)
+
+
+@typechecked
+def fexp(x: felem_t, n: nat_t) -> felem_t:
+    return to_felem(pow(x, n, prime))
+
+
+@typechecked
+def finv(x: felem_t) -> felem_t:
+    return to_felem(pow(x, prime-2, prime))
+
+a384 = to_felem(prime - 3)
+b384 = to_felem(27580193559959705877849011840389048093056905856361568521428707301988689241309860865136260764883745107765439761230575)
+
+@typechecked 
+def map2p384(u:felem_t) -> affine_t:
+    v = fmul(fsub(fmul(to_felem(3), a384), fexp(u, 4)), finv(fmul(to_felem(6), u)))
+    u2 = fmul(fexp(u, 6), finv(to_felem(27)))
+    x = fsub(fsqr(v), b384)
+    x = fsub(x, u2)
+    x = fexp(x, (2 * prime - 1) // 3)
+    x = fadd(x, fmul(fsqr(u), finv(to_felem(3))))
+    y = fadd(fmul(u, x), v)
+    return (x, y)
 ~~~
 
 ## Shallue-Woestijne-Ulas Method
 
-((TODO: write this section))
+The following hacspec program implements map2curve_swu(alpha) for P-256.
+
+~~~
+from p256 import *
+from hacspec.speclib import *
+
+a256 = to_felem(prime - 3)
+b256 = to_felem(41058363725152142129326129780047268409114441015993725554835256314039467401291)
+
+@typechecked 
+def f_p256(x:felem_t) -> felem_t:
+    return fadd(fexp(x, 3), fadd(fmul(to_felem(a256), x), to_felem(b256)))
+
+@typechecked 
+def x1(t:felem_t, u:felem_t) -> felem_t:
+    return u
+
+@typechecked 
+def x2(t:felem_t, u:felem_t) -> felem_t:
+    coefficient = fmul(to_felem(-b256), finv(to_felem(a256)))
+    t2 = fsqr(t)
+    t4 = fsqr(t2)
+    gu = f_p256(u)
+    gu2 = fsqr(gu)
+    denom = fadd(fmul(t4, gu2), fmul(t2, gu))
+    return fmul(coefficient, fadd(to_felem(1), finv(denom)))
+
+@typechecked 
+def x3(t:felem_t, u:felem_t) -> felem_t:
+    return fmul(fsqr(t), fmul(f_p256(u), x2(t, u)))
+
+@typechecked 
+def map2p256(t:felem_t) -> felem_t:
+    u = fadd(t, to_felem(1))
+    x1v = x1(t, u)
+    x2v = x2(t, u)
+    x3v = x3(t, u)
+
+    exp = to_felem((prime - 1) // 2)
+    e1 = fexp(f_p256(x1v), exp)
+    e2 = fexp(f_p256(x2v), exp)
+
+    if e1 == 1:
+        return x1v
+    elif e2 == 1:
+        return x2v
+    else:
+        return x3v
+~~~
 
 ## Simplified SWU Method
 
-The following Sage program implements map2curve_swu(alpha) for P-256.
+The following hacspec program implements map2curve_simple_swu(alpha) for P-256.
 
 ~~~
-p = 115792089210356248762697446949407573530086143415290314195533631308 \
-867097853951
-F = GF(p)
-A = F(p - 3)
-B = F(ZZ("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2 \
-604b", 16))
-E = EllipticCurve([A, B])
+from p256 import *
+from hacspec.speclib import *
 
-def simple_swu(alpha):
-    t = F(alpha)
-    
-    alpha = -(t^2)
-    frac = (1 / (alpha^2 + alpha))
-    x2 = (-B / A) * (1 + frac)
-    
-    x3 = alpha * x2
-    h2 = x2^3 + A * x2 + B
-    h3 = x3^3 + A * x3 + B
+a256 = to_felem(prime - 3)
+b256 = to_felem(41058363725152142129326129780047268409114441015993725554835256314039467401291)
 
-    if is_square(h2):
-        return E(x2, h2^((p + 1) // 4))
+def f_p256(x:felem_t) -> felem_t:
+    return fadd(fexp(x, 3), fadd(fmul(to_felem(a256), x), to_felem(b256)))
+
+def map2p256(t:felem_t) -> affine_t:    
+    alpha = to_felem(-(fsqr(t)))
+    frac = finv((fadd(fsqr(alpha), alpha)))
+    coefficient = fmul(to_felem(-b256), finv(to_felem(a256)))
+    x2 = fmul(coefficient, fadd(to_felem(1), frac))
+    
+    x3 = fmul(alpha, x2)
+    h2 = fadd(fexp(x2, 3), fadd(fmul(a256, x2), b256))
+    h3 = fadd(fexp(x3, 3), fadd(fmul(a256, x3), b256))
+
+    exp = fmul(fadd(to_felem(prime), to_felem(-1)), finv(to_felem(2)))
+    e = fexp(h2, exp)
+
+    exp = to_felem((prime + 1) // 4)
+    if e == 1:
+      return (x2, fexp(f_p256(x2), exp))
     else:
-        return E(x3, h3^((p + 1) // 4))
-
-def simple_swu_straight(alpha):
-    t = F(alpha)
-    
-    alpha = t^2
-    alpha = alpha * -1
-    
-    right = alpha^2 + alpha
-    right = right^(-1)
-    right = right + 1
-
-    left = B * -1
-    left = left / A
-
-    x2 = left * right
-    x3 = alpha * x2
-
-    h2 = x2 ^ 3
-    i2 = x2 * A
-    i2 = i2 + B
-    h2 = h2 + i2
-
-    h3 = x3 ^ 3
-    i3 = x3 * A
-    i3 = i3 + B
-    h3 = h3 + i3
-
-    y1 = h2^((p + 1) // 4)
-    y2 = h3^((p + 1) // 4)
-
-    # Is it square?
-    e = y1^2 == h2
-
-    x = x2
-    if e != 1:
-        x = x3
-    
-    y = y1
-    if e != 1:
-        y = y2
-
-    return E(x, y)
+      return (x3, fexp(f_p256(x3), exp))
 ~~~
 
 ## Elligator2 Method
 
-The following Sage program implements map2curve_elligator2(alpha) for Curve25519.
+The following hacspec program implements map2curve_elligator2(alpha) for Curve25519.
 
 ~~~
-p = 2**255 - 19
-F = GF(p)
-A = 486662
-B = 1
-E = EllipticCurve(F, [0, A, 0, 1, 0])
+from curve25519 import *
+from hacspec.speclib import *
 
-def curve25519(x):
-    return x^3 + (A * x^2) + x
+a25519 = to_felem(486662)
+b25519 = to_felem(1)
+u25519 = to_felem(2)
 
-def elligator2(alpha):
+@typechecked 
+def f_25519(x:felem_t) -> felem_t:
+    return fadd(fmul(x, fsqr(x)), fadd(fmul(a25519, fsqr(x)), x))
 
-    r = F(alpha)
-
-    # u is a fixed nonsquare value, eg -1 if p==3 mod 4.
-    u = F(2) # F(2)
-    assert(not u.is_square())
-    
-    # If f(-A/(1+ur^2)) is square, return its square root.
-    # Else, return the square root of f(-Aur^2/(1+ur^2)).
-    x = -A / (1 + (u * r^2))
-    y = curve25519(x)
-    if y.is_square(): # is this point square?
-        y = y.square_root()
+@typechecked 
+def map2curve25519(r:felem_t) -> felem_t:
+    d = fsub(to_felem(p25519), fmul(a25519, finv(fadd(to_felem(1), fmul(u25519, fsqr(r))))))
+    power = nat((p25519 - 1) // 2)
+    e = fexp(f_25519(d), power)
+    x = 0
+    if e != 1:
+        x = fsub(to_felem(-d), to_felem(a25519))
     else:
-        x = (-A * u * r^2) / (1 + (u * r^2))
-        y = curve25519(x).square_root()
-    
-    return (x, curve25519(x))
+        x = d
 
-def elligator2_straight(alpha):
-    r = F(alpha)
-
-    r = r^2
-    r = r * 2
-    r = r + 1
-    r = r^(-1)
-    v = A * r
-    v = v * -1 # d
-
-    v2 = v^2
-    v3 = v * v2
-    e = v3 + v
-    v2 = v2 * A
-    e = v2 + e
-
-    # Legendre symbol
-    e = e^((p - 1) / 2)
-
-    nv = v * -1
-    if e != 1:
-        v = nv
-
-    v2 = 0
-    if e != 1:
-        v2 = A
-    
-    u = v - v2
-    
-    return (u, curve25519(u))
+    return x
 ~~~

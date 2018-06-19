@@ -2,7 +2,7 @@ from hacspec.speclib import *
 
 prime = 2**384 - 2**128 - 2**96 + 2**32 - 1
 
-felem_t = refine(nat, lambda x: x < prime)
+felem_t = refine_t(nat_t, lambda x: x < prime)
 affine_t = tuple2(felem_t, felem_t)
 
 @typechecked
