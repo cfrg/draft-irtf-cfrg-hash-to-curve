@@ -841,7 +841,7 @@ where  H1 and H2 are independent hash functions into Fp. We give this encoding a
 in the steps below.
 
 ~~~
-FT-encoding(t)
+map2curve_BN(t)
 
 Input:
 
@@ -859,15 +859,15 @@ Steps:
 2.   x1 = (-1 + s)/2  -  (s t^2) / (1 + b + t^2) (mod p)
 3.   x2 = (-1 - s)/2  +  (s t^2) / (1 + b + t^2) (mod p)
 4.   x3 = 1 - ((1 + b + t^2)^2)  /  (3 t^2) (mod p)
-5.   s1 = (f(x1) ^ ((p -1) / 2))  // calculate quadratic residue of f(x1)
-6.   s2 = (f(x2) ^ ((p -1) / 2))  // calculate quadratic residue of f(x2)
-7.   s3 = (f(x3) ^ ((p -1) / 2))  // calculate quadratic residue of f(x3)
+5.   s1 = (f(x1) ^ ((p - 1) / 2))  // calculate quadratic residue of f(x1)
+6.   s2 = (f(x2) ^ ((p - 1) / 2))  // calculate quadratic residue of f(x2)
+7.   s3 = (f(x3) ^ ((p - 1) / 2))  // calculate quadratic residue of f(x3)
 8.   if s1 = 1: x = x1  // choose the smallest index i such that g(xi) is a square in Fp
 9.   else if s2 = 1: x = x2 
-10. else: x = x3
-11. y = f(x)^(1/2) (mod p)
-12. y = (t ^ ((p -1) / 2)) * y (mod p)
-13. Output (x,  y)
+10.  else: x = x3
+11.  y = f(x)^(1/2) (mod p)
+12.  y = (t ^ ((p -1) / 2)) * y (mod p)
+13.  Output (x,  y)
 ~~~
 Note that s will always be an integer in the field, due our base assumptions about p. If it is necessary to
 specifically define a point for F(0), then a suitable suggestion is f(0) = ( (-1 + s)  /  2, (1+b)^(1/2) ).
@@ -876,37 +876,8 @@ s2 and s3 are not calculated if s1 = 1.
 
 Whilst this encoding function works for BN curves and is efficient, it only reaches roughly 9/16ths of
 the curve. However, this is enough to be a suitable encoding function for Hash = F(H1(m)) +
-F(H2(m)) as explained in {{FFSTV13}}, which will be indifferentiable from a random oracle.  We give this function
-explicitly in the steps below.
-
-~~~
-hash_to_BN_curve(alpha)
-
-Input:
-
-  alpha - value to be hashed, an octet string
-  
-  HashToBase1(): H1(x)[0:log2(p) + 1] - a cryptographic hash function into the field Fp (where p is the
-  prime order of base field Fp), such as SHA256.
-  
-  HashToBase2(): H2(x)[0:log2(p) + 1] - another cryptographic hash function into the field Fp, independent from
-  HashToBase1, such as SHA3.
-
-  f() - Curve function
-
-Output:
-
-  (x, y) - a point in E
-
-Steps:
-
-1.   t1 = HashToBase1(alpha)
-2.   (a1, b1) = FT-encoding(t1)
-2.   t2 = HashToBase2(alpha)
-3.   (a2, b2) = FT-encoding(t2)
-4.   (x, y) = (a1, b1) + (a2, b2) // Elliptic curve addition
-5.   Output (x,  y)
-~~~
+F(H2(m)) as explained in {{FFSTV13}}, which will be indifferentiable from a random oracle.
+This is discussed in in the Random Oracles section {#random-oracles}.
 
 # Curve Transformations
 
@@ -925,7 +896,7 @@ terms of additions (A), multiplications (M), squares (SQ), and square roots (SR)
 | map2curve_simple_swu | TODO |
 | map2curve_elligator2 | TODO |
 
-# Random Oracles
+# Random Oracles {#random-oracles}
 
 ## Interface
 
