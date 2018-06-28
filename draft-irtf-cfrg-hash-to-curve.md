@@ -45,8 +45,8 @@ author:
     country: United States of America
     email: sam.scott@cornell.edu
  -
-    ins: E. Berners-Lee
-    name: Ela Berners-Lee
+    ins: E. B. Lee
+    name: Ela B. Lee
     org: Royal Holloway, University of London
     street: Egham Hill
     city: Egham
@@ -837,7 +837,7 @@ be found in {{ISO09EC}}. Other work on parameter selection for suitable curves c
 This method is suitable for BN-curves, which have the form E: f(x) = y^2 = x^3 + b, where operations
 are over a field Fp,  where p = 7 (mod 12) and 1 + b is a nonzero square in Fp. Fouque and Tibouchi give an 
 encoding F which makes the hash function Hash(m) = F(H1(m)) + F(H2(m)) indifferentiable from a random oracle,
-where  H1 and H2 are independent hash functions into Fp. We give this encoding and hash function construction
+where H1 and H2 are independent hash functions into Fp. We give this encoding and hash function construction
 in the steps below.
 
 ~~~
