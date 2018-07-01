@@ -800,12 +800,15 @@ are undesirable.
 
 ## Naive Encoding
 
-A naive solution includes computing H(m)\*G, where H is a standard hash
+A naive solution includes computing H(m)\*G as map2curve(m), where H is a standard hash
 function H : {0, 1}^* -> GF(p), and G is a generator of the curve. Although
 efficient, this solution is unsuitable for constructing a random oracle onto
-E, since the discrete logarithm with respect to G is known. This causes
-catastrophic failure in many cases. However, one exception is found in SPEKE
-{{Jablon96}}, which constructs a base for a Diffie-Hellman key exchange by
+E, since the discrete logarithm with respect to G is known. For example, 
+given y1 = map2curve(m1) and y2 = map2curve(m2) for any m1 and m2, it must 
+be true that y2 = H(m2) / H(m1) * map2curve(m1). This relationship would not
+hold (with overwhelming probability) for truly random values y1 and y2.
+This causes catastrophic failure in many cases. However, one exception is found in 
+SPEKE {{Jablon96}}, which constructs a base for a Diffie-Hellman key exchange by
 hashing the password to a curve point. Notably the use of a hash function is
 purely for encoding an arbitrary length string to a curve point, and does not
 need to be a random oracle.
