@@ -349,7 +349,8 @@ and are less efficient than hash and encode methods.
 
 # Algorithm Recommendations {#recommendations}
 
-The following table lists algorithms recommended by use-case:
+The following table lists recommended algorithms to use for specific curves.
+
 
 | Application       | Requirement   | Additional Details
 |-------------------|---------------|---------|
