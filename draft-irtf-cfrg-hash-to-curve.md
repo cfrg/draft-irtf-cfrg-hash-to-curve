@@ -392,7 +392,7 @@ The generic interface for deterministic encoding functions to elliptic curves is
 map2curve(alpha)
 ~~~
 
-where alpha vs a message to encode on a curve. 
+where alpha is a message to encode on a curve. 
 
 ## Encoding Variants
 | Curve | Possible Encodings |
