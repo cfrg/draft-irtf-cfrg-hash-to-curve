@@ -362,12 +362,12 @@ The following table lists algorithms recommended by use-case:
 To find the suitable algorithm, lookup the requirement from above, with 
 the chosen curve in the below:
 
-| Curve  | Inj. Encoding | Random Oracle |
-|--------|---------------|------|
-| P-256 | Simple SWU {{simple-swu}} | FFSTV(SWU) 
-| P-384 | Icart {{icart}} | FFSTV(Icart) 
-| Curve25519 | Elligator2 {{elligator2}} | ... 
-| Curve448 | Elligator2 {{elligator2}} | ... 
+| Curve  | Prime | Characteristics | Inj. Encoding | Random Oracle |
+|--------|---------------|------|---------------|----------------|
+| P-256 | P=2^256-2^224+2^192+2^96-1 | 1 mod 3, 3 mod 4 | Simple SWU {{simple-swu}} | FFSTV(SWU) 
+| P-384 | P=2^384-2^128-2^96_2^32-1 | 2 mod 3, 3 mod 4 | Icart {{icart}} | FFSTV(Icart) 
+| Curve25519 | P=2^255-19 | 1 mod 3, 1 mod 4 | Elligator2 {{elligator2}} | ... 
+| Curve448 | P=2^448-2^224-1 | 2 mod 3, 3 mod 4 | Elligator2 {{elligator2}} | ... 
 
 # Utility Functions
 
@@ -392,9 +392,15 @@ The generic interface for deterministic encoding functions to elliptic curves is
 map2curve(alpha)
 ~~~
 
-where alpha is a message to encode on a curve. 
+where alpha vs a message to encode on a curve. 
 
 ## Encoding Variants
+| Curve | Possible Encodings |
+|-------|--------------------|
+| P-256 | DE, TI, SWU, Simple SWU, Elligator Squared |
+| P-384 | DE, TI, SWU, SWU, Icart |
+| Curve25519 | DE, TI, SWU, Elligator2 |
+| Curve448 | DE, TI, SWU, Simple SWU, Icart, Elligator2 |
 
 ### Icart Method {#icart}
 
