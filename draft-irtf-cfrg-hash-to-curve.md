@@ -369,18 +369,32 @@ the chosen curve in the below:
 | Curve25519 | Elligator2 {{elligator2}} | ... 
 | Curve448 | Elligator2 {{elligator2}} | ... 
 
-# Utility Functions
+# Utility Functions {#utility}
 
 Algorithms in this document make use of utility functions described below.
 
-- HashToBase(x): H(x)[0:log2(p) + 1], i.e., hash-truncate-reduce, where 
-H is a cryptographic hash function, such as SHA256, and p is the prime order 
-of base field Fp.
+- round(x): floor(ceil(2\*x)/2), i.e. rounding to the nearest
+  integer, rounding down when the remainder is precisely 0.5.
+
+- HashToBase(x): H(x)[0:round(log2(p))] mod p.
+
+  This method is parametrized by the cryptographic hash function H, which must
+  output at least round(log2(p)) bits, where p is the prime order of base
+  field Fp. The function first computes the bitstring H(x), and truncates this
+  down to round(log2(p)) bits. The result of this is converted to an integer,
+  and reduced modulo p to give an element of Fp. We suggest a more detailed
+  algorithm in {{hashtobase}}.
+
 - CMOV(a, b, c): If c = 1, return a, else return b.
 
-Note: We assume that HashToBase maps its input to the base field uniformly. 
-In practice, there may be inherent biases in p, e.g., p = 2^k - 1 will
-have non-negligible bias in higher bits.
+- Legendre(x, p): x^((p-1)/2).
+    The Legendre symbol computes whether the value x is a "quadratic
+    residue" modulo p, and takes values 1, -1, 0, for when x is a residue,
+    non-residue, or zero, respectively. Due to Euler's criterion, this can be
+    computed in constant time, with respect to a fixed p, using
+    the equation x^((p-1)/2). For clarity, we will generally prefer using the
+    formula directly, and annotate the usage with this definition.
+
 
 # Deterministic Encodings
 
@@ -631,14 +645,14 @@ Another way to express this algorithm is as follows:
 ~~~
 1. r = HashToBase(alpha)
 2. d = -A / (1 + ur^2)
-3. e = f(d)^((p-1)/2)
+3. e = f(d)^((p-1)/2) // = Legendre(f(d))
 4. u = ed - (1 - e)A/u
 ~~~
 
-Here, e is the Legendre symbol of y = (d^3 + Ad^2 + d), which will be
+Here, e is the Legendre symbol of (d^3 + Ad^2 + Bd), which will be
 1 if y is a quadratic residue (square) mod p, and -1 otherwise.
-(Note that raising y to ((p -1) / 2) is a common way to compute
-the Legendre symbol.)
+(We compute the Legendre symbol by raising to ((p -1) / 2)
+as defined in {{utility}}).
 
 The following procedure implements this algorithm.
 
@@ -671,7 +685,7 @@ Steps:
 11.  e = v3 * v (mod p)
 12. v2 = v2 * A (mod p)
 13.  e = v2 * e (mod p)
-14.  e = e^((p - 1) / 2)  // Legendre symbol
+14.  e = e^((p - 1) / 2)  // = Legendre(e)
 15. nv = v * -1 (mod p)
 16.  v = CMOV(v, nv, e)   // If e = 1, choose v, else choose nv
 17. v2 = CMOV(0, A, e)    // If e = 1, choose 0, else choose A
@@ -877,7 +891,7 @@ I2OSP is a function that converts a nonnegative integer to octet string as
 defined in Section 4.1 of {{RFC8017}}, and RS2ECP is a function that converts of a random 
 2n-octet string to an EC point as specified in Section 5.1.3 of {{RFC8032}}.
 
-# Sample Code
+# Sample Code {#samplecode}
 
 This section contains reference implementations for each map2curve variant built
 using {{hacspec}}. 
@@ -1058,3 +1072,56 @@ def map2curve25519(r:felem_t) -> felem_t:
 
     return x
 ~~~
+
+## HashToBase {#hashtobase}
+
+The following procedure implements HashToBase.
+
+~~~
+HashToBase(x)
+
+Parameters:
+
+  H - cryptographic hash function to use
+  c - small constant multiple
+  p - order of the base field Fp.
+
+Input:
+
+  x - value to be hashed, an octet string
+
+Output:
+
+  y - a value in the field Fp
+
+Steps:
+
+  1. x1 = H(x)
+  2. tlen = round(c * log2(p))
+  3. x2 = x1 & ((1 << tlen) - 1)
+  4. x3 = OS2IP(x2)
+  5. y = x3 (mod p)
+  6. Output y
+~~~
+
+where using OS2IP {{RFC8017}} is used to convert an octet string to an
+integer.
+
+### Considerations
+
+We assume that HashToBase maps its input to the base field uniformly. In
+practice, there will be inherent biases. For example, taking H as SHA256, over
+the finite field of Curve25519 we have p = 2^255 - 19, round(log2(p)) = 255,
+and thus the values of 0 .. 19 will be twice as likely to occur. This is a
+standard problem in generating uniformly distributed integers from a
+bitstring. For the proposed algorithms, this bias should be negligible, since
+approaches to produce in differentiable hashing already combine multiple
+outputs in order to address non-uniform outputs from the encoding functions.
+
+To address this, implementers may instead consider defining an additional
+constant c, such that c\*log2(p) is  closer to an integral value, and taking
+round(c\*log2(p)) random bits from the hash function H.
+
+Implementers should not implement any iterated procedure, such as
+rejection sampling, for HashToBase since this can be hard to reliably
+implement in constant time.
