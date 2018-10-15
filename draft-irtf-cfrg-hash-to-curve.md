@@ -48,7 +48,7 @@ normative:
     authors:
       -
         ins: Standards for Efficient Cryptography Group (SECG)
-        org: 
+        org:
   Icart09:
     title: How to Hash into Elliptic Curves
     target: https://eprint.iacr.org/2009/226.pdf
@@ -62,7 +62,7 @@ normative:
       -
         ins: Dan Boneh
         org: Stanford University
-      - 
+      -
         ins: Matthew Franklin
         org: UC Davis
   BLS01:
@@ -81,7 +81,7 @@ normative:
   BMP00:
     title: Provably secure password-authenticated key exchange using diffie-hellman
     venue: EUROCRYPT, pages 156–171, 2000.
-    authors: 
+    authors:
       -
         ins: Victor Boyko
         org: MIT Laboratory for Computer Science
@@ -156,7 +156,7 @@ normative:
     authors:
       -
         ins: Maciej Ulas
-        org: 
+        org:
   SimpleSWU:
     title: Efficient Indifferentiable Hashing into Ordinary Elliptic Curves
     venue: Annual Cryptology Conference (pp. 237-254). Springer, Berlin, Heidelberg.
@@ -197,13 +197,13 @@ normative:
       -
         ins:  J. Felipe Voloch
         org: University of Texas
- 
-  
+
+
 
 --- abstract
 
 This document specifies a number of algorithms that may be used to hash arbitrary
-strings to Elliptic Curves. 
+strings to Elliptic Curves.
 
 --- middle
 
@@ -211,8 +211,8 @@ strings to Elliptic Curves.
 
 Many cryptographic protocols require a procedure which maps arbitrary input, e.g.,
 passwords, to points on an elliptic curve (EC). Prominent examples include
-Simple Password Exponential Key Exchange {{Jablon96}}, Password Authenticated 
-Key Exchange {{BMP00}}, Identity-Based Encryption {{BF01}} and 
+Simple Password Exponential Key Exchange {{Jablon96}}, Password Authenticated
+Key Exchange {{BMP00}}, Identity-Based Encryption {{BF01}} and
 Boneh-Lynn-Shacham signatures {{BLS01}}.
 
 Unfortunately for implementors, the precise mapping which is suitable for a
@@ -226,8 +226,8 @@ implementation and performance details for each mechanism, along with references
 to the security rationale behind each recommendation and guidance for
 applications not yet covered.
 
-Each algorithm conforms to a common interface, i.e., it maps an element from a
-bitstring {0, 1}^\* to a curve E. For each variant, we describe the requirements for
+Each algorithm conforms to a common interface, i.e., it maps a bitstring
+{0, 1}^\* to a point on an elliptic curve E. For each variant, we describe the requirements for
 E to make it work. Sample code for each variant is presented in the
 appendix.  Unless otherwise stated, all elliptic curve points are assumed to be
 represented as affine coordinates, i.e., (x, y) points on a curve.
@@ -248,22 +248,24 @@ Let F be the finite field GF(p^k). We say that F is a field of characteristic
 p. For most applications, F is a prime field, in which case k=1 and we will
 simply write GF(p).
 
-Elliptic curves come in many variants, including, but not limited to: Weierstrass, 
+Elliptic curves come in many variants, including, but not limited to: Weierstrass,
 Montgomery, and Edwards. Each
 of these variants correspond to a different category of curve equation.
-For example, the short Weierstrauss equation is of the form
+For example, the short Weierstrass equation is
 `y^2 = x^3 + Ax + B`. Certain encoding functions may have requirements
-on the curve form and the parameters, such as A and B in the previous example.
+on the curve form, the characteristic of the field, and the parameters, such as A and B in the previous example.
 
-An elliptic curve E is specified by the equation, and a finite field F.
-The curve E forms a group, whose elements correspond to those who satisfy the 
+An elliptic curve E is specified by its equation, and a finite field F.
+The curve E forms a group, whose elements correspond to those who satisfy the
 curve equation, with values taken from the field F. As a group, E has order
-n, which is the number of points on the curve. When n is not prime,
-we write n = qh + r, where q is prime, and h is said to be the cofactor.
-It is frequently a requirement that all cryptographic operations take place
-in a prime order group. In this case, we may wish an encoding to return
-elements of order q. For a mapping outputting elements on E, we can
-multiply by the cofactor h to obtain an element in the subgroup.
+n, which is the number of points on the curve. For security purposes, it is a
+strong requirement that all cryptographic operations take place in a prime
+order group. However, not all elliptic curves generate groups of prime order.
+In those cases, it is allowed to work with elliptic curves of order n = qh,
+where q is a large prime, and h is a short number known as the cofactor.
+Thus, we may wish an encoding that returns
+points on the subgroup of order q. Multiplying a point P on E by the cofactor h
+guarantees that hP is a point in the subgroup of order q.
 
 In practice, the input of a given cryptographic algorithm will be a bitstring of
 arbitrary length, denoted  {0, 1}^\*. Hence, a concern for virtually all protocols
@@ -275,8 +277,8 @@ approximately a 1/2 chance that there exist a corresponding y value such that
 (x, y) is on the curve E. Since the point (x, -y) is also on the curve, then
 this sums to approximately p points.
 
-Ultimately, an encoding function takes a bitstring {0, 1}^\* to an element
-of E, of order n (or q), and represented by variables in GF(p).
+Ultimately, an encoding function takes a bitstring {0, 1}^\* and maps it to a
+point P=(x,y) on E of order q, where x and y are in GF(p).
 
 Summary of quantities:
 
@@ -284,14 +286,14 @@ Summary of quantities:
 |:------:|---------|----------
 | p | Order of finite field, F = GF(p) | Curve points need to be represented in terms of p. For prime powers, we write F = GF(p^k).
 | n | Number of curve points, #E(F) = n |  For map to E, needs to produce n elements.
-| q | Order of prime subgroup of E, n = qh + r | If n is not prime, may need mapping to q. 
-| h | Cofactor of prime subgroup | For mapping to subgroup, need to multiply by cofactor. 
+| q | Order of the largest prime subgroup of E, n = qh | If n is not prime, may need mapping to q.
+| h | Cofactor | For mapping to subgroup, need to multiply by cofactor.
 
 
 ## Terminology {#terminology}
 
-In the following, we categorize the terminology for mapping between bitstrings
-and elliptic curves.
+In the following, we categorize the terminology for mapping bitstrings to
+points on elliptic curves.
 
 ### Encoding {#term-encoding}
 
@@ -319,13 +321,14 @@ compactly storing and transporting points, or for producing canonicalized
 outputs. Since a deserialization algorithm can often be used as a type of
 encoding algorithm, we also briefly document properties of these functions.
 
-A naive serialization algorithm maps a point (x, y) on E to a bitstring of length
+A straightforward serialization algorithm maps a point (x, y) on E to a bitstring of length
 2\*log(p), given that x, y are both elements in GF(p). However, since
 there are only n points in E (with n approximately equal to p), it is possible
 to serialize to a bitstring of length log(n). For example, one common method
-is to store the x-coordinate and a single bit to determine whether the point
-is (x, y) or (x, -y), thus requiring log(p)+1 bits. Thus exchanging computation
-(recovering the y coordinate) for storage.
+is to store the x-coordinate and a single bit to determine whether the point 
+is (x, y) or (x, -y), thus requiring log(p)+1 bits. This method reduces storage,
+but adds computation, since the deserialization process must recover the y
+coordinate.
 
 ### Random Oracle {#term-rom}
 
@@ -354,20 +357,20 @@ The following table lists algorithms recommended by use-case:
 | Application       | Requirement   | Additional Details
 |-------------------|---------------|---------|
 | SPEKE {{Jablon96}}| Naive         | H(x)*G |
-| PAKE  {{BMP00}}   | Random Oracle |   -    | 
+| PAKE  {{BMP00}}   | Random Oracle |   -    |
 | BLS {{BLS01}}     | Random Oracle            |    -   |
 | IBE {{BF01}}      | Random Oracle | Supersingular, pairing-friendly curve |
 | PRF | Injective encoding | F(k, m) = k*H(m) |
 
-To find the suitable algorithm, lookup the requirement from above, with 
+To find the suitable algorithm, lookup the requirement from above, with
 the chosen curve in the below:
 
 | Curve  | Inj. Encoding | Random Oracle |
 |--------|---------------|------|
-| P-256 | Simple SWU {{simple-swu}} | FFSTV(SWU) 
-| P-384 | Icart {{icart}} | FFSTV(Icart) 
-| Curve25519 | Elligator2 {{elligator2}} | ... 
-| Curve448 | Elligator2 {{elligator2}} | ... 
+| P-256 | Simple SWU {{simple-swu}} | FFSTV(SWU)
+| P-384 | Icart {{icart}} | FFSTV(Icart)
+| Curve25519 | Elligator2 {{elligator2}} | ...
+| Curve448 | Elligator2 {{elligator2}} | ...
 
 # Utility Functions {#utility}
 
@@ -406,14 +409,14 @@ The generic interface for deterministic encoding functions to elliptic curves is
 map2curve(alpha)
 ~~~
 
-where alpha is a message to encode on a curve. 
+where alpha is a message to encode on a curve.
 
 ## Encoding Variants
 
 ### Icart Method {#icart}
 
 The following map2curve_icart(alpha) implements the Icart method from {{Icart09}}.
-This algorithm works for any curve over F_{p^n}, where p^n = 2 mod 3 
+This algorithm works for any curve over F_{p^n}, where p^n = 2 mod 3
 (or p = 2 mod 3 and for odd n), including:
 
 - P384
@@ -421,9 +424,9 @@ This algorithm works for any curve over F_{p^n}, where p^n = 2 mod 3
 - Curve448
 
 Unsupported curves include: P224, P256, P521, and Curve25519 since,
-for each, p = 1 mod 3. 
+for each, p = 1 mod 3.
 
-Mathematically, given input alpha, and A and B from E, the Icart method works 
+Mathematically, given input alpha, and A and B from E, the Icart method works
 as follows:
 
 ~~~
@@ -479,9 +482,9 @@ Steps:
 
 The Shallue-Woestijne-Ulas (SWU) method, originated in part by
 Shallue and Woestijne {{SW06}} and later simplified and extended by Ulas {{SWU07}},
-deterministically encodes an artbirary string to a point on a curve. 
-This algorithm works for any curve over F_{p^n}. Given curve equation 
-g(x) = x^3 + Ax + B, two separate HashToBase implementations, H0 and H1, 
+deterministically encodes an artbirary string to a point on a curve.
+This algorithm works for any curve over F_{p^n}. Given curve equation
+g(x) = x^3 + Ax + B, two separate HashToBase implementations, H0 and H1,
 this algorithm works as follows:
 
 ~~~
@@ -501,11 +504,11 @@ The algorithm relies on the following equality:
 t^3 * g(u)^2  * g(X2(t, u)) = g(X1(t, u)) * g(X2(t, u)) * g(X3(t, u))
 ~~~
 
-The algorithm computes three candidate points, constructed such that at least one of 
+The algorithm computes three candidate points, constructed such that at least one of
 them lies on the curve.
 
 The following procedure implements this algorithm. It outputs a point with affine
-coordinates. It requires knowledge of A and B, the constants from the curve 
+coordinates. It requires knowledge of A and B, the constants from the curve
 Weierstrass form.
 
 ~~~
@@ -576,14 +579,14 @@ Given curve equation g(x) = x^3 + Ax + B, this algorithm works as follows:
 
 ~~~
 1. t = HashToBase(alpha)
-2. alpha = (-b / a) * (1 + (1 / (t^4 + t^2))) 
+2. alpha = (-b / a) * (1 + (1 / (t^4 + t^2)))
 3. beta = −t^2 * alpha
 4. If g(alpha) is square, output (alpha, sqrt(g(alpha)))
 5. Output (beta, sqrt(g(beta)))
 ~~~
 
 The following procedure implements this algorithm. It outputs a point with
-affine coordinates. It requires knowledge of A and B, the constants from the 
+affine coordinates. It requires knowledge of A and B, the constants from the
 curve Weierstrass form.
 
 ~~~
@@ -606,7 +609,7 @@ Steps:
 5. right = right^(-1) (mod p)
 6. right = right + 1 (mod p)
 7.  left = B * -1 (mod p)
-8.  left = left / A (mod p) 
+8.  left = left / A (mod p)
 9.    x2 = left * right (mod p)
 10.   x3 = alpha * x2 (mod p)
 11.   h2 = x2 ^ 3 (mod p)
@@ -629,9 +632,9 @@ Steps:
 
 The following map2curve_elligator2(alpha) implements the Elligator2
 method from {{Elligator2}}. This algorithm works for any curve
-with a point of order 2 and j-invariant != 1728. Given curve equation 
-f(x) = y^2 = x(x^2 + Ax + B), i.e., a Montgomery form with the point of 
-order 2 at (0,0), this algorithm works as shown below. (Note that any curve 
+with a point of order 2 and j-invariant != 1728. Given curve equation
+f(x) = y^2 = x(x^2 + Ax + B), i.e., a Montgomery form with the point of
+order 2 at (0,0), this algorithm works as shown below. (Note that any curve
 with a point of order 2 is isomorphic to this representation.)
 
 ~~~
@@ -673,12 +676,12 @@ Output:
 Steps:
 
 1.   r = HashToBase(alpha)
-2.   r = r^2 (mod p) 
+2.   r = r^2 (mod p)
 3.  nu = r * u (mod p)
 4.   r = nu
-5.   r = r + 1 (mod p) 
-6.   r = r^(-1) (mod p) 
-7.   v = A * r (mod p) 
+5.   r = r + 1 (mod p)
+6.   r = r^(-1) (mod p)
+7.   v = A * r (mod p)
 8.   v = v * -1 (mod p)   // -A / (1 + ur^2)
 9.  v2 = v^2 (mod p)
 10. v3 = v * v2 (mod p)
@@ -693,18 +696,18 @@ Steps:
 19. Output (u, f(u))
 ~~~
 
-Elligator2 can be simplified with projective coordinates. 
+Elligator2 can be simplified with projective coordinates.
 
 ((TODO: write this variant))
 
 ## Cost Comparison
 
-The following table summarizes the cost of each map2curve variant. We express this cost in 
-terms of additions (A), multiplications (M), squares (SQ), and square roots (SR). 
+The following table summarizes the cost of each map2curve variant. We express this cost in
+terms of additions (A), multiplications (M), squares (SQ), and square roots (SR).
 
 ((TODO: finish this section))
 
-| Algorithm | Cost (Operations) | 
+| Algorithm | Cost (Operations) |
 | map2curve_icart | TODO |
 | map2curve_swu | TODO |
 | map2curve_simple_swu | TODO |
@@ -720,21 +723,21 @@ The generic interface for deterministic encoding functions to elliptic curves is
 hash2curve(alpha)
 ~~~
 
-where alpha is a message to encode on a curve. 
+where alpha is a message to encode on a curve.
 
 ## General Construction (FFSTV13)
 
-When applications need a Random Oracle (RO), they can be constructed from deterministic encoding 
-functions. In particular, let F : {0,1}^* -> E be a deterministic encoding function onto 
-curve E, and let H0 and H1 be two hash functions modeled as random oracles that map input 
-messages to the base field of E, i.e., Z_q. Farashahi et al. {{FFSTV13}} showed that the 
+When applications need a Random Oracle (RO), they can be constructed from deterministic encoding
+functions. In particular, let F : {0,1}^* -> E be a deterministic encoding function onto
+curve E, and let H0 and H1 be two hash functions modeled as random oracles that map input
+messages to the base field of E, i.e., Z_q. Farashahi et al. {{FFSTV13}} showed that the
 following mapping is indistinguishable from a RO:
 
 ~~~
 hash2curve(alpha) = F(H0(alpha)) + F(H1(alpha))
 ~~~
 
-This construction works for the Icart, SWU, and Simplfied SWU encodings. 
+This construction works for the Icart, SWU, and Simplfied SWU encodings.
 
 Here, H0 and H1 could be constructed as follows:
 
@@ -754,7 +757,7 @@ This document has no IANA actions.
 # Security Considerations
 
 Each encoding function variant accepts arbitrary input and maps it to a pseudorandom
-point on the curve. Points are close to indistinguishable from randomly chosen 
+point on the curve. Points are close to indistinguishable from randomly chosen
 elements on the curve. Not all encoding functions are full-domain hashes. Elligator2,
 for example, only maps strings to "about half of all curve points," whereas Icart's
 method only covers about 5/8 of the points.
@@ -762,7 +765,7 @@ method only covers about 5/8 of the points.
 # Acknowledgements
 
 The authors would like to thank Adam Langley for this detailed writeup up Elligator2 with
-Curve25519 {{ElligatorAGL}}. We also thank Sean Devlin and Thomas Icart for feedback on 
+Curve25519 {{ElligatorAGL}}. We also thank Sean Devlin and Thomas Icart for feedback on
 earlier versions of this document.
 
 # Contributors
@@ -807,9 +810,9 @@ less than log2(p), one can make use of the spare bits in order to encode
 the counter value. Allocating more space for the counter increases the expansion,
 but reduces the failure probability.
 
-Since the running time of the MapToGroup algorithm depends on m, 
-this algorithm is NOT safe for cases sensitive to timing side channel attacks. 
-Deterministic algorithms are needed in such cases where failures 
+Since the running time of the MapToGroup algorithm depends on m,
+this algorithm is NOT safe for cases sensitive to timing side channel attacks.
+Deterministic algorithms are needed in such cases where failures
 are undesirable.
 
 ## Naive Encoding
@@ -817,11 +820,11 @@ are undesirable.
 A naive solution includes computing H(m)\*G as map2curve(m), where H is a standard hash
 function H : {0, 1}^* -> GF(p), and G is a generator of the curve. Although
 efficient, this solution is unsuitable for constructing a random oracle onto
-E, since the discrete logarithm with respect to G is known. For example, 
-given y1 = map2curve(m1) and y2 = map2curve(m2) for any m1 and m2, it must 
+E, since the discrete logarithm with respect to G is known. For example,
+given y1 = map2curve(m1) and y2 = map2curve(m2) for any m1 and m2, it must
 be true that y2 = H(m2) / H(m1) * map2curve(m1). This relationship would not
 hold (with overwhelming probability) for truly random values y1 and y2.
-This causes catastrophic failure in many cases. However, one exception is found in 
+This causes catastrophic failure in many cases. However, one exception is found in
 SPEKE {{Jablon96}}, which constructs a base for a Diffie-Hellman key exchange by
 hashing the password to a curve point. Notably the use of a hash function is
 purely for encoding an arbitrary length string to a curve point, and does not
@@ -829,12 +832,12 @@ need to be a random oracle.
 
 ## Deterministic Encoding
 
-Shallue, Woestijne, and Ulas {{SW06}} first introduced a deterministic 
+Shallue, Woestijne, and Ulas {{SW06}} first introduced a deterministic
 algorithm that maps elements in F_{q} to a curve in time O(log^4 q), where q = p^n for
 some prime p, and time O(log^3 q) when q = 3 mod 4. Icart introduced yet another
 deterministic algorithm which maps F_{q} to any EC where q = 2 mod 3 in time O(log^3 q) {{Icart09}}.
-Elligator (2) {{Elligator2}} is yet another deterministic algorithm for any odd-characteristic 
-EC that has a point of order 2. Elligator2 can be applied to Curve25519 and Curve448, which 
+Elligator (2) {{Elligator2}} is yet another deterministic algorithm for any odd-characteristic
+EC that has a point of order 2. Elligator2 can be applied to Curve25519 and Curve448, which
 are both CFRG-recommended curves {{RFC7748}}.
 
 However, an important caveat to all of the above deterministic encoding functions,
@@ -860,7 +863,7 @@ F : GF(p) -> E (ignoring the point at infinity). This is the case for
 
 We can also consider curves which have twisted variants, E^d. For such curves,
 for any x in GF(p), there exists y in GF(p) such that (x, y) is either a point
-on E or E^d. Hence one can construct a bijection F : GF(p) x {0,1} -> E ∪ E^d, 
+on E or E^d. Hence one can construct a bijection F : GF(p) x {0,1} -> E ∪ E^d,
 where the extra bit is needed to choose the sign of the point. This can be
 particularly useful for constructions which only need the x-coordinate of the
 point. For example, x-only scalar multiplication can be computed on Montgomery
@@ -871,7 +874,7 @@ of F in GF(p) is sufficient to define a point on one of E or E^d.
 
 In cases where constant time execution is not required, the so-called
 try-and-increment method may be appropriate. As discussion in Section {{introduction}},
-this variant works by hashing input m using a standard hash function ("Hash"), e.g., SHA256, and 
+this variant works by hashing input m using a standard hash function ("Hash"), e.g., SHA256, and
 then checking to see if the resulting point E(m, f(m)), for curve function f, belongs on E.
 This is detailed below.
 
@@ -887,14 +890,14 @@ This is detailed below.
 5. Output h
 ~~~
 
-I2OSP is a function that converts a nonnegative integer to octet string as 
-defined in Section 4.1 of {{RFC8017}}, and RS2ECP is a function that converts of a random 
+I2OSP is a function that converts a nonnegative integer to octet string as
+defined in Section 4.1 of {{RFC8017}}, and RS2ECP is a function that converts of a random
 2n-octet string to an EC point as specified in Section 5.1.3 of {{RFC8032}}.
 
 # Sample Code {#samplecode}
 
 This section contains reference implementations for each map2curve variant built
-using {{hacspec}}. 
+using {{hacspec}}.
 
 ## Icart Method
 
@@ -945,7 +948,7 @@ def finv(x: felem_t) -> felem_t:
 a384 = to_felem(prime - 3)
 b384 = to_felem(27580193559959705877849011840389048093056905856361568521428707301988689241309860865136260764883745107765439761230575)
 
-@typechecked 
+@typechecked
 def map2p384(u:felem_t) -> affine_t:
     v = fmul(fsub(fmul(to_felem(3), a384), fexp(u, 4)), finv(fmul(to_felem(6), u)))
     u2 = fmul(fexp(u, 6), finv(to_felem(27)))
@@ -968,15 +971,15 @@ from hacspec.speclib import *
 a256 = to_felem(prime - 3)
 b256 = to_felem(41058363725152142129326129780047268409114441015993725554835256314039467401291)
 
-@typechecked 
+@typechecked
 def f_p256(x:felem_t) -> felem_t:
     return fadd(fexp(x, 3), fadd(fmul(to_felem(a256), x), to_felem(b256)))
 
-@typechecked 
+@typechecked
 def x1(t:felem_t, u:felem_t) -> felem_t:
     return u
 
-@typechecked 
+@typechecked
 def x2(t:felem_t, u:felem_t) -> felem_t:
     coefficient = fmul(to_felem(-b256), finv(to_felem(a256)))
     t2 = fsqr(t)
@@ -986,11 +989,11 @@ def x2(t:felem_t, u:felem_t) -> felem_t:
     denom = fadd(fmul(t4, gu2), fmul(t2, gu))
     return fmul(coefficient, fadd(to_felem(1), finv(denom)))
 
-@typechecked 
+@typechecked
 def x3(t:felem_t, u:felem_t) -> felem_t:
     return fmul(fsqr(t), fmul(f_p256(u), x2(t, u)))
 
-@typechecked 
+@typechecked
 def map2p256(t:felem_t) -> felem_t:
     u = fadd(t, to_felem(1))
     x1v = x1(t, u)
@@ -1028,7 +1031,7 @@ def map2p256(t:felem_t) -> affine_t:
     frac = finv((fadd(fsqr(alpha), alpha)))
     coefficient = fmul(to_felem(-b256), finv(to_felem(a256)))
     x2 = fmul(coefficient, fadd(to_felem(1), frac))
-    
+
     x3 = fmul(alpha, x2)
     h2 = fadd(fexp(x2, 3), fadd(fmul(a256, x2), b256))
     h3 = fadd(fexp(x3, 3), fadd(fmul(a256, x3), b256))
@@ -1055,11 +1058,11 @@ a25519 = to_felem(486662)
 b25519 = to_felem(1)
 u25519 = to_felem(2)
 
-@typechecked 
+@typechecked
 def f_25519(x:felem_t) -> felem_t:
     return fadd(fmul(x, fsqr(x)), fadd(fmul(a25519, fsqr(x)), x))
 
-@typechecked 
+@typechecked
 def map2curve25519(r:felem_t) -> felem_t:
     d = fsub(to_felem(p25519), fmul(a25519, finv(fadd(to_felem(1), fmul(u25519, fsqr(r))))))
     power = nat((p25519 - 1) // 2)
