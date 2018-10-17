@@ -258,7 +258,7 @@ on the curve form, the characteristic of the field, and the parameters, such as 
 An elliptic curve E is specified by its equation, and a finite field F.
 The curve E forms a group, whose elements correspond to those who satisfy the
 curve equation, with values taken from the field F. As a group, E has order
-n, which is the number of points on the curve. For security purposes, it is a
+n, which is the number of points on the curve. For security reasons, it is a
 strong requirement that all cryptographic operations take place in a prime
 order group. However, not all elliptic curves generate groups of prime order.
 In those cases, it is allowed to work with elliptic curves of order n = qh,
@@ -325,7 +325,7 @@ A straightforward serialization algorithm maps a point (x, y) on E to a bitstrin
 2\*log(p), given that x, y are both elements in GF(p). However, since
 there are only n points in E (with n approximately equal to p), it is possible
 to serialize to a bitstring of length log(n). For example, one common method
-is to store the x-coordinate and a single bit to determine whether the point 
+is to store the x-coordinate and a single bit to determine whether the point
 is (x, y) or (x, -y), thus requiring log(p)+1 bits. This method reduces storage,
 but adds computation, since the deserialization process must recover the y
 coordinate.
@@ -379,10 +379,9 @@ Algorithms in this document make use of utility functions described below.
 - round(x): floor(ceil(2\*x)/2), i.e. rounding to the nearest
   integer, rounding down when the remainder is precisely 0.5.
 
-- HashToBase(x): H(x)[0:round(log2(p))] mod p.
-
+- HashToBase(H,x): H(x)[0:round(log2(p))] mod p.
   This method is parametrized by the cryptographic hash function H, which must
-  output at least round(log2(p)) bits, where p is the prime order of base
+  outputs at least round(log2(p)) bits, where p is the prime order of base
   field Fp. The function first computes the bitstring H(x), and truncates this
   down to round(log2(p)) bits. The result of this is converted to an integer,
   and reduced modulo p to give an element of Fp. We suggest a more detailed
@@ -431,11 +430,10 @@ as follows:
 
 ~~~
 u = HashToBase(alpha)
-x = (v^2 - b - (u^6 / 27))^(1/3) + (u^2 / 3)
+v = ((3A - u^4) / 6u)
+x = (v^2 - B - (u^6 / 27))^(1/3) + (u^2 / 3)
 y = ux + v
 ~~~
-
-where v = ((3A - u^4) / 6u).
 
 The following procedure implements this algorithm in a straight-line fashion.
 It requires knowledge of A and B, the constants from the curve Weierstrass form.
@@ -463,16 +461,16 @@ Steps:
 7.  t3 = t1 ^ (-1) (mod p)   // modular inverse
 8.   v = v1 * t3 (mod p)     // (3A - u^4)/(6u)
 9.   x = v^2 (mod p)         // v^2
-10.  x = x - B (mod p)       // v^2 - b
+10.  x = x - B (mod p)       // v^2 - B
 11. t1 = 27 ^ (-1) (mod p)   // 1/27
 12. t1 = t1 * u2 (mod p)     // u^4 / 27
 13. t1 = t1 * t2 (mod p)     // u^6 / 27
-14.  x = x - t1 (mod p)      // v^2 - b - u^6/27
+14.  x = x - t1 (mod p)      // v^2 - B - u^6/27
 15. t1 = (2 * p) - 1 (mod p) // 2p - 1
 16. t1 = t1 / 3 (mod p)      // (2p - 1)/3
-17.  x = x^t1 (mod p)        // (v^2 - b - u^6/27) ^ (1/3)
+17.  x = x^t1 (mod p)        // (v^2 - B - u^6/27) ^ (1/3)
 18. t2 = u2 / 3 (mod p)      // u^2 / 3
-19.  x = x + t2 (mod p)      // (v^2 - b - u^6/27) ^ (1/3) + (u^2 / 3)
+19.  x = x + t2 (mod p)      // (v^2 - B - u^6/27) ^ (1/3) + (u^2 / 3)
 20.  y = u * x (mod p)       // ux
 21.  y = y + v (mod p)       // ux + v
 22. Output (x, y)
@@ -579,7 +577,7 @@ Given curve equation g(x) = x^3 + Ax + B, this algorithm works as follows:
 
 ~~~
 1. t = HashToBase(alpha)
-2. alpha = (-b / a) * (1 + (1 / (t^4 + t^2)))
+2. alpha = (-B / A) * (1 + (1 / (t^4 + t^2)))
 3. beta = −t^2 * alpha
 4. If g(alpha) is square, output (alpha, sqrt(g(alpha)))
 5. Output (beta, sqrt(g(beta)))
@@ -633,29 +631,23 @@ Steps:
 The following map2curve_elligator2(alpha) implements the Elligator2
 method from {{Elligator2}}. This algorithm works for any curve
 with a point of order 2 and j-invariant != 1728. Given curve equation
-f(x) = y^2 = x(x^2 + Ax + B), i.e., a Montgomery form with the point of
-order 2 at (0,0), this algorithm works as shown below. (Note that any curve
+y^2 = x(x^2 + Ax + B), i.e., a Montgomery form with (0,0), a point of
+order 2, this algorithm works as shown below. (Note that any curve
 with a point of order 2 is isomorphic to this representation.)
 
 ~~~
 1. r = HashToBase(alpha)
-2. If f(-A/(1+ur^2)) is square, then output f(-A/(1+ur^2))^(1/2)
-3. Else, output f(-Aur^2/(1+ur^2))^(1/2)
+2. Let u is not a square
+3. v = -A/(1+ur^ 2)
+4. e = Legendre(v^3+Av^2+Bv)
+5.1. If r != 0, then
+5.2.    x = ev - (1 - e)A/2
+5.3.    y = -e*sqrt(x^3+Ax^2+x)
+5.4. Else, x=0 and y=0
+6. Output (x,y)
 ~~~
 
-Another way to express this algorithm is as follows:
-
-~~~
-1. r = HashToBase(alpha)
-2. d = -A / (1 + ur^2)
-3. e = f(d)^((p-1)/2) // = Legendre(f(d))
-4. u = ed - (1 - e)A/u
-~~~
-
-Here, e is the Legendre symbol of (d^3 + Ad^2 + Bd), which will be
-1 if y is a quadratic residue (square) mod p, and -1 otherwise.
-(We compute the Legendre symbol by raising to ((p -1) / 2)
-as defined in {{utility}}).
+Here, e is the Legendre symbol defined as in {{utility}}.
 
 The following procedure implements this algorithm.
 
@@ -667,7 +659,6 @@ Input:
   alpha - value to be encoded, an octet string
 
   u - fixed non-square value in Fp.
-  f() - Curve function
 
 Output:
 
@@ -693,7 +684,7 @@ Steps:
 16.  v = CMOV(v, nv, e)   // If e = 1, choose v, else choose nv
 17. v2 = CMOV(0, A, e)    // If e = 1, choose 0, else choose A
 18.  u = v - v2 (mod p)
-19. Output (u, f(u))
+19. Output (u, -e*sqrt(u^3+Au^2+Bu) )
 ~~~
 
 Elligator2 can be simplified with projective coordinates.
