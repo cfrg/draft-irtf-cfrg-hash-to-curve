@@ -202,8 +202,8 @@ normative:
 
 --- abstract
 
-This document specifies a number of algorithms that may be used to hash arbitrary
-strings to Elliptic Curves.
+This document specifies a number of algorithms that may be used to encode an
+arbitrary string to a point on an Elliptic Curve.
 
 --- middle
 
@@ -716,7 +716,7 @@ hash2curve(alpha)
 
 where alpha is a message to encode on a curve.
 
-## General Construction (FFSTV13)
+## General Construction (FFSTV13) {#ffstv}
 
 When applications need a Random Oracle (RO), they can be constructed from deterministic encoding
 functions. In particular, let F : {0,1}^* -> E be a deterministic encoding function onto
@@ -740,6 +740,78 @@ H1(alpha) = HashToBase(1 || alpha)
 # Curve Transformations
 
 ((TODO: write this section))
+
+# Ciphersuites
+
+To provide concrete recommendations for algorithms we define a hash-to-curve
+"ciphersuite" as a four-tuple containing:
+
+* Destination Group (e.g. P256 or Curve25519)
+* HashToBase algorithm
+* HashToCurve algorithm (e.g. SSWU, Icart)
+* (Optional) Transformation (e.g. FFSTV, cofactor clearing)
+
+A ciphersuite defines an algorithm that takes an arbitrary octet string and
+returns an element of the Destination Group defined in the ciphersuite by applying
+HashToCurve and Transformation (if defined).
+
+This document describes the following set of ciphersuites:
+* H2C-P256-SHA256-SWU
+* H2C-P384-SHA512-Icart
+* H2C-Curve25519-SHA512-Elligator2-Clear
+* H2C-Curve448-SHA512-Elligator2-Clear
+* H2C-Curve25519-SHA512-Elligator2-FFSTV
+* H2C-Curve448-SHA512-Elligator2-FFSTV
+
+H2C-P256-SHA256-SWU is defined as follows:
+
+* The destination group is the set of points on the NIST P-256 elliptic curve, with
+  curve parameters as specified in {{FIPS-186-4}} (Section D.1.2.3) and
+  {{RFC5114}} (Section 2.6).
+* HashToBase is defined as {{#hashtobase}} with the hash function defined as
+  SHA-256 as specified in [RFC6234], c set to 2, and p set to the order of the
+  group for P-256.
+* HashToCurve is defined to be {#sswu} with A and B chosen from P-256
+
+H2C-P384-SHA512-Icart is defined as follows:
+
+* The destination group is the set of points on the NIST P-384 elliptic curve, with
+  curve parameters as specified in {{FIPS-186-4}} (Section D.1.2.4) and
+  {{RFC5114}} (Section 2.7).
+* HashToBase is defined as {{#hashtobase}} with the hash function defined as
+  SHA-512 as specified in [RFC6234], c set to 2, and p set to the order of the
+  group for P-384.
+* HashToCurve is defined to be {#icart} with A and B chosen from P-384.
+
+H2C-Curve25519-SHA512-Elligator2-Clear is defined as follows:
+
+* The destination group is the points on Curve25519, with
+  curve parameters as specified in {{RFC7748}} (Section 4.1).
+* HashToBase is defined as {{#hashtobase}} with the hash function defined as
+  SHA-512 as specified in [RFC6234], c set to 2, and p set to the order of the
+  group for Curve25519.
+* HashToCurve is defined to be {#elligator2} with the curve function defined
+  to be the Montgomery form of Curve25519.
+* The final output is multiplied by the cofactor of Curve25519, 8.
+
+H2C-Curve448-SHA512-Elligator2-Clear is defined as H2C-Curve25519-SHA512-Elligator2-Clear
+replacing Curve25519 with Curve448 as specified in {{RFC7748}} (Section 4.2),
+including the cofactor multiplication by Curve448's cofactor, 4.
+
+H2C-Curve25519-SHA512-Elligator2-FFSTV is defined as follows:
+
+* The destination group is the points on Curve25519, with
+  curve parameters as specified in {{RFC7748}} (Section 4.1).
+* HashToBase is defined as {{#hashtobase}} with the hash function defined as
+  SHA-512 as specified in [RFC6234], c set to 2, and p set to the order of the
+  group for Curve25519.
+* HashToCurve is defined to be {$ffstv} where F is {#elligator2} with the curve
+  function defined to be the Montgomery form of Curve25519.
+* The final output is multiplied by the cofactor of Curve25519, 8.
+
+H2C-Curve448-SHA512-Elligator2-FFSTV is defined as H2C-Curve25519-SHA512-Elligator2-FFSTV
+replacing Curve25519 with Curve448 as specified in {{RFC7748}} (Section 4.2),
+including the cofactor multiplication by Curve448's cofactor, 4.
 
 # IANA Considerations
 
@@ -1003,7 +1075,7 @@ def map2p256(t:felem_t) -> felem_t:
         return x3v
 ~~~
 
-## Simplified SWU Method
+## Simplified SWU Method {#sswu}
 
 The following hacspec program implements map2curve_simple_swu(alpha) for P-256.
 
