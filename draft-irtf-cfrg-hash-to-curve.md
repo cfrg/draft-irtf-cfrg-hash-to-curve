@@ -380,7 +380,7 @@ Algorithms in this document make use of utility functions described below.
   integer, rounding down when the remainder is precisely 0.5.
 
 - HashToBase(H,x): H(x)[0:round(log2(p))] mod p.
-  This method is parametrized by the cryptographic hash function H, which must
+  This method is parametrized by the cryptographic hash function H, which
   outputs at least round(log2(p)) bits, where p is the prime order of base
   field Fp. The function first computes the bitstring H(x), and truncates this
   down to round(log2(p)) bits. The result of this is converted to an integer,
