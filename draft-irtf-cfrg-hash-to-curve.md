@@ -413,7 +413,9 @@ Algorithms in this document make use of utility functions described below.
   the base field Fp, and H is a cryptographic hash function which
   outputs at least floor(log2(p)) + 2 bits.
   The function first hashes x, converts the result to an integer,
-  and reduces modulo p to give an element of Fp.
+  and reduces modulo p to give an element of Fp. The function returns
+  this element of Fp, along with an additional bit, which can be used to
+  choose the sign of a point output by an encoding function.
 
   We provide a more detailed algorithm in {{hashtobase}}. The value of i is used
   to separate inputs when used multiple times in one algorithm (see {{ffstv}}
@@ -428,6 +430,8 @@ Algorithms in this document make use of utility functions described below.
   computed in constant time, with respect to a fixed p, using
   the equation x^((p-1)/2). For clarity, we will generally prefer using the
   formula directly, and annotate the usage with this definition.
+
+- CNEG(x, b): If b = 0, return x, else return -x.
 
 # Deterministic Encodings
 
@@ -460,10 +464,10 @@ Mathematically, given input alpha, and A and B from E, the Icart method works
 as follows:
 
 ~~~
-u = HashToBase(alpha)
-v = ((3A - u^4) / 6u)
-x = (v^2 - B - (u^6 / 27))^(1/3) + (u^2 / 3)
-y = ux + v
+(u, s) = HashToBase(alpha)
+     v = ((3A - u^4) / 6u)
+     x = (v^2 - B - (u^6 / 27))^(1/3) + (u^2 / 3)
+     y = CNEG(ux + v, s)
 ~~~
 
 The following procedure implements this algorithm in a straight-line fashion.
@@ -483,28 +487,28 @@ Output:
 
 Steps:
 
-1.   u = HashToBase(alpha)   // {0,1}^* -> Fp
-2.  u2 = u^2 (mod p)         // u^2
-3.  t2 = u2^2 (mod p)        // u^4
-4.  v1 = 3 * A (mod p)       // 3A
-5.  v1 = v1 - t2 (mod p)     // 3A - u^4
-6.  t1 = 6 * u (mod p)       // 6u
-7.  t3 = t1 ^ (-1) (mod p)   // modular inverse
-8.   v = v1 * t3 (mod p)     // (3A - u^4)/(6u)
-9.   x = v^2 (mod p)         // v^2
-10.  x = x - B (mod p)       // v^2 - B
-11. t1 = 27 ^ (-1) (mod p)   // 1/27
-12. t1 = t1 * u2 (mod p)     // u^4 / 27
-13. t1 = t1 * t2 (mod p)     // u^6 / 27
-14.  x = x - t1 (mod p)      // v^2 - B - u^6/27
-15. t1 = (2 * p) - 1 (mod p) // 2p - 1
-16. t1 = t1 / 3 (mod p)      // (2p - 1)/3
-17.  x = x^t1 (mod p)        // (v^2 - B - u^6/27) ^ (1/3)
-18. t2 = u2 / 3 (mod p)      // u^2 / 3
-19.  x = x + t2 (mod p)      // (v^2 - B - u^6/27) ^ (1/3) + (u^2 / 3)
-20.  y = u * x (mod p)       // ux
-21.  y = y + v (mod p)       // ux + v
-22. Output (x, y)
+1. (u, s) = HashToBase(alpha)   // {0,1}^* -> Fp
+2.     u2 = u^2 (mod p)         // u^2
+3.     t2 = u2^2 (mod p)        // u^4
+4.     v1 = 3 * A (mod p)       // 3A
+5.     v1 = v1 - t2 (mod p)     // 3A - u^4
+6.     t1 = 6 * u (mod p)       // 6u
+7.     t3 = t1 ^ (-1) (mod p)   // modular inverse
+8.      v = v1 * t3 (mod p)     // (3A - u^4)/(6u)
+9.      x = v^2 (mod p)         // v^2
+10.     x = x - B (mod p)       // v^2 - B
+11.    t1 = 27 ^ (-1) (mod p)   // 1/27
+12.    t1 = t1 * u2 (mod p)     // u^4 / 27
+13.    t1 = t1 * t2 (mod p)     // u^6 / 27
+14.     x = x - t1 (mod p)      // v^2 - B - u^6/27
+15.    t1 = (2 * p) - 1 (mod p) // 2p - 1
+16.    t1 = t1 / 3 (mod p)      // (2p - 1)/3
+17.     x = x^t1 (mod p)        // (v^2 - B - u^6/27) ^ (1/3)
+18.    t2 = u2 / 3 (mod p)      // u^2 / 3
+19.     x = x + t2 (mod p)      // (v^2 - B - u^6/27) ^ (1/3) + (u^2 / 3)
+20.     y = u * x (mod p)       // ux
+21.     y = y + v (mod p)       // ux + v
+22. Output (x, CNEG(y, s))
 ~~~
 
 ### Shallue-Woestijne-Ulas Method {#swu}
@@ -516,14 +520,15 @@ This algorithm works for any curve over F_{p^n}. Given curve equation
 g(x) = x^3 + Ax + B, this algorithm works as follows:
 
 ~~~
-1.  t = HashToBase(alpha, 0)
-2.  u = HashToBase(alpha, 1)
+1. (t, s) = HashToBase(alpha, 0)
+2. (u, _) = HashToBase(alpha, 1)
 3. X1 = u
 4. X2 = (-B / A)(1 + 1 / (t^4 * g(u)^2 + t^2 * g(u)))
 5. X3 = t^3 * g(u)^2  * g(X2)
-6. If g(X1) is square, output (X1, sqrt(g(X1)))
-7. If g(X2) is square, output (X2, sqrt(g(X2)))
-8. Output (X3(t, u), sqrt(g(X3)))
+6. If g(X1) is square, P = (X1, sqrt(g(X1)))
+7. If g(X2) is square, P = (X2, sqrt(g(X2)))
+8. Else: P = (X3(t, u), sqrt(g(X3)))
+8. Output CNEG(P, s)
 ~~~
 
 The algorithm relies on the following equality:
@@ -552,8 +557,8 @@ Output:
 
 Steps:
 
-1.    t = HashToBase(alpha, 0)   // {0,1}^* -> Fp
-2.    u = HashToBase(alpha, 1)   // {0,1}^* -> Fp
+1. (t ,s) = HashToBase(alpha, 0)   // {0,1}^* -> Fp x {0,1}
+2. (u, _) = HashToBase(alpha, 1)   // {0,1}^* -> Fp x {0,1}
 3.   t2 = t^2
 4.   t4 = t2^2
 5.   gu = u^3
@@ -582,14 +587,13 @@ Steps:
 28. gx3 = gx3 + B     // gx3 = g(X3(t, u))
 29.  l1 = gx1^((p - 1) / 2)
 30.  l2 = gx2^((p - 1) / 2)
-31.  s1 = gx1^(1/2)
-32.  s2 = gx2^(1/2)
-33.  s3 = gx3^(1/2)
-34. if l1 == 1:
-35.   Output (x1, s1)
-36. if l2 == 1:
-37.   Output (x2, s2)
-38. Output (x3, s3)
+31.  y1 = gx1^(1/2)
+32.  y2 = gx2^(1/2)
+33.  y3 = gx3^(1/2)
+34. P = (x3, y3)
+35. P = CMOV((x2, y2), P, l2)
+36. P = CMOV((x1, y1), P, l1)
+37. Output CNEG(P, s)
 ~~~
 
 ### Simplified SWU Method {#simple-swu}
@@ -604,11 +608,12 @@ works for any curve over F_{p^n}, where p = 3 mod 4, including:
 Given curve equation g(x) = x^3 + Ax + B, this algorithm works as follows:
 
 ~~~
-1. t = HashToBase(alpha)
+1. (t, s) = HashToBase(alpha)
 2. alpha = (-B / A) * (1 + (1 / (t^4 + t^2)))
 3. beta = −t^2 * alpha
-4. If g(alpha) is square, output (alpha, sqrt(g(alpha)))
-5. Output (beta, sqrt(g(beta)))
+4. If g(alpha) is square, P = (alpha, sqrt(g(alpha)))
+5. Else, P = (beta, sqrt(g(beta)))
+6. Output CNEG(P, s)
 ~~~
 
 The following procedure implements this algorithm. It outputs a point with
@@ -628,7 +633,7 @@ Output:
 
 Steps:
 
-1.     t = HashToBase(alpha)
+1. (t,s) = HashToBase(alpha)
 2. alpha = t^2 (mod p)
 3. alpha = alpha * -1 (mod p)
 4. right = alpha^2 + alpha (mod p)
@@ -651,7 +656,7 @@ Steps:
 21.    e = (y1 ^ 2 == h2)
 22.    x = CMOV(x2, x3, e)    // If e = 1, choose x2, else choose x3
 23.    y = CMOV(y1, y2, e)    // If e = 1, choose y1, else choose y2
-24. Output (x, y)
+24. Output (x, CNEG(y, s))
 ~~~
 
 ### Elligator2 Method {#elligator2}
@@ -664,7 +669,7 @@ order 2, this algorithm works as shown below. (Note that any curve
 with a point of order 2 is isomorphic to this representation.)
 
 ~~~
-1. r = HashToBase(alpha)
+1. (r, s) = HashToBase(alpha)
 2. Let u is not a square
 3. v = -A/(1+ur^ 2)
 4. e = Legendre(v^3+Av^2+Bv)
@@ -672,7 +677,8 @@ with a point of order 2 is isomorphic to this representation.)
 5.2.    x = ev - (1 - e)A/2
 5.3.    y = -e*sqrt(x^3+Ax^2+x)
 5.4. Else, x=0 and y=0
-6. Output (x,y)
+6. P = (x, y)
+7. Output CNEG(P, s)
 ~~~
 
 Here, e is the Legendre symbol defined as in {{utility}}.
@@ -694,25 +700,26 @@ Output:
 
 Steps:
 
-1.   r = HashToBase(alpha)
-2.   r = r^2 (mod p)
-3.  nu = r * u (mod p)
-4.   r = nu
-5.   r = r + 1 (mod p)
-6.   r = r^(-1) (mod p)
-7.   v = A * r (mod p)
-8.   v = v * -1 (mod p)   // -A / (1 + ur^2)
-9.  v2 = v^2 (mod p)
-10. v3 = v * v2 (mod p)
-11.  e = v3 + v (mod p)
-12. v2 = v2 * A (mod p)
-13.  e = v2 + e (mod p)
-14.  e = e^((p - 1) / 2)  // = Legendre(e)
-15. nv = v * -1 (mod p)
-16.  v = CMOV(v, nv, e)   // If e = 1, choose v, else choose nv
-17. v2 = CMOV(0, A, e)    // If e = 1, choose 0, else choose A
-18.  u = v - v2 (mod p)
-19. Output (u, -e*sqrt(u^3+Au^2+Bu) )
+1. (r,s) = HashToBase(alpha)
+2.     r = r^2 (mod p)
+3.    nu = r * u (mod p)
+4.     r = nu
+5.     r = r + 1 (mod p)
+6.     r = r^(-1) (mod p)
+7.     v = A * r (mod p)
+8.     v = v * -1 (mod p)   // -A / (1 + ur^2)
+9.    v2 = v^2 (mod p)
+10.   v3 = v * v2 (mod p)
+11.    e = v3 * v (mod p)
+12.   v2 = v2 * A (mod p)
+13.    e = v2 * e (mod p)
+14.    e = e^((p - 1) / 2)  // = Legendre(e)
+15.   nv = v * -1 (mod p)
+16.    v = CMOV(v, nv, e)   // If e = 1, choose v, else choose nv
+17.   v2 = CMOV(0, A, e)    // If e = 1, choose 0, else choose A
+18.    x = v - v2 (mod p)
+19     y = sqrt(x^3 + Ax^2 + Bx)
+20.   Output (x, CNEG(-e*y, s))
 ~~~
 
 Elligator2 can be simplified with projective coordinates.
@@ -1188,7 +1195,7 @@ Parameters:
 
 Preconditions:
 
-  floor(log2(p)) + 1 >= hbits
+  floor(log2(p)) + 2 >= hbits
 
 Input:
 
@@ -1198,6 +1205,7 @@ Input:
 Output:
 
   y - a value in the field Fp
+  s - a single sign bit
 
 Steps:
 
@@ -1229,3 +1237,16 @@ To address this, our HashToBase algorithm greedily takes as many bits as
 possible before reducing mod p, in order to smooth out this bias. This is
 preferable to an iterated procedure, such as rejection sampling, since this
 can be hard to reliably implement in constant time.
+
+### Example configurations
+
+The prime p = 2^255 - 19 used in Curve25519 constructions, is close to a power of 2,
+and is suitable for use with both SHA256 and SHA512.
+
+For the prime p = 2^256 - 2^224 + 2^192 + 2^96 - 1  used in P256, in order to smooth
+the bias, and have enough spare bits to obtain the additional sign bit, SHA512
+should be used.
+
+For large primes with no sufficiently large output, e.g. p = 2^521 - 1 used in P-521,
+we recommend extended using either extensible hash functions, or by an extract-expand
+mechanism {{RFC5869}} ((TODO: Specify this precisely)).

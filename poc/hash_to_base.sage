@@ -13,10 +13,17 @@ B = 1
 # A = 156326
 
 prime = p
+<<<<<<< HEAD
 H = hashlib.sha512
 hbits = 512
 assert hbits >= floor(log(p, 2).n()) + 2
 label = "H2C-Curve25519-SHA512-Elligator2-Clear".encode()
+=======
+H = hashlib.sha256
+hbits = 256
+assert hbits >= floor(log(p, 2).n()) + 2
+label = "h2b-curve25519-sha256".encode()
+>>>>>>> WIP specifics of HashToBase.
 
 def hash_to_base(x, i):
     i =  i2osp(i, 4) # interpret i as a 4-byte le unsigned integer
