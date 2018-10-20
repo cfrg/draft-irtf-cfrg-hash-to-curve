@@ -197,13 +197,35 @@ normative:
       -
         ins:  J. Felipe Voloch
         org: University of Texas
+  BL07:
+    title: Faster addition and doubling on elliptic curves
+    venue: Proceedings of the Advances in Crypotology 13th international conference on Theory and application of cryptology and information security (ASIACRYPT'07), Kaoru Kurosawa (Ed.). Springer-Verlag, Berlin, Heidelberg, 29-50.
+    target: https://eprint.iacr.org/2007/286.pdf
+    authors:
+      -
+        ins: Daniel J. Bernstein
+        org: Department of Computer Science, University of Illinois at Chicago, USA
+      -
+        ins: Tanja Lange
+        org: Department of Mathematics and Computer Science, Technische Universiteit Eindhoven, The Netherlands
+
+  BL17:
+    title: Montgomery curves and the Montgomery ladder
+    target: https://eprint.iacr.org/2017/293.pdf
+    authors:
+      -
+        ins: Daniel J. Bernstein
+        org: Department of Computer Science, University of Illinois at Chicago, USA
+      -
+        ins: Tanja Lange
+        org: Department of Mathematics and Computer Science, Technische Universiteit Eindhoven, The Netherlands
 
 
 
 --- abstract
 
-This document specifies a number of algorithms that may be used to hash arbitrary
-strings to Elliptic Curves.
+This document specifies a number of algorithms that may be used to encode or hash an
+arbitrary string to a point on an Elliptic Curve.
 
 --- middle
 
@@ -716,7 +738,7 @@ hash2curve(alpha)
 
 where alpha is a message to encode on a curve.
 
-## General Construction (FFSTV13)
+## General Construction (FFSTV13) {#ffstv}
 
 When applications need a Random Oracle (RO), they can be constructed from deterministic encoding
 functions. In particular, let F : {0,1}^* -> E be a deterministic encoding function onto
@@ -739,7 +761,84 @@ H1(alpha) = HashToBase(1 || alpha)
 
 # Curve Transformations
 
-((TODO: write this section))
+Every elliptic curve can be converted to an equivalent curve in short Weierstrass form
+({{BL07}} Theorem 2.1), making SWU a generic algorithm that can be used for all curves.
+Curves in either Edwards or Twisted Edwards form can be transformed into equivalent
+curves in Montgomery form {{BL17}} for use with Elligator2.
+{{RFC7748}} describes how to convert between points on Curve25519 and Ed25519,
+and between Curve448 and its Edwards equivalent, Goldilocks.
+
+# Ciphersuites
+
+To provide concrete recommendations for algorithms we define a hash-to-curve
+"ciphersuite" as a four-tuple containing:
+
+* Destination Group (e.g. P256 or Curve25519)
+* HashToBase algorithm
+* HashToCurve algorithm (e.g. SSWU, Icart)
+* (Optional) Transformation (e.g. FFSTV, cofactor clearing)
+
+A ciphersuite defines an algorithm that takes an arbitrary octet string and
+returns an element of the Destination Group defined in the ciphersuite by applying
+HashToCurve and Transformation (if defined).
+
+This document describes the following set of ciphersuites:
+* H2C-P256-SHA256-SSWU-
+* H2C-P384-SHA512-Icart-
+* H2C-Curve25519-SHA512-Elligator2-Clear
+* H2C-Curve448-SHA512-Elligator2-Clear
+* H2C-Curve25519-SHA512-Elligator2-FFSTV
+* H2C-Curve448-SHA512-Elligator2-FFSTV
+
+H2C-P256-SHA256-SWU- is defined as follows:
+
+* The destination group is the set of points on the NIST P-256 elliptic curve, with
+  curve parameters as specified in {{FIPS-186-4}} (Section D.1.2.3) and
+  {{RFC5114}} (Section 2.6).
+* HashToBase is defined as {{#hashtobase}} with the hash function defined as
+  SHA-256 as specified in [RFC6234], and p set to the prime field used in
+  P-256 (2^256 - 2^224 + 2^192 + 2^96 - 1).
+* HashToCurve is defined to be {#sswu} with A and B taken from the definition of P-256
+  (A=-3, B=41058363725152142129326129780047268409114441015993725554835256314039467401291).
+
+H2C-P384-SHA512-Icart- is defined as follows:
+
+* The destination group is the set of points on the NIST P-384 elliptic curve, with
+  curve parameters as specified in {{FIPS-186-4}} (Section D.1.2.4) and
+  {{RFC5114}} (Section 2.7).
+* HashToBase is defined as {{#hashtobase}} with the hash function defined as
+  SHA-512 as specified in [RFC6234], and p set to the prime field used in
+  P-384 (2^384 - 2^128 - 2^96 + 2^32 - 1).
+* HashToCurve is defined to be {#icart} with A and B taken from the definition of P-384
+  (A=-3, B=27580193559959705877849011840389048093056905856361568521428707301988689241309860865136260764883745107765439761230575).
+
+H2C-Curve25519-SHA512-Elligator2-Clear is defined as follows:
+
+* The destination group is the points on Curve25519, with
+  curve parameters as specified in {{RFC7748}} (Section 4.1).
+* HashToBase is defined as {{#hashtobase}} with the hash function defined as
+  SHA-512 as specified in [RFC6234], and p set to the prime field used in
+  Curve25519 (2^255 - 19).
+* HashToCurve is defined to be {#elligator2} with the curve function defined
+  to be the Montgomery form of Curve25519 (y^2 = x^3 + 486662x^2 + x).
+* The final output is multiplied by the cofactor of Curve25519, 8.
+
+H2C-Curve448-SHA512-Elligator2-Clear is defined as follows:
+
+* The destination group is the points on Curve448, with
+  curve parameters as specified in {{RFC7748}} (Section 4.1).
+* HashToBase is defined as {{#hashtobase}} with the hash function defined as
+  SHA-512 as specified in [RFC6234], and p set to the prime field used in
+  Curve448 (2^448 - 2^224 - 1).
+* HashToCurve is defined to be {#elligator2} with the curve function defined
+  to be the Montgomery form of Curve448 (y^2 = x^3 + 156326x^2 + x).
+* The final output is multiplied by the cofactor of Curve448, 4.
+
+H2C-Curve25519-SHA512-Elligator2-FFSTV is defined as in H2C-Curve25519-SHA-512-Elligator2-Clear
+except HashToCurve is defined to be {#ffstv} where F is {#elligator2}.
+
+H2C-Curve448-SHA512-Elligator2-FFSTV is defined as in H2C-Curve448-SHA-512-Elligator2-Clear
+except HashToCurve is defined to be {#ffstv} where F is {#elligator2}.
 
 # IANA Considerations
 
@@ -1003,7 +1102,7 @@ def map2p256(t:felem_t) -> felem_t:
         return x3v
 ~~~
 
-## Simplified SWU Method
+## Simplified SWU Method {#sswu}
 
 The following hacspec program implements map2curve_simple_swu(alpha) for P-256.
 
