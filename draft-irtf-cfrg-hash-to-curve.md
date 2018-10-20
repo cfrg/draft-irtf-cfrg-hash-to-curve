@@ -202,7 +202,7 @@ normative:
 
 --- abstract
 
-This document specifies a number of algorithms that may be used to encode an
+This document specifies a number of algorithms that may be used to encode or hash an
 arbitrary string to a point on an Elliptic Curve.
 
 --- middle
@@ -756,62 +756,62 @@ returns an element of the Destination Group defined in the ciphersuite by applyi
 HashToCurve and Transformation (if defined).
 
 This document describes the following set of ciphersuites:
-* H2C-P256-SHA256-SWU
-* H2C-P384-SHA512-Icart
+* H2C-P256-SHA256-SSWU-
+* H2C-P384-SHA512-Icart-
 * H2C-Curve25519-SHA512-Elligator2-Clear
 * H2C-Curve448-SHA512-Elligator2-Clear
 * H2C-Curve25519-SHA512-Elligator2-FFSTV
 * H2C-Curve448-SHA512-Elligator2-FFSTV
 
-H2C-P256-SHA256-SWU is defined as follows:
+H2C-P256-SHA256-SWU- is defined as follows:
 
 * The destination group is the set of points on the NIST P-256 elliptic curve, with
   curve parameters as specified in {{FIPS-186-4}} (Section D.1.2.3) and
   {{RFC5114}} (Section 2.6).
 * HashToBase is defined as {{#hashtobase}} with the hash function defined as
-  SHA-256 as specified in [RFC6234], c set to 2, and p set to the order of the
-  group for P-256.
-* HashToCurve is defined to be {#sswu} with A and B chosen from P-256
+  SHA-256 as specified in [RFC6234], and p set to the prime field used in
+  P-256 (2^256 - 2^224 + 2^192 + 2^96 - 1).
+* HashToCurve is defined to be {#sswu} with A and B taken from the definition of P-256
+  (A=-3, B=41058363725152142129326129780047268409114441015993725554835256314039467401291).
 
-H2C-P384-SHA512-Icart is defined as follows:
+H2C-P384-SHA512-Icart- is defined as follows:
 
 * The destination group is the set of points on the NIST P-384 elliptic curve, with
   curve parameters as specified in {{FIPS-186-4}} (Section D.1.2.4) and
   {{RFC5114}} (Section 2.7).
 * HashToBase is defined as {{#hashtobase}} with the hash function defined as
-  SHA-512 as specified in [RFC6234], c set to 2, and p set to the order of the
-  group for P-384.
-* HashToCurve is defined to be {#icart} with A and B chosen from P-384.
+  SHA-512 as specified in [RFC6234], and p set to the prime field used in
+  P-384 (2^384 - 2^128 - 2^96 + 2^32 - 1).
+* HashToCurve is defined to be {#icart} with A and B taken from the definition of P-384
+  (A=-3, B=27580193559959705877849011840389048093056905856361568521428707301988689241309860865136260764883745107765439761230575).
 
 H2C-Curve25519-SHA512-Elligator2-Clear is defined as follows:
 
 * The destination group is the points on Curve25519, with
   curve parameters as specified in {{RFC7748}} (Section 4.1).
 * HashToBase is defined as {{#hashtobase}} with the hash function defined as
-  SHA-512 as specified in [RFC6234], c set to 2, and p set to the order of the
-  group for Curve25519.
+  SHA-512 as specified in [RFC6234], and p set to the prime field used in
+  Curve25519 (2^255 - 19).
 * HashToCurve is defined to be {#elligator2} with the curve function defined
-  to be the Montgomery form of Curve25519.
+  to be the Montgomery form of Curve25519 (y^2 = x^3 + 486662x^2 + x).
 * The final output is multiplied by the cofactor of Curve25519, 8.
 
-H2C-Curve448-SHA512-Elligator2-Clear is defined as H2C-Curve25519-SHA512-Elligator2-Clear
-replacing Curve25519 with Curve448 as specified in {{RFC7748}} (Section 4.2),
-including the cofactor multiplication by Curve448's cofactor, 4.
+H2C-Curve448-SHA512-Elligator2-Clear is defined as follows:
 
-H2C-Curve25519-SHA512-Elligator2-FFSTV is defined as follows:
-
-* The destination group is the points on Curve25519, with
+* The destination group is the points on Curve448, with
   curve parameters as specified in {{RFC7748}} (Section 4.1).
 * HashToBase is defined as {{#hashtobase}} with the hash function defined as
-  SHA-512 as specified in [RFC6234], c set to 2, and p set to the order of the
-  group for Curve25519.
-* HashToCurve is defined to be {$ffstv} where F is {#elligator2} with the curve
-  function defined to be the Montgomery form of Curve25519.
-* The final output is multiplied by the cofactor of Curve25519, 8.
+  SHA-512 as specified in [RFC6234], and p set to the prime field used in
+  Curve448 (2^448 - 2^224 - 1).
+* HashToCurve is defined to be {#elligator2} with the curve function defined
+  to be the Montgomery form of Curve448 (y^2 = x^3 + 156326x^2 + x).
+* The final output is multiplied by the cofactor of Curve448, 4.
 
-H2C-Curve448-SHA512-Elligator2-FFSTV is defined as H2C-Curve25519-SHA512-Elligator2-FFSTV
-replacing Curve25519 with Curve448 as specified in {{RFC7748}} (Section 4.2),
-including the cofactor multiplication by Curve448's cofactor, 4.
+H2C-Curve25519-SHA512-Elligator2-FFSTV is defined as in H2C-Curve25519-SHA-512-Elligator2-Clear
+except HashToCurve is defined to be {#ffstv} where F is {#elligator2}.
+
+H2C-Curve448-SHA512-Elligator2-FFSTV is defined as in H2C-Curve448-SHA-512-Elligator2-Clear
+except HashToCurve is defined to be {#ffstv} where F is {#elligator2}.
 
 # IANA Considerations
 
