@@ -698,9 +698,9 @@ Steps:
 8.   v = v * -1 (mod p)   // -A / (1 + ur^2)
 9.  v2 = v^2 (mod p)
 10. v3 = v * v2 (mod p)
-11.  e = v3 * v (mod p)
+11.  e = v3 + v (mod p)
 12. v2 = v2 * A (mod p)
-13.  e = v2 * e (mod p)
+13.  e = v2 + e (mod p)
 14.  e = e^((p - 1) / 2)  // = Legendre(e)
 15. nv = v * -1 (mod p)
 16.  v = CMOV(v, nv, e)   // If e = 1, choose v, else choose nv
