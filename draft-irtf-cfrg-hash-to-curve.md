@@ -197,6 +197,28 @@ normative:
       -
         ins:  J. Felipe Voloch
         org: University of Texas
+  BL07:
+    title: Faster addition and doubling on elliptic curves
+    venue: Proceedings of the Advances in Crypotology 13th international conference on Theory and application of cryptology and information security (ASIACRYPT'07), Kaoru Kurosawa (Ed.). Springer-Verlag, Berlin, Heidelberg, 29-50.
+    target: https://eprint.iacr.org/2007/286.pdf
+    authors:
+      -
+        ins: Daniel J. Bernstein
+        org: Department of Computer Science, University of Illinois at Chicago, USA
+      -
+        ins: Tanja Lange
+        org: Department of Mathematics and Computer Science, Technische Universiteit Eindhoven, The Netherlands
+
+  BL17:
+    title: Montgomery curves and the Montgomery ladder
+    target: https://eprint.iacr.org/2017/293.pdf
+    authors:
+      -
+        ins: Daniel J. Bernstein
+        org: Department of Computer Science, University of Illinois at Chicago, USA
+      -
+        ins: Tanja Lange
+        org: Department of Mathematics and Computer Science, Technische Universiteit Eindhoven, The Netherlands
 
 
 
@@ -739,7 +761,12 @@ H1(alpha) = HashToBase(1 || alpha)
 
 # Curve Transformations
 
-((TODO: write this section))
+Every elliptic curve can be converted to an equivalent curve in short Weierstrass form
+({{BL07}} Theorem 2.1), making SWU a generic algorithm that can be used for all curves.
+Curves in either Edwards or Twisted Edwards form can be transformed into equivalent
+curves in Montgomery form {{BL17}} for use with Elligator2.
+{{RFC7748}} describes how to convert between points on Curve25519 and Ed25519,
+and between Curve448 and its Edwards equivalent, Goldilocks.
 
 # Ciphersuites
 
