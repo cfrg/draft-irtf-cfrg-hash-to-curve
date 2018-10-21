@@ -39,6 +39,7 @@ author:
 
 normative:
   RFC2119:
+  RFC5114:
   RFC7748:
   RFC8017:
   RFC8032:
@@ -219,6 +220,13 @@ normative:
       -
         ins: Tanja Lange
         org: Department of Mathematics and Computer Science, Technische Universiteit Eindhoven, The Netherlands
+  FIPS-186-4:
+    title: Digital Signature Standard (DSS), FIPS PUB 186-4, July 2013
+    target: https://csrc.nist.gov/publications/detail/fips/186/4/final
+    authors:
+      -
+        ins: National Institute for Standards and Technology
+        org:
 
 
 
@@ -270,8 +278,8 @@ Let F be the finite field GF(p^k). We say that F is a field of characteristic
 p. For most applications, F is a prime field, in which case k=1 and we will
 simply write GF(p).
 
-Elliptic curves come in many variants, including, but not limited to: Weierstrass,
-Montgomery, and Edwards. Each
+Elliptic curves can be represented by equations of different standard forms,
+including, but not limited to: Weierstrass, Montgomery, and Edwards. Each
 of these variants correspond to a different category of curve equation.
 For example, the short Weierstrass equation is
 `y^2 = x^3 + Ax + B`. Certain encoding functions may have requirements
@@ -285,32 +293,18 @@ strong requirement that all cryptographic operations take place in a prime
 order group. However, not all elliptic curves generate groups of prime order.
 In those cases, it is allowed to work with elliptic curves of order n = qh,
 where q is a large prime, and h is a short number known as the cofactor.
-Thus, we may wish an encoding that returns
-points on the subgroup of order q. Multiplying a point P on E by the cofactor h
-guarantees that hP is a point in the subgroup of order q.
-
-In practice, the input of a given cryptographic algorithm will be a bitstring of
-arbitrary length, denoted  {0, 1}^\*. Hence, a concern for virtually all protocols
-involving elliptic curves is how to convert this input into a curve point.
-
-Note that the number of points on an elliptic curve E is within 2\*sqrt(p) of p
-by Hasse's Theorem. As a rule of thumb, for every x in GF(p), there is
-approximately a 1/2 chance that there exist a corresponding y value such that
-(x, y) is on the curve E. Since the point (x, -y) is also on the curve, then
-this sums to approximately p points.
-
-Ultimately, an encoding function takes a bitstring {0, 1}^\* and maps it to a
-point P=(x,y) on E of order q, where x and y are in GF(p).
+Thus, we may wish an encoding that returns points on the subgroup of order q.
+Multiplying a point P on E by the cofactor h guarantees that hP is a point in
+the subgroup of order q.
 
 Summary of quantities:
 
 | Symbol | Meaning | Relevance
 |:------:|---------|----------
-| p | Order of finite field, F = GF(p) | Curve points need to be represented in terms of p. For prime powers, we write F = GF(p^k).
+| p | Order of finite field, F = GF(p) | Curve points need to be represented in terms of p. For prime power extension fields, we write F = GF(p^k).
 | n | Number of curve points, #E(F) = n |  For map to E, needs to produce n elements.
 | q | Order of the largest prime subgroup of E, n = qh | If n is not prime, may need mapping to q.
 | h | Cofactor | For mapping to subgroup, need to multiply by cofactor.
-
 
 ## Terminology {#terminology}
 
@@ -319,18 +313,18 @@ points on elliptic curves.
 
 ### Encoding {#term-encoding}
 
-The general term "encoding" is used to refer to the process of producing an
+In practice, the input of a given cryptographic algorithm will be a bitstring of
+arbitrary length, denoted {0, 1}^\*. Hence, a concern for virtually all protocols
+involving elliptic curves is how to convert this input into a curve point.
+The general term "encoding" refers to the process of producing an
 elliptic curve point given as input a bitstring. In some protocols, the original
-message may also be recovered through a decoding procedure.
-An encoding may be deterministic
+message may also be recovered through a decoding procedure. An encoding may be deterministic
 or probabilistic, although the latter is problematic in potentially leaking
 plaintext information as a side-channel.
 
-In most cases, the curve E is over a finite field GF(p^k), with p > 2.
 Suppose as the input to the encoding function we wish to use a fixed-length
 bitstring of length L. Comparing sizes of the sets, 2^L and n,
 an encoding function cannot be both deterministic and bijective.
-
 We can instead use an injective encoding from {0, 1}^L to E, with
 `L < log2(n)- 1`,  which is a bijection over a subset of points in E.
 This ensures that encoded plaintext messages can be recovered.
@@ -502,7 +496,7 @@ Steps:
 
 The Shallue-Woestijne-Ulas (SWU) method, originated in part by
 Shallue and Woestijne {{SW06}} and later simplified and extended by Ulas {{SWU07}},
-deterministically encodes an artbirary string to a point on a curve.
+deterministically encodes an arbitrary string to a point on a curve.
 This algorithm works for any curve over F_{p^n}. Given curve equation
 g(x) = x^3 + Ax + B, two separate HashToBase implementations, H0 and H1,
 this algorithm works as follows:
@@ -555,7 +549,7 @@ Steps:
 7.   gu = gu + B      // gu = g(u)
 8.   x1 = u           // x1 = X1(t, u) = u
 9.   x2 = B * -1
-10.  x2 = x2 / A     
+10.  x2 = x2 / A
 11.  gx1 = x1^3
 12.  gx1 = gx1 + (A * x1)
 13.  gx1 = gx1 + B    // gx1 = g(X1(t, u))
@@ -588,7 +582,7 @@ Steps:
 
 ### Simplified SWU Method {#simple-swu}
 
-The following map2curve_simple_swu(alpha) implements the simplfied
+The following map2curve_simple_swu(alpha) implements the simplified
 Shallue-Woestijne-Ulas algorithm from {{SimpleSWU}}. This algorithm
 works for any curve over F_{p^n}, where p = 3 mod 4, including:
 
@@ -705,8 +699,9 @@ Steps:
 15. nv = v * -1 (mod p)
 16.  v = CMOV(v, nv, e)   // If e = 1, choose v, else choose nv
 17. v2 = CMOV(0, A, e)    // If e = 1, choose 0, else choose A
-18.  u = v - v2 (mod p)
-19. Output (u, -e*sqrt(u^3+Au^2+Bu) )
+18.  x = v - v2 (mod p)
+19.  y = -e*sqrt(x^3+Ax^2+Bx)
+19. Output (x, y)
 ~~~
 
 Elligator2 can be simplified with projective coordinates.
@@ -795,7 +790,7 @@ H2C-P256-SHA256-SWU- is defined as follows:
 * The destination group is the set of points on the NIST P-256 elliptic curve, with
   curve parameters as specified in {{FIPS-186-4}} (Section D.1.2.3) and
   {{RFC5114}} (Section 2.6).
-* HashToBase is defined as {{#hashtobase}} with the hash function defined as
+* HashToBase is defined as {#hashtobase} with the hash function defined as
   SHA-256 as specified in [RFC6234], and p set to the prime field used in
   P-256 (2^256 - 2^224 + 2^192 + 2^96 - 1).
 * HashToCurve is defined to be {#sswu} with A and B taken from the definition of P-256
@@ -806,7 +801,7 @@ H2C-P384-SHA512-Icart- is defined as follows:
 * The destination group is the set of points on the NIST P-384 elliptic curve, with
   curve parameters as specified in {{FIPS-186-4}} (Section D.1.2.4) and
   {{RFC5114}} (Section 2.7).
-* HashToBase is defined as {{#hashtobase}} with the hash function defined as
+* HashToBase is defined as {#hashtobase} with the hash function defined as
   SHA-512 as specified in [RFC6234], and p set to the prime field used in
   P-384 (2^384 - 2^128 - 2^96 + 2^32 - 1).
 * HashToCurve is defined to be {#icart} with A and B taken from the definition of P-384
@@ -816,7 +811,7 @@ H2C-Curve25519-SHA512-Elligator2-Clear is defined as follows:
 
 * The destination group is the points on Curve25519, with
   curve parameters as specified in {{RFC7748}} (Section 4.1).
-* HashToBase is defined as {{#hashtobase}} with the hash function defined as
+* HashToBase is defined as {#hashtobase} with the hash function defined as
   SHA-512 as specified in [RFC6234], and p set to the prime field used in
   Curve25519 (2^255 - 19).
 * HashToCurve is defined to be {#elligator2} with the curve function defined
@@ -827,7 +822,7 @@ H2C-Curve448-SHA512-Elligator2-Clear is defined as follows:
 
 * The destination group is the points on Curve448, with
   curve parameters as specified in {{RFC7748}} (Section 4.1).
-* HashToBase is defined as {{#hashtobase}} with the hash function defined as
+* HashToBase is defined as {#hashtobase} with the hash function defined as
   SHA-512 as specified in [RFC6234], and p set to the prime field used in
   Curve448 (2^448 - 2^224 - 1).
 * HashToCurve is defined to be {#elligator2} with the curve function defined
@@ -963,20 +958,20 @@ of F in GF(p) is sufficient to define a point on one of E or E^d.
 # Try-and-Increment Method {#try}
 
 In cases where constant time execution is not required, the so-called
-try-and-increment method may be appropriate. As discussion in Section {{introduction}},
+try-and-increment method may be appropriate. As discussion in {{introduction}},
 this variant works by hashing input m using a standard hash function ("Hash"), e.g., SHA256, and
 then checking to see if the resulting point E(m, f(m)), for curve function f, belongs on E.
 This is detailed below.
 
 ~~~
 1. ctr = 0
-3. h = "INVALID"
-4. While h is "INVALID" or h is EC point at infinity:
-   A.  CTR = I2OSP(ctr, 4)
-   B.  ctr = ctr + 1
-   C.  attempted_hash = Hash(m || CTR)
-   D.  h = RS2ECP(attempted_hash)
-   E.  If h is not "INVALID" and cofactor > 1, set h = h^cofactor
+2. h = "INVALID"
+3. While h is "INVALID" or h is EC point at infinity:
+4.1   CTR = I2OSP(ctr, 4)
+4.2   ctr = ctr + 1
+4.3   attempted_hash = Hash(m || CTR)
+4.4   h = RS2ECP(attempted_hash)
+4.5   If h is not "INVALID" and cofactor > 1, set h = h * cofactor
 5. Output h
 ~~~
 
@@ -1116,7 +1111,7 @@ b256 = to_felem(4105836372515214212932612978004726840911444101599372555483525631
 def f_p256(x:felem_t) -> felem_t:
     return fadd(fexp(x, 3), fadd(fmul(to_felem(a256), x), to_felem(b256)))
 
-def map2p256(t:felem_t) -> affine_t:    
+def map2p256(t:felem_t) -> affine_t:
     alpha = to_felem(-(fsqr(t)))
     frac = finv((fadd(fsqr(alpha), alpha)))
     coefficient = fmul(to_felem(-b256), finv(to_felem(a256)))
