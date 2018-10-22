@@ -882,13 +882,13 @@ Steps:
 7.   s2 = (f(x2) ^ ((p - 1) / 2))  // calculate quadratic residue of f(x2)
 8.   s3 = (f(x3) ^ ((p - 1) / 2))  // calculate quadratic residue of f(x3)
 9.   x = x3
-10.   x = CMOV(x2 ,x, s2)
+10.  x = CMOV(x2 ,x, s2)
 11.  x = CMOV(x1, x, s1)
 12.  y = f(x)^(1/2)
 13.  y = (t ^ ((p -1) / 2)) * y
 14.  Output (x,  y)
 ~~~
-Note that s will always be an integer in the field, due our base assumptions about p. If it is necessary to
+Note that x will always be an integer in the field, due our base assumptions about p. If it is necessary to
 specifically define a point for F(0), then a suitable suggestion is f(0) = ( (-1 + s)  /  2, (1+b)^(1/2) ).
 In steps 5-7 all relevant quadric residues are calculated in order to prevent possible timing attacks where
 s2 and s3 are not calculated if s1 = 1.
