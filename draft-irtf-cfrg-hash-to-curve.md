@@ -486,8 +486,9 @@ Output:
 Steps:
 
 0.1. c1 = (2 * p) - 1
-0.2. c1 = c1 // 3            // c1 = (2p-1)/3 as integer
-0.3. c2 = 27^(-1) (mod p)  // c2 = 1/27 (mod p)  
+0.2. c1 = c1 // 3          // c1 = (2p-1)/3 as integer
+0.3  c2 = 3^(-1) (mod p)   // c2 = 1/3 (mod p)
+0.4. c3 = c2^3 (mod p)     // c2 = 1/27 (mod p)  
 
 1.   u = HashToBase(alpha)   // {0,1}^* -> Fp
 2.  u2 = u^2 (mod p)         // u^2
@@ -499,11 +500,11 @@ Steps:
 8.   v = v * t1 (mod p)      // (3A - u^4)/(6u)
 9.  x1 = v^2 (mod p)         // v^2
 10. x1 = x - B (mod p)       // v^2 - B
-11. t1 = u4 * c2 (mod p)     // u^4 / 27
+11. t1 = u4 * c3 (mod p)     // u^4 / 27
 12. t1 = t1 * u2 (mod p)     // u^6 / 27
 13. x1 = x1 - t1 (mod p)     // v^2 - B - u^6/27
 14. x1 = x^c1 (mod p)        // (v^2 - B - u^6/27) ^ (1/3)
-15. t1 = u2 / 3 (mod p)      // u^2 / 3
+15. t1 = u2 * c2 (mod p)     // u^2 / 3
 16.  x = x + t1 (mod p)      // (v^2 - B - u^6/27) ^ (1/3) + (u^2 / 3)
 17.  y = u * x (mod p)       // ux
 18.  y = y + v (mod p)       // ux + v

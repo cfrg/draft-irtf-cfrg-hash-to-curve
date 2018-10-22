@@ -1,3 +1,6 @@
+from hash_to_base import *
+from utils import *
+
 # Curve25519
 p = 2**255 - 19
 F = GF(p)
@@ -15,9 +18,9 @@ def curve25519(x):
     # x(x^2 + Ax + B)
     return x^3 + (A * x^2) + x
 
-def elligator2(alpha):
 
-    r = F(alpha)
+def elligator2(alpha):
+    r = h2b_from_ciphersuite(alpha, 0, "H2C-Curve25519-SHA512-Elligator2-Clear")
 
     # u is a fixed nonsquare value, eg -1 if p==3 mod 4.
     u = F(2) # F(2)
@@ -25,17 +28,46 @@ def elligator2(alpha):
     
     # If f(-A/(1+ur^2)) is square, return its square root.
     # Else, return the square root of f(-Aur^2/(1+ur^2)).
-    x = -A / (1 + (u * r^2))
-    y = curve25519(x)
-    if y.is_square(): # is this point square?
-        y = y.square_root()
+    v = -A / (1 + (u * r^2))
+    e = legendre_symbol(curve25519(v))
+    if r == 0:
+        E(0)
     else:
-        x = (-A * u * r^2) / (1 + (u * r^2))
-        y = curve25519(x).square_root()
+        x = e*v - (1 - e) * A / 2
+        y = -e * sqrt(curve25519(x))
+        return E(x, y)
+
+def legendre_ct(x):
+    return x^((p - 1) / 2)
+
+def curve25519_straight(x):
+    t = x + A # x + A
+    t = t * x # x^2 + Ax
+    t = t + B # x^2 + Ax + B
+    t = t * x # x^3 + Ax^2 + Bx
+    return t
+
+def elligator2_straight(alpha):
+    r = h2b_from_ciphersuite(alpha, 0, "H2C-Curve25519-SHA512-Elligator2-Clear")
+
+    u = F(2) # F(2)
+    assert(not u.is_square())
+
+    t1 = r^2
+    t1 = u * r^2
+
+    t2 = t1^(-1)
+    v = -A * t2
+    fv = curve25519_straight(v)
+    e = legendre_ct(fv)
     
-    # return E(f_input, y) # raises an exception if the point is not on the curve
-    return E(x, y)
-    # return x
+
+    y = x + A # x + A
+    y = x * y # x^2 + Ax
+    y = y + B # x^2 + Ax + B
+    y = x * y # x^3 + Ax^2 + Bx
+    e = e^((p - 1) / 2)
+
 
 def elligator2_legendre(alpha):
     r = F(alpha)
@@ -59,37 +91,6 @@ def elligator2_legendre(alpha):
     
     u = u - v
 
-    return E(u, curve25519(u).square_root())
-
-def elligator2_legendre_ct(alpha):
-    r = F(alpha)
-
-    r = r^2
-    r = r * 2
-    r = r + 1
-    r = r^(-1)
-    v = A * r
-    v = v * -1 # d
-
-    v2 = v^2
-    v3 = v * v2
-    e = v3 + v
-    v2 = v2 * A
-    e = v2 + e
-
-    # Legendre symbol -- is it a point on the curve?
-    e = e^((p - 1) / 2)
-
-    nv = v * -1
-    if e != 1:
-        v = nv
-
-    v2 = 0
-    if e != 1:
-        v2 = A
-    
-    u = v - v2
-    
     return E(u, curve25519(u).square_root())
 
 inputs = [1, 7, 13, 1<<7, 1<<8, 1<<64, 1<<64-1, p-1, p+1]
