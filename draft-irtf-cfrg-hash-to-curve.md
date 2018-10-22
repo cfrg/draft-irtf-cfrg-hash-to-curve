@@ -39,6 +39,9 @@ author:
 
 normative:
   RFC2119:
+  RFC5114:
+  RFC5869:
+  RFC6234:
   RFC7748:
   RFC8017:
   RFC8032:
@@ -91,6 +94,13 @@ normative:
       -
         ins: Sarvar Patel
         org: Bell Laboratories, Lucent Technologies
+  DSS:
+       title: "Digital Signature Standard, version 4"
+       date: 2013
+       author:
+         org: National Institute of Standards and Technology, U.S. Department of Commerce
+       seriesinfo:
+         NIST: FIPS PUB 186-4
   Jablon96:
     title: Strong password-only authenticated key exchange
     venue: SIGCOMM Comput. Commun. Rev., 26(5), 5–26, 1996.
@@ -398,27 +408,26 @@ the chosen curve in the below:
 
 Algorithms in this document make use of utility functions described below.
 
-- round(x): floor(ceil(2\*x)/2), i.e. rounding to the nearest
-  integer, rounding down when the remainder is precisely 0.5.
+- HashToBase(x, i).
+  This method is parametrized by p and H, where p is the prime order of
+  the base field Fp, and H is a cryptographic hash function which
+  outputs at least floor(log2(p)) + 2 bits.
+  The function first hashes x, converts the result to an integer,
+  and reduces modulo p to give an element of Fp.
 
-- HashToBase(H,x): H(x)[0:round(log2(p))] mod p.
-  This method is parametrized by the cryptographic hash function H, which
-  outputs at least round(log2(p)) bits, where p is the prime order of base
-  field Fp. The function first computes the bitstring H(x), and truncates this
-  down to round(log2(p)) bits. The result of this is converted to an integer,
-  and reduced modulo p to give an element of Fp. We suggest a more detailed
-  algorithm in {{hashtobase}}.
+  We provide a more detailed algorithm in {{hashtobase}}. The value of i is used
+  to separate inputs when used multiple times in one algorithm (see {{ffstv}}
+  for example). When i is omitted, we set it to 0.
 
 - CMOV(a, b, c): If c = 1, return a, else return b.
 
 - Legendre(x, p): x^((p-1)/2).
-    The Legendre symbol computes whether the value x is a "quadratic
-    residue" modulo p, and takes values 1, -1, 0, for when x is a residue,
-    non-residue, or zero, respectively. Due to Euler's criterion, this can be
-    computed in constant time, with respect to a fixed p, using
-    the equation x^((p-1)/2). For clarity, we will generally prefer using the
-    formula directly, and annotate the usage with this definition.
-
+  The Legendre symbol computes whether the value x is a "quadratic
+  residue" modulo p, and takes values 1, -1, 0, for when x is a residue,
+  non-residue, or zero, respectively. Due to Euler's criterion, this can be
+  computed in constant time, with respect to a fixed p, using
+  the equation x^((p-1)/2). For clarity, we will generally prefer using the
+  formula directly, and annotate the usage with this definition.
 
 # Deterministic Encodings
 
@@ -504,12 +513,11 @@ The Shallue-Woestijne-Ulas (SWU) method, originated in part by
 Shallue and Woestijne {{SW06}} and later simplified and extended by Ulas {{SWU07}},
 deterministically encodes an artbirary string to a point on a curve.
 This algorithm works for any curve over F_{p^n}. Given curve equation
-g(x) = x^3 + Ax + B, two separate HashToBase implementations, H0 and H1,
-this algorithm works as follows:
+g(x) = x^3 + Ax + B, this algorithm works as follows:
 
 ~~~
-1. t = H0(alpha)
-2. u = H1(alpha)
+1.  t = HashToBase(alpha, 0)
+2.  u = HashToBase(alpha, 1)
 3. X1 = u
 4. X2 = (-B / A)(1 + 1 / (t^4 * g(u)^2 + t^2 * g(u)))
 5. X3 = t^3 * g(u)^2  * g(X2)
@@ -532,13 +540,11 @@ coordinates. It requires knowledge of A and B, the constants from the curve
 Weierstrass form.
 
 ~~~
-map2curve_squ(alpha)
+map2curve_swu(alpha)
 
 Input:
 
   alpha - value to be hashed, an octet string
-  H0 - HashToBase implementation
-  H1 - HashToBase implementation
 
 Output:
 
@@ -546,8 +552,8 @@ Output:
 
 Steps:
 
-1.    t = H0(alpha)   // {0,1}^* -> Fp
-2.    u = H1(alpha)   // {0,1}^* -> Fp
+1.    t = HashToBase(alpha, 0)   // {0,1}^* -> Fp
+2.    u = HashToBase(alpha, 1)   // {0,1}^* -> Fp
 3.   t2 = t^2
 4.   t4 = t2^2
 5.   gu = u^3
@@ -555,7 +561,7 @@ Steps:
 7.   gu = gu + B      // gu = g(u)
 8.   x1 = u           // x1 = X1(t, u) = u
 9.   x2 = B * -1
-10.  x2 = x2 / A     
+10.  x2 = x2 / A
 11.  gx1 = x1^3
 12.  gx1 = gx1 + (A * x1)
 13.  gx1 = gx1 + B    // gx1 = g(X1(t, u))
@@ -640,8 +646,8 @@ Steps:
 16.   i3 = x3 * A (mod p)
 17.   i3 = i3 + B (mod p)
 18.   h3 = h3 + i3 (mod p)
-19.   y1 = h2 ^ ((p + 1) // 4) (mod p)
-20.   y2 = h3 ^ ((p + 1) // 4) (mod p)
+19.   y1 = h2 ^ ((p + 1) / 4) (mod p)
+20.   y2 = h3 ^ ((p + 1) / 4) (mod p)
 21.    e = (y1 ^ 2 == h2)
 22.    x = CMOV(x2, x3, e)    // If e = 1, choose x2, else choose x3
 23.    y = CMOV(y1, y2, e)    // If e = 1, choose y1, else choose y2
@@ -752,11 +758,11 @@ hash2curve(alpha) = F(H0(alpha)) + F(H1(alpha))
 
 This construction works for the Icart, SWU, and Simplfied SWU encodings.
 
-Here, H0 and H1 could be constructed as follows:
+Here, H0 and H1 are constructed as follows:
 
 ~~~
-H0(alpha) = HashToBase(0 || alpha)
-H1(alpha) = HashToBase(1 || alpha)
+H0(alpha) = HashToBase(alpha, 2)
+H1(alpha) = HashToBase(alpha, 3)
 ~~~
 
 # Curve Transformations
@@ -793,10 +799,10 @@ This document describes the following set of ciphersuites:
 H2C-P256-SHA256-SWU- is defined as follows:
 
 * The destination group is the set of points on the NIST P-256 elliptic curve, with
-  curve parameters as specified in {{FIPS-186-4}} (Section D.1.2.3) and
+  curve parameters as specified in {{DSS}} (Section D.1.2.3) and
   {{RFC5114}} (Section 2.6).
-* HashToBase is defined as {{#hashtobase}} with the hash function defined as
-  SHA-256 as specified in [RFC6234], and p set to the prime field used in
+* HashToBase is defined as {#hashtobase} with the hash function defined as
+  SHA-256 as specified in {{RFC6234}}, and p set to the prime field used in
   P-256 (2^256 - 2^224 + 2^192 + 2^96 - 1).
 * HashToCurve is defined to be {#sswu} with A and B taken from the definition of P-256
   (A=-3, B=41058363725152142129326129780047268409114441015993725554835256314039467401291).
@@ -804,10 +810,10 @@ H2C-P256-SHA256-SWU- is defined as follows:
 H2C-P384-SHA512-Icart- is defined as follows:
 
 * The destination group is the set of points on the NIST P-384 elliptic curve, with
-  curve parameters as specified in {{FIPS-186-4}} (Section D.1.2.4) and
+  curve parameters as specified in {{DSS}} (Section D.1.2.4) and
   {{RFC5114}} (Section 2.7).
-* HashToBase is defined as {{#hashtobase}} with the hash function defined as
-  SHA-512 as specified in [RFC6234], and p set to the prime field used in
+* HashToBase is defined as {#hashtobase} with the hash function defined as
+  SHA-512 as specified in {{RFC6234}}, and p set to the prime field used in
   P-384 (2^384 - 2^128 - 2^96 + 2^32 - 1).
 * HashToCurve is defined to be {#icart} with A and B taken from the definition of P-384
   (A=-3, B=27580193559959705877849011840389048093056905856361568521428707301988689241309860865136260764883745107765439761230575).
@@ -816,8 +822,8 @@ H2C-Curve25519-SHA512-Elligator2-Clear is defined as follows:
 
 * The destination group is the points on Curve25519, with
   curve parameters as specified in {{RFC7748}} (Section 4.1).
-* HashToBase is defined as {{#hashtobase}} with the hash function defined as
-  SHA-512 as specified in [RFC6234], and p set to the prime field used in
+* HashToBase is defined as {#hashtobase} with the hash function defined as
+  SHA-512 as specified in {{RFC6234}}, and p set to the prime field used in
   Curve25519 (2^255 - 19).
 * HashToCurve is defined to be {#elligator2} with the curve function defined
   to be the Montgomery form of Curve25519 (y^2 = x^3 + 486662x^2 + x).
@@ -827,8 +833,8 @@ H2C-Curve448-SHA512-Elligator2-Clear is defined as follows:
 
 * The destination group is the points on Curve448, with
   curve parameters as specified in {{RFC7748}} (Section 4.1).
-* HashToBase is defined as {{#hashtobase}} with the hash function defined as
-  SHA-512 as specified in [RFC6234], and p set to the prime field used in
+* HashToBase is defined as {#hashtobase} with the hash function defined as
+  SHA-512 as specified in {{RFC6234}}, and p set to the prime field used in
   Curve448 (2^448 - 2^224 - 1).
 * HashToCurve is defined to be {#elligator2} with the curve function defined
   to be the Montgomery form of Curve448 (y^2 = x^3 + 156326x^2 + x).
@@ -936,10 +942,10 @@ some fraction of the points. This makes them unable to use to directly
 construct a random oracle on the curve.
 
 Brier et al. {{SimpleSWU}} proposed a couple of solutions to this problem, The
-first applies solely to Icart's method described above, by computing F(H1(m))
-+ F(H2(m)) for two distinct hash functions H1, H2. The second uses a generator
-G, and computes F(H1(m)) + H2(m)\*G. Later, Farashahi et al. {{FFSTV13}}
-showed the generality of the F(H1(m)) + F(H2(m)) method, as well as the
+first applies solely to Icart's method described above, by computing F(H0(m))
++ F(H1(m)) for two distinct hash functions H0, H1. The second uses a generator
+G, and computes F(H0(m)) + H1(m)\*G. Later, Farashahi et al. {{FFSTV13}}
+showed the generality of the F(H0(m)) + F(H1(m)) method, as well as the
 applicability to hyperelliptic curves (not covered here).
 
 ## Supersingular Curves
@@ -1116,7 +1122,7 @@ b256 = to_felem(4105836372515214212932612978004726840911444101599372555483525631
 def f_p256(x:felem_t) -> felem_t:
     return fadd(fexp(x, 3), fadd(fmul(to_felem(a256), x), to_felem(b256)))
 
-def map2p256(t:felem_t) -> affine_t:    
+def map2p256(t:felem_t) -> affine_t:
     alpha = to_felem(-(fsqr(t)))
     frac = finv((fadd(fsqr(alpha), alpha)))
     coefficient = fmul(to_felem(-b256), finv(to_felem(a256)))
@@ -1171,17 +1177,23 @@ def map2curve25519(r:felem_t) -> felem_t:
 The following procedure implements HashToBase.
 
 ~~~
-HashToBase(x)
+HashToBase(x, i)
 
 Parameters:
 
   H - cryptographic hash function to use
-  c - small constant multiple
-  p - order of the base field Fp.
+  hbits - number of bits output by H
+  p - order of the base field Fp
+  label - context label for domain separation
+
+Preconditions:
+
+  floor(log2(p)) + 1 >= hbits
 
 Input:
 
   x - value to be hashed, an octet string
+  i - hash call index, a non-negative integer
 
 Output:
 
@@ -1189,32 +1201,31 @@ Output:
 
 Steps:
 
-  1. x1 = H(x)
-  2. tlen = round(c * log2(p))
-  3. x2 = x1 & ((1 << tlen) - 1)
-  4. x3 = OS2IP(x2)
-  5. y = x3 (mod p)
-  6. Output y
+  1. t1 = H("h2c" || label || I2OSP(i, 4) || x)
+  2. t2 = OS2IP(t1)
+  3. y = t2 (mod p)
+  4. Output y
 ~~~
 
-where using OS2IP {{RFC8017}} is used to convert an octet string to an
-integer.
+where I2OSP, OS2IP {{RFC8017}} are used to convert an octet string to and from
+a non-negative integer, and a || b denotes concatenation of a and b.
 
 ### Considerations
 
-We assume that HashToBase maps its input to the base field uniformly. In
-practice, there will be inherent biases. For example, taking H as SHA256, over
-the finite field of Curve25519 we have p = 2^255 - 19, round(log2(p)) = 255,
-and thus the values of 0 .. 19 will be twice as likely to occur. This is a
-standard problem in generating uniformly distributed integers from a
-bitstring. For the proposed algorithms, this bias should be negligible, since
-approaches to produce in differentiable hashing already combine multiple
-outputs in order to address non-uniform outputs from the encoding functions.
+Performance: HashToBase requires hashing the entire input x. In some
+algorithms/ciphersuite combinations, HashToBase is called multiple times. For
+large inputs, implementers can therefore consider hashing x before calling
+HashToBase. I.e. HashToBase(H'(x)).
 
-To address this, implementers may instead consider defining an additional
-constant c, such that c\*log2(p) is  closer to an integral value, and taking
-round(c\*log2(p)) random bits from the hash function H.
+Most algorithms assume that HashToBase maps its input to the base field
+uniformly. In practice, there will be inherent biases. For example, taking H
+as SHA256, over the finite field used by Curve25519 we have p = 2^255 - 19, and
+thus when reducing from 255 bits, the values of 0 .. 19 will be twice as
+likely to occur. This is a standard problem in generating uniformly
+distributed integers from a bitstring. In this example, the resulting bias is
+negligible, but for others this bias can be significant.
 
-Implementers should not implement any iterated procedure, such as
-rejection sampling, for HashToBase since this can be hard to reliably
-implement in constant time.
+To address this, our HashToBase algorithm greedily takes as many bits as
+possible before reducing mod p, in order to smooth out this bias. This is
+preferable to an iterated procedure, such as rejection sampling, since this
+can be hard to reliably implement in constant time.
