@@ -207,6 +207,20 @@ normative:
       -
         ins:  J. Felipe Voloch
         org: University of Texas
+  Han04:
+    title: Guide to Elliptic Curve Cryptography
+    target: https://doi.org/10.1007/b97644
+    authors:
+      -
+        ins: Darrel Hankerson
+        org:
+      -
+        ins: Alfred Menezes
+        org:
+      -
+        ins: Scott Vanstone
+        org:
+
   BL07:
     title: Faster addition and doubling on elliptic curves
     venue: Proceedings of the Advances in Crypotology 13th international conference on Theory and application of cryptology and information security (ASIACRYPT'07), Kaoru Kurosawa (Ed.). Springer-Verlag, Berlin, Heidelberg, 29-50.
@@ -295,23 +309,23 @@ For example, the short Weierstrass equation is
 on the curve form, the characteristic of the field, and the parameters, such as A and B in the previous example.
 
 An elliptic curve E is specified by its equation, and a finite field F.
-The curve E forms a group, whose elements correspond to those who satisfy the
-curve equation, with values taken from the field F. As a group, E has order
+The curve E forms a group, and its elements are called points, whose coordinates
+are field elements that satisfy the curve equation. As a group, E has order
 n, which is the number of points on the curve. For security reasons, it is a
-strong requirement that all cryptographic operations take place in a prime
+strong requirement that all cryptographic operations take place in a large prime
 order group. However, not all elliptic curves generate groups of prime order.
 In those cases, it is allowed to work with elliptic curves of order n = qh,
 where q is a large prime, and h is a short number known as the cofactor.
-Thus, we may wish an encoding that returns points on the subgroup of order q.
+Thus, we may wish a map that returns points on the subgroup of order q.
 Multiplying a point P on E by the cofactor h guarantees that hP is a point in
-the subgroup of order q.
+the subgroup of order q, this operation is commonly known as clearing the cofactor.
 
 Summary of quantities:
 
 | Symbol | Meaning | Relevance
 |:------:|---------|----------
-| p | Order of finite field, F = GF(p) | Curve points need to be represented in terms of p. For prime power extension fields, we write F = GF(p^k).
-| n | Number of curve points, #E(F) = n |  For map to E, needs to produce n elements.
+| p | Order of finite field, F = GF(p) | For prime power extension fields, we write F = GF(p^k). Arithmetic operations are carried on this field.
+| n | Number of points on E, #E(F) = n |  The order of the curve.
 | q | Order of the largest prime subgroup of E, n = qh | If n is not prime, may need mapping to q.
 | h | Cofactor | For mapping to subgroup, need to multiply by cofactor.
 
@@ -324,7 +338,7 @@ points on elliptic curves.
 
 In practice, the input of a given cryptographic algorithm will be a bitstring of
 arbitrary length, denoted {0, 1}^\*. Hence, a concern for virtually all protocols
-involving elliptic curves is how to convert this input into a curve point.
+involving elliptic curves is how to convert this input into an elliptic curve point.
 The general term "encoding" refers to the process of producing an
 elliptic curve point given as input a bitstring. In some protocols, the original
 message may also be recovered through a decoding procedure. An encoding may be deterministic
@@ -405,7 +419,7 @@ Algorithms in this document make use of utility functions described below.
   This method is parametrized by p and H, where p is the prime order of
   the base field Fp, and H is a cryptographic hash function which
   outputs at least floor(log2(p)) + 2 bits.
-  The function first hashes x, converts the result to an integer,
+  The function first hashes x, an arbitrary-length string, converts the result to an integer,
   and reduces modulo p to give an element of Fp.
 
   We provide a more detailed algorithm in {{hashtobase}}. The value of i is used
@@ -415,8 +429,8 @@ Algorithms in this document make use of utility functions described below.
 - CMOV(a, b, c): If c = 1, return a, else return b.
 
 - Legendre(x, p): x^((p-1)/2).
-  The Legendre symbol computes whether the value x is a "quadratic
-  residue" modulo p, and takes values 1, -1, 0, for when x is a residue,
+  The Legendre symbol computes whether the value x is a quadratic
+  residue modulo p, and takes values 1, -1, 0, for when x is a residue,
   non-residue, or zero, respectively. Due to Euler's criterion, this can be
   computed in constant time, with respect to a fixed p, using
   the equation x^((p-1)/2). For clarity, we will generally prefer using the
@@ -429,10 +443,10 @@ Algorithms in this document make use of utility functions described below.
 The generic interface for deterministic encoding functions to elliptic curves is as follows:
 
 ~~~
-map2curve(alpha)
+P = map2curve(alpha)
 ~~~
 
-where alpha is a message to encode on a curve.
+where alpha is a message to encode on a curve, and P is a point on an elliptic curve E.
 
 ## Encoding Variants
 
@@ -472,32 +486,32 @@ Input:
 
 Output:
 
-  (x, y) - a point in E
+  (x, y) - a point on E
 
 Steps:
 
 1.   u = HashToBase(alpha)   // {0,1}^* -> Fp
-2.  u2 = u^2 (mod p)         // u^2
-3.  t2 = u2^2 (mod p)        // u^4
-4.  v1 = 3 * A (mod p)       // 3A
-5.  v1 = v1 - t2 (mod p)     // 3A - u^4
-6.  t1 = 6 * u (mod p)       // 6u
-7.  t3 = t1 ^ (-1) (mod p)   // modular inverse
-8.   v = v1 * t3 (mod p)     // (3A - u^4)/(6u)
-9.   x = v^2 (mod p)         // v^2
-10.  x = x - B (mod p)       // v^2 - B
-11. t1 = 27 ^ (-1) (mod p)   // 1/27
-12. t1 = t1 * u2 (mod p)     // u^4 / 27
-13. t1 = t1 * t2 (mod p)     // u^6 / 27
-14.  x = x - t1 (mod p)      // v^2 - B - u^6/27
-15. t1 = (2 * p) - 1 (mod p) // 2p - 1
-16. t1 = t1 / 3 (mod p)      // (2p - 1)/3
-17.  x = x^t1 (mod p)        // (v^2 - B - u^6/27) ^ (1/3)
-18. t2 = u2 / 3 (mod p)      // u^2 / 3
-19.  x = x + t2 (mod p)      // (v^2 - B - u^6/27) ^ (1/3) + (u^2 / 3)
-20.  y = u * x (mod p)       // ux
-21.  y = y + v (mod p)       // ux + v
-22. Output (x, y)
+2.  u2 = u^2                 // u^2
+3.  t2 = u2^2                // u^4
+4.  v1 = 3 * A               // 3A
+5.  v1 = v1 - t2             // 3A - u^4
+6.  t1 = 6 * u               // 6u
+7.  t3 = t1 ^ (-1)           // modular inverse
+8.   v = v1 * t3             // (3A - u^4)/(6u)
+9.   x = v^2                 // v^2
+10.  x = x - B               // v^2 - B
+11. t1 = 27 ^ (-1)           // 1/27
+12. t1 = t1 * u2             // u^4 / 27
+13. t1 = t1 * t2             // u^6 / 27
+14.  x = x - t1              // v^2 - B - u^6/27
+15. t1 = (2 * p) - 1         // 2p - 1
+16. t1 = t1 / 3              // (2p - 1)/3
+17.  x = x^t1                // (v^2 - B - u^6/27) ^ (1/3)
+18. t2 = u2 / 3              // u^2 / 3
+19.  x = x + t2              // (v^2 - B - u^6/27) ^ (1/3) + (u^2 / 3)
+20.  y = u * x               // ux
+21.  y = y + v               // ux + v
+22. Output (x,y)
 ~~~
 
 ### Shallue-Woestijne-Ulas Method {#swu}
@@ -541,7 +555,7 @@ Input:
 
 Output:
 
-  (x, y) - a point in E
+  (x, y) - a point on E
 
 Steps:
 
@@ -617,30 +631,30 @@ Input:
 
 Output:
 
-  (x, y) - a point in E
+  (x, y) - a point on E
 
 Steps:
 
 1.     t = HashToBase(alpha)
-2. alpha = t^2 (mod p)
-3. alpha = alpha * -1 (mod p)
-4. right = alpha^2 + alpha (mod p)
-5. right = right^(-1) (mod p)
-6. right = right + 1 (mod p)
-7.  left = B * -1 (mod p)
-8.  left = left / A (mod p)
-9.    x2 = left * right (mod p)
-10.   x3 = alpha * x2 (mod p)
-11.   h2 = x2 ^ 3 (mod p)
-12.   i2 = x2 * A (mod p)
-13.   i2 = i2 + B (mod p)
-14.   h2 = h2 + i2 (mod p)
-15.   h3 = x3 ^ 3 (mod p)
-16.   i3 = x3 * A (mod p)
-17.   i3 = i3 + B (mod p)
-18.   h3 = h3 + i3 (mod p)
-19.   y1 = h2 ^ ((p + 1) / 4) (mod p)
-20.   y2 = h3 ^ ((p + 1) / 4) (mod p)
+2. alpha = t^2
+3. alpha = alpha * -1
+4. right = alpha^2 + alpha
+5. right = right^(-1)
+6. right = right + 1
+7.  left = B * -1
+8.  left = left / A
+9.    x2 = left * right
+10.   x3 = alpha * x2
+11.   h2 = x2 ^ 3
+12.   i2 = x2 * A
+13.   i2 = i2 + B
+14.   h2 = h2 + i2
+15.   h3 = x3 ^ 3
+16.   i3 = x3 * A
+17.   i3 = i3 + B
+18.   h3 = h3 + i3
+19.   y1 = h2 ^ ((p + 1) / 4)
+20.   y2 = h3 ^ ((p + 1) / 4)
 21.    e = (y1 ^ 2 == h2)
 22.    x = CMOV(x2, x3, e)    // If e = 1, choose x2, else choose x3
 23.    y = CMOV(y1, y2, e)    // If e = 1, choose y1, else choose y2
@@ -658,12 +672,12 @@ with a point of order 2 is isomorphic to this representation.)
 
 ~~~
 1. r = HashToBase(alpha)
-2. Let u is not a square
-3. v = -A/(1+ur^ 2)
+2. Let u is a quadratic non-residue
+3. v = -A/(1+ur^2)
 4. e = Legendre(v^3+Av^2+Bv)
 5.1. If r != 0, then
 5.2.    x = ev - (1 - e)A/2
-5.3.    y = -e*sqrt(x^3+Ax^2+x)
+5.3.    y = -e*sqrt(x^3+Ax^2+Bx)
 5.4. Else, x=0 and y=0
 6. Output (x,y)
 ~~~
@@ -683,28 +697,28 @@ Input:
 
 Output:
 
-  (x, y) - a point in E
+  (x, y) - a point on E
 
 Steps:
 
 1.   r = HashToBase(alpha)
-2.   r = r^2 (mod p)
-3.  nu = r * u (mod p)
+2.   r = r^2
+3.  nu = r * u
 4.   r = nu
-5.   r = r + 1 (mod p)
-6.   r = r^(-1) (mod p)
-7.   v = A * r (mod p)
-8.   v = v * -1 (mod p)   // -A / (1 + ur^2)
-9.  v2 = v^2 (mod p)
-10. v3 = v * v2 (mod p)
-11.  e = v3 + v (mod p)
-12. v2 = v2 * A (mod p)
-13.  e = v2 + e (mod p)
+5.   r = r + 1
+6.   r = r^(-1)
+7.   v = A * r
+8.   v = v * -1           // -A / (1 + ur^2)
+9.  v2 = v^2
+10. v3 = v * v2
+11.  e = v3 + v
+12. v2 = v2 * A
+13.  e = v2 + e
 14.  e = e^((p - 1) / 2)  // = Legendre(e)
-15. nv = v * -1 (mod p)
+15. nv = v * -1
 16.  v = CMOV(v, nv, e)   // If e = 1, choose v, else choose nv
 17. v2 = CMOV(0, A, e)    // If e = 1, choose 0, else choose A
-18.  x = v - v2 (mod p)
+18.  x = v - v2
 19.  y = -e*sqrt(x^3+Ax^2+Bx)
 19. Output (x, y)
 ~~~
@@ -762,7 +776,7 @@ H1(alpha) = HashToBase(alpha, 3)
 # Curve Transformations
 
 Every elliptic curve can be converted to an equivalent curve in short Weierstrass form
-({{BL07}} Theorem 2.1), making SWU a generic algorithm that can be used for all curves.
+{{Han04}}, making SWU a generic algorithm that can be used for all curves.
 Curves in either Edwards or Twisted Edwards form can be transformed into equivalent
 curves in Montgomery form {{BL17}} for use with Elligator2.
 {{RFC7748}} describes how to convert between points on Curve25519 and Ed25519,
@@ -783,6 +797,7 @@ returns an element of the Destination Group defined in the ciphersuite by applyi
 HashToCurve and Transformation (if defined).
 
 This document describes the following set of ciphersuites:
+
 * H2C-P256-SHA256-SSWU-
 * H2C-P384-SHA512-Icart-
 * H2C-Curve25519-SHA512-Elligator2-Clear
