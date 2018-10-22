@@ -488,7 +488,7 @@ Steps:
 1.   u = HashToBase(alpha)   // {0,1}^* -> Fp
 2.  u2 = u^2 (mod p)         // u^2
 3.  t2 = u2^2 (mod p)        // u^4
-4.  v1 = 3 * A (mod p)       // 3A
+4.  v1 = 3 * A (mod p)       // 3A in Fp
 5.  v1 = v1 - t2 (mod p)     // 3A - u^4
 6.  t1 = 6 * u (mod p)       // 6u
 7.  t3 = t1 ^ (-1) (mod p)   // modular inverse
@@ -499,8 +499,8 @@ Steps:
 12. t1 = t1 * u2 (mod p)     // u^4 / 27
 13. t1 = t1 * t2 (mod p)     // u^6 / 27
 14.  x = x - t1 (mod p)      // v^2 - B - u^6/27
-15. t1 = (2 * p) - 1 (mod p) // 2p - 1
-16. t1 = t1 / 3 (mod p)      // (2p - 1)/3
+15. t1 = (2 * p) - 1         // 2p - 1 in ZZ
+16. t1 = t1 / 3              // (2p - 1)/3 in ZZ
 17.  x = x^t1 (mod p)        // (v^2 - B - u^6/27) ^ (1/3)
 18. t2 = u2 / 3 (mod p)      // u^2 / 3
 19.  x = x + t2 (mod p)      // (v^2 - B - u^6/27) ^ (1/3) + (u^2 / 3)
