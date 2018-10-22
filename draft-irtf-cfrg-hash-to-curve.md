@@ -888,7 +888,7 @@ Steps:
 13.  y = (t ^ ((p -1) / 2)) * y
 14.  Output (x,  y)
 ~~~
-Note that x will always be an integer in the field, due our base assumptions about p. If it is necessary to
+Note that s will always be an integer in the field, due our base assumptions about p. If it is necessary to
 specifically define a point for F(0), then a suitable suggestion is f(0) = ( (-1 + s)  /  2, (1+b)^(1/2) ).
 In steps 5-7 all relevant quadric residues are calculated in order to prevent possible timing attacks where
 s2 and s3 are not calculated if s1 = 1.
