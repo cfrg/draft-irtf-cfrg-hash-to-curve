@@ -646,11 +646,13 @@ Steps:
 18.   h3 = h3 + i3 (mod p)
 19.   y1 = h2 ^ ((p + 1) / 4) (mod p)
 20.   y2 = h3 ^ ((p + 1) / 4) (mod p)
-21.    e = (y1 ^ 2 == h2)
+21.    e = ((y1 ^ 2) == h2)   // Constant-time equality
 22.    x = CMOV(x2, x3, e)    // If e = 1, choose x2, else choose x3
 23.    y = CMOV(y1, y2, e)    // If e = 1, choose y1, else choose y2
 24. Output (x, y)
 ~~~
+
+Note that Step 21 requires a constant-time equality check so as to avoid side channel leaks.
 
 ### Elligator2 Method {#elligator2}
 
@@ -663,7 +665,7 @@ with a point of order 2 is isomorphic to this representation.)
 
 ~~~
 1. r = HashToBase(alpha)
-2. Let u is not a square
+2. Let u be a non-square value in Fp
 3. v = -A/(1+ur^ 2)
 4. e = Legendre(v^3+Av^2+Bv)
 5.1. If r != 0, then
@@ -825,7 +827,8 @@ H2C-Curve25519-SHA512-Elligator2-Clear is defined as follows:
   SHA-512 as specified in {{RFC6234}}, and p set to the prime field used in
   Curve25519 (2^255 - 19).
 * HashToCurve is defined to be {#elligator2} with the curve function defined
-  to be the Montgomery form of Curve25519 (y^2 = x^3 + 486662x^2 + x).
+  to be the Montgomery form of Curve25519 (y^2 = x^3 + 486662x^2 + x) and
+  u = 2.
 * The final output is multiplied by the cofactor of Curve25519, 8.
 
 H2C-Curve448-SHA512-Elligator2-Clear is defined as follows:
@@ -836,7 +839,8 @@ H2C-Curve448-SHA512-Elligator2-Clear is defined as follows:
   SHA-512 as specified in {{RFC6234}}, and p set to the prime field used in
   Curve448 (2^448 - 2^224 - 1).
 * HashToCurve is defined to be {#elligator2} with the curve function defined
-  to be the Montgomery form of Curve448 (y^2 = x^3 + 156326x^2 + x).
+  to be the Montgomery form of Curve448 (y^2 = x^3 + 156326x^2 + x) and
+  u = 2.
 * The final output is multiplied by the cofactor of Curve448, 4.
 
 H2C-Curve25519-SHA512-Elligator2-FFSTV is defined as in H2C-Curve25519-SHA-512-Elligator2-Clear
@@ -986,8 +990,9 @@ This is detailed below.
 ~~~
 
 I2OSP is a function that converts a nonnegative integer to octet string as
-defined in Section 4.1 of {{RFC8017}}, and RS2ECP is a function that converts of a random
-2n-octet string to an EC point as specified in Section 5.1.3 of {{RFC8032}}.
+defined in Section 4.1 of {{RFC8017}}, and RS2ECP(h) = OS2ECP(0x02 || h), where
+OS2ECP is specified in Section 2.3.4 of {{SECG1}}, which converts an input
+string into an EC point.
 
 # Sample Code {#samplecode}
 
