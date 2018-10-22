@@ -44,14 +44,6 @@ author:
     city: New York, New York 10044
     country: United States of America
     email: sam.scott@cornell.edu
- -
-    ins: E. B. Lee
-    name: Ela B. Lee
-    org: Royal Holloway, University of London
-    street: Egham Hill
-    city: Egham
-    Country: United Kingdom
-    email: ela.berners-lee.2010@live.rhul.ac.uk
 
 normative:
   RFC2119:
@@ -467,26 +459,7 @@ and are less efficient than hash and encode methods.
 # Algorithm Recommendations {#recommendations}
 
 
-The following table lists recommended algorithms to use for specific curves. 
-
-| Curve | Algorithm |
-| P-256 | SWU {{simple-swu}} |
-| P-384 | Icart {{icart}} |
-| Curve25519 | Elligator2 {{elligator2}} |
-| Curve448 | Elligator2 {{elligator2}} |
-| BN-curves | {{BN05}} |
-
-The SWU variant from Section {{swu}} applies to any curve. As such, this algorithm
-SHOULD be used if no other better alternative is known. More efficient variants and
-their curve requirements are shown in the table below. These MAY be used if the target
-curve meets the listed criteria.
-
-| Algorithm | Requirement |
-| Icart {{icart}} | p = 2 mod 3 |
-| SWU {{swu}} | None |
-| Simplified SWU {{simple-swu}} | p = 3 mod 4 |
-| Elligator2 {{elligator2}} | p is large and there is a point of order two and j-invariant != 1728 |
-| FT-hash  | p = 7 mod 12, 1 + b b nonzero square in Fp, E: y^2 = x^3 + b |
+The following table lists algorithms recommended by use-case:
 
 
 | Application       | Requirement   | Additional Details
@@ -506,6 +479,7 @@ the chosen curve in the below:
 | P-384 | Icart {{icart}} | FFSTV(Icart) 
 | Curve25519 | Elligator2 {{elligator2}} | ... 
 | Curve448 | Elligator2 {{elligator2}} | ... 
+| BN-curves | FT-hash + Icart | ...
 
 # Utility Functions
 
