@@ -842,7 +842,7 @@ H2C-Curve448-SHA512-Elligator2-Clear is defined as follows:
   Curve448 (2^448 - 2^224 - 1).
 * HashToCurve is defined to be {#elligator2} with the curve function defined
   to be the Montgomery form of Curve448 (y^2 = x^3 + 156326x^2 + x) and
-  u = 2.
+  u = -1.
 * The final output is multiplied by the cofactor of Curve448, 4.
 
 H2C-Curve25519-SHA512-Elligator2-FFSTV is defined as in H2C-Curve25519-SHA-512-Elligator2-Clear
