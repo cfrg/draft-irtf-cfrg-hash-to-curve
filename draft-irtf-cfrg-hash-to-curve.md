@@ -502,7 +502,7 @@ Steps:
 1.   u = HashToBase(alpha)   // {0,1}^* -> Fp
 2.  u2 = u^2                 // u^2
 3.  t2 = u2^2                // u^4
-4.  v1 = 3 * A               // 3A
+4.  v1 = 3 * A               // 3A in Fp
 5.  v1 = v1 - t2             // 3A - u^4
 6.  t1 = 6 * u               // 6u
 7.  t3 = t1 ^ (-1)           // modular inverse
@@ -513,8 +513,8 @@ Steps:
 12. t1 = t1 * u2             // u^4 / 27
 13. t1 = t1 * t2             // u^6 / 27
 14.  x = x - t1              // v^2 - B - u^6/27
-15. t1 = (2 * p) - 1         // 2p - 1
-16. t1 = t1 / 3              // (2p - 1)/3
+15. t1 = (2 * p) - 1         // 2p - 1 in ZZ
+16. t1 = t1 / 3              // (2p - 1)/3 in ZZ
 17.  x = x^t1                // (v^2 - B - u^6/27) ^ (1/3)
 18. t2 = u2 / 3              // u^2 / 3
 19.  x = x + t2              // (v^2 - B - u^6/27) ^ (1/3) + (u^2 / 3)
@@ -664,7 +664,7 @@ Steps:
 18.   h3 = h3 + i3
 19.   y1 = h2 ^ ((p + 1) / 4)
 20.   y2 = h3 ^ ((p + 1) / 4)
-21.    e = (y1 ^ 2 == h2)
+21.    e = CTEQ(y1 ^ 2, h2)   // Constant-time equality
 22.    x = CMOV(x2, x3, e)    // If e = 1, choose x2, else choose x3
 23.    y = CMOV(y1, y2, e)    // If e = 1, choose y1, else choose y2
 24. Output (x, y)
