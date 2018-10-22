@@ -36,14 +36,6 @@ author:
     city: Cupertino, California 95014
     country: United States of America
     email: cawood@apple.com
- -
-    ins: S. Scott
-    name: Sam Scott
-    org: Cornell Tech
-    street: 2 West Loop Rd
-    city: New York, New York 10044
-    country: United States of America
-    email: sam.scott@cornell.edu
 
 normative:
   RFC2119:
@@ -836,9 +828,9 @@ Steps:
 5.   s1 = (f(x1) ^ ((p - 1) / 2))  // calculate quadratic residue of f(x1)
 6.   s2 = (f(x2) ^ ((p - 1) / 2))  // calculate quadratic residue of f(x2)
 7.   s3 = (f(x3) ^ ((p - 1) / 2))  // calculate quadratic residue of f(x3)
-8.   if s1 = 1: x = x1  // choose the smallest index i such that g(xi) is a square in Fp
-9.   else if s2 = 1: x = x2 
-10.  else: x = x3
+8.   x = x3
+9.   x = CMOV(x2 ,x, s2)
+10.  x = CMOV(x1, x, s1)
 11.  y = f(x)^(1/2) (mod p)
 12.  y = (t ^ ((p -1) / 2)) * y (mod p)
 13.  Output (x,  y)
@@ -850,7 +842,7 @@ s2 and s3 are not calculated if s1 = 1.
 
 Whilst this encoding function works for BN curves and is efficient, it only reaches roughly 9/16ths of
 the curve. However, this is enough to be a suitable encoding function for Hash = F(H1(m)) +
-F(H2(m)) as explained in {{FFSTV13}}, which will be indifferentiable from a random oracle.
+F(H2(m)) as explained in {{#ffstv}}, which will be indifferentiable from a random oracle.
 This is discussed in in the Random Oracles section {#random-oracles}.
 
 # Curve Transformations
