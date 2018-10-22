@@ -11,7 +11,7 @@
 <style type="text/css">/*<![CDATA[*/
 
 body {
-  font: 16px "Helvetica Neue","Open Sans",Helvetica,Calibri,sans-serif;
+  font: 16px "Helvetica Neue",Helvetica,Arial,sans-serif;
   color: #333;
   font-size-adjust: 0.5;
   line-height: 24px;
@@ -21,7 +21,7 @@ body {
 }
 
 .title, .filename, h1, h2, h3, h4, h5 {
-  font: 16px "Helvetica Neue","Roboto Condensed","Open Sans",Helvetica,Calibri,sans-serif;
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
   font-size-adjust: 0.5;
   font-weight: bold;
   color: #333;
@@ -94,10 +94,9 @@ pre {
   padding: 5px;
   margin: 5px;
 }
-.figure, caption {
+.figure {
   font-style: italic;
   margin: 0 1.5em;
-  text-align: left;
 }
 
 address {
@@ -320,12 +319,12 @@ ul.toc li {
 <link href="#rfc.authors" rel="Chapter">
 
 
-  <meta name="generator" content="xml2rfc version 2.11.1 - https://tools.ietf.org/tools/xml2rfc" />
+  <meta name="generator" content="xml2rfc version 2.9.6 - https://tools.ietf.org/tools/xml2rfc" />
   <link rel="schema.dct" href="http://purl.org/dc/terms/" />
 
   <meta name="dct.creator" content="Scott, S., Sullivan, N., and C. Wood" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-irtf-cfrg-hash-to-curve-latest" />
-  <meta name="dct.issued" scheme="ISO8601" content="2018-10-23" />
+  <meta name="dct.issued" scheme="ISO8601" content="2019-01-25" />
   <meta name="dct.abstract" content="This document specifies a number of algorithms that may be used to encode or hash an arbitrary string to a point on an Elliptic Curve." />
   <meta name="description" content="This document specifies a number of algorithms that may be used to encode or hash an arbitrary string to a point on an Elliptic Curve." />
 
@@ -349,7 +348,7 @@ ul.toc li {
 <td class="right">N. Sullivan</td>
 </tr>
 <tr>
-<td class="left">Expires: April 26, 2019</td>
+<td class="left">Expires: July 29, 2019</td>
 <td class="right">Cloudflare</td>
 </tr>
 <tr>
@@ -362,7 +361,7 @@ ul.toc li {
 </tr>
 <tr>
 <td class="left"></td>
-<td class="right">October 23, 2018</td>
+<td class="right">January 25, 2019</td>
 </tr>
 
     	
@@ -378,9 +377,9 @@ ul.toc li {
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at https://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on April 26, 2019.</p>
+<p>This Internet-Draft will expire on July 29, 2019.</p>
 <h1 id="rfc.copyrightnotice"><a href="#rfc.copyrightnotice">Copyright Notice</a></h1>
-<p>Copyright (c) 2018 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
+<p>Copyright (c) 2019 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
 <p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
 
   
@@ -679,28 +678,29 @@ Output:
 
 Steps:
 
+0.1. c1 = (2 * p) - 1
+0.2. c1 = c1 // 3            // c1 = (2p-1)/3 as integer
+0.3. c2 = 27^(-1) (mod p)  // c2 = 1/27 (mod p)  
+
 1.   u = HashToBase(alpha)   // {0,1}^* -&gt; Fp
 2.  u2 = u^2 (mod p)         // u^2
-3.  t2 = u2^2 (mod p)        // u^4
-4.  v1 = 3 * A (mod p)       // 3A in Fp
-5.  v1 = v1 - t2 (mod p)     // 3A - u^4
+3.  u4 = u2^2 (mod p)        // u^4
+4.   v = 3 * A (mod p)       // 3A in Fp
+5.   v = v - u4 (mod p)      // 3A - u^4
 6.  t1 = 6 * u (mod p)       // 6u
-7.  t3 = t1 ^ (-1) (mod p)   // modular inverse
-8.   v = v1 * t3 (mod p)     // (3A - u^4)/(6u)
-9.   x = v^2 (mod p)         // v^2
-10.  x = x - B (mod p)       // v^2 - B
-11. t1 = 27 ^ (-1) (mod p)   // 1/27
-12. t1 = t1 * u2 (mod p)     // u^4 / 27
-13. t1 = t1 * t2 (mod p)     // u^6 / 27
-14.  x = x - t1 (mod p)      // v^2 - B - u^6/27
-15. t1 = (2 * p) - 1         // 2p - 1 in ZZ
-16. t1 = t1 / 3              // (2p - 1)/3 in ZZ
-17.  x = x^t1 (mod p)        // (v^2 - B - u^6/27) ^ (1/3)
-18. t2 = u2 / 3 (mod p)      // u^2 / 3
-19.  x = x + t2 (mod p)      // (v^2 - B - u^6/27) ^ (1/3) + (u^2 / 3)
-20.  y = u * x (mod p)       // ux
-21.  y = y + v (mod p)       // ux + v
-22. Output (x, y)
+7.  t1 = t1^(-1) (mod p)     // modular inverse
+8.   v = v * t1 (mod p)      // (3A - u^4)/(6u)
+9.  x1 = v^2 (mod p)         // v^2
+10. x1 = x - B (mod p)       // v^2 - B
+11. t1 = u4 * c2 (mod p)     // u^4 / 27
+12. t1 = t1 * u2 (mod p)     // u^6 / 27
+13. x1 = x1 - t1 (mod p)     // v^2 - B - u^6/27
+14. x1 = x^c1 (mod p)        // (v^2 - B - u^6/27) ^ (1/3)
+15. t1 = u2 / 3 (mod p)      // u^2 / 3
+16.  x = x + t1 (mod p)      // (v^2 - B - u^6/27) ^ (1/3) + (u^2 / 3)
+17.  y = u * x (mod p)       // ux
+18.  y = y + v (mod p)       // ux + v
+19. Output (x, y)
 </pre>
 <h1 id="rfc.section.5.2.2">
 <a href="#rfc.section.5.2.2">5.2.2.</a> <a href="#swu" id="swu">Shallue-Woestijne-Ulas Method</a>
@@ -709,9 +709,9 @@ Steps:
 <pre>
 1.  t = HashToBase(alpha, 0)
 2.  u = HashToBase(alpha, 1)
-3. X1 = u
-4. X2 = (-B / A)(1 + 1 / (t^4 * g(u)^2 + t^2 * g(u)))
-5. X3 = t^3 * g(u)^2  * g(X2)
+3. x1 = u
+4. x2 = (-B / A)(1 + 1 / (t^4 * g(u)^2 + t^2 * g(u)))
+5. x3 = t^3 * g(u)^2  * g(X2)
 6. If g(X1) is square, output (X1, sqrt(g(X1)))
 7. If g(X2) is square, output (X2, sqrt(g(X2)))
 8. Output (X3(t, u), sqrt(g(X3)))

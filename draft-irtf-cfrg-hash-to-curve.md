@@ -485,28 +485,29 @@ Output:
 
 Steps:
 
+0.1. c1 = (2 * p) - 1
+0.2. c1 = c1 // 3            // c1 = (2p-1)/3 as integer
+0.3. c2 = 27^(-1) (mod p)  // c2 = 1/27 (mod p)  
+
 1.   u = HashToBase(alpha)   // {0,1}^* -> Fp
 2.  u2 = u^2 (mod p)         // u^2
-3.  t2 = u2^2 (mod p)        // u^4
-4.  v1 = 3 * A (mod p)       // 3A in Fp
-5.  v1 = v1 - t2 (mod p)     // 3A - u^4
+3.  u4 = u2^2 (mod p)        // u^4
+4.   v = 3 * A (mod p)       // 3A in Fp
+5.   v = v - u4 (mod p)      // 3A - u^4
 6.  t1 = 6 * u (mod p)       // 6u
-7.  t3 = t1 ^ (-1) (mod p)   // modular inverse
-8.   v = v1 * t3 (mod p)     // (3A - u^4)/(6u)
-9.   x = v^2 (mod p)         // v^2
-10.  x = x - B (mod p)       // v^2 - B
-11. t1 = 27 ^ (-1) (mod p)   // 1/27
-12. t1 = t1 * u2 (mod p)     // u^4 / 27
-13. t1 = t1 * t2 (mod p)     // u^6 / 27
-14.  x = x - t1 (mod p)      // v^2 - B - u^6/27
-15. t1 = (2 * p) - 1         // 2p - 1 in ZZ
-16. t1 = t1 / 3              // (2p - 1)/3 in ZZ
-17.  x = x^t1 (mod p)        // (v^2 - B - u^6/27) ^ (1/3)
-18. t2 = u2 / 3 (mod p)      // u^2 / 3
-19.  x = x + t2 (mod p)      // (v^2 - B - u^6/27) ^ (1/3) + (u^2 / 3)
-20.  y = u * x (mod p)       // ux
-21.  y = y + v (mod p)       // ux + v
-22. Output (x, y)
+7.  t1 = t1^(-1) (mod p)     // modular inverse
+8.   v = v * t1 (mod p)      // (3A - u^4)/(6u)
+9.  x1 = v^2 (mod p)         // v^2
+10. x1 = x - B (mod p)       // v^2 - B
+11. t1 = u4 * c2 (mod p)     // u^4 / 27
+12. t1 = t1 * u2 (mod p)     // u^6 / 27
+13. x1 = x1 - t1 (mod p)     // v^2 - B - u^6/27
+14. x1 = x^c1 (mod p)        // (v^2 - B - u^6/27) ^ (1/3)
+15. t1 = u2 / 3 (mod p)      // u^2 / 3
+16.  x = x + t1 (mod p)      // (v^2 - B - u^6/27) ^ (1/3) + (u^2 / 3)
+17.  y = u * x (mod p)       // ux
+18.  y = y + v (mod p)       // ux + v
+19. Output (x, y)
 ~~~
 
 ### Shallue-Woestijne-Ulas Method {#swu}
@@ -520,9 +521,9 @@ g(x) = x^3 + Ax + B, this algorithm works as follows:
 ~~~
 1.  t = HashToBase(alpha, 0)
 2.  u = HashToBase(alpha, 1)
-3. X1 = u
-4. X2 = (-B / A)(1 + 1 / (t^4 * g(u)^2 + t^2 * g(u)))
-5. X3 = t^3 * g(u)^2  * g(X2)
+3. x1 = u
+4. x2 = (-B / A)(1 + 1 / (t^4 * g(u)^2 + t^2 * g(u)))
+5. x3 = t^3 * g(u)^2  * g(X2)
 6. If g(X1) is square, output (X1, sqrt(g(X1)))
 7. If g(X2) is square, output (X2, sqrt(g(X2)))
 8. Output (X3(t, u), sqrt(g(X3)))

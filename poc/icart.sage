@@ -9,44 +9,44 @@ g = E(0xaa87ca22be8b05378eb1c71ef320ad746e1d3b628ba79b9859f741e082542a385502f25d
 E.set_order(q)
 
 def icart(u):
+    if u == 0:
+        return E(0)
     u = F(u)
     v = (3*A - u^4)//(6*u)
     x = (v^2 - B - u^6/27)^((2*p-1)//3) + u^2/3
     y = u*x + v
     return E(x, y) # raises expection if not on curve
 
+ONE_THIRD = (2 * p - 1) // 3 # in ZZ
+INV_27 = F(27) ^ -1 # in Fp
+
 def icart_slp(u):
     u = F(u)
     u2 = u ^ 2
-    t2 = u2 ^ 2
-    assert t2 == u^4
+    u4 = u2 ^ 2
+    assert u4 == u^4
 
-    v1 = 3 * A
-    v1 = v1 - t2
+    v = 3 * F(A) # over Fp
+    v = v - u4
     t1 = 6 * u
-    t3 = t1 ^ (-1)
-    v = v1 * t3
+    t1 = t1 ^ (-1)
+    v = v * t1
     assert v == (3 * A - u^4) // (6 * u)
 
-    x = v ^ 2
-    x = x - B
-    assert x == (v^2 - B)
+    x1 = v ^ 2
+    x1 = x1 - B
+    assert x1 == (v^2 - B)
 
-    t1 = F(27) ^ (-1)
+    t1 = INV_27 * u4
     t1 = t1 * u2
-    t1 = t1 * t2
     assert t1 == ((u^6) / 27)
     
-    x = x - t1
-    t1 = (2 * p) - 1
-    t1 = t1 / 3
-    assert t1 == ((2*p) - 1) / 3
-
-    x = x ^ t1
-    assert x == ((v^2 - B - u^6/27)^((2*p-1)//3))
+    x1 = x1 - t1
+    x1 = x1 ^ ONE_THIRD
+    assert x1 == ((v^2 - B - u^6/27)^((2*p-1)//3))
     
-    t2 = u2 / 3
-    x = x + t2
+    t1 = u2 / 3
+    x = x1 + t1
     y = u * x
     y = y + v
     return E(x, y)
