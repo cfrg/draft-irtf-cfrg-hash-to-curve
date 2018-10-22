@@ -414,6 +414,11 @@ Algorithms in this document make use of utility functions described below.
 
 - CMOV(a, b, c): If c = 1, return a, else return b.
 
+  Common software implementations of constant-time selects assume c = 1 or c = 0. CMOV
+  may be implemented by computing the desired selector (0 or 1) by ORing all bits of c
+  together. The end result will be either 0 if all bits of c are zero, or 1 if at least
+  one bit of c is 1.
+
 - Legendre(x, p): x^((p-1)/2).
   The Legendre symbol computes whether the value x is a "quadratic
   residue" modulo p, and takes values 1, -1, 0, for when x is a residue,
