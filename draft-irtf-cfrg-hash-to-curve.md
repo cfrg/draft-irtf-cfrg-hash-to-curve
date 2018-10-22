@@ -428,6 +428,15 @@ Algorithms in this document make use of utility functions described below.
 
 - CMOV(a, b, c): If c = 1, return a, else return b.
 
+  Common software implementations of constant-time selects assume c = 1 or c = 0. CMOV
+  may be implemented by computing the desired selector (0 or 1) by ORing all bits of c
+  together. The end result will be either 0 if all bits of c are zero, or 1 if at least
+  one bit of c is 1.
+
+- CTEQ(a, b): Returns a == b.
+  Inputs a and b must be the same length (as bytestrings) and the comparison
+  must be implemented in constant time.
+
 - Legendre(x, p): x^((p-1)/2).
   The Legendre symbol computes whether the value x is a quadratic
   residue modulo p, and takes values 1, -1, 0, for when x is a residue,
@@ -672,8 +681,8 @@ with a point of order 2 is isomorphic to this representation.)
 
 ~~~
 1. r = HashToBase(alpha)
-2. Let u is a quadratic non-residue
-3. v = -A/(1+ur^2)
+2. Let u be a non-square value in Fp
+3. v = -A/(1+ur^ 2)
 4. e = Legendre(v^3+Av^2+Bv)
 5.1. If r != 0, then
 5.2.    x = ev - (1 - e)A/2
@@ -835,7 +844,8 @@ H2C-Curve25519-SHA512-Elligator2-Clear is defined as follows:
   SHA-512 as specified in {{RFC6234}}, and p set to the prime field used in
   Curve25519 (2^255 - 19).
 * HashToCurve is defined to be {#elligator2} with the curve function defined
-  to be the Montgomery form of Curve25519 (y^2 = x^3 + 486662x^2 + x).
+  to be the Montgomery form of Curve25519 (y^2 = x^3 + 486662x^2 + x) and
+  u = 2.
 * The final output is multiplied by the cofactor of Curve25519, 8.
 
 H2C-Curve448-SHA512-Elligator2-Clear is defined as follows:
@@ -846,7 +856,8 @@ H2C-Curve448-SHA512-Elligator2-Clear is defined as follows:
   SHA-512 as specified in {{RFC6234}}, and p set to the prime field used in
   Curve448 (2^448 - 2^224 - 1).
 * HashToCurve is defined to be {#elligator2} with the curve function defined
-  to be the Montgomery form of Curve448 (y^2 = x^3 + 156326x^2 + x).
+  to be the Montgomery form of Curve448 (y^2 = x^3 + 156326x^2 + x) and
+  u = -1.
 * The final output is multiplied by the cofactor of Curve448, 4.
 
 H2C-Curve25519-SHA512-Elligator2-FFSTV is defined as in H2C-Curve25519-SHA-512-Elligator2-Clear
@@ -996,8 +1007,9 @@ This is detailed below.
 ~~~
 
 I2OSP is a function that converts a nonnegative integer to octet string as
-defined in Section 4.1 of {{RFC8017}}, and RS2ECP is a function that converts of a random
-2n-octet string to an EC point as specified in Section 5.1.3 of {{RFC8032}}.
+defined in Section 4.1 of {{RFC8017}}, and RS2ECP(h) = OS2ECP(0x02 || h), where
+OS2ECP is specified in Section 2.3.4 of {{SECG1}}, which converts an input
+string into an EC point.
 
 # Sample Code {#samplecode}
 
