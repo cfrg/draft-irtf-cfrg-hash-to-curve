@@ -419,6 +419,10 @@ Algorithms in this document make use of utility functions described below.
   together. The end result will be either 0 if all bits of c are zero, or 1 if at least
   one bit of c is 1.
 
+- CTEQ(a, b): Returns a == b.
+  Inputs a and b must be the same length (as bytestrings) and the comparison
+  must be implemented in constant time.
+
 - Legendre(x, p): x^((p-1)/2).
   The Legendre symbol computes whether the value x is a "quadratic
   residue" modulo p, and takes values 1, -1, 0, for when x is a residue,
@@ -646,13 +650,11 @@ Steps:
 18.   h3 = h3 + i3 (mod p)
 19.   y1 = h2 ^ ((p + 1) / 4) (mod p)
 20.   y2 = h3 ^ ((p + 1) / 4) (mod p)
-21.    e = ((y1 ^ 2) == h2)   // Constant-time equality
+21.    e = CTEQ(y1 ^ 2, h2)   // Constant-time equality
 22.    x = CMOV(x2, x3, e)    // If e = 1, choose x2, else choose x3
 23.    y = CMOV(y1, y2, e)    // If e = 1, choose y1, else choose y2
 24. Output (x, y)
 ~~~
-
-Note that Step 21 requires a constant-time equality check so as to avoid side channel leaks.
 
 ### Elligator2 Method {#elligator2}
 
