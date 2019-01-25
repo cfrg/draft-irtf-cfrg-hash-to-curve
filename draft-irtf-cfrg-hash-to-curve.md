@@ -445,7 +445,16 @@ where alpha is a message to encode on a curve.
 
 ## Encoding Variants
 
+As a rough style guide for the following, we use (x, y) to be the output
+coordinates of the encoding method. Indexed values, e.g., (x1, y1) are used
+when the algorithm will choose between candidate values.
 
+We use u, v to denote the values in Fp output from HashToBase, and use as
+initial values in the encoding.
+
+We use t1, t2, ..., as reusable temporary variables. For notable variables, we
+will use a distinct name, for ease of debugging purposes when correlating with
+test vectors.
 
 ### Icart Method {#icart}
 
@@ -502,9 +511,9 @@ Steps:
 8.   v = v * t1              // (3A - u^4)/(6u)
 9.  x1 = v^2                 // v^2
 10. x1 = x - B               // v^2 - B
-11. t1 = u4 * c3             // u^4 / 27
-12. t1 = t1 * u2             // u^6 / 27
-13. x1 = x1 - t1             // v^2 - B - u^6/27
+11. u6 = u4 * c3             // u^4 / 27
+12. u6 = u6 * u2             // u^6 / 27
+13. x1 = x1 - u6             // v^2 - B - u^6/27
 14. x1 = x^c1                // (v^2 - B - u^6/27) ^ (1/3)
 15. t1 = u2 * c2             // u^2 / 3
 16.  x = x + t1              // (v^2 - B - u^6/27) ^ (1/3) + (u^2 / 3)
@@ -608,11 +617,11 @@ works for any curve over F_{p^n}, where p = 3 mod 4, including:
 Given curve equation g(x) = x^3 + Ax + B, this algorithm works as follows:
 
 ~~~
-1. t = HashToBase(alpha)
-2. alpha = (-B / A) * (1 + (1 / (t^4 + t^2)))
-3. beta = −t^2 * alpha
-4. If g(alpha) is square, output (alpha, sqrt(g(alpha)))
-5. Output (beta, sqrt(g(beta)))
+1. u = HashToBase(alpha)
+2. x1 = (-B / A) * (1 + (1 / (t^4 + t^2)))
+3. x2 = −t^2 * x1
+4. If g(x1) is square, output (x1, sqrt(g(x1)))
+5. Output (x2, sqrt(g(x2)))
 ~~~
 
 The following procedure implements this algorithm. It outputs a point with
@@ -632,8 +641,8 @@ Output:
 
 Steps:
 
-1.     t = HashToBase(alpha)
-2. alpha = t^2 (mod p)
+1.     u = HashToBase(alpha)
+2.    u2 = u^2 (mod p)
 3. alpha = alpha * -1 (mod p)
 4. right = alpha^2 + alpha (mod p)
 5. right = right^(-1) (mod p)

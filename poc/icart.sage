@@ -46,12 +46,12 @@ def icart_slp(alpha):
     assert x1 == (v^2 - B)
     tv("x1 = \n%s\n", x1, 48)
 
-    t1 = INV_27 * u4
-    t1 = t1 * u2
-    assert t1 == ((u^6) / 27)
-    tv("t1 = \n%s\n", t1, 48)
+    u6 = INV_27 * u4
+    u6 = u6 * u2
+    assert u6 == ((u^6) / 27)
+    tv("u6 = \n%s\n", u6, 48)
     
-    x1 = x1 - t1
+    x1 = x1 - u6
     x1 = x1 ^ ONE_THIRD
     assert x1 == ((v^2 - B - u^6/27)^((2*p-1)//3))
     tv("x1 = \n%s\n", x1, 48)

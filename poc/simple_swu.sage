@@ -9,31 +9,9 @@ B = F(ZZ("5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b", 16)
 E = EllipticCurve([A, B])
 h2c_suite = "H2C-P256-SHA256-SSWU-"
 
-def simple_swu_x(alpha):
-    # t = F(alpha)
-    t = h2b_from_label(h2c_suite, alpha)
-    
-    alpha = -(t^2)
-    frac = (1 / (alpha^2 + alpha))
-    x2 = (-B / A) * (1 + frac)
-    
-    x3 = alpha * x2
-    
-    return x2, x3
-
-def simple_swu_h(alpha):
-    # t = F(alpha)
-    t = h2b_from_label(h2c_suite, alpha)
-    
-    alpha = -(t^2)
-    frac = (1 / (alpha^2 + alpha))
-    x2 = (-B / A) * (1 + frac)
-    
-    x3 = alpha * x2
-    h2 = x2^3 + A * x2 + B
-    h3 = x3^3 + A * x3 + B
-
-    return h2, h3
+A_INV = (A ^ -1)
+B_OVER_A =  - B * A_INV
+ORDER_OVER_2 = (p - 1)/2
 
 # Section 7 of https://link.springer.com/content/pdf/10.1007/978-3-642-14623-7_13.pdf
 def simple_swu(alpha, debug=True):
@@ -121,73 +99,101 @@ def simple_swu_straight(alpha, debug=True):
 
     return E(x, y)
 
-def swu_jac_into_affine(alpha):
-    # t = F(alpha)
-    t = h2b_from_label(h2c_suite, alpha)
 
-    alpha = t^2
-    alpha = alpha * -1
+# def simple_swu_x(alpha):
+#     # t = F(alpha)
+#     t = h2b_from_label(h2c_suite, alpha)
+    
+#     alpha = -(t^2)
+#     frac = (1 / (alpha^2 + alpha))
+#     x2 = (-B / A) * (1 + frac)
+    
+#     x3 = alpha * x2
+    
+#     return x2, x3
 
-    right = alpha^2 + alpha
-    z = A * right
+# def simple_swu_h(alpha):
+#     # t = F(alpha)
+#     t = h2b_from_label(h2c_suite, alpha)
+    
+#     alpha = -(t^2)
+#     frac = (1 / (alpha^2 + alpha))
+#     x2 = (-B / A) * (1 + frac)
+    
+#     x3 = alpha * x2
+#     h2 = x2^3 + A * x2 + B
+#     h3 = x3^3 + A * x3 + B
 
-    X2 = - B * z * (right + 1)
-    X3 = alpha * X2
+#     return h2, h3
 
-    z2 = z^2
-    z4 = z2^2
-    z6 = z4 * z2
 
-    Az4 = A * z4
-    Bz6 = B * z6
+# def swu_jac_into_affine(alpha):
+#     # t = F(alpha)
+#     t = h2b_from_label(h2c_suite, alpha)
 
-    h2 = X2 ^ 3 + Az4 * X2 + Bz6
-    h3 = X3 ^ 3 + Az4 * X3 + Bz6
+#     alpha = t^2
+#     alpha = alpha * -1
 
-    U = - alpha * t * h2
-    T = h2 ^ (p - 1 - (p + 1)/4)
+#     right = alpha^2 + alpha
+#     z = A * right
 
-    Th2 = T * h2
-    TU =  T  * U
+#     X2 = - B * z * (right + 1)
+#     X3 = alpha * X2
 
-    if (T * Th2 == 1):
-        return E(X2/z^2, Th2/z^3)
-    else:
-        return E(X3/z^2, TU/z^3)
+#     z2 = z^2
+#     z4 = z2^2
+#     z6 = z4 * z2
 
-def swu_jac_into_projective(alpha):
-    t = h2b_from_label(h2c_suite, alpha)
-    # t = F(alpha)
+#     Az4 = A * z4
+#     Bz6 = B * z6
 
-    alpha = t^2
-    alpha = alpha * -1
+#     h2 = X2 ^ 3 + Az4 * X2 + Bz6
+#     h3 = X3 ^ 3 + Az4 * X3 + Bz6
 
-    right = alpha^2 + alpha
-    z = A * right
+#     U = - alpha * t * h2
+#     T = h2 ^ (p - 1 - (p + 1)/4)
 
-    X2 = - B * z * (right + 1)
-    X3 = alpha * X2
+#     Th2 = T * h2
+#     TU =  T  * U
 
-    z2 = z^2
-    z4 = z2^2
-    z6 = z4 * z2
+#     if (T * Th2 == 1):
+#         return E(X2/z^2, Th2/z^3)
+#     else:
+#         return E(X3/z^2, TU/z^3)
 
-    Az4 = A * z4
-    Bz6 = B * z6
+# def swu_jac_into_projective(alpha):
+#     t = h2b_from_label(h2c_suite, alpha)
+#     # t = F(alpha)
 
-    h2 = X2 ^ 3 + Az4 * X2 + Bz6
-    h3 = X3 ^ 3 + Az4 * X3 + Bz6
+#     alpha = t^2
+#     alpha = alpha * -1
 
-    U = - alpha * t * h2
-    T = h2 ^ (p - 1 - (p + 1)/4)
+#     right = alpha^2 + alpha
+#     z = A * right
 
-    Th2 = T * h2
-    TU =  T  * U
+#     X2 = - B * z * (right + 1)
+#     X3 = alpha * X2
 
-    if (T * Th2 == 1):
-        return E(X2 * z, Th2, z ^ 3)
-    else:
-        return E(X3 * z, TU, z ^ 3)
+#     z2 = z^2
+#     z4 = z2^2
+#     z6 = z4 * z2
+
+#     Az4 = A * z4
+#     Bz6 = B * z6
+
+#     h2 = X2 ^ 3 + Az4 * X2 + Bz6
+#     h3 = X3 ^ 3 + Az4 * X3 + Bz6
+
+#     U = - alpha * t * h2
+#     T = h2 ^ (p - 1 - (p + 1)/4)
+
+#     Th2 = T * h2
+#     TU =  T  * U
+
+#     if (T * Th2 == 1):
+#         return E(X2 * z, Th2, z ^ 3)
+#     else:
+#         return E(X3 * z, TU, z ^ 3)
 
 if __name__ == "__main__":
     enable_debug()
