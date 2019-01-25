@@ -489,27 +489,27 @@ Steps:
 
 0.1. c1 = (2 * p) - 1
 0.2. c1 = c1 // 3          // c1 = (2p-1)/3 as integer
-0.3  c2 = 3^(-1) (mod p)   // c2 = 1/3 (mod p)
-0.4. c3 = c2^3 (mod p)     // c2 = 1/27 (mod p)
+0.3  c2 = 3^(-1)           // c2 = 1/3 (mod p)
+0.4. c3 = c2^3             // c2 = 1/27 (mod p)
 
 1.   u = HashToBase(alpha)   // {0,1}^* -> Fp
-2.  u2 = u^2 (mod p)         // u^2
-3.  u4 = u2^2 (mod p)        // u^4
-4.   v = 3 * A (mod p)       // 3A in Fp
-5.   v = v - u4 (mod p)      // 3A - u^4
-6.  t1 = 6 * u (mod p)       // 6u
-7.  t1 = t1^(-1) (mod p)     // modular inverse
-8.   v = v * t1 (mod p)      // (3A - u^4)/(6u)
-9.  x1 = v^2 (mod p)         // v^2
-10. x1 = x - B (mod p)       // v^2 - B
-11. t1 = u4 * c3 (mod p)     // u^4 / 27
-12. t1 = t1 * u2 (mod p)     // u^6 / 27
-13. x1 = x1 - t1 (mod p)     // v^2 - B - u^6/27
-14. x1 = x^c1 (mod p)        // (v^2 - B - u^6/27) ^ (1/3)
-15. t1 = u2 * c2 (mod p)     // u^2 / 3
-16.  x = x + t1 (mod p)      // (v^2 - B - u^6/27) ^ (1/3) + (u^2 / 3)
-17.  y = u * x (mod p)       // ux
-18.  y = y + v (mod p)       // ux + v
+2.  u2 = u^2                 // u^2
+3.  u4 = u2^2                // u^4
+4.   v = 3 * A               // 3A in Fp
+5.   v = v - u4              // 3A - u^4
+6.  t1 = 6 * u               // 6u
+7.  t1 = t1^(-1)             // modular inverse
+8.   v = v * t1              // (3A - u^4)/(6u)
+9.  x1 = v^2                 // v^2
+10. x1 = x - B               // v^2 - B
+11. t1 = u4 * c3             // u^4 / 27
+12. t1 = t1 * u2             // u^6 / 27
+13. x1 = x1 - t1             // v^2 - B - u^6/27
+14. x1 = x^c1                // (v^2 - B - u^6/27) ^ (1/3)
+15. t1 = u2 * c2             // u^2 / 3
+16.  x = x + t1              // (v^2 - B - u^6/27) ^ (1/3) + (u^2 / 3)
+17.  y = u * x               // ux
+18.  y = y + v               // ux + v
 19. Output (x, y)
 ~~~
 
@@ -558,41 +558,41 @@ Output:
 
 Steps:
 
-0.1   c1 = A^(-1)  //
+0.1   c1 = A^(-1)  // 1 / A (mod p)
 0.2   c1 = -B * c0 // c1 = -B/A (mod p)
 
-1.    u = HashToBase(alpha, 0)   // {0,1}^* -> Fp
-2.    v = HashToBase(alpha, 1)   // {0,1}^* -> Fp
-3.   x1 = v           // x1 = v
+1.    u = HashToBase(alpha, 0)  // {0,1}^* -> Fp
+2.    v = HashToBase(alpha, 1)  // {0,1}^* -> Fp
+3.   x1 = v                     // x1 = v
 4.   gv = v^3
 5.   gv = gv + (A * v)
-6.   gv = gv + B      // gv = g(v)
-7.  gx1 = gv
+6.   gv = gv + B                // gv = g(v)
+7.  gx1 = gv                    // gx1 = g(x1)
 8.   u2 = u^2
 9.   u4 = u2^2
-10.  t1 = gv * u2
+10.  t1 = u2 * gv               // t1 = u^2 * g(v)
 11.  t2 = t1^2
 12.  t2 = t2 + t1
 13.  t2 = t2^(-1)
 14.  n1 = 1 + t2
-15.  x2 = c1 * n1
+15.  x2 = c1 * n1               // x2 = -B/A * (1 + 1/(t1^2 + t1))
 16. gx2 = x2^3
 17.  t2 = A * x2
 18. gx2 = gx2 + t2
-19. gx2 = gx2 + B // gx2 = g(x2)
-20.  x3 = x2 * t1 // x3 = x2 * u^2 * g(v)
+19. gx2 = gx2 + B               // gx2 = g(x2)
+20.  x3 = x2 * t1               // x3 = x2 * u^2 * g(v)
 21. gx3 = x3^3
 22. gx3 = gx3 + (A * x3)
-23. gx3 = gx3 + B     // gx3 = g(X3(t, u))
-24.  l1 = gx1^((p - 1) / 2) // Legendre(gx1)
-25.  l2 = gx2^((p - 1) / 2) // Legendre(gx2)
-26.  y1 = gx1^(1/2) // TODO: Specify square root properly
-27.  y2 = gx2^(1/2) // TODO: Specify square root properly
-28.  y3 = gx3^(1/2) // TODO: Specify square root properly
+23. gx3 = gx3 + B               // gx3 = g(X3(t, u))
+24.  l1 = gx1^((p - 1) / 2)     // Legendre(gx1)
+25.  l2 = gx2^((p - 1) / 2)     // Legendre(gx2)
+26.  y1 = gx1^(1/2)             // TODO: Specify square root properly
+27.  y2 = gx2^(1/2)             // TODO: Specify square root properly
+28.  y3 = gx3^(1/2)             // TODO: Specify square root properly
 29. if l1 == 1:
-30.   Output (x1, y1)
+30.     Output (x1, y1)
 31. if l2 == 1:
-32.   Output (x2, y2)
+32.     Output (x2, y2)
 33. Output (x3, y3)
 ~~~
 
