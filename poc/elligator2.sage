@@ -20,7 +20,7 @@ def curve25519(x):
 
 
 def elligator2(alpha):
-    r = h2b_from_ciphersuite(alpha, 0, "H2C-Curve25519-SHA512-Elligator2-Clear")
+    r = h2b_from_label(alpha, 0, "H2C-Curve25519-SHA512-Elligator2-Clear")
 
     # u is a fixed nonsquare value, eg -1 if p==3 mod 4.
     u = F(2) # F(2)
@@ -48,7 +48,7 @@ def curve25519_straight(x):
     return t
 
 def elligator2_straight(alpha):
-    r = h2b_from_ciphersuite(alpha, 0, "H2C-Curve25519-SHA512-Elligator2-Clear")
+    r = h2b_from_label(alpha, 0, "H2C-Curve25519-SHA512-Elligator2-Clear")
 
     u = F(2) # F(2)
     assert(not u.is_square())
@@ -93,7 +93,7 @@ def elligator2_legendre(alpha):
 
     return E(u, curve25519(u).square_root())
 
-inputs = [1, 7, 13, 1<<7, 1<<8, 1<<64, 1<<64-1, p-1, p+1]
+inputs = ["", "test", "\x00\x00\x00\x00\x00"]
 tts = [(alpha, elligator2(alpha), elligator2_legendre(alpha), elligator2_legendre_ct(alpha)) for alpha in inputs]
 
 for pair in tts:

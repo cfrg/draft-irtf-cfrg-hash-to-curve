@@ -28,8 +28,8 @@ def U(t, u):
     return t^3 * g(u)^2 * g(x2(t, u))
 
 def swu(alpha):
-    (t, _) = h2b_from_ciphersuite(alpha, 0, "H2C-P256-SHA512-SWU-")
-    (u, _) = h2b_from_ciphersuite(alpha, 1, "H2C-P256-SHA512-SWU-")
+    (t, _) = h2b_from_label(alpha, 0, "H2C-P256-SHA512-SWU-")
+    (u, _) = h2b_from_label(alpha, 1, "H2C-P256-SHA512-SWU-")
 
     x1v = x1(t, u)
     x2v = x2(t, u)
@@ -52,8 +52,8 @@ def swu(alpha):
 B_OVER_A =  - B * (A ^ -1)
 
 def swu_straight(alpha):
-    (t, _) = h2b_from_ciphersuite(alpha, 0, "H2C-P256-SHA512-SWU-")
-    (u, _) = h2b_from_ciphersuite(alpha, 1, "H2C-P256-SHA512-SWU-")
+    (t, _) = h2b_from_label(alpha, 0, "H2C-P256-SHA512-SWU-")
+    (u, _) = h2b_from_label(alpha, 1, "H2C-P256-SHA512-SWU-")
 
     t2 = t^2
     t4 = t2^2

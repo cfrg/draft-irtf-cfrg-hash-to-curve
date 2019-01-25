@@ -11,7 +11,7 @@ h2c_suite = "H2C-P256-SHA256-SSWU-"
 
 def simple_swu_x(alpha):
     # t = F(alpha)
-    t = h2b_from_ciphersuite(alpha, 0, h2c_suite)
+    t = h2b_from_label(alpha, 0, h2c_suite)
     
     alpha = -(t^2)
     frac = (1 / (alpha^2 + alpha))
@@ -23,7 +23,7 @@ def simple_swu_x(alpha):
 
 def simple_swu_h(alpha):
     # t = F(alpha)
-    t = h2b_from_ciphersuite(alpha, 0, h2c_suite)
+    t = h2b_from_label(alpha, 0, h2c_suite)
     
     alpha = -(t^2)
     frac = (1 / (alpha^2 + alpha))
@@ -38,19 +38,19 @@ def simple_swu_h(alpha):
 # Section 7 of https://link.springer.com/content/pdf/10.1007/978-3-642-14623-7_13.pdf
 def simple_swu(alpha, debug=True):
     # t = F(alpha)
-    t = h2b_from_ciphersuite(alpha, 0, h2c_suite)
-    tv(debug, "t = \n%s\n", t, 32)
+    t = h2b_from_label(alpha, 0, h2c_suite)
+    tv("t = \n%s\n", t, 32)
 
     d1 = t^4 - t^2 
-    tv(debug, "d1 = \n%s\n", d1, 32)  
+    tv("d1 = \n%s\n", d1, 32)  
     n1 = (1 / d1)
-    tv(debug, "n1 = \n%s\n", n1, 32)
+    tv("n1 = \n%s\n", n1, 32)
 
     x2 = (-B / A) * (1 + n1)
-    tv(debug, "x2 = \n%s\n", x2, 32)
+    tv("x2 = \n%s\n", x2, 32)
     
     x3 = -t^2 * x2
-    tv(debug, "x3 = \n%s\n", x3, 32)
+    tv("x3 = \n%s\n", x3, 32)
     h2 = x2^3 + A * x2 + B
     h3 = x3^3 + A * x3 + B
 
@@ -61,27 +61,26 @@ def simple_swu(alpha, debug=True):
 
 def simple_swu_straight(alpha, debug=True):
     orig = alpha
-    t = h2b_from_ciphersuite(alpha, 0, h2c_suite)
-    # t = F(from_hex_string("55 ea a2 b9 b5 0a 47 c1 7a 2f 8c a6 18 d9 3f a9 31 06 39 5c 41 bb 27 b5 34 63 a3 ba 9c df 57 6d"))
-    tv(debug, "t = \n%s\n", t, 32)
+    t = h2b_from_label(alpha, 0, h2c_suite)
+    tv("t = \n%s\n", t, 32)
     alpha = t^2
     alpha = alpha * -1
-    tv(debug, "alpha = \n%s\n", alpha, 32)
+    tv("alpha = \n%s\n", alpha, 32)
     
     right = alpha^2 + alpha
     right = right^(-1)
     right = right + 1
-    tv(debug, "right = \n%s\n", right, 32)
+    tv("right = \n%s\n", right, 32)
 
     left = B * -1
     left = left / A
-    tv(debug, "left = \n%s\n", left, 32)
+    tv("left = \n%s\n", left, 32)
 
 
     x2 = left * right
-    tv(debug, "x2 = \n%s\n", x2, 32)
+    tv("x2 = \n%s\n", x2, 32)
     x3 = alpha * x2
-    tv(debug, "x3 = \n%s\n", x3, 32)
+    tv("x3 = \n%s\n", x3, 32)
 
     tx2, tx3 = simple_swu_x(orig)
     assert tx2 == x2
@@ -91,13 +90,13 @@ def simple_swu_straight(alpha, debug=True):
     i2 = x2 * A
     i2 = i2 + B
     h2 = h2 + i2
-    tv(debug, "h2 = \n%s\n", h2, 32)
+    tv("h2 = \n%s\n", h2, 32)
 
     h3 = x3 ^ 3
     i3 = x3 * A
     i3 = i3 + B
     h3 = h3 + i3
-    tv(debug, "h3 = \n%s\n", h3, 32)
+    tv("h3 = \n%s\n", h3, 32)
 
     th2, th3 = simple_swu_h(orig)
     assert h2 == th2
@@ -117,14 +116,14 @@ def simple_swu_straight(alpha, debug=True):
     if e != 1:
         y = y2
 
-    tv(debug, "x = \n%s\n", x, 32)
-    tv(debug, "y = \n%s\n", y, 32)
+    tv("x = \n%s\n", x, 32)
+    tv("y = \n%s\n", y, 32)
 
     return E(x, y)
 
 def swu_jac_into_affine(alpha):
     # t = F(alpha)
-    t = h2b_from_ciphersuite(alpha, 0, h2c_suite)
+    t = h2b_from_label(alpha, 0, h2c_suite)
 
     alpha = t^2
     alpha = alpha * -1
@@ -157,7 +156,7 @@ def swu_jac_into_affine(alpha):
         return E(X3/z^2, TU/z^3)
 
 def swu_jac_into_projective(alpha):
-    t = h2b_from_ciphersuite(alpha, 0, h2c_suite)
+    t = h2b_from_label(alpha, 0, h2c_suite)
     # t = F(alpha)
 
     alpha = t^2
@@ -190,10 +189,10 @@ def swu_jac_into_projective(alpha):
     else:
         return E(X3 * z, TU, z ^ 3)
 
-
-# inputs = ["", "test", "\x00\x00\x00\x00\x00"]
-inputs = ["testvector"]
-for t in inputs:
-    print("Input: \n%s\n" % t)
-    pA, pB = simple_swu(t), simple_swu_straight(t)
-    assert pA == pB
+if __name__ == "__main__":
+    enable_debug()
+    inputs = ["", "test", "\x00\x00\x00\x00\x00"]
+    for t in inputs:
+        print("Input: \n%s (\"%s\")\n" % (pprint_hex(t), t))
+        pA, pB = simple_swu(t), simple_swu_straight(t)
+        assert pA == pB
