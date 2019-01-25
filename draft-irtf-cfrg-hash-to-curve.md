@@ -1209,7 +1209,7 @@ Output:
 
 Steps:
 
-  1. t1 = H("h2c" || label || I2OSP(i, 4) || x)
+  1. t1 = H("h2c" || label || I2OSP(i, 4) || I2OSP(len(x), 4) || x)
   2. t2 = OS2IP(t1)
   3. y = t2 (mod p)
   4. Output y
