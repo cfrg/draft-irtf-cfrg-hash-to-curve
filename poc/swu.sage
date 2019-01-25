@@ -15,32 +15,32 @@ E = EllipticCurve(F, [A, B])
 def g(x):
     return F(x^3 + A*x + B)
 
-def x1(t, u):
-    return u
+def x1(u, v):
+    return v
 
-def x2(t, u):
-    return (-B / A) * (1 + (1 / (t^4 * g(u)^2 + t^2 * g(u))))
+def x2(u, v):
+    return (-B / A) * (1 + (1 / (u^4 * g(v)^2 + u^2 * g(v))))
 
-def x3(t, u):
-    return t^2 * g(u) * x2(t, u)
+def x3(u, v):
+    return u^2 * g(v) * x2(u, v)
 
-def U(t, u):
-    return t^3 * g(u)^2 * g(x2(t, u))
+def U(u, v):
+    return u^3 * g(v)^2 * g(x2(u, v))
 
 def swu(alpha):
-    (t, _) = h2b_from_label(alpha, 0, "H2C-P256-SHA512-SWU-")
-    (u, _) = h2b_from_label(alpha, 1, "H2C-P256-SHA512-SWU-")
+    u = h2b_from_label("H2C-P256-SHA512-SWU-", alpha, 0)
+    v = h2b_from_label("H2C-P256-SHA512-SWU-", alpha, 1)
 
-    x1v = x1(t, u)
-    x2v = x2(t, u)
-    x3v = x3(t, u)
-    Utu = U(t, u)^2
+    x1v = x1(u, v)
+    x2v = x2(u, v)
+    x3v = x3(u, v)
+    u2 = U(u, v)^2
 
     #print x1v, x2v, x3v
     #print g(x1v), g(x2v), g(x3v)
     
     assert is_square(Utu)
-    assert Utu == (g(x1v) * g(x2v) * g(x3v))
+    assert u2 == (g(x1v) * g(x2v) * g(x3v))
 
     if is_square(g(x1v)):
         return E(x1v, sqrt(g(x1v)))
@@ -49,55 +49,75 @@ def swu(alpha):
     else:
         return E(x3v, sqrt(g(x3v)))
 
-B_OVER_A =  - B * (A ^ -1)
+A_INV = (A ^ -1)
+B_OVER_A =  - B * A_INV
+ORDER_OVER_2 = (p - 1)/2
 
 def swu_straight(alpha):
-    (t, _) = h2b_from_label(alpha, 0, "H2C-P256-SHA512-SWU-")
-    (u, _) = h2b_from_label(alpha, 1, "H2C-P256-SHA512-SWU-")
+    u = h2b_from_label("H2C-P256-SHA512-SWU-", alpha, 0)
+    v = h2b_from_label("H2C-P256-SHA512-SWU-", alpha, 1)
 
-    t2 = t^2
-    t4 = t2^2
-    gu = u^3
-    r1 = A * u
-    gu = gu + r1
-    gu = gu + B
-    assert gu == g(u) # g(u)
+    x1 = v
+    tv("x1 = \n%s\n", x1, 32)
+    gv = v ^ 3 # gv = v^3
+    t1 = A * v
+    gv = gv + t1
+    gv = gv + B # gv = v^3 + Av + B = g(v)
+    tv("gv = \n%s\n", gv, 32)
+    assert gv == g(v) # g(v)
 
-    x1 = u
-    gx1 = gu # x = u, g(x) = g(u)
+    gx1 = gv # x = u, g(x) = g(u)
+    tv("gx1 = \n%s\n", gx1, 32)
 
-    d1 = gu
-    d1 = d1 * t2 # t^2 g(u)
-    d2 = d1^2 # t^4 g(u)^2
-    d3 = d1 + d2
-    d3 = d3^(-1)
-    n1 = 1 + d3
-    assert n1 == 1 + 1 / (t^4 * g(u)^2 + t^2 * g(u))
+    u2 = u^2
+    u4 = u2^2
+    t1 = gv * u2
+    t2 = t1^2
+    t2 = t1 + t2
+    t2 = t1^(-1)
+    n1 = 1 + t2
+    tv("n1 = \n%s\n", n1, 32)
+    assert n1 == 1 + 1 / (u^4 * g(v)^2 + u^2 * g(v))
+
     x2 = B_OVER_A * n1
+    tv("x2 = \n%s\n", x2, 32)
+
     gx2 = x2^3
-    r2 = A * x2
-    gx2 = gx2 + r2 # x^3 + Ax
-    gx2 = gx2 + B # g(x2)
+    t2 = A * x2
+    gx2 = gx2 + t2
+    gx2 = gx2 + B # gx2 = x2^3 + Ax2 + B = g(x2)
+    tv("gx2 = \n%s\n", gx2, 32)
+    assert gx2 == g(x2) # g(v)
 
-    x3 = x2 * d1 # t^2 g(u) * x2
+
+    x3 = x2 * t1 # x2 * u^2 g(v)
+    tv("x3 = \n%s\n", x3, 32)
+
     gx3 = x3^3
-    r2 = A * x3
-    gx3 = gx3 + r2 # (t^2 g(u))^3 *x^3 +  A * t^2 g(u) * x
-    gx3 = gx3 + B # g(x3)
-
-    assert gx2 == g(x2)
+    t2 = A * x3
+    gx3 = gx3 + t2
+    gx2 = gx2 + B # gx3 = x3^3 + Ax3 + B = g(x3)
+    tv("gx3 = \n%s\n", gx3, 32)
     assert gx3 == g(x3)
 
-    l1 = gx1^((p - 1) / 2)
+    l1 = gx1^ORDER_OVER_2
     if l1 == 1:
-        return E(x1, sqrt(gx1))
+        y1 = sqrt(gx1)
+        tv("y1 = \n%s\n", y1, 32)
+        return E(x1, y1)
 
-    l2 = gx2^((p - 1) / 2)
+    l2 = gx2^ORDER_OVER_2
     if l2 == 1:
-        return E(x2, sqrt(gx2))
+        y2 = sqrt(gx2)
+        tv("y2 = \n%s\n", y2, 32)
+        return E(x2, y2)
 
-    return E(x3, sqrt(gx3))
+    y3 = sqrt(gx3)
+    tv("y3 = \n%s\n", y3, 32)
+    return E(x3, y3)
 
-inputs = ["", "test", "\x00\x00\x00\x00\x00"]
-for t in inputs:
-    assert swu(t) == swu_straight(t)
+if __name__ == "__main__":
+    enable_debug()
+    inputs = ["", "test", "\x00\x00\x00\x00\x00"]
+    for t in inputs:
+        assert swu(t) == swu_straight(t)

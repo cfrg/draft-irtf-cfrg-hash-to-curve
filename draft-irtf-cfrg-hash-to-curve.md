@@ -445,6 +445,8 @@ where alpha is a message to encode on a curve.
 
 ## Encoding Variants
 
+
+
 ### Icart Method {#icart}
 
 The following map2curve_icart(alpha) implements the Icart method from {{Icart09}}.
@@ -488,7 +490,7 @@ Steps:
 0.1. c1 = (2 * p) - 1
 0.2. c1 = c1 // 3          // c1 = (2p-1)/3 as integer
 0.3  c2 = 3^(-1) (mod p)   // c2 = 1/3 (mod p)
-0.4. c3 = c2^3 (mod p)     // c2 = 1/27 (mod p)  
+0.4. c3 = c2^3 (mod p)     // c2 = 1/27 (mod p)
 
 1.   u = HashToBase(alpha)   // {0,1}^* -> Fp
 2.  u2 = u^2 (mod p)         // u^2
@@ -520,20 +522,20 @@ This algorithm works for any curve over F_{p^n}. Given curve equation
 g(x) = x^3 + Ax + B, this algorithm works as follows:
 
 ~~~
-1.  t = HashToBase(alpha, 0)
-2.  u = HashToBase(alpha, 1)
-3. x1 = u
-4. x2 = (-B / A)(1 + 1 / (t^4 * g(u)^2 + t^2 * g(u)))
-5. x3 = t^3 * g(u)^2  * g(X2)
-6. If g(X1) is square, output (X1, sqrt(g(X1)))
-7. If g(X2) is square, output (X2, sqrt(g(X2)))
-8. Output (X3(t, u), sqrt(g(X3)))
+1.  u = HashToBase(alpha, 0)
+2.  v = HashToBase(alpha, 1)
+3. x1 = v
+4. x2 = (-B / A)(1 + 1 / (u^4 * g(v)^2 + u^2 * g(v)))
+5. x3 = u^3 * g(v)^2  * g(x2)
+6. If g(x1) is square, output (x1, sqrt(g(x1)))
+7. If g(x2) is square, output (x2, sqrt(g(x2)))
+8. Output (x3, sqrt(g(x3)))
 ~~~
 
 The algorithm relies on the following equality:
 
 ~~~
-t^3 * g(u)^2  * g(X2(t, u)) = g(X1(t, u)) * g(X2(t, u)) * g(X3(t, u))
+u^3 * g(v)^2  * g(x2) = g(x1) * g(x2) * g(x3)
 ~~~
 
 The algorithm computes three candidate points, constructed such that at least one of
@@ -556,44 +558,42 @@ Output:
 
 Steps:
 
-1.    t = HashToBase(alpha, 0)   // {0,1}^* -> Fp
-2.    u = HashToBase(alpha, 1)   // {0,1}^* -> Fp
-3.   t2 = t^2
-4.   t4 = t2^2
-5.   gu = u^3
-6.   gu = gu + (A * u)
-7.   gu = gu + B      // gu = g(u)
-8.   x1 = u           // x1 = X1(t, u) = u
-9.   x2 = B * -1
-10.  x2 = x2 / A
-11.  gx1 = x1^3
-12.  gx1 = gx1 + (A * x1)
-13.  gx1 = gx1 + B    // gx1 = g(X1(t, u))
-14.  d1 = gu^2
-15.  d1 = d1 * t4
-16.  d2 = t2 * gu
-17.  d3 = d1 + d2
-18.  d3 = d3^(-1)
-19.  n1 = 1 + d3
-20.  x2 = x2 * n1     // x2 = X2(t, u)
-21. gx2 = x2^3
-22. gx2 = gx2 + (A * x2)
-23. gx2 = gx2 + B     // gx2 = g(X2(t, u))
-24.  x3 = t2 * gu
-25.  x3 = x3 * x2     // x3 = X3(t, u)
-26. gx3 = x3^3
-27. gx3 = gx3 + (A * x3)
-28. gx3 = gx3 + B     // gx3 = g(X3(t, u))
-29.  l1 = gx1^((p - 1) / 2)
-30.  l2 = gx2^((p - 1) / 2)
-31.  s1 = gx1^(1/2)
-32.  s2 = gx2^(1/2)
-33.  s3 = gx3^(1/2)
-34. if l1 == 1:
-35.   Output (x1, s1)
-36. if l2 == 1:
-37.   Output (x2, s2)
-38. Output (x3, s3)
+0.1   c1 = A^(-1)  //
+0.2   c1 = -B * c0 // c1 = -B/A (mod p)
+
+1.    u = HashToBase(alpha, 0)   // {0,1}^* -> Fp
+2.    v = HashToBase(alpha, 1)   // {0,1}^* -> Fp
+3.   x1 = v           // x1 = v
+4.   gv = v^3
+5.   gv = gv + (A * v)
+6.   gv = gv + B      // gv = g(v)
+7.  gx1 = gv
+8.   u2 = u^2
+9.   u4 = u2^2
+10.  t1 = gv * u2
+11.  t2 = t1^2
+12.  t2 = t2 + t1
+13.  t2 = t2^(-1)
+14.  n1 = 1 + t2
+15.  x2 = c1 * n1
+16. gx2 = x2^3
+17.  t2 = A * x2
+18. gx2 = gx2 + t2
+19. gx2 = gx2 + B // gx2 = g(x2)
+20.  x3 = x2 * t1 // x3 = x2 * u^2 * g(v)
+21. gx3 = x3^3
+22. gx3 = gx3 + (A * x3)
+23. gx3 = gx3 + B     // gx3 = g(X3(t, u))
+24.  l1 = gx1^((p - 1) / 2) // Legendre(gx1)
+25.  l2 = gx2^((p - 1) / 2) // Legendre(gx2)
+26.  y1 = gx1^(1/2) // TODO: Specify square root properly
+27.  y2 = gx2^(1/2) // TODO: Specify square root properly
+28.  y3 = gx3^(1/2) // TODO: Specify square root properly
+29. if l1 == 1:
+30.   Output (x1, y1)
+31. if l2 == 1:
+32.   Output (x2, y2)
+33. Output (x3, y3)
 ~~~
 
 ### Simplified SWU Method {#simple-swu}

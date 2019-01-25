@@ -11,7 +11,7 @@ h2c_suite = "H2C-P256-SHA256-SSWU-"
 
 def simple_swu_x(alpha):
     # t = F(alpha)
-    t = h2b_from_label(alpha, 0, h2c_suite)
+    t = h2b_from_label(h2c_suite, alpha)
     
     alpha = -(t^2)
     frac = (1 / (alpha^2 + alpha))
@@ -23,7 +23,7 @@ def simple_swu_x(alpha):
 
 def simple_swu_h(alpha):
     # t = F(alpha)
-    t = h2b_from_label(alpha, 0, h2c_suite)
+    t = h2b_from_label(h2c_suite, alpha)
     
     alpha = -(t^2)
     frac = (1 / (alpha^2 + alpha))
@@ -38,7 +38,7 @@ def simple_swu_h(alpha):
 # Section 7 of https://link.springer.com/content/pdf/10.1007/978-3-642-14623-7_13.pdf
 def simple_swu(alpha, debug=True):
     # t = F(alpha)
-    t = h2b_from_label(alpha, 0, h2c_suite)
+    t = h2b_from_label(h2c_suite, alpha)
     tv("t = \n%s\n", t, 32)
 
     d1 = t^4 - t^2 
@@ -61,7 +61,7 @@ def simple_swu(alpha, debug=True):
 
 def simple_swu_straight(alpha, debug=True):
     orig = alpha
-    t = h2b_from_label(alpha, 0, h2c_suite)
+    t = h2b_from_label(h2c_suite, alpha)
     tv("t = \n%s\n", t, 32)
     alpha = t^2
     alpha = alpha * -1
@@ -123,7 +123,7 @@ def simple_swu_straight(alpha, debug=True):
 
 def swu_jac_into_affine(alpha):
     # t = F(alpha)
-    t = h2b_from_label(alpha, 0, h2c_suite)
+    t = h2b_from_label(h2c_suite, alpha)
 
     alpha = t^2
     alpha = alpha * -1
@@ -156,7 +156,7 @@ def swu_jac_into_affine(alpha):
         return E(X3/z^2, TU/z^3)
 
 def swu_jac_into_projective(alpha):
-    t = h2b_from_label(alpha, 0, h2c_suite)
+    t = h2b_from_label(h2c_suite, alpha)
     # t = F(alpha)
 
     alpha = t^2

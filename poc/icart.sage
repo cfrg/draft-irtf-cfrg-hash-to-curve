@@ -11,7 +11,7 @@ E = EllipticCurve([F(A), F(B)])
 h2c_suite = "H2C-P384-SHA512-Icart-"
 
 def icart(alpha):
-    u = h2b_from_label(alpha, 0, h2c_suite)
+    u = h2b_from_label(h2c_suite, alpha)
     if u == 0:
         return E(0)
     u = F(u)
@@ -25,7 +25,7 @@ INV_3 = F(3) ^ -1 # in Fp
 INV_27 = F(27) ^ -1 # in Fp
 
 def icart_slp(alpha):
-    u = h2b_from_label(alpha, 0, h2c_suite)
+    u = h2b_from_label(h2c_suite, alpha)
     tv("u  = \n%s\n", u, 48)
     u = F(u)
     u2 = u ^ 2

@@ -20,7 +20,7 @@ def curve25519(x):
 
 
 def elligator2(alpha):
-    r = h2b_from_label(alpha, 0, "H2C-Curve25519-SHA512-Elligator2-Clear")
+    r = h2b_from_label("H2C-Curve25519-SHA512-Elligator2-Clear", alpha)
 
     # u is a fixed nonsquare value, eg -1 if p==3 mod 4.
     u = F(2) # F(2)
@@ -48,7 +48,7 @@ def curve25519_straight(x):
     return t
 
 def elligator2_straight(alpha):
-    r = h2b_from_label(alpha, 0, "H2C-Curve25519-SHA512-Elligator2-Clear")
+    r = h2b_from_label("H2C-Curve25519-SHA512-Elligator2-Clear", alpha)
 
     u = F(2) # F(2)
     assert(not u.is_square())

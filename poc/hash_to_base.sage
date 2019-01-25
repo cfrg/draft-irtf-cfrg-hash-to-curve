@@ -26,7 +26,7 @@ def format_input(label, i, x):
     return "h2b%s%s%s%s" % (label, i, i2osp(len(x), 4), x)
 
 # Helper function to extract parameters from a ciphersuite label
-def h2b_from_label(x, i, label):
+def h2b_from_label(label, x, i=0):
     cs = Ciphersuite(label)
     H = cs.hash.H
     hbits = cs.hash.hbits()
