@@ -237,7 +237,9 @@ normative:
         ins: National Institute for Standards and Technology
         org:
 
-
+  github-repo:
+    title: draft-irtf-cfrg-hash-to-curve | github.com
+    target: https://github.com/chris-wood/draft-irtf-cfrg-hash-to-curve/
 
 --- abstract
 
@@ -431,6 +433,11 @@ Algorithms in this document make use of utility functions described below.
   the equation x^((p-1)/2). For clarity, we will generally prefer using the
   formula directly, and annotate the usage with this definition.
 
+- sqrt(x, p):
+    Computing square roots should be done in constant time where possible.
+    If p = 3 (mod 4): sqrt(x, p) := x^(p+1)/4
+    Else: (TODO) use a suitable constant-time Tonelli-Shanks variant
+
 # Deterministic Encodings
 
 ## Interface
@@ -455,6 +462,10 @@ initial values in the encoding.
 We use t1, t2, ..., as reusable temporary variables. For notable variables, we
 will use a distinct name, for ease of debugging purposes when correlating with
 test vectors.
+
+The code presented here corresponds to the example Sage code found at
+{{github-repo}}. Which is additionally used to generate intermediate test
+vectors. The Sage code is also checked against the hacspec implementation.
 
 ### Icart Method {#icart}
 
@@ -494,12 +505,14 @@ Output:
 
   (x, y) - a point in E
 
-Steps:
+Precomputations:
 
-0.1. c1 = (2 * p) - 1
-0.2. c1 = c1 // 3          // c1 = (2p-1)/3 as integer
-0.3  c2 = 3^(-1)           // c2 = 1/3 (mod p)
-0.4. c3 = c2^3             // c2 = 1/27 (mod p)
+1. c1 = (2 * p) - 1
+2. c1 = c1 / 3               // c1 = (2p-1)/3 as integer
+3  c2 = 3^(-1)               // c2 = 1/3 (mod p)
+4. c3 = c2^3                 // c3 = 1/27 (mod p)
+
+Steps:
 
 1.   u = HashToBase(alpha)   // {0,1}^* -> Fp
 2.  u2 = u^2                 // u^2
@@ -528,7 +541,7 @@ The Shallue-Woestijne-Ulas (SWU) method, originated in part by
 Shallue and Woestijne {{SW06}} and later simplified and extended by Ulas {{SWU07}},
 deterministically encodes an arbitrary string to a point on a curve.
 This algorithm works for any curve over F_{p^n}. Given curve equation
-g(x) = x^3 + Ax + B, this algorithm works as follows:
+g(x) = x^3 + Ax + B, with A non-zero, this algorithm works as follows:
 
 ~~~
 1.  u = HashToBase(alpha, 0)
@@ -565,10 +578,13 @@ Output:
 
   (x, y) - a point in E
 
-Steps:
+Precomputations:
 
-0.1   c1 = A^(-1)  // 1 / A (mod p)
-0.2   c1 = -B * c0 // c1 = -B/A (mod p)
+1.  c1 = A^(-1)                 // 1 / A (mod p)
+2.  c1 = -B * c0                // c1 = -B/A (mod p)
+3.  c2 = (p - 1)/2              // Order over 2 as an integer
+
+Steps:
 
 1.    u = HashToBase(alpha, 0)  // {0,1}^* -> Fp
 2.    v = HashToBase(alpha, 1)  // {0,1}^* -> Fp
@@ -578,31 +594,30 @@ Steps:
 6.   gv = gv + B                // gv = g(v)
 7.  gx1 = gv                    // gx1 = g(x1)
 8.   u2 = u^2
-9.   u4 = u2^2
-10.  t1 = u2 * gv               // t1 = u^2 * g(v)
-11.  t2 = t1^2
-12.  t2 = t2 + t1
-13.  t2 = t2^(-1)
-14.  n1 = 1 + t2
-15.  x2 = c1 * n1               // x2 = -B/A * (1 + 1/(t1^2 + t1))
-16. gx2 = x2^3
-17.  t2 = A * x2
-18. gx2 = gx2 + t2
-19. gx2 = gx2 + B               // gx2 = g(x2)
-20.  x3 = x2 * t1               // x3 = x2 * u^2 * g(v)
-21. gx3 = x3^3
-22. gx3 = gx3 + (A * x3)
-23. gx3 = gx3 + B               // gx3 = g(X3(t, u))
-24.  l1 = gx1^((p - 1) / 2)     // Legendre(gx1)
-25.  l2 = gx2^((p - 1) / 2)     // Legendre(gx2)
-26.  y1 = gx1^(1/2)             // TODO: Specify square root properly
-27.  y2 = gx2^(1/2)             // TODO: Specify square root properly
-28.  y3 = gx3^(1/2)             // TODO: Specify square root properly
-29. if l1 == 1:
-30.     Output (x1, y1)
-31. if l2 == 1:
-32.     Output (x2, y2)
-33. Output (x3, y3)
+9.   t1 = u2 * gv               // t1 = u^2 * g(v)
+10.  t2 = t1^2
+11.  t2 = t2 + t1
+12.  t2 = t2^(-1)               // t2 = 1/(u^4*g(v)^2 + u^2*g(v))
+13.  n1 = 1 + t2
+14.  x2 = c1 * n1               // x2 = -B/A * (1 + 1/(t1^2 + t1))
+15. gx2 = x2^3
+16.  t2 = A * x2
+17. gx2 = gx2 + t2
+18. gx2 = gx2 + B               // gx2 = g(x2)
+19.  x3 = x2 * t1               // x3 = x2 * u^2 * g(v)
+20. gx3 = x3^3
+21. gx3 = gx3 + (A * x3)
+22. gx3 = gx3 + B               // gx3 = g(X3(t, u))
+23.  l1 = gx1^c2                // Legendre(gx1)
+24.  l2 = gx2^c2                // Legendre(gx2)
+25.  y1 = gx1^(1/2)             // TODO: Specify square root properly
+26.  y2 = gx2^(1/2)             // TODO: Specify square root properly
+27.  y3 = gx3^(1/2)             // TODO: Specify square root properly
+28.  x  = CMOV(x2, x3, l2)      // If l2 = 1, choose x2, else choose x3
+29.  y  = CMOV(y2, y3, l2)      // If l2 = 1, choose y2, else choose y3
+30.  x  = CMOV(x1, x, l1)       // If l1 = 1, choose x1, else choose x
+31.  y  = CMOV(y1, y, l1)       // If l1 = 1, choose y1, else choose y
+32. Output (x, y)
 ~~~
 
 ### Simplified SWU Method {#simple-swu}
@@ -618,8 +633,8 @@ Given curve equation g(x) = x^3 + Ax + B, this algorithm works as follows:
 
 ~~~
 1. u = HashToBase(alpha)
-2. x1 = (-B / A) * (1 + (1 / (t^4 + t^2)))
-3. x2 = −t^2 * x1
+2. x1 = -B/A * (1 + (1 / (u^4 - u^2)))
+3. x2 = −u^2 * x1
 4. If g(x1) is square, output (x1, sqrt(g(x1)))
 5. Output (x2, sqrt(g(x2)))
 ~~~
@@ -639,32 +654,37 @@ Output:
 
   (x, y) - a point in E
 
+Precomputations:
+
+1.  c1 = A^(-1)                 // 1 / A (mod p)
+2.  c1 = -B * c0                // c1 = -B/A (mod p)
+3.  c2 = (p - 1)/2              // Order over 2 as an integer
+
 Steps:
 
-1.     u = HashToBase(alpha)
-2.    u2 = u^2 (mod p)
-3. alpha = alpha * -1 (mod p)
-4. right = alpha^2 + alpha (mod p)
-5. right = right^(-1) (mod p)
-6. right = right + 1 (mod p)
-7.  left = B * -1 (mod p)
-8.  left = left / A (mod p)
-9.    x2 = left * right (mod p)
-10.   x3 = alpha * x2 (mod p)
-11.   h2 = x2 ^ 3 (mod p)
-12.   i2 = x2 * A (mod p)
-13.   i2 = i2 + B (mod p)
-14.   h2 = h2 + i2 (mod p)
-15.   h3 = x3 ^ 3 (mod p)
-16.   i3 = x3 * A (mod p)
-17.   i3 = i3 + B (mod p)
-18.   h3 = h3 + i3 (mod p)
-19.   y1 = h2 ^ ((p + 1) / 4) (mod p)
-20.   y2 = h3 ^ ((p + 1) / 4) (mod p)
-21.    e = CTEQ(y1 ^ 2, h2)   // Constant-time equality
-22.    x = CMOV(x2, x3, e)    // If e = 1, choose x2, else choose x3
-23.    y = CMOV(y1, y2, e)    // If e = 1, choose y1, else choose y2
-24. Output (x, y)
+1.    u = HashToBase(alpha, 0)  // {0,1}^* -> Fp
+2.   u2 = u^2
+3.   u2 = -u2                   // u2 = -u^2
+4.   u4 = u2^2
+5.   t1 = u4 + u2
+6.   t1 = t1^(-1)
+7.   n1 = 1 + t2                // n1 = 1 + (1 / (u^4 - u^2))
+8.   x1 = c1 * n1               // x1 = -B/A * (1 + (1 / (u^4 - u^2)))
+9.  gx1 = x1 ^ 3
+10.  t1 = A * x1
+11. gx1 = gx1 + t1
+12. gx1 = gx1 + B               // gx1 = x1^3 + Ax1 + B = g(x1)
+13.   x2 = u2 * x1              // x2 = -u^2 * x1
+14.  gx2 = x2^3
+15.   t1 = A * x2
+16.  gx2 = gx2 + 12
+17.  gx2 = gx2 + B              // gx2 = x2^3 + Ax2 + B = g(x2)
+18.   e = gx1^c2
+19   y1 = gx1^(1/2)             // TODO: Specify square root properly
+20   y2 = gx2^(1/2)             // TODO: Specify square root properly
+21.  x  = CMOV(x1, x2, l1)      // If l1 = 1, choose x1, else choose x2
+22.  y  = CMOV(y1, y2, l1)      // If l1 = 1, choose y1, else choose y2
+23. Output (x, y)
 ~~~
 
 ### Elligator2 Method {#elligator2}
@@ -672,18 +692,18 @@ Steps:
 The following map2curve_elligator2(alpha) implements the Elligator2
 method from {{Elligator2}}. This algorithm works for any curve
 with a point of order 2 and j-invariant != 1728. Given curve equation
-y^2 = x(x^2 + Ax + B), i.e., a Montgomery form with (0,0), a point of
+y^2 = g(x) = x(x^2 + Ax + B), i.e., a Montgomery form with (0,0), a point of
 order 2, this algorithm works as shown below. (Note that any curve
 with a point of order 2 is isomorphic to this representation.)
 
 ~~~
-1. r = HashToBase(alpha)
-2. Let u be a non-square value in Fp
-3. v = -A/(1+ur^ 2)
-4. e = Legendre(v^3+Av^2+Bv)
-5.1. If r != 0, then
+1. u = HashToBase(alpha)
+2. Let n be a non-square value in Fp
+3. v = -A/(1 + N*u^2)
+4. e = Legendre(g(v))
+5.1. If u != 0, then
 5.2.    x = ev - (1 - e)A/2
-5.3.    y = -e*sqrt(x^3+Ax^2+x)
+5.3.    y = -e*sqrt(g(x))
 5.4. Else, x=0 and y=0
 6. Output (x,y)
 ~~~
@@ -698,35 +718,45 @@ map2curve_elligator2(alpha)
 Input:
 
   alpha - value to be encoded, an octet string
-
-  u - fixed non-square value in Fp.
+  N - fixed non-square value in Fp.
 
 Output:
 
   (x, y) - a point in E
 
+Precomputations:
+
+1. c1 = (p - 1)/2     // as an integer
+2. c2 = A / 2 (mod p) // in the field
+
 Steps:
 
-1.   r = HashToBase(alpha)
-2.   r = r^2 (mod p)
-3.  nu = r * u (mod p)
-4.   r = nu
-5.   r = r + 1 (mod p)
-6.   r = r^(-1) (mod p)
-7.   v = A * r (mod p)
-8.   v = v * -1 (mod p)   // -A / (1 + ur^2)
-9.  v2 = v^2 (mod p)
-10. v3 = v * v2 (mod p)
-11.  e = v3 + v (mod p)
-12. v2 = v2 * A (mod p)
-13.  e = v2 + e (mod p)
-14.  e = e^((p - 1) / 2)  // = Legendre(e)
-15. nv = v * -1 (mod p)
-16.  v = CMOV(v, nv, e)   // If e = 1, choose v, else choose nv
-17. v2 = CMOV(0, A, e)    // If e = 1, choose 0, else choose A
-18.  x = v - v2 (mod p)
-19.  y = -e*sqrt(x^3+Ax^2+Bx)
-19. Output (x, y)
+1.   u = HashToBase(alpha)
+2.  t1 = u^2
+3.  t1 = N * t1
+4.  t1 = 1 + t1
+5.  t1 = t1^(-1)
+6.   v = A * t1
+7.   v = -v               // v = -A / (1 + N * u^2)
+8.  gv = v + A
+9.  gv = gv * v
+0.  gv = gv + B
+11. gv =  gv * v          // gv = v^3 + Av^2 + Bv
+12.  e = gv^c1            // Legendre(gv)
+13.  x = e*v
+14. ne = -e
+15. t1 = 1 + ne
+16. t1 = t1 * c2
+17.  x = x - t1           // x = ev - (1 - e)*A/2
+18.  y = x + A
+19.  y = y * x
+20.  y = y + B
+21.  y = y * x
+22.  y = sqrt(y)          // TODO: Specify square root properly
+23.  y = y * ne            // y = -e * sqrt(x^3 + Ax^2 + Bx)
+24.  x = CMOV(0, x, 1-u)
+25.  y = CMOV(0, y, 1-u)
+26. Output (x, y)
 ~~~
 
 Elligator2 can be simplified with projective coordinates.
@@ -841,7 +871,7 @@ H2C-Curve25519-SHA512-Elligator2-Clear is defined as follows:
   Curve25519 (2^255 - 19).
 * HashToCurve is defined to be {#elligator2} with the curve function defined
   to be the Montgomery form of Curve25519 (y^2 = x^3 + 486662x^2 + x) and
-  u = 2.
+  N = 2.
 * The final output is multiplied by the cofactor of Curve25519, 8.
 
 H2C-Curve448-SHA512-Elligator2-Clear is defined as follows:
@@ -853,7 +883,7 @@ H2C-Curve448-SHA512-Elligator2-Clear is defined as follows:
   Curve448 (2^448 - 2^224 - 1).
 * HashToCurve is defined to be {#elligator2} with the curve function defined
   to be the Montgomery form of Curve448 (y^2 = x^3 + 156326x^2 + x) and
-  u = -1.
+  N = -1.
 * The final output is multiplied by the cofactor of Curve448, 4.
 
 H2C-Curve25519-SHA512-Elligator2-FFSTV is defined as in H2C-Curve25519-SHA-512-Elligator2-Clear

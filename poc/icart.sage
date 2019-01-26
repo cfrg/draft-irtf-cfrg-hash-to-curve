@@ -92,10 +92,10 @@ def icart_jac_into_projective(t):
 
 
 if __name__ == "__main__":
-    enable_debug()
+    # enable_debug()
     inputs = ["", "test", "\x00\x00\x00\x00\x00"]
     tts = [(u, icart(u), icart_slp(u)) for u in inputs]
 
     for pair in tts:
-        assert pair[1] == pair[2]
+        assert pair[1] == pair[2], pair
     # icart_slp("testvector")

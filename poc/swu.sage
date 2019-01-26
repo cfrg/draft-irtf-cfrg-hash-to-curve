@@ -34,13 +34,7 @@ def swu(alpha):
     x1v = x1(u, v)
     x2v = x2(u, v)
     x3v = x3(u, v)
-    u2 = U(u, v)^2
-
-    #print x1v, x2v, x3v
-    #print g(x1v), g(x2v), g(x3v)
-    
-    assert is_square(Utu)
-    assert u2 == (g(x1v) * g(x2v) * g(x3v))
+    assert U(u, v)^2 == (g(x1v) * g(x2v) * g(x3v))
 
     if is_square(g(x1v)):
         return E(x1v, sqrt(g(x1v)))
@@ -70,11 +64,10 @@ def swu_straight(alpha):
     tv("gx1 = \n%s\n", gx1, 32)
 
     u2 = u^2
-    u4 = u2^2
     t1 = gv * u2
     t2 = t1^2
     t2 = t1 + t2
-    t2 = t1^(-1)
+    t2 = t2^(-1)
     n1 = 1 + t2
     tv("n1 = \n%s\n", n1, 32)
     assert n1 == 1 + 1 / (u^4 * g(v)^2 + u^2 * g(v))
@@ -96,7 +89,7 @@ def swu_straight(alpha):
     gx3 = x3^3
     t2 = A * x3
     gx3 = gx3 + t2
-    gx2 = gx2 + B # gx3 = x3^3 + Ax3 + B = g(x3)
+    gx3 = gx3 + B # gx3 = x3^3 + Ax3 + B = g(x3)
     tv("gx3 = \n%s\n", gx3, 32)
     assert gx3 == g(x3)
 
@@ -117,7 +110,7 @@ def swu_straight(alpha):
     return E(x3, y3)
 
 if __name__ == "__main__":
-    enable_debug()
+    # enable_debug()
     inputs = ["", "test", "\x00\x00\x00\x00\x00"]
     for t in inputs:
         assert swu(t) == swu_straight(t)
