@@ -525,7 +525,7 @@ g(x) = x^3 + Ax + B, this algorithm works as follows:
 5. X3 = t^3 * g(u)^2  * g(X2)
 6. If g(X1) is square, output (X1, sqrt(g(X1)))
 7. If g(X2) is square, output (X2, sqrt(g(X2)))
-8. Output (X3(t, u), sqrt(g(X3)))
+8. Output (X3, sqrt(g(X3)))
 ~~~
 
 The algorithm relies on the following equality:
