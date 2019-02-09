@@ -170,6 +170,7 @@ normative:
   SimpleSWU:
     title: Efficient Indifferentiable Hashing into Ordinary Elliptic Curves
     venue: Annual Cryptology Conference (pp. 237-254). Springer, Berlin, Heidelberg.
+    target: https://eprint.iacr.org/2009/340.pdf
     authors:
       -
         ins: Eric Brier
@@ -560,7 +561,7 @@ g(x) = x^3 + Ax + B, with A non-zero, this algorithm works as follows:
 2.  v = HashToBase(alpha, 1)
 3. x1 = v
 4. x2 = (-B / A)(1 + 1 / (u^4 * g(v)^2 + u^2 * g(v)))
-5. x3 = u^3 * g(v)^2  * g(x2)
+5. x3 = u^2 * g(v)^2  * g(x2)
 6. If g(x1) is square, output (x1, sqrt(g(x1)))
 7. If g(x2) is square, output (x2, sqrt(g(x2)))
 8. Output (x3, sqrt(g(x3)))
