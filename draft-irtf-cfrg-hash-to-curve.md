@@ -369,7 +369,7 @@ coordinate.
 ### Random Oracle {#term-rom}
 
 It is often the case that the output of the encoding function {{term-encoding}}
-should be (a) distributed uniformly at random on the elliptic curve and (b) invertible.
+should be (a) distributed uniformly at random on the elliptic curve and (b) non-invertible.
 That is, there is no discernible relation existing between outputs that can be computed
 based on the inputs. Moreover, given such an encoding function F from bitstrings to
 points on the curve, as well as a single point y, it is computationally intractable to
@@ -398,14 +398,16 @@ such as a Supersingular, pairing-friendly curve.)
 The following table lists recommended algorithms for different curves and mappings. To select
 a suitable algorithm, choose the mapping associated with the target curve. For example,
 Elligator2 is the recommended injective encoding function for Curve25519, whereas Simple SWU
-is the recommended injective encoding for P-256.
+is the recommended injective encoding for P-256. Similarly, the FFSTV Random Oracle construction
+described in {{ffstv}} composed with Elligator2 should be used for Random Oracle mappings
+to Curve25519. When the required mapping is not clear, applications SHOULD use a Random Oracle.
 
 | Curve  | Inj. Encoding | Random Oracle |
 |--------|---------------|------|
-| P-256 | Simple SWU {{simple-swu}} | FFSTV(SWU)
-| P-384 | Icart {{icart}} | FFSTV(Icart)
-| Curve25519 | Elligator2 {{elligator2}} | FFSTV(Elligator2)
-| Curve448 | Elligator2 {{elligator2}} | FFSTV(Elligator2)s
+| P-256 | Simple SWU {{simple-swu}} | FFSTV(SWU) {{ffstv}}
+| P-384 | Icart {{icart}} | FFSTV(Icart) {{ffstv}}
+| Curve25519 | Elligator2 {{elligator2}} | FFSTV(Elligator2) {{ffstv}}
+| Curve448 | Elligator2 {{elligator2}} | FFSTV(Elligator2) {{ffstv}}
 
 # Utility Functions {#utility}
 
