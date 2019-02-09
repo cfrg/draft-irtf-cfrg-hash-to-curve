@@ -43,13 +43,6 @@ def elligator2(alpha):
 def legendre_ct(x):
     return x^((p - 1) / 2)
 
-# def curve25519_straight(x):
-#     t = x + A # x + A
-#     t = t * x # x^2 + Ax
-#     t = t + B # x^2 + Ax + B
-#     t = t * x # x^3 + Ax^2 + Bx
-#     return t
-
 A_OVER_2 = F(A / 2)
 ORDER_OVER_2 = (p - 1)/2
 

@@ -241,6 +241,11 @@ normative:
     title: draft-irtf-cfrg-hash-to-curve | github.com
     target: https://github.com/chris-wood/draft-irtf-cfrg-hash-to-curve/
 
+  SAGE:
+    title: SageMath, the Sage Mathematics Software System
+    authors: The Sage Developers
+    target: https://www.sagemath.org
+
 --- abstract
 
 This document specifies a number of algorithms that may be used to encode or hash an
@@ -453,8 +458,10 @@ where alpha is a message to encode on a curve.
 ## Encoding Variants
 
 As a rough style guide for the following, we use (x, y) to be the output
-coordinates of the encoding method. Indexed values, e.g., (x1, y1) are used
-when the algorithm will choose between candidate values.
+coordinates of the encoding method. Indexed values are used when the algorithm
+will choose between candidate values. For example, the SWU algorithm computes
+three candidates (x1, y1), (x2, y2), (x3, y3), from which the final (x, y)
+output is chosen via constant time comparison operations.
 
 We use u, v to denote the values in Fp output from HashToBase, and use as
 initial values in the encoding.
@@ -463,7 +470,7 @@ We use t1, t2, ..., as reusable temporary variables. For notable variables, we
 will use a distinct name, for ease of debugging purposes when correlating with
 test vectors.
 
-The code presented here corresponds to the example Sage code found at
+The code presented here corresponds to the example Sage {{SAGE}} code found at
 {{github-repo}}. Which is additionally used to generate intermediate test
 vectors. The Sage code is also checked against the hacspec implementation.
 
@@ -610,9 +617,9 @@ Steps:
 22. gx3 = gx3 + B               // gx3 = g(X3(t, u))
 23.  l1 = gx1^c2                // Legendre(gx1)
 24.  l2 = gx2^c2                // Legendre(gx2)
-25.  y1 = gx1^(1/2)             // TODO: Specify square root properly
-26.  y2 = gx2^(1/2)             // TODO: Specify square root properly
-27.  y3 = gx3^(1/2)             // TODO: Specify square root properly
+25.  y1 = sqrt(gx1)             // TODO: Specify square root properly
+26.  y2 = sqrt(gx2)             // TODO: Specify square root properly
+27.  y3 = sqrt(gx3)             // TODO: Specify square root properly
 28.  x  = CMOV(x2, x3, l2)      // If l2 = 1, choose x2, else choose x3
 29.  y  = CMOV(y2, y3, l2)      // If l2 = 1, choose y2, else choose y3
 30.  x  = CMOV(x1, x, l1)       // If l1 = 1, choose x1, else choose x
@@ -680,8 +687,8 @@ Steps:
 16.  gx2 = gx2 + 12
 17.  gx2 = gx2 + B              // gx2 = x2^3 + Ax2 + B = g(x2)
 18.   e = gx1^c2
-19   y1 = gx1^(1/2)             // TODO: Specify square root properly
-20   y2 = gx2^(1/2)             // TODO: Specify square root properly
+19   y1 = sqrt(gx1)             // TODO: Specify square root properly
+20   y2 = sqrt(gx2)             // TODO: Specify square root properly
 21.  x  = CMOV(x1, x2, l1)      // If l1 = 1, choose x1, else choose x2
 22.  y  = CMOV(y1, y2, l1)      // If l1 = 1, choose y1, else choose y2
 23. Output (x, y)
@@ -696,16 +703,18 @@ y^2 = g(x) = x(x^2 + Ax + B), i.e., a Montgomery form with (0,0), a point of
 order 2, this algorithm works as shown below. (Note that any curve
 with a point of order 2 is isomorphic to this representation.)
 
+The algorithm additionally requires a constant value N, which is a non-square
+in Fp. For performance this is typically small in absolute size.
+
 ~~~
 1. u = HashToBase(alpha)
-2. Let n be a non-square value in Fp
-3. v = -A/(1 + N*u^2)
-4. e = Legendre(g(v))
-5.1. If u != 0, then
-5.2.    x = ev - (1 - e)A/2
-5.3.    y = -e*sqrt(g(x))
-5.4. Else, x=0 and y=0
-6. Output (x,y)
+2. v = -A/(1 + N*u^2)
+3. e = Legendre(g(v))
+4.1. If u != 0, then
+4.2.    x = ev - (1 - e)A/2
+4.3.    y = -e*sqrt(g(x))
+4.4. Else, x=0 and y=0
+5. Output (x,y)
 ~~~
 
 Here, e is the Legendre symbol defined as in {{utility}}.
