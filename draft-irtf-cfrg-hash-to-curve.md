@@ -345,6 +345,10 @@ We can instead use an injective encoding from {0, 1}^L to E, with
 `L < log2(n)- 1`,  which is a bijection over a subset of points in E.
 This ensures that encoded plaintext messages can be recovered.
 
+In practice, encodings are commonly injective and invertible. Injective encodings map
+inputs to a subset of points on the curve. Invertible encodings allow computation of
+input bitstrings given a point on the curve.
+
 ### Serialization {#term-serialization}
 
 A related issue is the conversion of an elliptic curve point to a bitstring. We
@@ -365,10 +369,12 @@ coordinate.
 ### Random Oracle {#term-rom}
 
 It is often the case that the output of the encoding function {{term-encoding}}
-should be distributed uniformly at random on the elliptic curve. That is, there
-is no discernible relation existing between outputs that can be computed based
-on the inputs. In practice, this requirement stems from needing a random oracle
-which outputs elliptic curve points:  one way to construct this is by first
+should be (a) distributed uniformly at random on the elliptic curve and (b) invertible.
+That is, there is no discernible relation existing between outputs that can be computed
+based on the inputs. Moreover, given such an encoding function F from bitstrings to
+points on the curve, as well as a single point y, it is computationally intractable to
+produce an input x that maps to a y via F. In practice, these requirement stem from needing
+a random oracle which outputs elliptic curve points:  one way to construct this is by first
 taking a regular random oracle, operating entirely on bitstrings, and applying a
 suitable encoding function to the output.
 
@@ -384,25 +390,22 @@ and are less efficient than hash and encode methods.
 
 # Algorithm Recommendations {#recommendations}
 
-The following table lists algorithms recommended by use-case:
+In practice, two types of mappings are common: (1) Injective encodings, as can be used to
+construct a PRF as F(k, m) = k\*H(m), and (2) Random Oracles, as required by PAKEs {{BMP00}},
+BLS {{BLS01}}, and IBE {{BF01}}. (Some applications, such as IBE, have additional requirements,
+such as a Supersingular, pairing-friendly curve.)
 
-| Application       | Requirement   | Additional Details
-|-------------------|---------------|---------|
-| SPEKE {{Jablon96}}| Naive         | H(x)*G |
-| PAKE  {{BMP00}}   | Random Oracle |   -    |
-| BLS {{BLS01}}     | Random Oracle            |    -   |
-| IBE {{BF01}}      | Random Oracle | Supersingular, pairing-friendly curve |
-| PRF | Injective encoding | F(k, m) = k*H(m) |
-
-To find the suitable algorithm, lookup the requirement from above, with
-the chosen curve in the below:
+The following table lists recommended algorithms for different curves and mappings. To select
+a suitable algorithm, choose the mapping associated with the target curve. For example,
+Elligator2 is the recommended injective encoding function for Curve25519, whereas Simple SWU
+is the recommended injective encoding for P-256.
 
 | Curve  | Inj. Encoding | Random Oracle |
 |--------|---------------|------|
 | P-256 | Simple SWU {{simple-swu}} | FFSTV(SWU)
 | P-384 | Icart {{icart}} | FFSTV(Icart)
-| Curve25519 | Elligator2 {{elligator2}} | ...
-| Curve448 | Elligator2 {{elligator2}} | ...
+| Curve25519 | Elligator2 {{elligator2}} | FFSTV(Elligator2)
+| Curve448 | Elligator2 {{elligator2}} | FFSTV(Elligator2)s
 
 # Utility Functions {#utility}
 
@@ -1026,7 +1029,7 @@ of F in GF(p) is sufficient to define a point on one of E or E^d.
 In cases where constant time execution is not required, the so-called
 try-and-increment method may be appropriate. As discussion in {{introduction}},
 this variant works by hashing input m using a standard hash function ("Hash"), e.g., SHA256, and
-then checking to see if the resulting point E(m, f(m)), for curve function f, belongs on E.
+then checking to see if the resulting point (m, f(m)), for curve function f, belongs on E.
 This is detailed below.
 
 ~~~
