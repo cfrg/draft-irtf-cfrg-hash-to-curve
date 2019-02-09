@@ -5,10 +5,10 @@
 Network Working Group                                           S. Scott
 Internet-Draft                                              Cornell Tech
 Intended status: Informational                               N. Sullivan
-Expires: April 26, 2019                                       Cloudflare
+Expires: August 12, 2019                                      Cloudflare
                                                                  C. Wood
                                                               Apple Inc.
-                                                        October 23, 2018
+                                                       February 08, 2019
 
 
                        Hashing to Elliptic Curves
@@ -34,11 +34,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on April 26, 2019.
+   This Internet-Draft will expire on August 12, 2019.
 
 Copyright Notice
 
-   Copyright (c) 2018 IETF Trust and the persons identified as the
+   Copyright (c) 2019 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Scott, et al.            Expires April 26, 2019                 [Page 1]
+Scott, et al.            Expires August 12, 2019                [Page 1]
 
-Internet-Draft                hash-to-curve                 October 2018
+Internet-Draft                hash-to-curve                February 2019
 
 
 Table of Contents
@@ -72,36 +72,36 @@ Table of Contents
    5.  Deterministic Encodings . . . . . . . . . . . . . . . . . . .   7
      5.1.  Interface . . . . . . . . . . . . . . . . . . . . . . . .   7
      5.2.  Encoding Variants . . . . . . . . . . . . . . . . . . . .   7
-       5.2.1.  Icart Method  . . . . . . . . . . . . . . . . . . . .   7
+       5.2.1.  Icart Method  . . . . . . . . . . . . . . . . . . . .   8
        5.2.2.  Shallue-Woestijne-Ulas Method . . . . . . . . . . . .   9
        5.2.3.  Simplified SWU Method . . . . . . . . . . . . . . . .  11
        5.2.4.  Elligator2 Method . . . . . . . . . . . . . . . . . .  12
-     5.3.  Cost Comparison . . . . . . . . . . . . . . . . . . . . .  14
-   6.  Random Oracles  . . . . . . . . . . . . . . . . . . . . . . .  14
-     6.1.  Interface . . . . . . . . . . . . . . . . . . . . . . . .  14
-     6.2.  General Construction (FFSTV13)  . . . . . . . . . . . . .  14
-   7.  Curve Transformations . . . . . . . . . . . . . . . . . . . .  15
-   8.  Ciphersuites  . . . . . . . . . . . . . . . . . . . . . . . .  15
-   9.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  17
-   10. Security Considerations . . . . . . . . . . . . . . . . . . .  17
-   11. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  17
-   12. Contributors  . . . . . . . . . . . . . . . . . . . . . . . .  17
-   13. Normative References  . . . . . . . . . . . . . . . . . . . .  17
-   Appendix A.  Related Work . . . . . . . . . . . . . . . . . . . .  19
-     A.1.  Probabilistic Encoding  . . . . . . . . . . . . . . . . .  20
-     A.2.  Naive Encoding  . . . . . . . . . . . . . . . . . . . . .  20
-     A.3.  Deterministic Encoding  . . . . . . . . . . . . . . . . .  21
-     A.4.  Supersingular Curves  . . . . . . . . . . . . . . . . . .  21
-     A.5.  Twisted Variants  . . . . . . . . . . . . . . . . . . . .  21
-   Appendix B.  Try-and-Increment Method . . . . . . . . . . . . . .  22
-   Appendix C.  Sample Code  . . . . . . . . . . . . . . . . . . . .  22
-     C.1.  Icart Method  . . . . . . . . . . . . . . . . . . . . . .  22
-     C.2.  Shallue-Woestijne-Ulas Method . . . . . . . . . . . . . .  23
-     C.3.  Simplified SWU Method . . . . . . . . . . . . . . . . . .  25
-     C.4.  Elligator2 Method . . . . . . . . . . . . . . . . . . . .  25
-     C.5.  HashToBase  . . . . . . . . . . . . . . . . . . . . . . .  26
-       C.5.1.  Considerations  . . . . . . . . . . . . . . . . . . .  27
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  28
+     5.3.  Cost Comparison . . . . . . . . . . . . . . . . . . . . .  15
+   6.  Random Oracles  . . . . . . . . . . . . . . . . . . . . . . .  15
+     6.1.  Interface . . . . . . . . . . . . . . . . . . . . . . . .  15
+     6.2.  General Construction (FFSTV13)  . . . . . . . . . . . . .  15
+   7.  Curve Transformations . . . . . . . . . . . . . . . . . . . .  16
+   8.  Ciphersuites  . . . . . . . . . . . . . . . . . . . . . . . .  16
+   9.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  18
+   10. Security Considerations . . . . . . . . . . . . . . . . . . .  18
+   11. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  18
+   12. Contributors  . . . . . . . . . . . . . . . . . . . . . . . .  18
+   13. Normative References  . . . . . . . . . . . . . . . . . . . .  18
+   Appendix A.  Related Work . . . . . . . . . . . . . . . . . . . .  21
+     A.1.  Probabilistic Encoding  . . . . . . . . . . . . . . . . .  21
+     A.2.  Naive Encoding  . . . . . . . . . . . . . . . . . . . . .  21
+     A.3.  Deterministic Encoding  . . . . . . . . . . . . . . . . .  22
+     A.4.  Supersingular Curves  . . . . . . . . . . . . . . . . . .  22
+     A.5.  Twisted Variants  . . . . . . . . . . . . . . . . . . . .  22
+   Appendix B.  Try-and-Increment Method . . . . . . . . . . . . . .  23
+   Appendix C.  Sample Code  . . . . . . . . . . . . . . . . . . . .  23
+     C.1.  Icart Method  . . . . . . . . . . . . . . . . . . . . . .  23
+     C.2.  Shallue-Woestijne-Ulas Method . . . . . . . . . . . . . .  25
+     C.3.  Simplified SWU Method . . . . . . . . . . . . . . . . . .  27
+     C.4.  Elligator2 Method . . . . . . . . . . . . . . . . . . . .  27
+     C.5.  HashToBase  . . . . . . . . . . . . . . . . . . . . . . .  28
+       C.5.1.  Considerations  . . . . . . . . . . . . . . . . . . .  29
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  30
 
 
 
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Scott, et al.            Expires April 26, 2019                 [Page 2]
+Scott, et al.            Expires August 12, 2019                [Page 2]
 
-Internet-Draft                hash-to-curve                 October 2018
+Internet-Draft                hash-to-curve                February 2019
 
 
 1.  Introduction
@@ -165,9 +165,9 @@ Internet-Draft                hash-to-curve                 October 2018
 
 
 
-Scott, et al.            Expires April 26, 2019                 [Page 3]
+Scott, et al.            Expires August 12, 2019                [Page 3]
 
-Internet-Draft                hash-to-curve                 October 2018
+Internet-Draft                hash-to-curve                February 2019
 
 
    An elliptic curve E is specified by its equation, and a finite field
@@ -221,9 +221,9 @@ Internet-Draft                hash-to-curve                 October 2018
 
 
 
-Scott, et al.            Expires April 26, 2019                 [Page 4]
+Scott, et al.            Expires August 12, 2019                [Page 4]
 
-Internet-Draft                hash-to-curve                 October 2018
+Internet-Draft                hash-to-curve                February 2019
 
 
    recovered through a decoding procedure.  An encoding may be
@@ -277,9 +277,9 @@ Internet-Draft                hash-to-curve                 October 2018
 
 
 
-Scott, et al.            Expires April 26, 2019                 [Page 5]
+Scott, et al.            Expires August 12, 2019                [Page 5]
 
-Internet-Draft                hash-to-curve                 October 2018
+Internet-Draft                hash-to-curve                February 2019
 
 
    A random oracle onto an elliptic curve can also be instantiated using
@@ -333,9 +333,9 @@ Internet-Draft                hash-to-curve                 October 2018
 
 
 
-Scott, et al.            Expires April 26, 2019                 [Page 6]
+Scott, et al.            Expires August 12, 2019                [Page 6]
 
-Internet-Draft                hash-to-curve                 October 2018
+Internet-Draft                hash-to-curve                February 2019
 
 
       function first hashes x, converts the result to an integer, and
@@ -366,6 +366,10 @@ Internet-Draft                hash-to-curve                 October 2018
       x^((p-1)/2).  For clarity, we will generally prefer using the
       formula directly, and annotate the usage with this definition.
 
+   o  sqrt(x, p): Computing square roots should be done in constant time
+      where possible.  If p = 3 (mod 4): sqrt(x, p) := x^(p+1)/4 Else:
+      (TODO) use a suitable constant-time Tonelli-Shanks variant
+
 5.  Deterministic Encodings
 
 5.1.  Interface
@@ -379,6 +383,33 @@ Internet-Draft                hash-to-curve                 October 2018
 
 5.2.  Encoding Variants
 
+   As a rough style guide for the following, we use (x, y) to be the
+   output coordinates of the encoding method.  Indexed values are used
+   when the algorithm will choose between candidate values.  For
+
+
+
+Scott, et al.            Expires August 12, 2019                [Page 7]
+
+Internet-Draft                hash-to-curve                February 2019
+
+
+   example, the SWU algorithm computes three candidates (x1, y1), (x2,
+   y2), (x3, y3), from which the final (x, y) output is chosen via
+   constant time comparison operations.
+
+   We use u, v to denote the values in Fp output from HashToBase, and
+   use as initial values in the encoding.
+
+   We use t1, t2, ..., as reusable temporary variables.  For notable
+   variables, we will use a distinct name, for ease of debugging
+   purposes when correlating with test vectors.
+
+   The code presented here corresponds to the example Sage [SAGE] code
+   found at [github-repo].  Which is additionally used to generate
+   intermediate test vectors.  The Sage code is also checked against the
+   hacspec implementation.
+
 5.2.1.  Icart Method
 
    The following map2curve_icart(alpha) implements the Icart method from
@@ -386,13 +417,6 @@ Internet-Draft                hash-to-curve                 October 2018
    p^n = 2 mod 3 (or p = 2 mod 3 and for odd n), including:
 
    o  P384
-
-
-
-Scott, et al.            Expires April 26, 2019                 [Page 7]
-
-Internet-Draft                hash-to-curve                 October 2018
-
 
    o  Curve1174
 
@@ -421,33 +445,9 @@ Internet-Draft                hash-to-curve                 October 2018
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Scott, et al.            Expires April 26, 2019                 [Page 8]
+Scott, et al.            Expires August 12, 2019                [Page 8]
 
-Internet-Draft                hash-to-curve                 October 2018
+Internet-Draft                hash-to-curve                February 2019
 
 
   map2curve_icart(alpha)
@@ -460,30 +460,34 @@ Internet-Draft                hash-to-curve                 October 2018
 
     (x, y) - a point in E
 
+  Precomputations:
+
+  1. c1 = (2 * p) - 1
+  2. c1 = c1 / 3               // c1 = (2p-1)/3 as integer
+  3  c2 = 3^(-1)               // c2 = 1/3 (mod p)
+  4. c3 = c2^3                 // c3 = 1/27 (mod p)
+
   Steps:
 
   1.   u = HashToBase(alpha)   // {0,1}^* -> Fp
-  2.  u2 = u^2 (mod p)         // u^2
-  3.  t2 = u2^2 (mod p)        // u^4
-  4.  v1 = 3 * A (mod p)       // 3A in Fp
-  5.  v1 = v1 - t2 (mod p)     // 3A - u^4
-  6.  t1 = 6 * u (mod p)       // 6u
-  7.  t3 = t1 ^ (-1) (mod p)   // modular inverse
-  8.   v = v1 * t3 (mod p)     // (3A - u^4)/(6u)
-  9.   x = v^2 (mod p)         // v^2
-  10.  x = x - B (mod p)       // v^2 - B
-  11. t1 = 27 ^ (-1) (mod p)   // 1/27
-  12. t1 = t1 * u2 (mod p)     // u^4 / 27
-  13. t1 = t1 * t2 (mod p)     // u^6 / 27
-  14.  x = x - t1 (mod p)      // v^2 - B - u^6/27
-  15. t1 = (2 * p) - 1         // 2p - 1 in ZZ
-  16. t1 = t1 / 3              // (2p - 1)/3 in ZZ
-  17.  x = x^t1 (mod p)        // (v^2 - B - u^6/27) ^ (1/3)
-  18. t2 = u2 / 3 (mod p)      // u^2 / 3
-  19.  x = x + t2 (mod p)      // (v^2 - B - u^6/27) ^ (1/3) + (u^2 / 3)
-  20.  y = u * x (mod p)       // ux
-  21.  y = y + v (mod p)       // ux + v
-  22. Output (x, y)
+  2.  u2 = u^2                 // u^2
+  3.  u4 = u2^2                // u^4
+  4.   v = 3 * A               // 3A in Fp
+  5.   v = v - u4              // 3A - u^4
+  6.  t1 = 6 * u               // 6u
+  7.  t1 = t1^(-1)             // modular inverse
+  8.   v = v * t1              // (3A - u^4)/(6u)
+  9.  x1 = v^2                 // v^2
+  10. x1 = x - B               // v^2 - B
+  11. u6 = u4 * c3             // u^4 / 27
+  12. u6 = u6 * u2             // u^6 / 27
+  13. x1 = x1 - u6             // v^2 - B - u^6/27
+  14. x1 = x^c1                // (v^2 - B - u^6/27) ^ (1/3)
+  15. t1 = u2 * c2             // u^2 / 3
+  16.  x = x + t1              // (v^2 - B - u^6/27) ^ (1/3) + (u^2 / 3)
+  17.  y = u * x               // ux
+  18.  y = y + v               // ux + v
+  19. Output (x, y)
 
 5.2.2.  Shallue-Woestijne-Ulas Method
 
@@ -491,33 +495,29 @@ Internet-Draft                hash-to-curve                 October 2018
    Shallue and Woestijne [SW06] and later simplified and extended by
    Ulas [SWU07], deterministically encodes an arbitrary string to a
    point on a curve.  This algorithm works for any curve over F_{p^n}.
-   Given curve equation g(x) = x^3 + Ax + B, this algorithm works as
-   follows:
+   Given curve equation g(x) = x^3 + Ax + B, with A non-zero, this
+   algorithm works as follows:
 
 
 
 
-
-
-
-
-Scott, et al.            Expires April 26, 2019                 [Page 9]
+Scott, et al.            Expires August 12, 2019                [Page 9]
 
-Internet-Draft                hash-to-curve                 October 2018
+Internet-Draft                hash-to-curve                February 2019
 
 
-   1.  t = HashToBase(alpha, 0)
-   2.  u = HashToBase(alpha, 1)
-   3. X1 = u
-   4. X2 = (-B / A)(1 + 1 / (t^4 * g(u)^2 + t^2 * g(u)))
-   5. X3 = t^3 * g(u)^2  * g(X2)
-   6. If g(X1) is square, output (X1, sqrt(g(X1)))
-   7. If g(X2) is square, output (X2, sqrt(g(X2)))
-   8. Output (X3(t, u), sqrt(g(X3)))
+   1.  u = HashToBase(alpha, 0)
+   2.  v = HashToBase(alpha, 1)
+   3. x1 = v
+   4. x2 = (-B / A)(1 + 1 / (u^4 * g(v)^2 + u^2 * g(v)))
+   5. x3 = u^3 * g(v)^2  * g(x2)
+   6. If g(x1) is square, output (x1, sqrt(g(x1)))
+   7. If g(x2) is square, output (x2, sqrt(g(x2)))
+   8. Output (x3, sqrt(g(x3)))
 
    The algorithm relies on the following equality:
 
-   t^3 * g(u)^2  * g(X2(t, u)) = g(X1(t, u)) * g(X2(t, u)) * g(X3(t, u))
+   u^3 * g(v)^2  * g(x2) = g(x1) * g(x2) * g(x3)
 
    The algorithm computes three candidate points, constructed such that
    at least one of them lies on the curve.
@@ -526,64 +526,64 @@ Internet-Draft                hash-to-curve                 October 2018
    point with affine coordinates.  It requires knowledge of A and B, the
    constants from the curve Weierstrass form.
 
-   map2curve_swu(alpha)
+ map2curve_swu(alpha)
 
-   Input:
+ Input:
 
-     alpha - value to be hashed, an octet string
+   alpha - value to be hashed, an octet string
 
-   Output:
+ Output:
 
-     (x, y) - a point in E
+   (x, y) - a point in E
 
-   Steps:
+ Precomputations:
 
-   1.    t = HashToBase(alpha, 0)   // {0,1}^* -> Fp
-   2.    u = HashToBase(alpha, 1)   // {0,1}^* -> Fp
-   3.   t2 = t^2
-   4.   t4 = t2^2
-   5.   gu = u^3
-   6.   gu = gu + (A * u)
-   7.   gu = gu + B      // gu = g(u)
-   8.   x1 = u           // x1 = X1(t, u) = u
-   9.   x2 = B * -1
-   10.  x2 = x2 / A
-   11.  gx1 = x1^3
-   12.  gx1 = gx1 + (A * x1)
-   13.  gx1 = gx1 + B    // gx1 = g(X1(t, u))
-   14.  d1 = gu^2
-   15.  d1 = d1 * t4
-   16.  d2 = t2 * gu
+ 1.  c1 = A^(-1)                 // 1 / A (mod p)
+ 2.  c1 = -B * c0                // c1 = -B/A (mod p)
+ 3.  c2 = (p - 1)/2              // Order over 2 as an integer
+
+ Steps:
+
+ 1.    u = HashToBase(alpha, 0)  // {0,1}^* -> Fp
+ 2.    v = HashToBase(alpha, 1)  // {0,1}^* -> Fp
+ 3.   x1 = v                     // x1 = v
+ 4.   gv = v^3
+ 5.   gv = gv + (A * v)
+ 6.   gv = gv + B                // gv = g(v)
+ 7.  gx1 = gv                    // gx1 = g(x1)
+ 8.   u2 = u^2
+ 9.   t1 = u2 * gv               // t1 = u^2 * g(v)
+ 10.  t2 = t1^2
 
 
 
-Scott, et al.            Expires April 26, 2019                [Page 10]
+Scott, et al.            Expires August 12, 2019               [Page 10]
 
-Internet-Draft                hash-to-curve                 October 2018
+Internet-Draft                hash-to-curve                February 2019
 
 
-   17.  d3 = d1 + d2
-   18.  d3 = d3^(-1)
-   19.  n1 = 1 + d3
-   20.  x2 = x2 * n1     // x2 = X2(t, u)
-   21. gx2 = x2^3
-   22. gx2 = gx2 + (A * x2)
-   23. gx2 = gx2 + B     // gx2 = g(X2(t, u))
-   24.  x3 = t2 * gu
-   25.  x3 = x3 * x2     // x3 = X3(t, u)
-   26. gx3 = x3^3
-   27. gx3 = gx3 + (A * x3)
-   28. gx3 = gx3 + B     // gx3 = g(X3(t, u))
-   29.  l1 = gx1^((p - 1) / 2)
-   30.  l2 = gx2^((p - 1) / 2)
-   31.  s1 = gx1^(1/2)
-   32.  s2 = gx2^(1/2)
-   33.  s3 = gx3^(1/2)
-   34. if l1 == 1:
-   35.   Output (x1, s1)
-   36. if l2 == 1:
-   37.   Output (x2, s2)
-   38. Output (x3, s3)
+ 11.  t2 = t2 + t1
+ 12.  t2 = t2^(-1)               // t2 = 1/(u^4*g(v)^2 + u^2*g(v))
+ 13.  n1 = 1 + t2
+ 14.  x2 = c1 * n1               // x2 = -B/A * (1 + 1/(t1^2 + t1))
+ 15. gx2 = x2^3
+ 16.  t2 = A * x2
+ 17. gx2 = gx2 + t2
+ 18. gx2 = gx2 + B               // gx2 = g(x2)
+ 19.  x3 = x2 * t1               // x3 = x2 * u^2 * g(v)
+ 20. gx3 = x3^3
+ 21. gx3 = gx3 + (A * x3)
+ 22. gx3 = gx3 + B               // gx3 = g(X3(t, u))
+ 23.  l1 = gx1^c2                // Legendre(gx1)
+ 24.  l2 = gx2^c2                // Legendre(gx2)
+ 25.  y1 = sqrt(gx1)             // TODO: Specify square root properly
+ 26.  y2 = sqrt(gx2)             // TODO: Specify square root properly
+ 27.  y3 = sqrt(gx3)             // TODO: Specify square root properly
+ 28.  x  = CMOV(x2, x3, l2)      // If l2 = 1, choose x2, else choose x3
+ 29.  y  = CMOV(y2, y3, l2)      // If l2 = 1, choose y2, else choose y3
+ 30.  x  = CMOV(x1, x, l1)       // If l1 = 1, choose x1, else choose x
+ 31.  y  = CMOV(y1, y, l1)       // If l1 = 1, choose y1, else choose y
+ 32. Output (x, y)
 
 5.2.3.  Simplified SWU Method
 
@@ -598,11 +598,11 @@ Internet-Draft                hash-to-curve                 October 2018
    Given curve equation g(x) = x^3 + Ax + B, this algorithm works as
    follows:
 
-   1. t = HashToBase(alpha)
-   2. alpha = (-B / A) * (1 + (1 / (t^4 + t^2)))
-   3. beta = -t^2 * alpha
-   4. If g(alpha) is square, output (alpha, sqrt(g(alpha)))
-   5. Output (beta, sqrt(g(beta)))
+   1. u = HashToBase(alpha)
+   2. x1 = -B/A * (1 + (1 / (u^4 - u^2)))
+   3. x2 = -u^2 * x1
+   4. If g(x1) is square, output (x1, sqrt(g(x1)))
+   5. Output (x2, sqrt(g(x2)))
 
    The following procedure implements this algorithm.  It outputs a
    point with affine coordinates.  It requires knowledge of A and B, the
@@ -613,126 +613,178 @@ Internet-Draft                hash-to-curve                 October 2018
 
 
 
-Scott, et al.            Expires April 26, 2019                [Page 11]
+Scott, et al.            Expires August 12, 2019               [Page 11]
 
-Internet-Draft                hash-to-curve                 October 2018
+Internet-Draft                hash-to-curve                February 2019
 
 
-   map2curve_simple_swu(alpha)
+ map2curve_simple_swu(alpha)
 
-   Input:
+ Input:
 
-     alpha - value to be encoded, an octet string
+   alpha - value to be encoded, an octet string
 
-   Output:
+ Output:
 
-     (x, y) - a point in E
+   (x, y) - a point in E
 
-   Steps:
+ Precomputations:
 
-   1.     t = HashToBase(alpha)
-   2. alpha = t^2 (mod p)
-   3. alpha = alpha * -1 (mod p)
-   4. right = alpha^2 + alpha (mod p)
-   5. right = right^(-1) (mod p)
-   6. right = right + 1 (mod p)
-   7.  left = B * -1 (mod p)
-   8.  left = left / A (mod p)
-   9.    x2 = left * right (mod p)
-   10.   x3 = alpha * x2 (mod p)
-   11.   h2 = x2 ^ 3 (mod p)
-   12.   i2 = x2 * A (mod p)
-   13.   i2 = i2 + B (mod p)
-   14.   h2 = h2 + i2 (mod p)
-   15.   h3 = x3 ^ 3 (mod p)
-   16.   i3 = x3 * A (mod p)
-   17.   i3 = i3 + B (mod p)
-   18.   h3 = h3 + i3 (mod p)
-   19.   y1 = h2 ^ ((p + 1) / 4) (mod p)
-   20.   y2 = h3 ^ ((p + 1) / 4) (mod p)
-   21.    e = CTEQ(y1 ^ 2, h2)   // Constant-time equality
-   22.    x = CMOV(x2, x3, e)    // If e = 1, choose x2, else choose x3
-   23.    y = CMOV(y1, y2, e)    // If e = 1, choose y1, else choose y2
-   24. Output (x, y)
+ 1.  c1 = A^(-1)                 // 1 / A (mod p)
+ 2.  c1 = -B * c0                // c1 = -B/A (mod p)
+ 3.  c2 = (p - 1)/2              // Order over 2 as an integer
+
+ Steps:
+
+ 1.    u = HashToBase(alpha, 0)  // {0,1}^* -> Fp
+ 2.   u2 = u^2
+ 3.   u2 = -u2                   // u2 = -u^2
+ 4.   u4 = u2^2
+ 5.   t1 = u4 + u2
+ 6.   t1 = t1^(-1)
+ 7.   n1 = 1 + t2                // n1 = 1 + (1 / (u^4 - u^2))
+ 8.   x1 = c1 * n1               // x1 = -B/A * (1 + (1 / (u^4 - u^2)))
+ 9.  gx1 = x1 ^ 3
+ 10.  t1 = A * x1
+ 11. gx1 = gx1 + t1
+ 12. gx1 = gx1 + B               // gx1 = x1^3 + Ax1 + B = g(x1)
+ 13.   x2 = u2 * x1              // x2 = -u^2 * x1
+ 14.  gx2 = x2^3
+ 15.   t1 = A * x2
+ 16.  gx2 = gx2 + 12
+ 17.  gx2 = gx2 + B              // gx2 = x2^3 + Ax2 + B = g(x2)
+ 18.   e = gx1^c2
+ 19   y1 = sqrt(gx1)             // TODO: Specify square root properly
+ 20   y2 = sqrt(gx2)             // TODO: Specify square root properly
+ 21.  x  = CMOV(x1, x2, l1)      // If l1 = 1, choose x1, else choose x2
+ 22.  y  = CMOV(y1, y2, l1)      // If l1 = 1, choose y1, else choose y2
+ 23. Output (x, y)
 
 5.2.4.  Elligator2 Method
 
    The following map2curve_elligator2(alpha) implements the Elligator2
    method from [Elligator2].  This algorithm works for any curve with a
    point of order 2 and j-invariant != 1728.  Given curve equation y^2 =
-   x(x^2 + Ax + B), i.e., a Montgomery form with (0,0), a point of order
-   2, this algorithm works as shown below.  (Note that any curve with a
-   point of order 2 is isomorphic to this representation.)
+   g(x) = x(x^2 + Ax + B), i.e., a Montgomery form with (0,0), a point
 
 
 
-
-
-
-Scott, et al.            Expires April 26, 2019                [Page 12]
+Scott, et al.            Expires August 12, 2019               [Page 12]
 
-Internet-Draft                hash-to-curve                 October 2018
+Internet-Draft                hash-to-curve                February 2019
 
 
-   1. r = HashToBase(alpha)
-   2. Let u be a non-square value in Fp
-   3. v = -A/(1+ur^ 2)
-   4. e = Legendre(v^3+Av^2+Bv)
-   5.1. If r != 0, then
-   5.2.    x = ev - (1 - e)A/2
-   5.3.    y = -e*sqrt(x^3+Ax^2+x)
-   5.4. Else, x=0 and y=0
-   6. Output (x,y)
+   of order 2, this algorithm works as shown below.  (Note that any
+   curve with a point of order 2 is isomorphic to this representation.)
+
+   The algorithm additionally requires a constant value N, which is a
+   non-square in Fp.  For performance this is typically small in
+   absolute size.
+
+   1. u = HashToBase(alpha)
+   2. v = -A/(1 + N*u^2)
+   3. e = Legendre(g(v))
+   4.1. If u != 0, then
+   4.2.    x = ev - (1 - e)A/2
+   4.3.    y = -e*sqrt(g(x))
+   4.4. Else, x=0 and y=0
+   5. Output (x,y)
 
    Here, e is the Legendre symbol defined as in Section 4.
 
    The following procedure implements this algorithm.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Scott, et al.            Expires August 12, 2019               [Page 13]
+
+Internet-Draft                hash-to-curve                February 2019
+
 
    map2curve_elligator2(alpha)
 
    Input:
 
      alpha - value to be encoded, an octet string
-
-     u - fixed non-square value in Fp.
+     N - fixed non-square value in Fp.
 
    Output:
 
      (x, y) - a point in E
 
+   Precomputations:
+
+   1. c1 = (p - 1)/2     // as an integer
+   2. c2 = A / 2 (mod p) // in the field
+
    Steps:
 
-   1.   r = HashToBase(alpha)
-   2.   r = r^2 (mod p)
-   3.  nu = r * u (mod p)
-   4.   r = nu
-   5.   r = r + 1 (mod p)
-   6.   r = r^(-1) (mod p)
-   7.   v = A * r (mod p)
-   8.   v = v * -1 (mod p)   // -A / (1 + ur^2)
-   9.  v2 = v^2 (mod p)
-   10. v3 = v * v2 (mod p)
-   11.  e = v3 + v (mod p)
-   12. v2 = v2 * A (mod p)
-   13.  e = v2 + e (mod p)
-   14.  e = e^((p - 1) / 2)  // = Legendre(e)
-   15. nv = v * -1 (mod p)
-   16.  v = CMOV(v, nv, e)   // If e = 1, choose v, else choose nv
-   17. v2 = CMOV(0, A, e)    // If e = 1, choose 0, else choose A
-   18.  x = v - v2 (mod p)
-   19.  y = -e*sqrt(x^3+Ax^2+Bx)
-   19. Output (x, y)
-
-
-
-Scott, et al.            Expires April 26, 2019                [Page 13]
-
-Internet-Draft                hash-to-curve                 October 2018
-
+   1.   u = HashToBase(alpha)
+   2.  t1 = u^2
+   3.  t1 = N * t1
+   4.  t1 = 1 + t1
+   5.  t1 = t1^(-1)
+   6.   v = A * t1
+   7.   v = -v               // v = -A / (1 + N * u^2)
+   8.  gv = v + A
+   9.  gv = gv * v
+   0.  gv = gv + B
+   11. gv =  gv * v          // gv = v^3 + Av^2 + Bv
+   12.  e = gv^c1            // Legendre(gv)
+   13.  x = e*v
+   14. ne = -e
+   15. t1 = 1 + ne
+   16. t1 = t1 * c2
+   17.  x = x - t1           // x = ev - (1 - e)*A/2
+   18.  y = x + A
+   19.  y = y * x
+   20.  y = y + B
+   21.  y = y * x
+   22.  y = sqrt(y)          // TODO: Specify square root properly
+   23.  y = y * ne            // y = -e * sqrt(x^3 + Ax^2 + Bx)
+   24.  x = CMOV(0, x, 1-u)
+   25.  y = CMOV(0, y, 1-u)
+   26. Output (x, y)
 
    Elligator2 can be simplified with projective coordinates.
 
    ((TODO: write this variant))
+
+
+
+Scott, et al.            Expires August 12, 2019               [Page 14]
+
+Internet-Draft                hash-to-curve                February 2019
+
 
 5.3.  Cost Comparison
 
@@ -777,19 +829,18 @@ Internet-Draft                hash-to-curve                 October 2018
 
    hash2curve(alpha) = F(H0(alpha)) + F(H1(alpha))
 
-
-
-
-
-Scott, et al.            Expires April 26, 2019                [Page 14]
-
-Internet-Draft                hash-to-curve                 October 2018
-
-
    This construction works for the Icart, SWU, and Simplfied SWU
    encodings.
 
    Here, H0 and H1 are constructed as follows:
+
+
+
+
+Scott, et al.            Expires August 12, 2019               [Page 15]
+
+Internet-Draft                hash-to-curve                February 2019
+
 
    H0(alpha) = HashToBase(alpha, 2)
    H1(alpha) = HashToBase(alpha, 3)
@@ -834,17 +885,18 @@ Internet-Draft                hash-to-curve                 October 2018
       elliptic curve, with curve parameters as specified in [DSS]
       (Section D.1.2.3) and [RFC5114] (Section 2.6).
 
-
-
-
-Scott, et al.            Expires April 26, 2019                [Page 15]
-
-Internet-Draft                hash-to-curve                 October 2018
-
-
    o  HashToBase is defined as {#hashtobase} with the hash function
       defined as SHA-256 as specified in [RFC6234], and p set to the
       prime field used in P-256 (2^256 - 2^224 + 2^192 + 2^96 - 1).
+
+
+
+
+
+Scott, et al.            Expires August 12, 2019               [Page 16]
+
+Internet-Draft                hash-to-curve                February 2019
+
 
    o  HashToCurve is defined to be {#sswu} with A and B taken from the
       definition of P-256 (A=-3, B=4105836372515214212932612978004726840
@@ -876,7 +928,7 @@ Internet-Draft                hash-to-curve                 October 2018
 
    o  HashToCurve is defined to be {#elligator2} with the curve function
       defined to be the Montgomery form of Curve25519 (y^2 = x^3 +
-      486662x^2 + x) and u = 2.
+      486662x^2 + x) and N = 2.
 
    o  The final output is multiplied by the cofactor of Curve25519, 8.
 
@@ -889,20 +941,18 @@ Internet-Draft                hash-to-curve                 October 2018
       defined as SHA-512 as specified in [RFC6234], and p set to the
       prime field used in Curve448 (2^448 - 2^224 - 1).
 
-
-
-
-
-Scott, et al.            Expires April 26, 2019                [Page 16]
-
-Internet-Draft                hash-to-curve                 October 2018
-
-
    o  HashToCurve is defined to be {#elligator2} with the curve function
       defined to be the Montgomery form of Curve448 (y^2 = x^3 +
-      156326x^2 + x) and u = -1.
+      156326x^2 + x) and N = -1.
 
    o  The final output is multiplied by the cofactor of Curve448, 4.
+
+
+
+Scott, et al.            Expires August 12, 2019               [Page 17]
+
+Internet-Draft                hash-to-curve                February 2019
+
 
    H2C-Curve25519-SHA512-Elligator2-FFSTV is defined as in H2C-
    Curve25519-SHA-512-Elligator2-Clear except HashToCurve is defined to
@@ -945,20 +995,20 @@ Internet-Draft                hash-to-curve                 October 2018
    [BL07]     "Faster addition and doubling on elliptic curves", n.d.,
               <https://eprint.iacr.org/2007/286.pdf>.
 
-
-
-
-
-Scott, et al.            Expires April 26, 2019                [Page 17]
-
-Internet-Draft                hash-to-curve                 October 2018
-
-
    [BL17]     "Montgomery curves and the Montgomery ladder", n.d.,
               <https://eprint.iacr.org/2017/293.pdf>.
 
    [BLS01]    "Short signatures from the Weil pairing", n.d.,
               <https://iacr.org/archive/asiacrypt2001/22480516.pdf>.
+
+
+
+
+
+Scott, et al.            Expires August 12, 2019               [Page 18]
+
+Internet-Draft                hash-to-curve                February 2019
+
 
    [BMP00]    "Provably secure password-authenticated key exchange using
               diffie-hellman", n.d..
@@ -989,6 +1039,11 @@ Internet-Draft                hash-to-curve                 October 2018
               <https://csrc.nist.gov/publications/detail/fips/186/4/
               final>.
 
+   [github-repo]
+              "draft-irtf-cfrg-hash-to-curve | github.com", n.d.,
+              <https://github.com/chris-wood/
+              draft-irtf-cfrg-hash-to-curve/>.
+
    [hacspec]  "hacspec", n.d.,
               <https://github.com/HACS-workshop/hacspec>.
 
@@ -1005,9 +1060,10 @@ Internet-Draft                hash-to-curve                 October 2018
 
 
 
-Scott, et al.            Expires April 26, 2019                [Page 18]
+
+Scott, et al.            Expires August 12, 2019               [Page 19]
 
-Internet-Draft                hash-to-curve                 October 2018
+Internet-Draft                hash-to-curve                February 2019
 
 
    [RFC5114]  Lepinski, M. and S. Kent, "Additional Diffie-Hellman
@@ -1039,6 +1095,9 @@ Internet-Draft                hash-to-curve                 October 2018
               DOI 10.17487/RFC8032, January 2017,
               <https://www.rfc-editor.org/info/rfc8032>.
 
+   [SAGE]     "SageMath, the Sage Mathematics Software System", n.d.,
+              <https://www.sagemath.org>.
+
    [SECG1]    "SEC 1 -- Elliptic Curve Cryptography", n.d.,
               <http://www.secg.org/sec1-v2.pdf>.
 
@@ -1052,20 +1111,23 @@ Internet-Draft                hash-to-curve                 October 2018
    [SWU07]    "Rational points on certain hyperelliptic curves over
               finite fields", n.d., <https://arxiv.org/pdf/0706.1448>.
 
+
+
+
+
+
+
+Scott, et al.            Expires August 12, 2019               [Page 20]
+
+Internet-Draft                hash-to-curve                February 2019
+
+
 Appendix A.  Related Work
 
    In this chapter, we give a background to some common methods to
    encode or hash to the curve, motivated by the similar exposition in
    [Icart09].  Understanding of this material is not required in order
    to choose a suitable encoding function - we defer this to Section 3 -
-
-
-
-Scott, et al.            Expires April 26, 2019                [Page 19]
-
-Internet-Draft                hash-to-curve                 October 2018
-
-
    the background covered here can work as a template for analyzing
    encoding functions not found in this document, and as a guide for
    further research into the topics covered.
@@ -1108,20 +1170,19 @@ A.2.  Naive Encoding
    discrete logarithm with respect to G is known.  For example, given y1
    = map2curve(m1) and y2 = map2curve(m2) for any m1 and m2, it must be
    true that y2 = H(m2) / H(m1) * map2curve(m1).  This relationship
+
+
+
+Scott, et al.            Expires August 12, 2019               [Page 21]
+
+Internet-Draft                hash-to-curve                February 2019
+
+
    would not hold (with overwhelming probability) for truly random
    values y1 and y2.  This causes catastrophic failure in many cases.
    However, one exception is found in SPEKE [Jablon96], which constructs
    a base for a Diffie-Hellman key exchange by hashing the password to a
    curve point.  Notably the use of a hash function is purely for
-
-
-
-
-Scott, et al.            Expires April 26, 2019                [Page 20]
-
-Internet-Draft                hash-to-curve                 October 2018
-
-
    encoding an arbitrary length string to a curve point, and does not
    need to be a random oracle.
 
@@ -1165,18 +1226,19 @@ A.5.  Twisted Variants
    (x, y) is either a point on E or E^d.  Hence one can construct a
    bijection F : GF(p) x {0,1} -> E &#8746; E^d, where the extra bit is
    needed to choose the sign of the point.  This can be particularly
+
+
+
+Scott, et al.            Expires August 12, 2019               [Page 22]
+
+Internet-Draft                hash-to-curve                February 2019
+
+
    useful for constructions which only need the x-coordinate of the
    point.  For example, x-only scalar multiplication can be computed on
    Montgomery curves.  In this case, there is no need for an encoding
    function, since the output of F in GF(p) is sufficient to define a
    point on one of E or E^d.
-
-
-
-Scott, et al.            Expires April 26, 2019                [Page 21]
-
-Internet-Draft                hash-to-curve                 October 2018
-
 
 Appendix B.  Try-and-Increment Method
 
@@ -1220,20 +1282,20 @@ felem_t = refine(nat, lambda x: x < prime)
 affine_t = tuple2(felem_t, felem_t)
 
 @typechecked
+
+
+
+Scott, et al.            Expires August 12, 2019               [Page 23]
+
+Internet-Draft                hash-to-curve                February 2019
+
+
 def to_felem(x: nat_t) -> felem_t:
     return felem_t(nat(x % prime))
 
 
 @typechecked
 def fadd(x: felem_t, y: felem_t) -> felem_t:
-
-
-
-Scott, et al.            Expires April 26, 2019                [Page 22]
-
-Internet-Draft                hash-to-curve                 October 2018
-
-
     return to_felem(x + y)
 
 
@@ -1275,6 +1337,15 @@ def map2p384(u:felem_t) -> affine_t:
     y = fadd(fmul(u, x), v)
     return (x, y)
 
+
+
+
+
+Scott, et al.            Expires August 12, 2019               [Page 24]
+
+Internet-Draft                hash-to-curve                February 2019
+
+
 C.2.  Shallue-Woestijne-Ulas Method
 
    The following hacspec program implements map2curve_swu(alpha) for
@@ -1285,9 +1356,50 @@ C.2.  Shallue-Woestijne-Ulas Method
 
 
 
-Scott, et al.            Expires April 26, 2019                [Page 23]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Scott, et al.            Expires August 12, 2019               [Page 25]
 
-Internet-Draft                hash-to-curve                 October 2018
+Internet-Draft                hash-to-curve                February 2019
 
 
 from p256 import *
@@ -1341,9 +1453,9 @@ def map2p256(t:felem_t) -> felem_t:
 
 
 
-Scott, et al.            Expires April 26, 2019                [Page 24]
+Scott, et al.            Expires August 12, 2019               [Page 26]
 
-Internet-Draft                hash-to-curve                 October 2018
+Internet-Draft                hash-to-curve                February 2019
 
 
 C.3.  Simplified SWU Method
@@ -1397,9 +1509,9 @@ C.4.  Elligator2 Method
 
 
 
-Scott, et al.            Expires April 26, 2019                [Page 25]
+Scott, et al.            Expires August 12, 2019               [Page 27]
 
-Internet-Draft                hash-to-curve                 October 2018
+Internet-Draft                hash-to-curve                February 2019
 
 
 from curve25519 import *
@@ -1453,9 +1565,9 @@ C.5.  HashToBase
 
 
 
-Scott, et al.            Expires April 26, 2019                [Page 26]
+Scott, et al.            Expires August 12, 2019               [Page 28]
 
-Internet-Draft                hash-to-curve                 October 2018
+Internet-Draft                hash-to-curve                February 2019
 
 
    HashToBase(x, i)
@@ -1482,7 +1594,7 @@ Internet-Draft                hash-to-curve                 October 2018
 
    Steps:
 
-     1. t1 = H("h2c" || label || I2OSP(i, 4) || x)
+     1. t1 = H("h2c" || label || I2OSP(i, 4) || I2OSP(len(x), 4) || x)
      2. t2 = OS2IP(t1)
      3. y = t2 (mod p)
      4. Output y
@@ -1509,9 +1621,9 @@ C.5.1.  Considerations
 
 
 
-Scott, et al.            Expires April 26, 2019                [Page 27]
+Scott, et al.            Expires August 12, 2019               [Page 29]
 
-Internet-Draft                hash-to-curve                 October 2018
+Internet-Draft                hash-to-curve                February 2019
 
 
    To address this, our HashToBase algorithm greedily takes as many bits
@@ -1565,4 +1677,4 @@ Authors' Addresses
 
 
 
-Scott, et al.            Expires April 26, 2019                [Page 28]
+Scott, et al.            Expires August 12, 2019               [Page 30]
