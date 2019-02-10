@@ -248,7 +248,7 @@ normative:
     target: https://www.sagemath.org
 
   Schoof85:
-    title: Elliptic Curves Over Finite Fieldsand the Computation of Square Roots mod p
+    title: Elliptic Curves Over Finite Fields and the Computation of Square Roots mod p
     authors: René Schoof
     target: https://www.ams.org/journals/mcom/1985-44-170/S0025-5718-1985-0777280-6/S0025-5718-1985-0777280-6.pdf
 
@@ -453,10 +453,11 @@ Algorithms in this document make use of utility functions described below.
   Computing square roots should be done in constant time where possible.
 
   When p = 3 (mod 4), the square root can be computed as `sqrt(x, p) := x^(p+1)/4`.
-  This is true for P256, P384, and Curve448.
+  This applies to P256, P384, and Curve448.
 
-  When p = 5 (mod 8), the square root can be computed by the following algorithm.
-  This is true for Curve25519.
+  When p = 5 (mod 8), the square root can be computed by the following
+  algorithm, in which `sqrt(-1)` is a field element and can be precomputed.
+  This applies to Curve25519.
 
 ~~~
   sqrt(x, p) :=
