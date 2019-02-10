@@ -247,6 +247,11 @@ normative:
     authors: The Sage Developers
     target: https://www.sagemath.org
 
+  Schoof85:
+    title: Elliptic Curves Over Finite Fields and the Computation of Square Roots mod p
+    authors: René Schoof
+    target: https://www.ams.org/journals/mcom/1985-44-170/S0025-5718-1985-0777280-6/S0025-5718-1985-0777280-6.pdf
+
 --- abstract
 
 This document specifies a number of algorithms that may be used to encode or hash an
@@ -445,9 +450,24 @@ Algorithms in this document make use of utility functions described below.
   formula directly, and annotate the usage with this definition.
 
 - sqrt(x, p):
-    Computing square roots should be done in constant time where possible.
-    If p = 3 (mod 4): sqrt(x, p) := x^(p+1)/4
-    Else: (TODO) use a suitable constant-time Tonelli-Shanks variant
+  Computing square roots should be done in constant time where possible.
+
+  When p = 3 (mod 4), the square root can be computed as `sqrt(x, p) := x^(p+1)/4`.
+  This applies to P256, P384, and Curve448.
+
+  When p = 5 (mod 8), the square root can be computed by the following
+  algorithm, in which `sqrt(-1)` is a field element and can be precomputed.
+  This applies to Curve25519.
+
+~~~
+  sqrt(x, p) :=
+                 x^(p+3)/8     if x^(p+3)/4 == x
+      sqrt(-1) * x^(p+3)/8     otherwise
+~~~
+
+  The above two conditions hold for most practically used curves, due to the
+  simplicity of the square root function. For others, a suitable constant-time
+  Tonelli-Shanks variant should be used as in {{Schoof85}}.
 
 # Deterministic Encodings
 
