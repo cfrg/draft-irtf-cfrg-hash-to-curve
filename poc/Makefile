@@ -12,5 +12,7 @@ test_simple_swu:
 	sage simple_swu.sage
 test_swu:
 	sage swu.sage
+test_hash_to_base:
+	sage hash_to_base.sage
 
-test: all test_elligator test_icart test_swu test_simple_swu
+test: all test_elligator test_icart test_swu test_simple_swu test_hash_to_base
