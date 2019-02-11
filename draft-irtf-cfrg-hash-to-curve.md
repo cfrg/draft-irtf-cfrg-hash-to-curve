@@ -623,14 +623,12 @@ Steps:
 22. gx3 = gx3 + B               // gx3 = g(X3(t, u))
 23.  l1 = gx1^c2                // Legendre(gx1)
 24.  l2 = gx2^c2                // Legendre(gx2)
-25.  y1 = sqrt(gx1)             // TODO: Specify square root properly
-26.  y2 = sqrt(gx2)             // TODO: Specify square root properly
-27.  y3 = sqrt(gx3)             // TODO: Specify square root properly
-28.  x  = CMOV(x2, x3, l2)      // If l2 = 1, choose x2, else choose x3
-29.  y  = CMOV(y2, y3, l2)      // If l2 = 1, choose y2, else choose y3
-30.  x  = CMOV(x1, x, l1)       // If l1 = 1, choose x1, else choose x
-31.  y  = CMOV(y1, y, l1)       // If l1 = 1, choose y1, else choose y
-32. Output (x, y)
+25.   x = CMOV(x2, x3, l2)      // If l2 = 1, choose x2, else choose x3
+26.   x = CMOV(x1, x, l1)       // If l1 = 1, choose x1, else choose x
+27.  gx = CMOV(gx2, gx3, l2)    // If l2 = 1, choose gx2, else choose gx3
+28.  gx = CMOV(gx1, gx, l1)     // If l1 = 1, choose gx1, else choose gx
+29.   y = sqrt(gx)
+30. Output (x, y)
 ~~~
 
 ### Simplified SWU Method {#simple-swu}
@@ -693,11 +691,10 @@ Steps:
 16.  gx2 = gx2 + 12
 17.  gx2 = gx2 + B              // gx2 = x2^3 + Ax2 + B = g(x2)
 18.   e = gx1^c2
-19   y1 = sqrt(gx1)             // TODO: Specify square root properly
-20   y2 = sqrt(gx2)             // TODO: Specify square root properly
-21.  x  = CMOV(x1, x2, l1)      // If l1 = 1, choose x1, else choose x2
-22.  y  = CMOV(y1, y2, l1)      // If l1 = 1, choose y1, else choose y2
-23. Output (x, y)
+19.   x = CMOV(x1, x2, l1)      // If l1 = 1, choose x1, else choose x2
+20.  gx = CMOV(gx1, gx2, l1)    // If l1 = 1, choose gx1, else choose gx2
+21.   y = sqrt(gx)
+22. Output (x, y)
 ~~~
 
 ### Elligator2 Method {#elligator2}
@@ -767,7 +764,7 @@ Steps:
 19.  y = y * x
 20.  y = y + B
 21.  y = y * x
-22.  y = sqrt(y)          // TODO: Specify square root properly
+22.  y = sqrt(y)
 23.  y = y * ne            // y = -e * sqrt(x^3 + Ax^2 + Bx)
 24.  x = CMOV(0, x, 1-u)
 25.  y = CMOV(0, y, 1-u)
