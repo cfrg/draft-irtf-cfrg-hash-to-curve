@@ -31,6 +31,9 @@ def os2ip(os):
         res += b
     return res
 
+def Hex(n):
+    return format(int(n),'x')
+
 def pprint_hex(os):
     return "".join("{:02x}".format(ord(c)) for c in os)
 
@@ -74,7 +77,7 @@ class Hash:
         elif label == "SHA512":
             self.H = hashlib.sha512
         else:
-            raise ValueError("Hash %s is not recognied" % curve)
+            raise ValueError("Hash %s is not recognized" % curve)
 
     def hbits(self):
         return self.H().digest_size * 8
@@ -88,4 +91,4 @@ class Curve:
         elif label == "P384":
             self.p = 2**384 - 2**128  - 2**96 + 2**32 - 1
         else:
-            raise ValueError("Curve %s is not recognied" % curve)
+            raise ValueError("Curve %s is not recognized" % curve)
