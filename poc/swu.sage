@@ -29,8 +29,8 @@ def U(u, v):
     return u^3 * g(v)^2 * g(x2(u, v))
 
 def swu(alpha):
-    u = h2b_from_label("H2C-P256-SHA512-SWU-", alpha, 0)
-    v = h2b_from_label("H2C-P256-SHA512-SWU-", alpha, 1)
+    u = h2b_from_label("H2C-P256-SHA512-SWU-", alpha + "\x00")
+    v = h2b_from_label("H2C-P256-SHA512-SWU-", alpha + "\x01")
 
     x1v = x1(u, v)
     x2v = x2(u, v)
@@ -49,8 +49,8 @@ B_OVER_A =  - B * A_INV
 ORDER_OVER_2 = (p - 1)/2
 
 def swu_slp(alpha):
-    u = h2b_from_label(h2c_suite, alpha, 0)
-    v = h2b_from_label(h2c_suite, alpha, 1)
+    u = h2b_from_label(h2c_suite, alpha + "\x00")
+    v = h2b_from_label(h2c_suite, alpha + "\x01")
 
     tv("u", u, 32)
     tv("v", v, 32)
