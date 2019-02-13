@@ -419,16 +419,13 @@ to Curve25519. When the required mapping is not clear, applications SHOULD use a
 
 Algorithms in this document make use of utility functions described below.
 
-- HashToBase(x, i).
+- HashToBase(x).
   This method is parametrized by p and H, where p is the prime order of
   the base field Fp, and H is a cryptographic hash function which
   outputs at least floor(log2(p)) + 2 bits.
   The function first hashes x, converts the result to an integer,
   and reduces modulo p to give an element of Fp.
-
-  We provide a more detailed algorithm in {{hashtobase}}. The value of i is used
-  to separate inputs when used multiple times in one algorithm (see {{ffstv}}
-  for example). When i is omitted, we set it to 0.
+  We provide a more detailed algorithm in {{hashtobase}}.
 
 - CMOV(a, b, c): If c = 1, return a, else return b.
 
@@ -469,7 +466,7 @@ Algorithms in this document make use of utility functions described below.
   simplicity of the square root function. For others, a suitable constant-time
   Tonelli-Shanks variant should be used as in {{Schoof85}}.
 
-# Deterministic Encodings
+# Deterministic Encodings  {#encodings}
 
 ## Interface
 
@@ -617,15 +614,14 @@ Output:
 Operations:
 
 ~~~
-1. Define g(x) = x^3 + Ax + B
-2.  u = HashToBase(alpha, 0)
-3.  v = HashToBase(alpha, 1)
-4. x1 = v
-5. x2 = (-B / A)(1 + 1 / (u^4 * g(v)^2 + u^2 * g(v)))
-6. x3 = u^2 * g(v)^2  * g(x2)
-7. If g(x1) is square, output (x1, sqrt(g(x1)))
-8. If g(x2) is square, output (x2, sqrt(g(x2)))
-9. Output (x3, sqrt(g(x3)))
+1.  u = HashToBase(alpha || 0x00)
+2.  v = HashToBase(alpha || 0x01)
+3. x1 = v
+4. x2 = (-B / A)(1 + 1 / (u^4 * g(v)^2 + u^2 * g(v)))
+5. x3 = u^2 * g(v)^2  * g(x2)
+6. If g(x1) is square, output (x1, sqrt(g(x1)))
+7. If g(x2) is square, output (x2, sqrt(g(x2)))
+8. Output (x3, sqrt(g(x3)))
 ~~~
 
 The algorithm relies on the following equality:
@@ -659,8 +655,8 @@ Precomputations:
 
 Steps:
 
-1.    u = HashToBase(alpha, 0)  // {0,1}^* -> Fp
-2.    v = HashToBase(alpha, 1)  // {0,1}^* -> Fp
+1.    u = HashToBase(alpha || 0x00)  // {0,1}^* -> Fp
+2.    v = HashToBase(alpha || 0x01)  // {0,1}^* -> Fp
 3.   x1 = v                     // x1 = v
 4.   gv = v^3
 5.   gv = gv + (A * v)
@@ -754,39 +750,39 @@ Precomputations:
 
 Steps:
 
-1.    u = HashToBase(alpha, 0)  // {0,1}^* -> Fp
+1.    u = HashToBase(alpha)  // {0,1}^* -> Fp
 2.   u2 = u^2
-3.   u2 = -u2                   // u2 = -u^2
+3.   u2 = -u2                // u2 = -u^2
 4.   u4 = u2^2
 5.   t1 = u4 + u2
 6.   t1 = t1^(-1)
-7.   n1 = 1 + t2                // n1 = 1 + (1 / (u^4 - u^2))
-8.   x1 = c1 * n1               // x1 = -B/A * (1 + (1 / (u^4 - u^2)))
+7.   n1 = 1 + t2             // n1 = 1 + (1 / (u^4 - u^2))
+8.   x1 = c1 * n1            // x1 = -B/A * (1 + (1 / (u^4 - u^2)))
 9.  gx1 = x1 ^ 3
 10.  t1 = A * x1
 11. gx1 = gx1 + t1
-12. gx1 = gx1 + B               // gx1 = x1^3 + Ax1 + B = g(x1)
-13.   x2 = u2 * x1              // x2 = -u^2 * x1
+12. gx1 = gx1 + B            // gx1 = x1^3 + Ax1 + B = g(x1)
+13.   x2 = u2 * x1           // x2 = -u^2 * x1
 14.  gx2 = x2^3
 15.   t1 = A * x2
 16.  gx2 = gx2 + 12
-17.  gx2 = gx2 + B              // gx2 = x2^3 + Ax2 + B = g(x2)
+17.  gx2 = gx2 + B           // gx2 = x2^3 + Ax2 + B = g(x2)
 18.   e = gx1^c2
-19   y1 = sqrt(gx1)             // TODO: Specify square root properly
-20   y2 = sqrt(gx2)             // TODO: Specify square root properly
-21.  x  = CMOV(x1, x2, l1)      // If l1 = 1, choose x1, else choose x2
-22.  y  = CMOV(y1, y2, l1)      // If l1 = 1, choose y1, else choose y2
+19   y1 = sqrt(gx1)          // TODO: Specify square root properly
+20   y2 = sqrt(gx2)          // TODO: Specify square root properly
+21.  x  = CMOV(x1, x2, l1)   // If l1 = 1, choose x1, else choose x2
+22.  y  = CMOV(y1, y2, l1)   // If l1 = 1, choose y1, else choose y2
 23. Output (x, y)
 ~~~
 
 
 ### Fouque-Tibouchi Method {#ftpairing}
 
-[todo] pairing-friendly curves
+todo: pairing-friendly curves
 
 ### Boneh-Franklin Method {#supersingular}
 
-[todo] supersingular curves
+todo: supersingular curves
 
 
 ## Encodings for Montgomery curves
@@ -897,38 +893,32 @@ Elligator2 can be simplified with projective coordinates.
 
 ((TODO: write this variant))
 
-# Random Oracles
+# Random Oracles {#ffstv}
+
+Some applications require a Random Oracle (RO) of points, which can be constructed
+from deterministic encoding functions. Farashahi et al. {{FFSTV13}} showed a
+generic mapping construction that is indistinguishable from a random oracle.
+In particular, let `f : {0,1}^* -> E(F)` be a deterministic encoding function,
+and let `H0` and `H1` be two hash functions modeled as random oracles that map
+bit strings to elements in the field `F`, i.e., `H0,H1 : {0,1}* -> F`. Then,
+the `hash2curveRO(alpha)` mapping is defined as
+
+~~~
+hash2curveRO(alpha) = f(H0(alpha)) + f(H1(alpha))
+~~~
+
+where alpha is an octet string to be encoded as a point on a curve.
 
 ## Interface
 
-The generic interface for deterministic encoding functions to elliptic curves is as follows:
+Using the deterministic encodings from {{encodings}}, the `hash2curveRO(alpha)`
+mapping can be instantiated as
 
 ~~~
-hash2curve(alpha)
+hash2curveRO(alpha) = hash2curve(alpha || 0x02) + hash2curve(alpha || 0x03)
 ~~~
 
-where alpha is a message to encode on a curve.
-
-## General Construction (FFSTV13) {#ffstv}
-
-When applications need a Random Oracle (RO), they can be constructed from deterministic encoding
-functions. In particular, let F : {0,1}^* -> E be a deterministic encoding function onto
-curve E, and let H0 and H1 be two hash functions modeled as random oracles that map input
-messages to the base field of E, i.e., Z_q. Farashahi et al. {{FFSTV13}} showed that the
-following mapping is indistinguishable from a RO:
-
-~~~
-hash2curve(alpha) = F(H0(alpha)) + F(H1(alpha))
-~~~
-
-This construction works for the Icart, SWU, and Simplfied SWU encodings.
-
-Here, H0 and H1 are constructed as follows:
-
-~~~
-H0(alpha) = HashToBase(alpha, 2)
-H1(alpha) = HashToBase(alpha, 3)
-~~~
+where the addition operation is performed as a point addition.
 
 # Curve Transformations
 
@@ -954,6 +944,7 @@ returns an element of the Destination Group defined in the ciphersuite by applyi
 HashToCurve and Transformation (if defined).
 
 This document describes the following set of ciphersuites:
+
 * H2C-P256-SHA256-SSWU-
 * H2C-P384-SHA512-Icart-
 * H2C-Curve25519-SHA512-Elligator2-Clear
@@ -1345,7 +1336,7 @@ def map2curve25519(r:felem_t) -> felem_t:
 The following procedure implements HashToBase.
 
 ~~~
-HashToBase(x, i)
+HashToBase(x)
 
 Parameters:
 
@@ -1360,8 +1351,7 @@ Preconditions:
 
 Input:
 
-  x - value to be hashed, an octet string
-  i - hash call index, a non-negative integer
+  x - an octet string to be hashed
 
 Output:
 
@@ -1369,9 +1359,9 @@ Output:
 
 Steps:
 
-  1. t1 = H("h2c" || label || I2OSP(i, 4) || I2OSP(len(x), 4) || x)
+  1. t1 = H("h2c" || label || I2OSP(len(x), 4) || x)
   2. t2 = OS2IP(t1)
-  3. y = t2 (mod p)
+  3. y = t2 mod p
   4. Output y
 ~~~
 
@@ -1623,35 +1613,35 @@ Input:
 
 Intermediate values:
 
-      u = 31ab10cbefb613e9fe3acd22d04f6971dff141c9b448780475b14b
-          a8f94467af
-      v = a45a2c50c5b9ee0e6e4f0954c7c8628f7581fa131b2e1ed5c89c2c
-          45450a6faa
-     x1 = a45a2c50c5b9ee0e6e4f0954c7c8628f7581fa131b2e1ed5c89c2c
-          45450a6faa
-     gv = 29a7da6e0140e87c772800987228ce086a9826dea074685d067dbf
-          4028d886be
-    gx1 = 29a7da6e0140e87c772800987228ce086a9826dea074685d067dbf
-          4028d886be
-     n1 = c8fd86d6097947df72e3e00d949a5a34d3aa2687396da6f7058fd5
-          b4c96793f1
-     x2 = 305aed579614cdeb62a1917c48f65c1d6438a90c083d3916b29720
-          215f4edf54
-    gx2 = 85c9dca2c51c7a4c0f6383704cc7a51245c13e09f5db2b07c33105
-          03e907d370
-     x3 = c184c0a6c484b0f1361d92b566cbef7cf7998403e58de2bcb43ab8
-          42d11858c9
-    gx3 = 86f546419037ed32d988c721d481834ff66041af4ed209152f5b6c
-          1ad4ef5c84
-     y3 = 771786176f6b80e94a00308b139c7eb127c6753e5966a8d1ff0351
-          d325f8d945
+      u = d8e1655d6562677a74be47c33ce9edcbefd5596653650e5758c8aa
+          ab65a99db3
+      v = 7764572395df002912b7cbb93c9c287f325b57afa1e7e82618ba57
+          9b796e6ad1
+     x1 = 7764572395df002912b7cbb93c9c287f325b57afa1e7e82618ba57
+          9b796e6ad1
+     gv = 0d8af0935d993caaefca7ef912e06415cbe7e00a93cca295237c66
+          7f0cc2f941
+    gx1 = 0d8af0935d993caaefca7ef912e06415cbe7e00a93cca295237c66
+          7f0cc2f941
+     n1 = ef66b409fa309a99e4dd4a1922711dea3899259d4a5947b3a0e3fe
+          34efdfc0cf
+     x2 = 2848af84de537f96c3629d93a78b37413a8b07c72248be8eac61fa
+          a058cedf96
+    gx2 = 3aeb1a6a81f78b9176847f84ab7987f361cb486846d4dbf3e45af2
+          d9354fb36a
+     x3 = 4331afd86e99e4fc7a3e5f0ca7b8a62c3c9f0146dac5f75b6990fe
+          60b8293e8e
+    gx3 = 1d78aa2bd9ff7c11c53807622c4d476ed67ab3c93206225ae437f0
+          86ebaa2982
+     y1 = 574e9564a28b9104b9dfb104a976f5f6a07c5c5b69e901e596df26
+          e4f571e369
 
 Output:
 
-      x = c184c0a6c484b0f1361d92b566cbef7cf7998403e58de2bcb43ab8
-          42d11858c9
-      y = 771786176f6b80e94a00308b139c7eb127c6753e5966a8d1ff0351
-          d325f8d945
+      x = 7764572395df002912b7cbb93c9c287f325b57afa1e7e82618ba57
+          9b796e6ad1
+      y = 574e9564a28b9104b9dfb104a976f5f6a07c5c5b69e901e596df26
+          e4f571e369
 ~~~
 
 ~~~
@@ -1661,35 +1651,35 @@ Input:
 
 Intermediate values:
 
-      u = 5bad9658b47a952c659e6bce194a59f1aba9d772535ae65f6c73d7
-          1626b8d23e
-      v = 553369be05ef93c14cacdd889f697ce35f8f53f0e02f949254a38f
-          ac5fa8b952
-     x1 = 553369be05ef93c14cacdd889f697ce35f8f53f0e02f949254a38f
-          ac5fa8b952
-     gv = 13e55df0724d87a8affe743a6b59f86a666cd300fadc4198649fcb
-          c28603bbc4
-    gx1 = 13e55df0724d87a8affe743a6b59f86a666cd300fadc4198649fcb
-          c28603bbc4
-     n1 = 46990eb5be98ea834baad415f458fa8be9608f87994af8b9f1f281
-          5d93fd9d91
-     x2 = a186160bbe77b9702c15fca0df49ef14feee0bd1500859b65204c0
-          d6144703bf
-    gx2 = 4a7001dade4ef8e5133beae52c263cb62acafe7456b9293a662a75
-          6eca2a9dee
-     x3 = 108f24c9ff5c8ea0f444228e69c39365d62259a0bb4cbdab866286
-          33c023c9a9
-    gx3 = c98d525da5727eaefd5273f0a7affce1b7e8cc128d1e2b322c74e2
-          99f86e0e4e
-     y3 = 7c45ef1f0f390319c0ef560643e2ac7d36b4dd08f387b54baebc06
-          329ad11b9c
+      u = c4188ee0e554dae7aea559d04d45982d6b184eff86c4a910a43247
+          44d6fb3c62
+      v = 0e82c0c07eb17c24c84f4a83fdd6195c23f76d455ba7a8d5bc3f62
+          0cee20caf9
+     x1 = 0e82c0c07eb17c24c84f4a83fdd6195c23f76d455ba7a8d5bc3f62
+          0cee20caf9
+     gv = 4914f49c40cb5c561bfeded5762d4bbf652e236f890ae752ea1046
+          0be2939c3a
+    gx1 = 4914f49c40cb5c561bfeded5762d4bbf652e236f890ae752ea1046
+          0be2939c3a
+     n1 = ae5000e861347ff29e3368597174b1a0a04b9b08019f59936aa65f
+          7e3176cf03
+     x2 = 331a4d8dead257f3d36e239e9cfaeaaf6804354a5897da421db73a
+          795c3f9af7
+    gx2 = b3dda8702e046be4e2bd42e2c9f09fddbc98a3fe04bd91ca8a1904
+          5684be9d81
+     x3 = 1133498ac9e96b683271586be695ca43a946aa320eb32e79662476
+          6ac7d1cc60
+    gx3 = 7cd39b42a3b487dc6c2782a5aebd123502b9fecc849be21766c8a0
+          0ca16c318f
+     y2 = 6c6fa249077e13be24cf2cfab67dfcc8407a299e69c817785b8b9a
+          23eecfe734
 
 Output:
 
-      x = 108f24c9ff5c8ea0f444228e69c39365d62259a0bb4cbdab866286
-          33c023c9a9
-      y = 7c45ef1f0f390319c0ef560643e2ac7d36b4dd08f387b54baebc06
-          329ad11b9c
+      x = 331a4d8dead257f3d36e239e9cfaeaaf6804354a5897da421db73a
+          795c3f9af7
+      y = 6c6fa249077e13be24cf2cfab67dfcc8407a299e69c817785b8b9a
+          23eecfe734
 ~~~
 
 ~~~
@@ -1699,35 +1689,35 @@ Input:
 
 Intermediate values:
 
-      u = 69814a32f92b6e0387ad47fab4e4d0047bb4c61e0c709036d704a6
-          3495a5fc89
-      v = e5e6963bad22e7ca5d3581e1ef6baa372e6fec4099468a4f2c3de4
-          eed679ba68
-     x1 = e5e6963bad22e7ca5d3581e1ef6baa372e6fec4099468a4f2c3de4
-          eed679ba68
-     gv = d66706a0e4adbe52600ebaf1f974326d42fffafc80b6043e719061
-          7fd98bc31f
-    gx1 = d66706a0e4adbe52600ebaf1f974326d42fffafc80b6043e719061
-          7fd98bc31f
-     n1 = 1284691379c1ac42e8836e8c4c69e92d63e473e37ba8152f7900e7
-          92b127b403
-     x2 = 32e3bb42731f2c9b2a9d1d162e5df8407eb5e52a857359537eae32
-          9cb12cb937
-    gx2 = 416fcede6a02681f47d0f3d6cf3cc59b40d8dfcc1ae5244559f3a9
-          03ffc2123d
-     x3 = 2ce9b1f61ad9f734080bf8d14ba8314292216c1de2f541cc018d81
-          88901f028d
-    gx3 = 774ec7bb444558f9d5ce23fd44cc4703f795db45818661e4f25548
-          27dce2c810
-     y1 = 23922565ab14b28feb093f58a6fdac2c3e78032fb6b83bd25203df
-          6acf3e6033
+      u = 777b56233c4bdb9fe7de8b046189d39e0b2c2add660221e7c4a2d4
+          58c3034df2
+      v = 51a60aedc0ade7769bd04a4a3241130e00c7adaa9a1f76f1e115f1
+          d082902b02
+     x1 = 51a60aedc0ade7769bd04a4a3241130e00c7adaa9a1f76f1e115f1
+          d082902b02
+     gv = f7ba284fd26c0cb7b678f71caecbd9bf88890ddba48b596927c70b
+          f805ef5eba
+    gx1 = f7ba284fd26c0cb7b678f71caecbd9bf88890ddba48b596927c70b
+          f805ef5eba
+     n1 = a437e699818d87069a6e4d5298f26f19fd301835eb33b0a3936e3b
+          bd1507d680
+     x2 = 7236d245e18dfd43dd756a2d048c6e491bb9ebfc2caa627e315d49
+          b1e02957fc
+    gx2 = 9d6ebf27637ca38ee894e5052b989021b7d76fa2b01053ce054295
+          54a205c047
+     x3 = 90553fadf8a170464497621e7f2ffcc35d17af4107b79dab6d2a12
+          6ea692c9db
+    gx3 = d7d141749e2e8e4b2253d4ef22e3ba7c7970e604e03b59277aed10
+          32f02c1a11
+     y1 = 4115534ea22d3b46a9c541a25e72b3f37a2ac7635a6bebb16ff504
+          c3170fb69a
 
 Output:
 
-      x = e5e6963bad22e7ca5d3581e1ef6baa372e6fec4099468a4f2c3de4
-          eed679ba68
-      y = 23922565ab14b28feb093f58a6fdac2c3e78032fb6b83bd25203df
-          6acf3e6033
+      x = 51a60aedc0ade7769bd04a4a3241130e00c7adaa9a1f76f1e115f1
+          d082902b02
+      y = 4115534ea22d3b46a9c541a25e72b3f37a2ac7635a6bebb16ff504
+          c3170fb69a
 ~~~
 
 ~~~
@@ -1738,35 +1728,35 @@ Input:
 
 Intermediate values:
 
-      u = 73182e4d7bb225be18466221895c6a97b6e01fb57f76b814672e79
-          a0019e296d
-      v = 04ae6eaa11ae3ff8e18ae6c46cafaf42ed804745f547cae458ac0b
-          b3e4cf378f
-     x1 = 04ae6eaa11ae3ff8e18ae6c46cafaf42ed804745f547cae458ac0b
-          b3e4cf378f
-     gv = 3a041ed4419993674a35dd088a0ddd32771c5a3362d79a9e6b4a12
-          12bb12e475
-    gx1 = 3a041ed4419993674a35dd088a0ddd32771c5a3362d79a9e6b4a12
-          12bb12e475
-     n1 = 10cf7fa5193d868ddd6c6b32a9b0d711c58aabe2ec631bbf4c98d4
-          70fcdffbb4
-     x2 = a98f3163256c708b03af1ab0deb45b7b8e1c467e8ab9a40fbcd374
-          bf4561d3c3
-    gx2 = abe20c7d229e219284691d95120208dc7f86275aee73bd344fce69
-          ccde1aca25
-     x3 = 7391a68d2827abfd7cfe83b17234ac0d078b407b3de65868fac663
-          20a022c65a
-    gx3 = d285e82fe725ec974ec6ed57f8f37cea3166d0d540498a239190a9
-          48eadb0647
-     y2 = 0b3a8e37a4fb1930fab23346de079a473098935caea6cc442ea388
-          9cad06fc43
+      u = 87541ffa2efec46a38875330f66a6a53b99edce4e407e06cd0ccaf
+          39f8208aa6
+      v = 3dbb1902335f823df0d4fe0797456bfee25d0a2016ae6e357197c4
+          122bf7e310
+     x1 = 3dbb1902335f823df0d4fe0797456bfee25d0a2016ae6e357197c4
+          122bf7e310
+     gv = 2704056d76b889ce788ab5cc68fd932f3d7cb125d0dbe0afba9dd7
+          655d0651ed
+    gx1 = 2704056d76b889ce788ab5cc68fd932f3d7cb125d0dbe0afba9dd7
+          655d0651ed
+     n1 = 43b52359e2739c205b2e4c8a0b3cd6842feb2ed131ec37fc0788eb
+          264dc1999b
+     x2 = 39150bdb341015403c27154093cd0382d61d27dafe1dbe70836832
+          23bc3e1b2a
+    gx2 = 0985d428671b570b3c94dbaa2c4f160095db00a3d79b738ce488ca
+          8b45971d03
+     x3 = 30cf2e681176c3e50b36842e3ee7623ba0577f6a1a0572448ab5ba
+          4bcf9c3d71
+    gx3 = ea7c1f13e2ab39240d1d74e884f0878d21020fd73b7f4f84c7d9ad
+          72d0d09ae0
+     y2 = 71b6dea4bc8dcae3dab695b69f25a7dbdc4e00f4926407bad89a80
+          ab12655340
 
 Output:
 
-      x = a98f3163256c708b03af1ab0deb45b7b8e1c467e8ab9a40fbcd374
-          bf4561d3c3
-      y = 0b3a8e37a4fb1930fab23346de079a473098935caea6cc442ea388
-          9cad06fc43
+      x = 39150bdb341015403c27154093cd0382d61d27dafe1dbe70836832
+          23bc3e1b2a
+      y = 71b6dea4bc8dcae3dab695b69f25a7dbdc4e00f4926407bad89a80
+          ab12655340
 ~~~
 
 ## Simple SWU to P-256
@@ -1895,16 +1885,13 @@ Output:
 ## Sample HashToBase
 
 ~~~
-HashToBase("H2C-Curve25519-SHA256-Elligator-Clear", 1234, 0)
-   = 11364263640302997879364999938611426637513956904368290039527468854505139209448
+HashToBase("H2C-Curve25519-SHA256-Elligator-Clear", 1234)
+    = 1e10b542835e7b227c727bd0a7b2790f39ca1e09fc8538b3c70ef736cb1c298f
 
-HashToBase("H2C-Curve25519-SHA256-Elligator-Clear", 1234, 1)
-   = 42725529039024855291160598460908927491550081742680954026778634686318448699431
+HashToBase("H2C-P256-SHA512-SWU-", 1234)
+    = 4fabef095423c97566bd28b70ee70fb4dd95acfeec076862f4e40981a6c9dd85
 
-HashToBase("H2C-P256-SHA512-SWU-", 1234, 0)
-  = 37235527739525190102926510225491744472175314901023920230591105549697272305968
-
-HashToBase("H2C-P256-SHA512-SWU-", 1234, 1)
-  = 68837511497359418928416063660122874363371874365401451996781961226986794574234
+HashToBase("H2C-P256-SHA512-SSWU-", 1234)
+    = d6f685079d692e24ae13ab154684ae46c5311b78a704c6e11b2f44f4db4c6e47
 
 ~~~
