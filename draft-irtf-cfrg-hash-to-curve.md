@@ -46,43 +46,80 @@ normative:
   RFC8017:
   RFC8032:
   SECG1:
-    title: SEC 1 -- Elliptic Curve Cryptography
+    title: "SEC 1: Elliptic Curve Cryptography"
     target: http://www.secg.org/sec1-v2.pdf
-    authors:
+    author:
       -
         ins: Standards for Efficient Cryptography Group (SECG)
-        org:
+  SEC2:
+    title: "SEC 2: Recommended Elliptic Curve Domain Parameters"
+    target: http://www.secg.org/sec2-v2.pdf
+    author:
+      -
+        ins: Standards for Efficient Cryptography Group (SECG)
   Icart09:
     title: How to Hash into Elliptic Curves
     target: https://eprint.iacr.org/2009/226.pdf
-    authors:
+    author:
       -
         ins: T. Icart
         org: Sagem Securite and Universite du Luxembourg
   FT12:
     title: Indifferentiable Hashing to Barreto-Naehrig Curves
-    venue: LATINCRYPT 2012, pages 1-17.
-    target: https://link.springer.com/chapter/10.1007/978-3-642-33481-8_1
-    authors:
+    seriesinfo: LATINCRYPT 2012, pages 1-17.
+    DOI: 10.1007/978-3-642-33481-8_1
+    target: https://doi.org/10.1007/978-3-642-33481-8_1
+    author:
       -
         ins: Pierre-Alain Fouque
         org: Ecole Normale Superieure and INRIA Rennes
       -
         ins: Mehdi Tibouchi
         org: NTT Secure Platform Laboratories
+  BN05:
+    title: Pairing-Friendly Elliptic Curves of Prime Order
+    seriesinfo: Selected Areas in Cryptography 2005, pages 319-331.
+    DOI: 10.1007/11693383_22
+    target: https://doi.org/10.1007/11693383_22
+    author:
+      -
+        name: Paulo S. L. M. Barreto
+        org: Escola Politécnica, Universidade de São Paulo, São Paulo, Brazil
+      -
+        name: Michael Naehrig
+        org: Lehrstuhl für Theoretische Informationstechnik, Rheinisch-Westfälische Technische Hochschule Aachen, Aachen, Germany
+  KSS08:
+    title: Constructing Brezing-Weng Pairing-Friendly Elliptic Curves Using Elements in the Cyclotomic Field
+    seriesinfo: Pairing-Based Cryptography – Pairing 2008, pages 126-135
+    DOI: 10.1007/978-3-540-85538-5_9
+    target: https://doi.org/10.1007/978-3-540-85538-5_9
+    author:
+      -
+        name: "Ezekiel J. Kachisa"
+        org: School of Computing, Dublin City University, Ireland
+      -
+        name: "Edward F. Schaefer"
+        org: Department of Mathematics and Computer Science of Santa Clara University, USA
+      -
+        name: "Michael Scott"
+        org: School of Computing, Dublin City University, Ireland
   BF01:
     title: Identity-based encryption from the Weil pairing
-    authors:
+    seriesinfo: Advances in Cryptology — CRYPTO 2001, pages 213-229
+    target: https://doi.org/10.1007/3-540-44647-8_13
+    author:
       -
-        ins: Dan Boneh
+        name: Dan Boneh
         org: Stanford University
       -
-        ins: Matthew Franklin
+        name: Matthew Franklin
         org: UC Davis
   BLS01:
     title: Short signatures from the Weil pairing
-    target: https://iacr.org/archive/asiacrypt2001/22480516.pdf
-    authors:
+    seriesinfo: Journal of Cryptology, v17, pages 297-319
+    DOI: 10.1007/s00145-004-0314-9
+    target: https://doi.org/10.1007/s00145-004-0314-9
+    author:
       -
         ins: Dan Boneh
         org: Stanford University
@@ -95,7 +132,7 @@ normative:
   BMP00:
     title: Provably secure password-authenticated key exchange using diffie-hellman
     venue: EUROCRYPT, pages 156–171, 2000.
-    authors:
+    author:
       -
         ins: Victor Boyko
         org: MIT Laboratory for Computer Science
@@ -740,27 +777,27 @@ Steps:
 ### Boneh-Franklin Method {#supersingular}
 
 The map2curve_bf(alpha) implements the Boneh-Franklin method {{BF01}} which
-covers the case of supersingular curves E: y^2=x^3+B.
+covers the case of supersingular curves `E: y^2=x^3+B`.
 
 **Preconditions**
 
-This algorithm works for any Weierstrass curve over F_{q} such that A=0 and
-q=2 mod 3.
+This algorithm works for any Weierstrass curve over `F_q` such that `A=0` and
+`q=2 mod 3`.
 
 **Examples**
 
-- y^2=x^3+1
+- `y^2=x^3+1`
 
 **Algorithm**: map2curve_bf
 
 Input:
 
- - alpha: an octet string to be hashed.
- - B    : the constant from the Weierstrass curve.
+ - `alpha`: an octet string to be hashed.
+ - `B`: the constant from the Weierstrass curve.
 
 Output:
 
- - (x,y), a point in E.
+ - `(x,y)`: a point in E.
 
 Operations:
 
@@ -780,11 +817,12 @@ map2curve_bf(alpha)
 
 Input:
 
-  alpha - an octet string to be encoded
+ alpha: an octet string to be hashed.
+ B    : the constant from the Weierstrass curve.
 
 Output:
 
-  (x, y) - a point in E
+ (x, y): a point in E
 
 Precomputations:
 
@@ -802,50 +840,49 @@ Steps:
 
 ### Fouque-Tibouchi Method {#ftpairing}
 
-The map2curve_ft(alpha) implements the Fouque-Tibouchi method {{FT12}} which
-covers the case of pairing-friendly curves E: y^2=x^3+B.
+The map2curve_ft(alpha) implements the Fouque-Tibouchi's method {{FT12}} which
+covers the case of pairing-friendly curves `E: y^2=x^3+B`.
 Note that for pairing curves the destination group is usually a subgroup of the
-curve, hence, a scalar multiplication by the cofactor will send the point to
-the desired group.
+curve, hence, a scalar multiplication by the cofactor will be required to send
+the point to the desired subgroup.
 
 **Preconditions**
 
-This algorithm works for any Weierstrass curve over F_{q} such that A=0, 1+B is
-a non-zero square in the field, and q=7 mod 12 (covering the case q=1 mod 3 not
-handled by Boneh-Franklin's method).
+This algorithm works for any Weierstrass curve over `Fq` such that `A=0`, `1+B` is
+a non-zero square in the field, and `q=7 mod 12`. This covers the case
+`q=1 mod 3` not handled by Boneh-Franklin's method.
 
 **Examples**
 
-- SECP256K1 curve
-- BN curves
-- KSS curves
-- BLS curves
+- SECP256K1 curve {{SEC2}}
+- BN curves {{BN05}}
+- KSS curves {{KSS08}}
+- BLS curves {{BLS01}}
 
 **Algorithm**: map2curve_ft
 
 Input:
 
- - alpha: an octet string to be hashed.
- - B    : the constant from the Weierstrass curve.
- - s    : a constant equal to sqrt(-3)
+ - `alpha`: an octet string to be hashed.
+ - `B`: the constant from the Weierstrass curve.
+ - `s`: a constant equal to sqrt(-3) in the field.
 
 Output:
 
- - (x,y), a point in E.
+ - (x,y): a point in E.
 
 Operations:
 
 ~~~
-1.  Define f(x) = x^3+B
-2.  t = HashToBase(alpha)
-3.  w = (st)/(1+B+t^2)
-4.  x1 = (-1+s)/2-tw
-5.  x2 = -1-x1
-6.  x3 = 1+1/w^2
-7.  e = Legendre(t)
-8.  if f(x1) is square, output (x1, e * sqrt(f(x1)))
-9.  if f(x2) is square, output (x2, e * sqrt(f(x2)))
-10. Output (x3, e * sqrt(f(x3)))
+1. t = HashToBase(alpha)
+2. w = (st)/(1+B+t^2)
+3. x1 = (-1+s)/2-tw
+4. x2 = -1-x1
+5. x3 = 1+1/w^2
+6. e = Legendre(t)
+7. if x1^3+B is square, output (x1, e * sqrt(x1^3+B) )
+8. if x2^3+B is square, output (x2, e * sqrt(x2^3+B) )
+9. Output (x3, e * sqrt(x3^3+B))
 ~~~
 
 **Implementation**
@@ -858,12 +895,12 @@ map2curve_ft(alpha)
 
 Input:
 
-  alpha - an octet string to be encoded
-  B     - the constant of the curve
+  alpha: an octet string to be encoded
+  B    : the constant of the curve
 
 Output:
 
-  (x, y) - a point in E
+  (x, y): - a point in E
 
 Precomputations:
 
@@ -896,7 +933,7 @@ Steps:
 20. Output (x, y)
 ~~~
 
-Additionally, map2curve_ft(alpha) can return the point (c2, sqrt(1+B)) when u=0.
+Additionally, `map2curve_ft(alpha)` can return the point `(c2, sqrt(1+B))` when `u=0`.
 
 ## Encodings for Montgomery curves
 
