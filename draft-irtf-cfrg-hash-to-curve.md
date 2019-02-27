@@ -777,7 +777,9 @@ Steps:
 ### Boneh-Franklin Method {#supersingular}
 
 The map2curve_bf(alpha) implements the Boneh-Franklin method {{BF01}} which
-covers the case of supersingular curves `E: y^2=x^3+B`.
+covers the case of supersingular curves `E: y^2=x^3+B`. This method does not
+guarantee that the resulting a point be in a specific subgroup of the curve.
+To do that, a scalar multiplication by a cofactor is required.
 
 **Preconditions**
 
@@ -786,7 +788,7 @@ This algorithm works for any Weierstrass curve over `F_q` such that `A=0` and
 
 **Examples**
 
-- `y^2=x^3+1`
+- `y^2 = x^3 + 1`
 
 **Algorithm**: map2curve_bf
 
@@ -797,14 +799,14 @@ Input:
 
 Output:
 
- - `(x,y)`: a point in E.
+ - `(x, y)`: a point in E.
 
 Operations:
 
 ~~~
 1. u = HashToBase(alpha)
-2. x = (u^2-B)^(1/3)
-3. Output (x,u)
+2. x = (u^2 - B)^((2 * q - 1) / 3)
+3. Output (x, u)
 ~~~
 
 **Implementation**
@@ -826,30 +828,31 @@ Output:
 
 Precomputations:
 
-1.  c = (2p-1)/3           // Integer arithmetic
+1.  c = (2 * q - 1) / 3    // Integer arithmetic
 
 Steps:
 
-1.  u = HashToBase(alpha)  // {0,1}^* -> Fp
+1.  u = HashToBase(alpha)  // {0,1}^* -> F_q
 2. t0 = u^2                // t0 = u^2
-3. t1 = t0-B               // t1 = u^2-B
-4.  x = t1^c               // x  = (u^2-B)^(1/3)
-5. Output (x,u)
+3. t1 = t0 - B             // t1 = u^2 - B
+4.  x = t1^c               // x  = (u^2 - B)^((2 * q - 1) / 3)
+5. Output (x, u)
 ~~~
 
 
 ### Fouque-Tibouchi Method {#ftpairing}
 
-The map2curve_ft(alpha) implements the Fouque-Tibouchi's method {{FT12}} which
-covers the case of pairing-friendly curves `E: y^2=x^3+B`.
+The map2curve_ft(alpha) implements the Fouque-Tibouchi's method {{FT12}}
+(Sec. 3, Def. 2) which covers the case of pairing-friendly curves
+`E : y^2 = x^3 + B`.
 Note that for pairing curves the destination group is usually a subgroup of the
 curve, hence, a scalar multiplication by the cofactor will be required to send
 the point to the desired subgroup.
 
 **Preconditions**
 
-This algorithm works for any Weierstrass curve over `Fq` such that `A=0`, `1+B` is
-a non-zero square in the field, and `q=7 mod 12`. This covers the case
+This algorithm works for any Weierstrass curve over `F_q` such that `q=7 mod 12`,
+`A=0`, and `1+B` is a non-zero square in the field. This covers the case
 `q=1 mod 3` not handled by Boneh-Franklin's method.
 
 **Examples**
@@ -869,20 +872,20 @@ Input:
 
 Output:
 
- - (x,y): a point in E.
+ - (x, y): a point in E.
 
 Operations:
 
 ~~~
 1. t = HashToBase(alpha)
-2. w = (st)/(1+B+t^2)
-3. x1 = (-1+s)/2-tw
-4. x2 = -1-x1
-5. x3 = 1+1/w^2
+2. w = (s * t)/(1 + B + t^2)
+3. x1 = ((-1 + s) / 2) - t * w
+4. x2 = -1 - x1
+5. x3 = 1 + (1 / w^2)
 6. e = Legendre(t)
-7. if x1^3+B is square, output (x1, e * sqrt(x1^3+B) )
-8. if x2^3+B is square, output (x2, e * sqrt(x2^3+B) )
-9. Output (x3, e * sqrt(x3^3+B))
+7. If x1^3 + B is square, output (x1, e * sqrt(x1^3 + B) )
+8. If x2^3 + B is square, output (x2, e * sqrt(x2^3 + B) )
+9. Output (x3, e * sqrt(x3^3 + B))
 ~~~
 
 **Implementation**
@@ -904,43 +907,43 @@ Output:
 
 Precomputations:
 
-1.  c1 = sqrt(-3)           // Field arithmetic
-2.  c2 = (-1+c1)/2          // Field arithmetic
+1.  c1 = sqrt(-3)          // Field arithmetic
+2.  c2 = (-1 + c1) / 2     // Field arithmetic
 
 Steps:
 
-1.   u = HashToBase(alpha)  // {0,1}^* -> Fp
-2.  t0 = u^2                // u^2
-3.  t0 = t0+B+1             // u^2+B+1
-4.  t0 = 1/t0               // 1/(u^2+B+1)
-5.  t0 = t0*u               // u/(u^2+B+1)
-6.  t0 = t0*c1              // sqrt(-3)u/(u^2+B+1)
-7.  x1 = c2-u*t0            // (-1+sqrt(-3))/2-sqrt(-3)u^2/(u^2+B+1)
-8.  x2 = -1-x1
-9.  t1 = t0^2
-10. t1 = 1/t1
-11. x3 = t1+1
-12. fx1 = x1^3+B
-12. fx2 = x2^3+B
+1.  t = HashToBase(alpha)  // {0,1}^* -> Fp
+2.  k = t^2                // t^2
+3.  k = k + B + 1          // t^2 + B + 1
+4.  k = 1 / k              // 1 / (t^2 + B + 1)
+5.  k = k * t              // t / (t^2 + B + 1)
+6.  k = k * c1             // sqrt(-3) * t / (t^2 + B + 1)
+7.  x1 = c2 - t * k        // (-1 + sqrt(-3)) / 2 - sqrt(-3) * t^2 / (t^2 + B + 1)
+8.  x2 = -1 - x1
+9.  r = k^2
+10. r = 1 / r
+11. x3 = 1 + r
+12. fx1 = x1^3 + B
+12. fx2 = x2^3 + B
 12. s1 = Legendre(fx1)
 13. s2 = Legendre(fx2)
 14.  x = x3
-15.  x = CMOV(x2 ,x, s2>0)  // if s2=1, then x is set to x2
-16.  x = CMOV(x1, x, s1>0)  // if s1=1, then x is set to x1
-17.  y = x^3+B
-18. t2 = Legendre(u)
-19.  y = t2*sqrt(y)         // TODO: determine which root to choose
+15.  x = CMOV(x2 ,x, s2 > 0)  // if s2=1, then x is set to x2
+16.  x = CMOV(x1, x, s1 > 0)  // if s1=1, then x is set to x1
+17.  y = x^3 + B
+18. t2 = Legendre(t)
+19.  y = t2 * sqrt(y)         // TODO: determine which root to choose
 20. Output (x, y)
 ~~~
 
-Additionally, `map2curve_ft(alpha)` can return the point `(c2, sqrt(1+B))` when `u=0`.
+Additionally, `map2curve_ft(alpha)` can return the point `(c2, sqrt(1 + B))` when `u=0`.
 
 ## Encodings for Montgomery curves
 
 A Montgomery curve is given by the following equation E: By^2=x^3+Ax^2+x, where
 B(A^2 − 4) ≠ 0. Note that any curve with a point of order 2 is isomorphic to
 this representation. Also notice that E cannot have a prime order group, hence,
-a scalar multiplication by the cofactor h={4,8} is required to obtain a point
+a scalar multiplication by the cofactor is required to obtain a point
 in the main subgroup.
 
 ### Elligator2 Method {#elligator2}
