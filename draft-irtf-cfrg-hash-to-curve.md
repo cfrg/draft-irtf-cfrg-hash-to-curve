@@ -1163,6 +1163,9 @@ earlier versions of this document.
 
 # Contributors
 
+* Armando Faz \\
+  Cloudflare \\
+  armfazh@cloudflare.com 
 * Sharon Goldberg \\
   Boston University \\
   goldbe@cs.bu.edu
