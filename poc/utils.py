@@ -90,5 +90,11 @@ class Curve:
             self.p = 2**256 - 2**224 + 2**192 + 2**96 - 1
         elif label == "P384":
             self.p = 2**384 - 2**128  - 2**96 + 2**32 - 1
+        elif label == "P503":
+            self.p = 2**250*3**159-1
+        elif label == "BN256":
+            mu = -(2**62 + 2**55 + 1)
+            pp = lambda x: 36*x**4 + 36*x**3 + 24*x**2 + 6*x + 1
+            self.p = pp(mu)
         else:
             raise ValueError("Curve %s is not recognized" % curve)

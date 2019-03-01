@@ -46,32 +46,80 @@ normative:
   RFC8017:
   RFC8032:
   SECG1:
-    title: SEC 1 -- Elliptic Curve Cryptography
+    title: "SEC 1: Elliptic Curve Cryptography"
     target: http://www.secg.org/sec1-v2.pdf
-    authors:
+    author:
       -
         ins: Standards for Efficient Cryptography Group (SECG)
-        org:
+  SEC2:
+    title: "SEC 2: Recommended Elliptic Curve Domain Parameters"
+    target: http://www.secg.org/sec2-v2.pdf
+    author:
+      -
+        ins: Standards for Efficient Cryptography Group (SECG)
   Icart09:
     title: How to Hash into Elliptic Curves
     target: https://eprint.iacr.org/2009/226.pdf
-    authors:
+    author:
       -
         ins: T. Icart
         org: Sagem Securite and Universite du Luxembourg
+  FT12:
+    title: Indifferentiable Hashing to Barreto-Naehrig Curves
+    seriesinfo: LATINCRYPT 2012, pages 1-17.
+    DOI: 10.1007/978-3-642-33481-8_1
+    target: https://doi.org/10.1007/978-3-642-33481-8_1
+    author:
+      -
+        ins: Pierre-Alain Fouque
+        org: Ecole Normale Superieure and INRIA Rennes
+      -
+        ins: Mehdi Tibouchi
+        org: NTT Secure Platform Laboratories
+  BN05:
+    title: Pairing-Friendly Elliptic Curves of Prime Order
+    seriesinfo: Selected Areas in Cryptography 2005, pages 319-331.
+    DOI: 10.1007/11693383_22
+    target: https://doi.org/10.1007/11693383_22
+    author:
+      -
+        name: Paulo S. L. M. Barreto
+        org: Escola Politécnica, Universidade de São Paulo, São Paulo, Brazil
+      -
+        name: Michael Naehrig
+        org: Lehrstuhl für Theoretische Informationstechnik, Rheinisch-Westfälische Technische Hochschule Aachen, Aachen, Germany
+  KSS08:
+    title: Constructing Brezing-Weng Pairing-Friendly Elliptic Curves Using Elements in the Cyclotomic Field
+    seriesinfo: Pairing-Based Cryptography – Pairing 2008, pages 126-135
+    DOI: 10.1007/978-3-540-85538-5_9
+    target: https://doi.org/10.1007/978-3-540-85538-5_9
+    author:
+      -
+        name: "Ezekiel J. Kachisa"
+        org: School of Computing, Dublin City University, Ireland
+      -
+        name: "Edward F. Schaefer"
+        org: Department of Mathematics and Computer Science of Santa Clara University, USA
+      -
+        name: "Michael Scott"
+        org: School of Computing, Dublin City University, Ireland
   BF01:
     title: Identity-based encryption from the Weil pairing
-    authors:
+    seriesinfo: Advances in Cryptology — CRYPTO 2001, pages 213-229
+    target: https://doi.org/10.1007/3-540-44647-8_13
+    author:
       -
-        ins: Dan Boneh
+        name: Dan Boneh
         org: Stanford University
       -
-        ins: Matthew Franklin
+        name: Matthew Franklin
         org: UC Davis
   BLS01:
     title: Short signatures from the Weil pairing
-    target: https://iacr.org/archive/asiacrypt2001/22480516.pdf
-    authors:
+    seriesinfo: Journal of Cryptology, v17, pages 297-319
+    DOI: 10.1007/s00145-004-0314-9
+    target: https://doi.org/10.1007/s00145-004-0314-9
+    author:
       -
         ins: Dan Boneh
         org: Stanford University
@@ -84,7 +132,7 @@ normative:
   BMP00:
     title: Provably secure password-authenticated key exchange using diffie-hellman
     venue: EUROCRYPT, pages 156–171, 2000.
-    authors:
+    author:
       -
         ins: Victor Boyko
         org: MIT Laboratory for Computer Science
@@ -478,7 +526,7 @@ map2curve(alpha)
 
 where alpha is a message to encode on a curve.
 
-## Encoding Variants
+## Notation
 
 As a rough style guide for the following, we use (x, y) to be the output
 coordinates of the encoding method. Indexed values are used when the algorithm
@@ -496,6 +544,15 @@ test vectors.
 The code presented here corresponds to the example Sage {{SAGE}} code found at
 {{github-repo}}. Which is additionally used to generate intermediate test
 vectors. The Sage code is also checked against the hacspec implementation.
+
+Note that each encoding requires that certain preconditions must hold in
+order to be applied.
+
+## Encodings for Weierstrass curves
+
+The following encodings apply to elliptic curves defined as E: y^2 = x^3+Ax+B,
+where 4A^3+27B^2 ≠ 0.
+
 
 ### Icart Method {#icart}
 
@@ -717,6 +774,178 @@ Steps:
 23. Output (x, y)
 ~~~
 
+### Boneh-Franklin Method {#supersingular}
+
+The map2curve_bf(alpha) implements the Boneh-Franklin method {{BF01}} which
+covers the case of supersingular curves `E: y^2=x^3+B`. This method does not
+guarantee that the resulting a point be in a specific subgroup of the curve.
+To do that, a scalar multiplication by a cofactor is required.
+
+**Preconditions**
+
+This algorithm works for any Weierstrass curve over `F_q` such that `A=0` and
+`q=2 mod 3`.
+
+**Examples**
+
+- `y^2 = x^3 + 1`
+
+**Algorithm**: map2curve_bf
+
+Input:
+
+ - `alpha`: an octet string to be hashed.
+ - `B`: the constant from the Weierstrass curve.
+
+Output:
+
+ - `(x, y)`: a point in E.
+
+Operations:
+
+~~~
+1. u = HashToBase(alpha)
+2. x = (u^2 - B)^((2 * q - 1) / 3)
+3. Output (x, u)
+~~~
+
+**Implementation**
+
+The following procedure implements the Boneh-Franklin's algorithm in a
+straight-line fashion.
+
+~~~
+map2curve_bf(alpha)
+
+Input:
+
+ alpha: an octet string to be hashed.
+ B    : the constant from the Weierstrass curve.
+
+Output:
+
+ (x, y): a point in E
+
+Precomputations:
+
+1.  c = (2 * q - 1) / 3    // Integer arithmetic
+
+Steps:
+
+1.  u = HashToBase(alpha)  // {0,1}^* -> F_q
+2. t0 = u^2                // t0 = u^2
+3. t1 = t0 - B             // t1 = u^2 - B
+4.  x = t1^c               // x  = (u^2 - B)^((2 * q - 1) / 3)
+5. Output (x, u)
+~~~
+
+
+### Fouque-Tibouchi Method {#ftpairing}
+
+The map2curve_ft(alpha) implements the Fouque-Tibouchi's method {{FT12}}
+(Sec. 3, Def. 2) which covers the case of pairing-friendly curves
+`E : y^2 = x^3 + B`.
+Note that for pairing curves the destination group is usually a subgroup of the
+curve, hence, a scalar multiplication by the cofactor will be required to send
+the point to the desired subgroup.
+
+**Preconditions**
+
+This algorithm works for any Weierstrass curve over `F_q` such that `q=7 mod 12`,
+`A=0`, and `1+B` is a non-zero square in the field. This covers the case
+`q=1 mod 3` not handled by Boneh-Franklin's method.
+
+**Examples**
+
+- SECP256K1 curve {{SEC2}}
+- BN curves {{BN05}}
+- KSS curves {{KSS08}}
+- BLS curves {{BLS01}}
+
+**Algorithm**: map2curve_ft
+
+Input:
+
+ - `alpha`: an octet string to be hashed.
+ - `B`: the constant from the Weierstrass curve.
+ - `s`: a constant equal to sqrt(-3) in the field.
+
+Output:
+
+ - (x, y): a point in E.
+
+Operations:
+
+~~~
+1. t = HashToBase(alpha)
+2. w = (s * t)/(1 + B + t^2)
+3. x1 = ((-1 + s) / 2) - t * w
+4. x2 = -1 - x1
+5. x3 = 1 + (1 / w^2)
+6. e = Legendre(t)
+7. If x1^3 + B is square, output (x1, e * sqrt(x1^3 + B) )
+8. If x2^3 + B is square, output (x2, e * sqrt(x2^3 + B) )
+9. Output (x3, e * sqrt(x3^3 + B))
+~~~
+
+**Implementation**
+
+The following procedure implements the Fouque-Tibouchi's algorithm in a
+straight-line fashion.
+
+~~~
+map2curve_ft(alpha)
+
+Input:
+
+  alpha: an octet string to be encoded
+  B    : the constant of the curve
+
+Output:
+
+  (x, y): - a point in E
+
+Precomputations:
+
+1.  c1 = sqrt(-3)          // Field arithmetic
+2.  c2 = (-1 + c1) / 2     // Field arithmetic
+
+Steps:
+
+1.  t = HashToBase(alpha)  // {0,1}^* -> Fp
+2.  k = t^2                // t^2
+3.  k = k + B + 1          // t^2 + B + 1
+4.  k = 1 / k              // 1 / (t^2 + B + 1)
+5.  k = k * t              // t / (t^2 + B + 1)
+6.  k = k * c1             // sqrt(-3) * t / (t^2 + B + 1)
+7.  x1 = c2 - t * k        // (-1 + sqrt(-3)) / 2 - sqrt(-3) * t^2 / (t^2 + B + 1)
+8.  x2 = -1 - x1
+9.  r = k^2
+10. r = 1 / r
+11. x3 = 1 + r
+12. fx1 = x1^3 + B
+12. fx2 = x2^3 + B
+12. s1 = Legendre(fx1)
+13. s2 = Legendre(fx2)
+14.  x = x3
+15.  x = CMOV(x2 ,x, s2 > 0)  // if s2=1, then x is set to x2
+16.  x = CMOV(x1, x, s1 > 0)  // if s1=1, then x is set to x1
+17.  y = x^3 + B
+18. t2 = Legendre(t)
+19.  y = t2 * sqrt(y)         // TODO: determine which root to choose
+20. Output (x, y)
+~~~
+
+Additionally, `map2curve_ft(alpha)` can return the point `(c2, sqrt(1 + B))` when `u=0`.
+
+## Encodings for Montgomery curves
+
+A Montgomery curve is given by the following equation E: By^2=x^3+Ax^2+x, where
+B(A^2 − 4) ≠ 0. Note that any curve with a point of order 2 is isomorphic to
+this representation. Also notice that E cannot have a prime order group, hence,
+a scalar multiplication by the cofactor is required to obtain a point
+in the main subgroup.
+
 ### Elligator2 Method {#elligator2}
 
 The following map2curve_elligator2(alpha) implements the Elligator2
@@ -852,8 +1081,11 @@ returns an element of the Destination Group defined in the ciphersuite by applyi
 HashToCurve and Transformation (if defined).
 
 This document describes the following set of ciphersuites:
+
 * H2C-P256-SHA256-SSWU-
 * H2C-P384-SHA512-Icart-
+* H2C-SECP256K1-SHA512-FT-
+* H2C-BN256-SHA512-FT-
 * H2C-Curve25519-SHA512-Elligator2-Clear
 * H2C-Curve448-SHA512-Elligator2-Clear
 * H2C-Curve25519-SHA512-Elligator2-FFSTV
@@ -934,6 +1166,9 @@ earlier versions of this document.
 * Sharon Goldberg \\
   Boston University \\
   goldbe@cs.bu.edu
+* Ela Lee \\
+  Royal Holloway, University of London \\
+  Ela.Lee.2010@live.rhul.ac.uk
 
 --- back
 
@@ -1206,6 +1441,77 @@ def map2p256(t:felem_t) -> affine_t:
       return (x2, fexp(f_p256(x2), exp))
     else:
       return (x3, fexp(f_p256(x3), exp))
+~~~
+
+## Boneh-Franklin Method
+
+The following hacspec program implements map2curve_bf(alpha) for a supersingular
+curve `y^2=x^3+1` over `GF(p)` and `p = (2^250)(3^159)-1`.
+
+~~~
+from hacspec.speclib import *
+
+prime = 2**250*3**159-1
+
+a503 = to_felem(0)
+b503 = to_felem(1)
+
+@typechecked
+def map2p503(u:felem_t) -> affine_t:
+    t0 = fsqr(u)
+    t1 = fsub(t0,b503)
+    x = fexp(t1, (2 * prime - 1) // 3)
+    return (x, u)
+~~~
+
+## Fouque-Tibouchi Method
+
+The following hacspec program implements map2curve_ft(alpha) for a BN curve
+`BN256 : y^2=x^3+1` over `GF(p(t))`, where
+`p(x) = 36x^4 + 36x^3 + 24x^2 + 6x + 1`, and `t = -(2^62 + 2^55 + 1)`.
+
+~~~
+from hacspec.speclib import *
+
+t = -(2**62 + 2**55 + 1)
+p = lambda x: 36*x**4 + 36*x**3 + 24*x**2 + 6*x + 1
+prime = p(t)
+
+aBN256 = to_felem(0)
+bBN256 = to_felem(1)
+
+@typechecked
+def map2BN256(u:felem_t) -> affine_t:
+    ZERO = to_felem(0)
+    ONE = to_felem(1)
+    SQRT_MINUS3 = fsqrt(to_felem(-3))
+    ONE_SQRT3_DIV2 = fmul(finv(to_felem(2)),fsub(SQRT_MINUS3,ONE))
+
+    fcurve = lambda x: fadd(fexp(x, 3), fadd(fmul(to_felem(aBN256), x), to_felem(bBN256)))
+    flegendre = lambda x: fexp(u, (prime - 1) // 2)
+
+    w = finv(fadd(fadd(fsqr(u),B),ONE))
+    w = fmul(fmul(w,SQRT_MINUS3),u)
+    e = flegendre(u)
+
+    x1 = fsub(ONE_SQRT3_DIV2,fmul(u,w))
+    fx1 = fcurve(x1)
+    s1 = flegendre(fx1)
+    if s1 == 1:
+        y1 = fmul(fsqrt(fx1),e)
+        return (x1,y1)
+
+    x2 = fsub(ZERO,fadd(ONE,x1))
+    fx2 = fcurve(x2)
+    s2 = flegendre(fx2)
+    if s2 == 1:
+        y2 = fmul(fsqrt(fx2),e)
+        return (x2,y2)
+
+    x3 = fadd(finv(fsqr(w)),ONE)
+    fx3 = fcurve(x3)
+    y3 = fmul(fsqrt(fx3),e)
+    return (x3,y3)
 ~~~
 
 ## Elligator2 Method
@@ -1788,6 +2094,278 @@ Output:
       y = 180369d261ec6086346e6b2d36990a3aaa803558f1398b6816c3c6
           18d41ff73e
 ~~~
+
+## Boneh-Franklin to P-503
+
+The P-503 curve is a supersingular curve defined as `y^2=x^3+1`
+over `GF(p)`, where `p = 2^250*3^159-1`.
+
+~~~
+Input:
+
+  alpha =
+
+Intermediate values:
+
+     u  = 198008fe3da9ee741c2ff07b9d4732df88a3cb98e8227b2cf49d55
+          57aec1e61d1d29f460c6e4572b2baa21d2444d64d59cdcd2c0dfa2
+          0144dfab7e92a83e00
+     t0 = 1f6bb1854a1ff7db82b43c235727d998fe28889152ec4efa533994
+          fc6d0e77cd9f3ddb8c46226de8e5de75f705370944b809fe0ca092
+          8587addb9c54ae1a05
+     t1 = 1f6bb1854a1ff7db82b43c235727d998fe28889152ec4efa533994
+          fc6d0e77cd9f3ddb8c46226de8e5de75f705370944b809fe0ca092
+          8587addb9c54ae1a04
+      x = 04671bff33e7f9f7905848cd4c0fc652bd22200eedf29ef8e13ccb
+          5536e4aa11db4366d2f346070d63c994bf0a4b1a4e555d6b3d021a
+          eba340b641ada82054
+
+Output:
+
+      x = 04671bff33e7f9f7905848cd4c0fc652bd22200eedf29ef8e13ccb
+          5536e4aa11db4366d2f346070d63c994bf0a4b1a4e555d6b3d021a
+          eba340b641ada82054
+      y = 198008fe3da9ee741c2ff07b9d4732df88a3cb98e8227b2cf49d55
+          57aec1e61d1d29f460c6e4572b2baa21d2444d64d59cdcd2c0dfa2
+          0144dfab7e92a83e00
+~~~
+
+~~~
+Input:
+
+  alpha = 00
+
+Intermediate values:
+
+     u  = 30e30a56d82cdca830f08d729ce909fc1ffec68df49ba75f9a1af7
+          2ca242e92742f34b474a299bb452c6a71b69bdc9ee2403eaac7c84
+          120a160737d667e29e
+     t0 = 0a64d9f288a0881bb6addebc0db89f146b282b05570efa3419f5d3
+          2f11ec7bb449a1da8b33817642f01db039f838ad0bd459ec03e76d
+          8eec3a1e79d6c63f79
+     t1 = 0a64d9f288a0881bb6addebc0db89f146b282b05570efa3419f5d3
+          2f11ec7bb449a1da8b33817642f01db039f838ad0bd459ec03e76d
+          8eec3a1e79d6c63f78
+      x = 0970ff4bb9237704cc30f5b0d80a9d97001064ab4cdb98de74f8d7
+          283b922726406393c07ad01de0499e46ebc0ed1cd116112cf8965f
+          b8f918205adb13d3da
+
+Output:
+
+      x = 0970ff4bb9237704cc30f5b0d80a9d97001064ab4cdb98de74f8d7
+          283b922726406393c07ad01de0499e46ebc0ed1cd116112cf8965f
+          b8f918205adb13d3da
+      y = 30e30a56d82cdca830f08d729ce909fc1ffec68df49ba75f9a1af7
+          2ca242e92742f34b474a299bb452c6a71b69bdc9ee2403eaac7c84
+          120a160737d667e29e
+~~~
+
+~~~
+Input:
+
+  alpha = ff
+
+Intermediate values:
+
+     u  = 3808ae24b17af9147bd16077e3e83aff5c579784c8a1443d90e5ff
+          e2451bfabacba73ee8b8f652b991290f5c64b34b1a4c9a498e21d4
+          3d000dae7f8860200a
+     t0 = 2282d37dce4761dad69d1fe012c8580ba4e23158a0621fb3f51813
+          10e7275e95573c89a8f0cda7ad98ca9e0a9e04ef94a1a79685d069
+          6ac6ad423a0de96b7d
+     t1 = 2282d37dce4761dad69d1fe012c8580ba4e23158a0621fb3f51813
+          10e7275e95573c89a8f0cda7ad98ca9e0a9e04ef94a1a79685d069
+          6ac6ad423a0de96b7c
+      x = 173dc6d853d9024f367e24a283768e11ce559473e788f3c0ed0281
+          6b48403fc6e100d4935b3f6197799bfbd4fbd94b3656596252f12b
+          27fa46602c76ae1370
+
+Output:
+
+      x = 173dc6d853d9024f367e24a283768e11ce559473e788f3c0ed0281
+          6b48403fc6e100d4935b3f6197799bfbd4fbd94b3656596252f12b
+          27fa46602c76ae1370
+      y = 3808ae24b17af9147bd16077e3e83aff5c579784c8a1443d90e5ff
+          e2451bfabacba73ee8b8f652b991290f5c64b34b1a4c9a498e21d4
+          3d000dae7f8860200a
+~~~
+
+~~~
+Input:
+
+  alpha = ff0011223344112233441122334411223344556677885566778855
+          66778855667788
+
+Intermediate values:
+
+     u  = 3ebdfccb07ddc61d9f81be2b9f5a7a8733581f1a8d531d78229d7b
+          0be50f30887f085ef393422ef96e06ff1df4b608b05c53320a9012
+          09b8df48b68ab338ec
+     t0 = 27958e69b08a9fd2d1765ce3e8dbaf8645c28e5ce033b9d0a7875c
+          e7e73d6583e62ff3a06a2b55de1cb8c26819d0cd4aed2dc7cb65fa
+          d5eb3c149db9e8381b
+     t1 = 27958e69b08a9fd2d1765ce3e8dbaf8645c28e5ce033b9d0a7875c
+          e7e73d6583e62ff3a06a2b55de1cb8c26819d0cd4aed2dc7cb65fa
+          d5eb3c149db9e8381a
+      x = 3fe94cd4d2be061834d1a5020ca181562fdb7e9787f71965ca55cd
+          dbf069b68ddd5e2b05a5696a061723093914e69b0540402baa0db3
+          fddc517df4211daea1
+
+Output:
+
+      x = 3fe94cd4d2be061834d1a5020ca181562fdb7e9787f71965ca55cd
+          dbf069b68ddd5e2b05a5696a061723093914e69b0540402baa0db3
+          fddc517df4211daea1
+      y = 3ebdfccb07ddc61d9f81be2b9f5a7a8733581f1a8d531d78229d7b
+          0be50f30887f085ef393422ef96e06ff1df4b608b05c53320a9012
+          09b8df48b68ab338ec
+~~~
+
+## Fouque-Tibouchi to BN256
+
+An instance of a BN curve is defined as `BN256: y^2=x^3+1` over
+`GF(p(t))` such that
+
+~~~
+t = -(2^62 + 2^55 + 1).
+p = 0x2523648240000001ba344d80000000086121000000000013a700000000000013
+~~~
+
+
+~~~
+Input:
+
+  alpha =
+
+Intermediate values:
+
+     u  = 1f6f2aceae3d9323ea64e9be00566f863cc1583385eaff6b01aed7
+          a762b11122
+     t0 = 1e9c884ab8d2015985a3e3d2764798b183ff5982b0fd9034f27456
+          0f19d06ed0
+     x1 = 0843eb0f5ed559e940a453f257b2a2e297895ecc2375a070168117
+          b5127ec2ae
+     x2 = 1cdf7972e12aa618798ff98da84d5d25c997a133dc8a5fa3907ee8
+          4aed813d64
+     x3 = 042f756fe42e2ed4c58990da3b2567a7b16252c0e17b2da55b8f68
+          be71ebd432
+      e = 2523648240000001ba344d80000000086121000000000013a70000
+          0000000012
+    fx1 = 0a8442855e93541a104052273e2bba930338d392d71f70efe83c77
+          ae95471a4e
+     y1 = 135a017a32abc542796e55d0b68840546c3b2498963773635e27c2
+          5aa3737199
+
+Output:
+
+      x = 0843eb0f5ed559e940a453f257b2a2e297895ecc2375a070168117
+          b5127ec2ae
+      y = 135a017a32abc542796e55d0b68840546c3b2498963773635e27c2
+          5aa3737199
+~~~
+
+~~~
+Input:
+
+  alpha = 00
+
+Intermediate values:
+
+     u  = 053c7251b0e5e5c9acde43c6abd44ffeb13109f61ec27ba0a8191f
+          1165435065
+     t0 = 0377baf027b80854661187280a98ae1320d7fd8cb0a65fd7077270
+          6c38cb71d8
+     x1 = 0f5173cd2eb8d4352497a9cb56ebf40b623d9dabb7dcc3f626b1f3
+          89e49b9356
+     x2 = 15d1f0b511472bcc959ca3b4a9140bfcfee3625448233c1d804e0c
+          761b646cbc
+     x3 = 100fb33cea2b98b99ca5a279e1b4e5b0cf6927ded3cb729a822483
+          809e486dc7
+      e = 2523648240000001ba344d80000000086121000000000013a70000
+          0000000012
+    fx1 = 044c88525cbf81408b9bac1c83bdc49e3f31ec5a7b68495b5d03e5
+          18448a7f09
+     y1 = 18e4bd91f687e110fb5f57411fccf34b4b1d16d3d978a75d988c38
+          d338522d7c
+
+Output:
+
+      x = 0f5173cd2eb8d4352497a9cb56ebf40b623d9dabb7dcc3f626b1f3
+          89e49b9356
+      y = 18e4bd91f687e110fb5f57411fccf34b4b1d16d3d978a75d988c38
+          d338522d7c
+~~~
+
+~~~
+Input:
+
+  alpha = ff
+
+Intermediate values:
+
+     u  = 077033c69096f00eb76446a64be88c7ae5f1921b977381a6f2e9a8
+          336191e783
+     t0 = 1716fb7790dd8e2e5a3ef94d63ca31682dd8b92ce13b93e0977943
+          bf4c364c72
+     x1 = 187ca1d0f0dec664467d49b4a4a661602faac5453fbd4ad9e3f15d
+          a35627459e
+     x2 = 0ca6c2b14f21399d73b703cb5b599ea831763abac042b539c30ea2
+          5ca9d8ba74
+     x3 = 0f694914de2533b1fbab6495b1de12cde6965bba0b505b527c1cb0
+          69a5fdfd03
+      e = 000000000000000000000000000000000000000000000000000000
+          0000000001
+    fx1 = 067a294268373f0123d95357d7d46c730277e67e68daf3a2c605bf
+          035f680a7b
+     y1 = 0de5f5d8ecfc19580a882c53c08b47791edf4499965df86263c525
+          afd4fe0769
+
+Output:
+
+      x = 187ca1d0f0dec664467d49b4a4a661602faac5453fbd4ad9e3f15d
+          a35627459e
+      y = 0de5f5d8ecfc19580a882c53c08b47791edf4499965df86263c525
+          afd4fe0769
+~~~
+
+~~~
+Input:
+
+  alpha = ff0011223344112233441122334411223344556677885566778855
+          66778855667788
+
+Intermediate values:
+
+     u  = 1dd9ec37d5abeed0f289daddd685d45a395a90f2730a9adead62bf
+          1ae2fe958b
+     t0 = 23d0adbb23709a3732948019e038c13f498b33812149fe503b68da
+          76831a7aca
+     x1 = 00e2d073931bc2f38a069df42afbfc9e6f04155e52cf6211be3d40
+          f4f4a3dc70
+     x2 = 2440940eace43d0e302daf8bd5040369f21ceaa1ad309e01e8c2bf
+          0b0b5c23a2
+     x3 = 09c1ba4259e59a54221b5761cf9438a60e6cd644996e7c8a11be96
+          88718e0261
+      e = 2523648240000001ba344d80000000086121000000000013a70000
+          0000000012
+    fx1 = 080e2aef1644070acf09d6563db6805684572eb33f457d9d75ed5c
+          f96e35c9c5
+    fx2 = 0c2937174e6a4a89c1574ed4fa96d83a64fb09670c49a8b492321a
+          edac6617f6
+    fx3 = 118bcb595ca0eac3ae6e56595267670caf75d34386dadc99284bf8
+          4ae4ff4804
+     y3 = 190e8d47070240ff3c78a03d07123334e67b207fe555c31d0900fe
+          71ab33035e
+
+Output:
+
+      x = 09c1ba4259e59a54221b5761cf9438a60e6cd644996e7c8a11be96
+          88718e0261
+      y = 190e8d47070240ff3c78a03d07123334e67b207fe555c31d0900fe
+          71ab33035e
+~~~
+
+
 
 ## Sample HashToBase
 
