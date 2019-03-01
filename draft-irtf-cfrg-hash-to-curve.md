@@ -470,7 +470,7 @@ Algorithms in this document make use of utility functions described below.
 - HashToBase(x).
   This method is parametrized by p and H, where p is the prime order of
   the base field Fp, and H is a cryptographic hash function which
-  outputs at least floor(log2(p)) + 2 bits.
+  outputs at least floor(log2(p)) + 1 bits.
   The function first hashes x, converts the result to an integer,
   and reduces modulo p to give an element of Fp.
   We provide a more detailed algorithm in {{hashtobase}}.
