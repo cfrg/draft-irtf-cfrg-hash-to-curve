@@ -1,7 +1,16 @@
 import hashlib
 import struct
+import textwrap
 
 DEBUG = False
+
+map2curve_alphas = [
+    "",
+    "\x00",
+    "\xFF",
+    "\xFF\x00"
+    "\x11\x22\x33\x44\x11\x22\x33\x44\x11\x22\x33\x44\x11\x22\x33\x44\x55\x66\x77\x88\x55\x66\x77\x88\x55\x66\x77\x88\x55\x66\x77\x88",
+]
 
 # Convert an non-negative integer into n bytes
 def i2osp(i, n):
@@ -22,8 +31,11 @@ def os2ip(os):
         res += b
     return res
 
+def Hex(n):
+    return format(int(n),'x')
+
 def pprint_hex(os):
-    return " ".join("{:02x}".format(ord(c)) for c in os)
+    return "".join("{:02x}".format(ord(c)) for c in os)
 
 def from_hex_string(str):
     os = "".join(chr(int(b, 16)) for b in str.split(" "))
@@ -33,9 +45,22 @@ def enable_debug():
     global DEBUG
     DEBUG = True
 
-def tv(fmt, v, len):
+def tv_wrap(text):
+    return textwrap.fill(text, 54).split("\n")
+
+def tv_text(label, value):
     if DEBUG:
-        print(fmt % pprint_hex(i2osp(v, len)))
+        chunks = tv_wrap(value)
+        print("%7s = %s" % (label, chunks[0]))
+        for i, v in enumerate(chunks[1:]):
+            print((" " * 10) + v)
+
+def tv(label, v, len):
+    if DEBUG:
+        chunks = tv_wrap(pprint_hex(i2osp(v, len)))
+        print("%7s = %s" % (label, chunks[0]))
+        for i, v in enumerate(chunks[1:]):
+            print((" " * 10) + v)
 
 class Ciphersuite:
     def __init__(self, label):
@@ -52,7 +77,7 @@ class Hash:
         elif label == "SHA512":
             self.H = hashlib.sha512
         else:
-            raise ValueError("Hash %s is not recognied" % curve)
+            raise ValueError("Hash %s is not recognized" % curve)
 
     def hbits(self):
         return self.H().digest_size * 8
@@ -65,5 +90,11 @@ class Curve:
             self.p = 2**256 - 2**224 + 2**192 + 2**96 - 1
         elif label == "P384":
             self.p = 2**384 - 2**128  - 2**96 + 2**32 - 1
+        elif label == "P503":
+            self.p = 2**250*3**159-1
+        elif label == "BN256":
+            mu = -(2**62 + 2**55 + 1)
+            pp = lambda x: 36*x**4 + 36*x**3 + 24*x**2 + 6*x + 1
+            self.p = pp(mu)
         else:
-            raise ValueError("Curve %s is not recognied" % curve)
+            raise ValueError("Curve %s is not recognized" % curve)
