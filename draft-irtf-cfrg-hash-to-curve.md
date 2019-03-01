@@ -467,7 +467,7 @@ to Curve25519. When the required mapping is not clear, applications SHOULD use a
 
 Algorithms in this document make use of utility functions described below.
 
-- HashToBase(x).
+- hash2base(x).
   This method is parametrized by p and H, where p is the prime order of
   the base field Fp, and H is a cryptographic hash function which
   outputs at least floor(log2(p)) + 1 bits.
@@ -534,7 +534,7 @@ will choose between candidate values. For example, the SWU algorithm computes
 three candidates (x1, y1), (x2, y2), (x3, y3), from which the final (x, y)
 output is chosen via constant time comparison operations.
 
-We use u, v to denote the values in Fp output from HashToBase, and use as
+We use u, v to denote the values in Fp output from hash2base, and use as
 initial values in the encoding.
 
 We use t1, t2, ..., as reusable temporary variables. For notable variables, we
@@ -581,7 +581,7 @@ Output:
 Operations:
 
 ~~~
-u = HashToBase(alpha)
+u = hash2base(alpha)
 v = ((3A - u^4) / 6u)
 x = (v^2 - B - (u^6 / 27))^(1/3) + (u^2 / 3)
 y = ux + v
@@ -612,7 +612,7 @@ Precomputations:
 
 Steps:
 
-1.   u = HashToBase(alpha)   // {0,1}^* -> Fp
+1.   u = hash2base(alpha)   // {0,1}^* -> Fp
 2.  u2 = u^2                 // u^2
 3.  u4 = u2^2                // u^4
 4.   v = 3 * A               // 3A in Fp
@@ -662,8 +662,8 @@ Output:
 Operations:
 
 ~~~
-1.  u = HashToBase(alpha || 0x00)
-2.  v = HashToBase(alpha || 0x01)
+1.  u = hash2base(alpha || 0x00)
+2.  v = hash2base(alpha || 0x01)
 3. x1 = v
 4. x2 = (-B / A)(1 + 1 / (u^4 * g(v)^2 + u^2 * g(v)))
 5. x3 = u^2 * g(v)^2  * g(x2)
@@ -703,8 +703,8 @@ Precomputations:
 
 Steps:
 
-1.    u = HashToBase(alpha || 0x00)  // {0,1}^* -> Fp
-2.    v = HashToBase(alpha || 0x01)  // {0,1}^* -> Fp
+1.    u = hash2base(alpha || 0x00)  // {0,1}^* -> Fp
+2.    v = hash2base(alpha || 0x01)  // {0,1}^* -> Fp
 3.   x1 = v                     // x1 = v
 4.   gv = v^3
 5.   gv = gv + (A * v)
@@ -766,7 +766,7 @@ Operations:
 
 ~~~
 1. Define g(x) = x^3 + Ax + B
-2. u = HashToBase(alpha)
+2. u = hash2base(alpha)
 3. x1 = -B/A * (1 + (1 / (u^4 - u^2)))
 4. x2 = −u^2 * x1
 5. If g(x1) is square, output (x1, sqrt(g(x1)))
@@ -796,7 +796,7 @@ Precomputations:
 
 Steps:
 
-1.    u = HashToBase(alpha)  // {0,1}^* -> Fp
+1.    u = hash2base(alpha)  // {0,1}^* -> Fp
 2.   u2 = u^2
 3.   u2 = -u2                // u2 = -u^2
 4.   u4 = u2^2
@@ -850,7 +850,7 @@ Output:
 Operations:
 
 ~~~
-1. u = HashToBase(alpha)
+1. u = hash2base(alpha)
 2. x = (u^2 - B)^((2 * q - 1) / 3)
 3. Output (x, u)
 ~~~
@@ -878,7 +878,7 @@ Precomputations:
 
 Steps:
 
-1.  u = HashToBase(alpha)  // {0,1}^* -> F_q
+1.  u = hash2base(alpha)  // {0,1}^* -> F_q
 2. t0 = u^2                // t0 = u^2
 3. t1 = t0 - B             // t1 = u^2 - B
 4.  x = t1^c               // x  = (u^2 - B)^((2 * q - 1) / 3)
@@ -923,7 +923,7 @@ Output:
 Operations:
 
 ~~~
-1. t = HashToBase(alpha)
+1. t = hash2base(alpha)
 2. w = (s * t)/(1 + B + t^2)
 3. x1 = ((-1 + s) / 2) - t * w
 4. x2 = -1 - x1
@@ -958,7 +958,7 @@ Precomputations:
 
 Steps:
 
-1.  t = HashToBase(alpha)  // {0,1}^* -> Fp
+1.  t = hash2base(alpha)  // {0,1}^* -> Fp
 2.  k = t^2                // t^2
 3.  k = k + B + 1          // t^2 + B + 1
 4.  k = 1 / k              // 1 / (t^2 + B + 1)
@@ -1023,7 +1023,7 @@ Operations:
 
 ~~~
 1. Define g(x) = x(x^2 + Ax + B)
-2. u = HashToBase(alpha)
+2. u = hash2base(alpha)
 3. v = -A/(1 + N*u^2)
 4. e = Legendre(g(v))
 5.1. If u != 0, then
@@ -1060,7 +1060,7 @@ Precomputations:
 
 Steps:
 
-1.   u = HashToBase(alpha)
+1.   u = hash2base(alpha)
 2.  t1 = u^2
 3.  t1 = N * t1
 4.  t1 = 1 + t1
@@ -1134,7 +1134,7 @@ To provide concrete recommendations for algorithms we define a hash-to-curve
 "ciphersuite" as a four-tuple containing:
 
 * Destination Group (e.g. P256 or Curve25519)
-* HashToBase algorithm
+* hash2base algorithm
 * HashToCurve algorithm (e.g. SSWU, Icart)
 * (Optional) Transformation (e.g. FFSTV, cofactor clearing)
 
@@ -1158,7 +1158,7 @@ H2C-P256-SHA256-SWU- is defined as follows:
 * The destination group is the set of points on the NIST P-256 elliptic curve, with
   curve parameters as specified in {{DSS}} (Section D.1.2.3) and
   {{RFC5114}} (Section 2.6).
-* HashToBase is defined as {#hashtobase} with the hash function defined as
+* hash2base is defined as {#hashtobase} with the hash function defined as
   SHA-256 as specified in {{RFC6234}}, and p set to the prime field used in
   P-256 (2^256 - 2^224 + 2^192 + 2^96 - 1).
 * HashToCurve is defined to be {#sswu} with A and B taken from the definition of P-256
@@ -1169,7 +1169,7 @@ H2C-P384-SHA512-Icart- is defined as follows:
 * The destination group is the set of points on the NIST P-384 elliptic curve, with
   curve parameters as specified in {{DSS}} (Section D.1.2.4) and
   {{RFC5114}} (Section 2.7).
-* HashToBase is defined as {#hashtobase} with the hash function defined as
+* hash2base is defined as {#hashtobase} with the hash function defined as
   SHA-512 as specified in {{RFC6234}}, and p set to the prime field used in
   P-384 (2^384 - 2^128 - 2^96 + 2^32 - 1).
 * HashToCurve is defined to be {#icart} with A and B taken from the definition of P-384
@@ -1179,7 +1179,7 @@ H2C-Curve25519-SHA512-Elligator2-Clear is defined as follows:
 
 * The destination group is the points on Curve25519, with
   curve parameters as specified in {{RFC7748}} (Section 4.1).
-* HashToBase is defined as {#hashtobase} with the hash function defined as
+* hash2base is defined as {#hashtobase} with the hash function defined as
   SHA-512 as specified in {{RFC6234}}, and p set to the prime field used in
   Curve25519 (2^255 - 19).
 * HashToCurve is defined to be {#elligator2} with the curve function defined
@@ -1191,7 +1191,7 @@ H2C-Curve448-SHA512-Elligator2-Clear is defined as follows:
 
 * The destination group is the points on Curve448, with
   curve parameters as specified in {{RFC7748}} (Section 4.1).
-* HashToBase is defined as {#hashtobase} with the hash function defined as
+* hash2base is defined as {#hashtobase} with the hash function defined as
   SHA-512 as specified in {{RFC6234}}, and p set to the prime field used in
   Curve448 (2^448 - 2^224 - 1).
 * HashToCurve is defined to be {#elligator2} with the curve function defined
@@ -1609,12 +1609,12 @@ def map2curve25519(r:felem_t) -> felem_t:
     return x
 ~~~
 
-## HashToBase {#hashtobase}
+## hash2base {#hashtobase}
 
-The following procedure implements HashToBase.
+The following procedure implements hash2base.
 
 ~~~
-HashToBase(x)
+hash2base(x)
 
 Parameters:
 
@@ -1648,12 +1648,12 @@ a non-negative integer, and a || b denotes concatenation of a and b.
 
 ### Considerations
 
-Performance: HashToBase requires hashing the entire input x. In some
-algorithms/ciphersuite combinations, HashToBase is called multiple times. For
+Performance: hash2base requires hashing the entire input x. In some
+algorithms/ciphersuite combinations, hash2base is called multiple times. For
 large inputs, implementers can therefore consider hashing x before calling
-HashToBase. I.e. HashToBase(H'(x)).
+hash2base. I.e. hash2base(H'(x)).
 
-Most algorithms assume that HashToBase maps its input to the base field
+Most algorithms assume that hash2base maps its input to the base field
 uniformly. In practice, there will be inherent biases. For example, taking H
 as SHA256, over the finite field used by Curve25519 we have p = 2^255 - 19, and
 thus when reducing from 255 bits, the values of 0 .. 19 will be twice as
@@ -1661,7 +1661,7 @@ likely to occur. This is a standard problem in generating uniformly
 distributed integers from a bitstring. In this example, the resulting bias is
 negligible, but for others this bias can be significant.
 
-To address this, our HashToBase algorithm greedily takes as many bits as
+To address this, our hash2base algorithm greedily takes as many bits as
 possible before reducing mod p, in order to smooth out this bias. This is
 preferable to an iterated procedure, such as rejection sampling, since this
 can be hard to reliably implement in constant time.
@@ -1674,7 +1674,7 @@ for the associated field.
 # Test Vectors
 
 This section contains test vectors, generated from reference Sage code, for
-each map2curve variant and the HashToBase function described in {{hashtobase}}.
+each map2curve variant and the hash2base function described in {{hashtobase}}.
 
 ## Elligator2 to Curve25519
 
@@ -2432,16 +2432,15 @@ Output:
 
 
 
-## Sample HashToBase
+## Sample hash2base
 
 ~~~
-HashToBase("H2C-Curve25519-SHA256-Elligator-Clear", 1234)
-    = 1e10b542835e7b227c727bd0a7b2790f39ca1e09fc8538b3c70ef736cb1c298f
+hash2base("H2C-Curve25519-SHA256-Elligator-Clear", 1234) 
+  = 1e10b542835e7b227c727bd0a7b2790f39ca1e09fc8538b3c70ef736cb1c298f
 
-HashToBase("H2C-P256-SHA512-SWU-", 1234)
-    = 4fabef095423c97566bd28b70ee70fb4dd95acfeec076862f4e40981a6c9dd85
+hash2base("H2C-P256-SHA512-SWU-", 1234) 
+  = 4fabef095423c97566bd28b70ee70fb4dd95acfeec076862f4e40981a6c9dd85
 
-HashToBase("H2C-P256-SHA512-SSWU-", 1234)
-    = d6f685079d692e24ae13ab154684ae46c5311b78a704c6e11b2f44f4db4c6e47
-
+hash2base("H2C-P256-SHA512-SSWU-", 1234) 
+  = d6f685079d692e24ae13ab154684ae46c5311b78a704c6e11b2f44f4db4c6e47
 ~~~

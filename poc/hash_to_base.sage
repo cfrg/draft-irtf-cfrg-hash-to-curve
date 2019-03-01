@@ -33,18 +33,18 @@ def h2b_from_label(label, x):
 
     value = hash_to_base(x, H, hbits, p, label)
     if len(x) == 0 and DEBUG:
-        print("HashToBase('" + label + "', nil ) = \n\t" + str(value))
+        print("hash2base('" + label + "', nil ) = \n\t" + str(value))
     elif DEBUG:
-        print("HashToBase('" + label + "', " + pprint_hex(x) + ") = \n\t" + str(value))
+        print("hash2base('" + label + "', " + pprint_hex(x) + ") = \n\t" + str(value))
     return value
 
 if __name__ == "__main__":
-    print "## Sample HashToBase"
+    print "## Sample hash2base"
     print ""
 
     DEBUG = False
     print "~~~"
-    print("HashToBase(\"%s\", %s) \n\t= %s\n" % ("H2C-Curve25519-SHA256-Elligator-Clear", pprint_hex("\x12\x34"), Hex(h2b_from_label("H2C-Curve25519-SHA256-Elligator-Clear", "\x12\x34"))))
-    print("HashToBase(\"%s\", %s) \n\t= %s\n" % ("H2C-P256-SHA512-SWU-", pprint_hex("\x12\x34"), Hex(h2b_from_label("H2C-P256-SHA512-SWU-", "\x12\x34"))))
-    print("HashToBase(\"%s\", %s) \n\t= %s\n" % ("H2C-P256-SHA512-SSWU-", pprint_hex("\x12\x34"), Hex(h2b_from_label("H2C-P256-SHA512-SSWU-", "\x12\x34"))))
+    print("hash2base(\"%s\", %s) \n\t= %s\n" % ("H2C-Curve25519-SHA256-Elligator-Clear", pprint_hex("\x12\x34"), Hex(h2b_from_label("H2C-Curve25519-SHA256-Elligator-Clear", "\x12\x34"))))
+    print("hash2base(\"%s\", %s) \n\t= %s\n" % ("H2C-P256-SHA512-SWU-", pprint_hex("\x12\x34"), Hex(h2b_from_label("H2C-P256-SHA512-SWU-", "\x12\x34"))))
+    print("hash2base(\"%s\", %s) \n\t= %s\n" % ("H2C-P256-SHA512-SSWU-", pprint_hex("\x12\x34"), Hex(h2b_from_label("H2C-P256-SHA512-SSWU-", "\x12\x34"))))
     print "~~~"
