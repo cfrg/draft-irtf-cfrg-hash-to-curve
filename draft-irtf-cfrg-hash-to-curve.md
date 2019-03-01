@@ -514,7 +514,7 @@ Algorithms in this document make use of utility functions described below.
   simplicity of the square root function. For others, a suitable constant-time
   Tonelli-Shanks variant should be used as in {{Schoof85}}.
 
-# Deterministic Encodings
+# Deterministic Encodings  {#encodings}
 
 ## Interface
 
@@ -556,30 +556,41 @@ where 4A^3+27B^2 ≠ 0.
 
 ### Icart Method {#icart}
 
-The following map2curve_icart(alpha) implements the Icart method from {{Icart09}}.
-This algorithm works for any curve over F_{p^n}, where p^n = 2 mod 3
-(or p = 2 mod 3 and for odd n), including:
+The map2curve_icart(alpha) implements the Icart encoding method from {{Icart09}}.
 
-- P384
-- Curve1174
-- Curve448
+**Preconditions**
 
-Unsupported curves include: P224, P256, P521, and Curve25519 since,
-for each, p = 1 mod 3.
+A Weierstrass curve over F_{p^n}, where p>3 and p^n = 2 mod 3
+(or p = 2 mod 3 and for odd n).
 
-Mathematically, given input alpha, and A and B from E, the Icart method works
-as follows:
+**Examples**
+
+- P-384
+
+**Algorithm**: map2curve_icart
+
+Input:
+
+ - alpha: an octet string to be hashed.
+ - A, B : the constants from the Weierstrass curve.
+
+Output:
+
+ - (x,y), a point in E.
+
+Operations:
 
 ~~~
 u = HashToBase(alpha)
 v = ((3A - u^4) / 6u)
 x = (v^2 - B - (u^6 / 27))^(1/3) + (u^2 / 3)
 y = ux + v
+Output (x, y)
 ~~~
 
-The following procedure implements this algorithm in a straight-line fashion.
-It requires knowledge of A and B, the constants from the curve Weierstrass form.
-It outputs a point with affine coordinates.
+**Implementation**
+
+The following procedure implements Icart's algorithm in a straight-line fashion.
 
 ~~~
 map2curve_icart(alpha)
@@ -624,11 +635,31 @@ Steps:
 
 ### Shallue-Woestijne-Ulas Method {#swu}
 
-The Shallue-Woestijne-Ulas (SWU) method, originated in part by
-Shallue and Woestijne {{SW06}} and later simplified and extended by Ulas {{SWU07}},
-deterministically encodes an arbitrary string to a point on a curve.
-This algorithm works for any curve over F_{p^n}. Given curve equation
-g(x) = x^3 + Ax + B, with A non-zero, this algorithm works as follows:
+The map2curve_swu(alpha) implements the Shallue-Woestijne-Ulas (SWU) method by
+Ulas {{SWU07}}, which is based on Shallue and Woestijne {{SW06}} method.
+
+**Preconditions**
+
+This algorithm works for any Weierstrass curve over F_{p^n} such that A≠0 and B≠0.
+
+**Examples**
+
+- P-256
+- P-384
+- P-521
+
+**Algorithm**: map2curve_swu
+
+Input:
+
+ - alpha: an octet string to be hashed.
+ - A, B : the constants from the Weierstrass curve.
+
+Output:
+
+ - (x,y), a point in E.
+
+Operations:
 
 ~~~
 1.  u = HashToBase(alpha || 0x00)
@@ -650,9 +681,9 @@ u^3 * g(v)^2  * g(x2) = g(x1) * g(x2) * g(x3)
 The algorithm computes three candidate points, constructed such that at least one of
 them lies on the curve.
 
-The following procedure implements this algorithm. It outputs a point with affine
-coordinates. It requires knowledge of A and B, the constants from the curve
-Weierstrass form.
+**Implementation**
+
+The following procedure implements SWU's algorithm in a straight-line fashion.
 
 ~~~
 map2curve_swu(alpha)
@@ -667,9 +698,8 @@ Output:
 
 Precomputations:
 
-1.  c1 = A^(-1)                 // 1 / A (mod p)
-2.  c1 = -B * c0                // c1 = -B/A (mod p)
-3.  c2 = (p - 1)/2              // Order over 2 as an integer
+1.  c1 = -B / A mod p           // Field arithmetic
+2.  c2 = (p - 1)/2              // Integer arithmetic
 
 Steps:
 
@@ -709,26 +739,46 @@ Steps:
 
 ### Simplified SWU Method {#simple-swu}
 
-The following map2curve_simple_swu(alpha) implements the simplified
-Shallue-Woestijne-Ulas algorithm from {{SimpleSWU}}. This algorithm
-works for any curve over F_{p^n}, where p = 3 mod 4, including:
+The map2curve_simple_swu(alpha) implements a simplified version of
+Shallue-Woestijne-Ulas algorithm given by Brier et al. {{SimpleSWU}}.
 
-- P256
-- ...
+**Preconditions**
 
-Given curve equation g(x) = x^3 + Ax + B, this algorithm works as follows:
+This algorithm works for any Weierstrass curve over F_{p^n} such that A≠0,
+B≠0, and p=3 mod 4.
+
+**Examples**
+
+- P-256
+- P-384
+- P-521
+
+**Algorithm**: map2curve_simple_swu
+
+Input:
+
+ - alpha: an octet string to be hashed.
+ - A, B : the constants from the Weierstrass curve.
+
+Output:
+
+ - (x,y), a point in E.
+
+Operations:
 
 ~~~
-1. u = HashToBase(alpha)
-2. x1 = -B/A * (1 + (1 / (u^4 - u^2)))
-3. x2 = −u^2 * x1
-4. If g(x1) is square, output (x1, sqrt(g(x1)))
-5. Output (x2, sqrt(g(x2)))
+1. Define g(x) = x^3 + Ax + B
+2. u = HashToBase(alpha)
+3. x1 = -B/A * (1 + (1 / (u^4 - u^2)))
+4. x2 = −u^2 * x1
+5. If g(x1) is square, output (x1, sqrt(g(x1)))
+6. Output (x2, sqrt(g(x2)))
 ~~~
 
-The following procedure implements this algorithm. It outputs a point with
-affine coordinates. It requires knowledge of A and B, the constants from the
-curve Weierstrass form.
+**Implementation**
+
+The following procedure implements the Simple SWU's algorithm in a straight-line
+fashion.
 
 ~~~
 map2curve_simple_swu(alpha)
@@ -743,9 +793,8 @@ Output:
 
 Precomputations:
 
-1.  c0 = A^(-1)              // 1 / A (mod p)
-2.  c1 = -B * c0             // c1 = -B/A (mod p)
-3.  c2 = (p - 1)/2           // Order over 2 as an integer
+1.  c1 = -B / A mod p           // Field arithmetic
+2.  c2 = (p - 1)/2              // Integer arithmetic
 
 Steps:
 
@@ -948,30 +997,51 @@ in the main subgroup.
 
 ### Elligator2 Method {#elligator2}
 
-The following map2curve_elligator2(alpha) implements the Elligator2
-method from {{Elligator2}}. This algorithm works for any curve
-with a point of order 2 and j-invariant != 1728. Given curve equation
-y^2 = g(x) = x(x^2 + Ax + B), i.e., a Montgomery form with (0,0), a point of
-order 2, this algorithm works as shown below. (Note that any curve
-with a point of order 2 is isomorphic to this representation.)
+The map2curve_elligator2(alpha) implements the Elligator2 method from
+{{Elligator2}}.
 
-The algorithm additionally requires a constant value N, which is a non-square
-in Fp. For performance this is typically small in absolute size.
+**Preconditions**
+
+Any curve of the form y^2=x^3+Ax^2+Bx, which covers all Montgomery curves such
+that A ≠ 0 and B=1 (i.e. j-invariant != 1728).
+
+**Examples**
+
+- Curve25519
+- Curve448
+
+**Algorithm**: map2curve_elligator2
+
+Input:
+
+ - alpha: an octet string to be hashed.
+ - A,B=1: the constants of the Montgomery curve.
+ - N    : a constant non-square in the field.
+
+Output:
+
+ - (x,y), a point in E.
+
+Operations:
 
 ~~~
-1. u = HashToBase(alpha)
-2. v = -A/(1 + N*u^2)
-3. e = Legendre(g(v))
-4.1. If u != 0, then
-4.2.    x = ev - (1 - e)A/2
-4.3.    y = -e*sqrt(g(x))
-4.4. Else, x=0 and y=0
-5. Output (x,y)
+1. Define g(x) = x(x^2 + Ax + B)
+2. u = HashToBase(alpha)
+3. v = -A/(1 + N*u^2)
+4. e = Legendre(g(v))
+5.1. If u != 0, then
+5.2.    x = ev - (1 - e)A/2
+5.3.    y = -e*sqrt(g(x))
+5.4. Else, x=0 and y=0
+6. Output (x,y)
 ~~~
 
 Here, e is the Legendre symbol defined as in {{utility}}.
 
-The following procedure implements this algorithm.
+**Implementation**
+
+The following procedure implements elligator2 algorithm in a straight-line
+fashion.
 
 ~~~
 map2curve_elligator2(alpha)
@@ -979,7 +1049,8 @@ map2curve_elligator2(alpha)
 Input:
 
   alpha - value to be encoded, an octet string
-  N - fixed non-square value in Fp.
+  A,B=1 - the constants of the Montgomery curve.
+  N - a constant non-square value in Fp.
 
 Output:
 
@@ -987,8 +1058,8 @@ Output:
 
 Precomputations:
 
-1. c1 = (p - 1)/2     // as an integer
-2. c2 = A / 2 (mod p) // in the field
+1. c1 = (p - 1)/2     // Integer arithmetic
+2. c2 = A / 2 (mod p) // Field arithmetic
 
 Steps:
 
@@ -1002,7 +1073,7 @@ Steps:
 8.  gv = v + A
 9.  gv = gv * v
 0.  gv = gv + B
-11. gv =  gv * v          // gv = v^3 + Av^2 + Bv
+11. gv = gv * v           // gv = v^3 + Av^2 + Bv
 12.  e = gv^c1            // Legendre(gv)
 13.  x = e*v
 14. ne = -e
@@ -1024,38 +1095,32 @@ Elligator2 can be simplified with projective coordinates.
 
 ((TODO: write this variant))
 
-# Random Oracles
+# Random Oracles {#ffstv}
+
+Some applications require a Random Oracle (RO) of points, which can be constructed
+from deterministic encoding functions. Farashahi et al. {{FFSTV13}} showed a
+generic mapping construction that is indistinguishable from a random oracle.
+In particular, let `f : {0,1}^* -> E(F)` be a deterministic encoding function,
+and let `H0` and `H1` be two hash functions modeled as random oracles that map
+bit strings to elements in the field `F`, i.e., `H0,H1 : {0,1}* -> F`. Then,
+the `hash2curveRO(alpha)` mapping is defined as
+
+~~~
+hash2curveRO(alpha) = f(H0(alpha)) + f(H1(alpha))
+~~~
+
+where alpha is an octet string to be encoded as a point on a curve.
 
 ## Interface
 
-The generic interface for deterministic encoding functions to elliptic curves is as follows:
+Using the deterministic encodings from {{encodings}}, the `hash2curveRO(alpha)`
+mapping can be instantiated as
 
 ~~~
-hash2curve(alpha)
+hash2curveRO(alpha) = hash2curve(alpha || 0x02) + hash2curve(alpha || 0x03)
 ~~~
 
-where alpha is a message to encode on a curve.
-
-## General Construction (FFSTV13) {#ffstv}
-
-When applications need a Random Oracle (RO), they can be constructed from deterministic encoding
-functions. In particular, let F : {0,1}^* -> E be a deterministic encoding function onto
-curve E, and let H0 and H1 be two hash functions modeled as random oracles that map input
-messages to the base field of E, i.e., Z_q. Farashahi et al. {{FFSTV13}} showed that the
-following mapping is indistinguishable from a RO:
-
-~~~
-hash2curve(alpha) = F(H0(alpha)) + F(H1(alpha))
-~~~
-
-This construction works for the Icart, SWU, and Simplfied SWU encodings.
-
-Here, H0 and H1 are constructed as follows:
-
-~~~
-H0(alpha) = HashToBase(alpha || 0x2)
-H1(alpha) = HashToBase(alpha || 0x3)
-~~~
+where the addition operation is performed as a point addition.
 
 # Curve Transformations
 
