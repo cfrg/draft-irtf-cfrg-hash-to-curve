@@ -1153,7 +1153,7 @@ This document describes the following set of ciphersuites:
 * H2C-Curve25519-SHA512-Elligator2-FFSTV
 * H2C-Curve448-SHA512-Elligator2-FFSTV
 
-H2C-P256-SHA256-SWU- is defined as follows:
+H2C-P256-SHA256-SSWU- is defined as follows:
 
 * The destination group is the set of points on the NIST P-256 elliptic curve, with
   curve parameters as specified in {{DSS}} (Section D.1.2.3) and
