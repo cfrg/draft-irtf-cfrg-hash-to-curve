@@ -121,14 +121,29 @@ normative:
     target: https://doi.org/10.1007/s00145-004-0314-9
     author:
       -
-        ins: Dan Boneh
+        name: Dan Boneh
         org: Stanford University
       -
-        ins: Ben Lynn
+        name: Ben Lynn
         org: Stanford University
       -
-        ins: Hovav Shacham
+        name: Hovav Shacham
         org: Stanford University
+  BLS02:
+    title: Constructing Elliptic Curves with Prescribed Embedding Degrees
+    seriesinfo: Security in Communication Networks
+    DOI: 10.1007/3-540-36413-7_19
+    target: https://doi.org/10.1007/3-540-36413-7_19
+    author:
+      -
+        name: Paulo S. L. M. Barreto
+        org: Universidade de São Paulo, Brazil
+      -
+        name: Ben Lynn
+        org: Stanford University
+      -
+        name: Michael Scott
+        org: Dublin City University, Ireland
   BMP00:
     title: Provably secure password-authenticated key exchange using diffie-hellman
     venue: EUROCRYPT, pages 156–171, 2000.
@@ -906,7 +921,7 @@ This algorithm works for any Weierstrass curve over `F_q` such that `q=7 mod 12`
 - SECP256K1 curve {{SEC2}}
 - BN curves {{BN05}}
 - KSS curves {{KSS08}}
-- BLS curves {{BLS01}}
+- BLS curves {{BLS02}}
 
 **Algorithm**: map2curve_ft
 
@@ -1227,7 +1242,7 @@ earlier versions of this document.
 
 * Armando Faz \\
   Cloudflare \\
-  armfazh@cloudflare.com 
+  armfazh@cloudflare.com
 * Sharon Goldberg \\
   Boston University \\
   goldbe@cs.bu.edu
@@ -2435,12 +2450,12 @@ Output:
 ## Sample hash2base
 
 ~~~
-hash2base("H2C-Curve25519-SHA256-Elligator-Clear", 1234) 
+hash2base("H2C-Curve25519-SHA256-Elligator-Clear", 1234)
   = 1e10b542835e7b227c727bd0a7b2790f39ca1e09fc8538b3c70ef736cb1c298f
 
-hash2base("H2C-P256-SHA512-SWU-", 1234) 
+hash2base("H2C-P256-SHA512-SWU-", 1234)
   = 4fabef095423c97566bd28b70ee70fb4dd95acfeec076862f4e40981a6c9dd85
 
-hash2base("H2C-P256-SHA512-SSWU-", 1234) 
+hash2base("H2C-P256-SHA512-SSWU-", 1234)
   = d6f685079d692e24ae13ab154684ae46c5311b78a704c6e11b2f44f4db4c6e47
 ~~~
