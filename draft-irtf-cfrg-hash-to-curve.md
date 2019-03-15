@@ -566,7 +566,7 @@ order to be applied.
 ## Encodings for Weierstrass curves
 
 The following encodings apply to elliptic curves defined as E: y^2 = x^3+Ax+B,
-where 4A^3+27B^2 ≠ 0.
+where 4A^3+27B^2 != 0.
 
 
 ### Icart Method {#icart}
