@@ -13,6 +13,14 @@ pi: [toc, sortrefs, symrefs]
 
 author:
  -
+    ins: A. Faz-Hernandez
+    name: Armando Faz-Hernandez
+    org: Cloudflare
+    street: 101 Townsend St
+    city: San Francisco
+    country: United States of America
+    email: armfazh@cloudflare.com
+ -
     ins: S. Scott
     name: Sam Scott
     org: Cornell Tech
@@ -36,14 +44,6 @@ author:
     city: Cupertino, California 95014
     country: United States of America
     email: cawood@apple.com
- -
-    ins: A. Faz-Hernandez
-    name: Armando Faz-Hernandez
-    org: Cloudflare
-    street: 101 Townsend St
-    city: San Francisco
-    country: United States of America
-    email: armfazh@cloudflare.com
 
 normative:
   RFC2119:
