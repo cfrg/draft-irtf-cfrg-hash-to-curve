@@ -39,16 +39,6 @@ def CMOV(x, y, b):
     """
     return int(not(bool(b)))*x + int(bool(b))*y
 
-def CTEQ(x, y):
-    """
-    Returns True if x=y; otherwise returns False
-    """
-    assert len(x) == len(y)
-    r = True
-    for xi,yi in zip(x,y):
-        r = r & (xi == yi)
-    return r
-
 def is_QR(x, p):
     """
     Returns True if x is a quadratic residue; otherwise returns False
@@ -77,6 +67,7 @@ def absolute(x, p):
 def sq_root(x, p):
     """
     Returns the principal square root defined through fixed formulas.
+    (non-constant-time)
     """
     if p%4 == 3:
         return x**((p+1)//4)

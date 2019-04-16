@@ -13,7 +13,7 @@ E = EllipticCurve(F, [A, B])
 
 h2c_suite = "H2C-P384-SHA512-Icart-"
 
-# Textbook implementation
+# Reference implementation
 def icart(alpha):
     u = h2b_from_label(h2c_suite, alpha)
     if u == 0:
@@ -28,17 +28,17 @@ def icart(alpha):
 ONE_THIRD = (2 * p - 1) // 3 # in ZZ
 INV_3     = 1 / F(3)
 INV_27    = INV_3 ^ 3
+THREE_A   = F(3) * A
 
-# Implementation
-def icart_slp(alpha):
+# Constant Time Implementation
+def icart_CT(alpha):
     u = h2b_from_label(h2c_suite, alpha)
     tv("u", u, 48)
 
     u = F(u)
     u2 = u ^ 2
     u4 = u2 ^ 2
-    v = 3 * A
-    v = v - u4
+    v = THREE_A - u4
     t1 = 6 * u
     t1 = 1 / t1
     v = v * t1
@@ -91,7 +91,7 @@ if __name__ == "__main__":
         print("")
         print("Intermediate values:")
         print("")
-        pA, pB = icart(alpha), icart_slp(alpha)
+        pA, pB = icart(alpha), icart_CT(alpha)
         assert pA == pB
         print("")
         print("Output:")

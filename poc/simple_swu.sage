@@ -27,7 +27,7 @@ def X2(u):
 def U(u):
     return u^3 * g(X1(u))
 
-# Textbook implementation
+# Reference implementation
 def simple_swu(alpha):
     u = h2b_from_label(h2c_suite, alpha)
     x1 = X1(u)
@@ -41,8 +41,8 @@ def simple_swu(alpha):
 # Constants
 B_OVER_A = - B / A
 
-# Implementation
-def simple_swu_slp(alpha):
+# Constant Time Implementation
+def simple_swu_CT(alpha):
     u = h2b_from_label(h2c_suite, alpha)
     tv("u", u, 32)
 
@@ -90,7 +90,7 @@ if __name__ == "__main__":
         print("")
         print("Intermediate values:")
         print("")
-        pA, pB = simple_swu(alpha), simple_swu_slp(alpha)
+        pA, pB = simple_swu(alpha), simple_swu_CT(alpha)
         print("")
         print("Output:")
         print("")

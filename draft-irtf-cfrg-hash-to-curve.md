@@ -36,6 +36,14 @@ author:
     city: Cupertino, California 95014
     country: United States of America
     email: cawood@apple.com
+ -
+    ins: A. Faz-Hernandez
+    name: Armando Faz-Hernandez
+    org: Cloudflare
+    street: 101 Townsend St
+    city: San Francisco
+    country: United States of America
+    email: armfazh@cloudflare.com
 
 normative:
   RFC2119:
@@ -297,9 +305,9 @@ normative:
         name: Edward Knapp
         org: Dept. Combinatorics & Optimization, University of Waterloo, Canada
       -
-       ins: F. Rodríguez-Henríquez
+       ins: F. Rodriguez-Henriquez
        org: Computer Science Department, CINVESTAV-IPN. Mexico
-       name: Francisco Rodríguez-Henríquez
+       name: Francisco Rodriguez-Henriquez
   BU18:
     title: Hashing to G2 on BLS pairing-friendly curves
     seriesinfo:
@@ -513,7 +521,8 @@ Each algorithm conforms to a common interface, i.e., it maps a bitstring
 {0, 1}^\* to a point on an elliptic curve E. For each variant, we describe the requirements for
 E to make it work. Sample code for each variant is presented in the
 appendix.  Unless otherwise stated, all elliptic curve points are assumed to be
-represented as affine coordinates, i.e., (x, y) points on a curve.
+represented as affine coordinates, i.e., the pair (x, y) denotes a point on an
+elliptic curve.
 
 ## Requirements
 
@@ -545,21 +554,20 @@ and the coordinates of a point are elements of F. As a group, E has order n,
 which is the number of points on the curve. For security reasons, it is a
 strong requirement that all cryptographic operations take place in a prime
 order group. However, not all elliptic curves generate groups of prime order.
-In those cases, it is allowed to work with elliptic curves of order n = hr,
-where r is a large prime, and h is known as the cofactor. Thus, one may wish an
-encoding that returns points on a subgroup of order r. To this end, multiplying
-a point P on E by the cofactor h guarantees that hP is a point belonging to a
-subgroup of order r.
+For example, some elliptic curves have order n = h\*r, where r is a large prime,
+and h is a non-negative integer known as the cofactor. Thus, one may wish an
+encoding that returns points on a subgroup of order r. To this end, the cofactor
+clearing process consists on multiplying a point P on E by the cofactor h, this guarantees that hP is a point belonging to a subgroup of order r.
 
 Summary of quantities:
 
 | Symbol | Meaning | Relevance |
 |:------:|---------|-----------|
-| F,q,p | Finite field F such that char(F)=p and #F=q=p^m. | For prime fields, q=p; otherwise, q=p^m and m>1. |
+| F,q,p | Finite field F of characteristic p and #F=q=p^m. | For prime fields, q=p; otherwise, q=p^m and m>1. |
 | E | Elliptic curve. | E is specified by an equation and a field F. |
 | n | Number of points on E, #E(F)=n. | This value can be factored as n=h\*r. |
 | r | Order of a prime subgroup of E. | If n is not prime, may need mapping to points in a subgroup of order r. |
-| h | Cofactor, h>=1. | For mapping to subgroup, need to multiply by cofactor. |
+| h | Cofactor, h>=1. | Constant used in cofactor clearing to map to prime-order subgroup. |
 
 ## Terminology
 In the following, we categorize the terminology for mapping bitstrings to points
@@ -597,27 +605,30 @@ on bit strings that were not generated using the serialization procedure.
 
 ### Random Oracle {#term-rom}
 
+In practice, two types of mappings are common: (1) injective encodings, which
+can be used to construct a PRF as F(k, m) = k*H(m), and (2) random oracles,
+which used by PAKE protocols {{BMP00}}, short BLS signatures {{BLS01}}, and
+IBE schemes {{BF01}}. When the required mapping is not clear, applications
+SHOULD use a random oracle.
+
 Cryptographic protocols which are proven secure in the random oracle model (ROM)
-often require a hash function that behaves as a random oracle, i.e., that its
-response be uniformly distributed on the set of outputs (uniformity property).
-
+often require a hash function that maps bitstrings to elements of a group and
+that behaves as a random oracle, i.e., its response must be uniformly
+distributed on the set of outputs (uniformity property).
 Instantiating one of these protocols with an elliptic curve group motivates
-the term "hashing to the curve", i.e. mapping bitstrings to points on the
-elliptic curve. This function can be easily accomplished by using the output of
-a cryptographically secure hash function H as the input of an encoding function
-f.
+the term "hashing to the curve", i.e., mapping bitstrings to points on an
+elliptic curve.
 
-~~~
-hash2curve(alpha) := f(H(alpha))
-~~~
-
-On the one hand, this function is not invertible since it is computationally
-intractable to produce an input alpha that maps to hash2curve(alpha) due to H is
-pre-image resistant.
+The hash2curve(alpha) function can be easily constructed by
+using the output of a cryptographically secure hash function H as the input of
+an encoding function.
+On the one hand, hash2curve is difficult to invert since it is computationally
+intractable to produce an input alpha that maps to hash2curve(alpha) due to H
+is pre-image resistant.
 On the other hand, the uniformity property is not met as the output of an
-encoding is distinguishable from a random distribution. Hence, this function is
-not sufficient to get uniformity, but it can be used as a building block as
-described in {{rom}}.
+encoding is distinguishable from a random distribution. Hence, using
+hash2curve(alpha) is not sufficient to get uniformity, however it can be used
+as a building block for obtaining a random oracle as is described in {{rom}}.
 
 # Utility Functions {#utility}
 
@@ -649,7 +660,7 @@ Algorithms in this document make use of utility functions described below.
 
   For extension fields, there exist methods that can be used in replacement,
   see {{Adj13}}, {{SC85}}. Regardless the method chosen, the sqrt function
-  should be performed in constant time.
+  MUST be performed in constant time.
 
 - CMOV(a, b, c): If c=0, CMOV returns a, otherwise returns b. To prevent against
   timing attacks, this operation must run in constant time without revealing the
@@ -671,8 +682,8 @@ cryptographic hash function which outputs at least floor(log2(p)) + 1 bits.
 
 When q=p, the function first hashes x, converts the result to an integer, and
 reduces modulo p to produce a prime field element.
-When q=p^m, an element of a finite field is constructed using m prime field
-elements assuming that elements are in a polynomial representation.
+When m>1, q=p^m and an element of a finite field can be constructed using m
+prime field elements assuming that elements are in a polynomial representation.
 
 Uniformity: most algorithms assume that hash2base maps its input to the finite
 field uniformly. In practice, there will be inherent biases. For example,
@@ -685,6 +696,10 @@ out this bias, the hash2base algorithm should use a hash function that produces
 as many bits as possible before reducing modulo p. This approach is preferable
 to an iterated procedure, such as rejection sampling, since this can be hard to reliably implement in constant time.
 
+Performance: hash2base requires hashing the entire input x. In some algorithms
+or ciphersuite combinations, hash2base is called multiple times. For large
+inputs, implementers can therefore consider hashing x before calling hash2base, i.e., setting x=H(x).
+
 ## Implementation
 
 The following procedure implements hash2base.
@@ -694,7 +709,7 @@ hash2base(x)
 
 Parameters:
   1. H, a cryptographic hash function producing k bits.
-  2. F, a finite field F of order q and char(F)=p.
+  2. F, a finite field F of characteristic p and order q=p^m.
 Preconditions:  k >= floor(log2(p)) + 1.
 Input: x, an octet string to be hashed.
 Output: y, an element in F.
@@ -706,7 +721,7 @@ Steps:
     3. y = t2 mod p
     4. Output y
 
-  Case q=p^m  
+  Case q=p^m and m>1
     1. t = H(x)
     2. for i=0 to m-1
     3.    t1 = H( t || I2OSP(i,2) )
@@ -734,9 +749,9 @@ certain algebraic conditions must hold in order to be applied.
 As a rough style guide the following convention is used:
 
 - All arithmetic operations are performed over the finite field, unless
-  otherwise be explicitly stated, e.g. integer arithmetic.
+  otherwise be explicitly stated, e.g., integer arithmetic.
 
-- (x, y): are the coordinates of a point obtained by the encoding method.
+- (x, y): are the affine coordinates of a point obtained by the encoding method.
   Indexed values are used when the algorithm calculates some candidate values.
 
 - u: denotes an element of F produced by the hash2base function and is used
@@ -747,6 +762,21 @@ As a rough style guide the following convention is used:
     test vectors.
 
 - c1, c2, ...: are constant values, which can be computed in advance.
+
+## Clearing Cofactor
+
+Encodings guarantee that the resulting point satisfies the elliptic curve
+equation. However, to obtain a point in a subgroup of order r, the cofactor
+clearing process must be performed. In the description of each encoding, the
+last step returns h*(x,y) which represents the cofactor clearing operation.
+
+For prime order groups, h=1 and then no operation is required. On the other
+hand, when h>1, cofactor clearing is performed, in most of cases, as a scalar
+multiplication by h. However, on pairing-friendly curves, h is a large number
+when the subgroup G2 is over an extension field. In this case, cofactor
+clearing can be performed faster using better algorithms than scalar
+multiplication by h, such as the ones described in {{SC09}}, {{FU11}}, and
+{{BU18}}.
 
 ## Encodings for Weierstrass curves
 
@@ -773,7 +803,7 @@ Operations:
 2. v = ((3*A - u^4) / 6*u)
 3. x = (v^2 - B - (u^6 / 27))^((2*q - 1)/3) + (u^2 / 3)
 4. y = u * x + v
-5. Output (x, y)
+5. Output h*(x, y)
 ~~~
 
 #### Implementation
@@ -789,27 +819,27 @@ Constants:
 1. c1 = (2*p - 1) / 3   // Integer arithmetic
 2  c2 = 1/3
 3. c3 = c2^3
+4. c4 = 3 * A
 
 Steps:
 1.   u = hash2base(alpha)
 2.  u2 = u^2            // u^2
 3.  u4 = u2^2           // u^4
-4.   v = 3 * A          // 3 * A
-5.   v = v - u4         // 3 * A - u^4
-6.  t1 = 6 * u          // 6 * u
-7.  t1 = 1 / t1         // 1 / (6 * u)
-8.   v = v * t1         // v = (3 * A - u^4)/(6 * u)
-9.  x1 = v^2            // v^2
-10. x1 = x1 - B         // v^2 - B
-11. u6 = u4 * c3        // u^4 / 27
-12. u6 = u6 * u2        // u^6 / 27
-13. x1 = x1 - u6        // v^2 - B - u^6/27
-14. x1 = x^c1           // (v^2 - B - u^6/27)^(1/3)
-15. t1 = u2 * c2        // u^2 / 3
-16.  x = x + t1         // x = (v^2 - B - u^6/27)^(1/3) + (u^2 / 3)
-17.  y = u * x          // u*x
-18.  y = y + v          // y = u*x + v
-19. Output (x, y)
+4.   v = c4 - u4        // 3 * A - u^4
+5.  t1 = 6 * u          // 6 * u
+6.  t1 = 1 / t1         // 1 / (6 * u)
+7.   v = v * t1         // v = (3 * A - u^4)/(6 * u)
+8.  x1 = v^2            // v^2
+9.  x1 = x1 - B         // v^2 - B
+10. u6 = u4 * c3        // u^4 / 27
+11. u6 = u6 * u2        // u^6 / 27
+12. x1 = x1 - u6        // v^2 - B - u^6/27
+13. x1 = x^c1           // (v^2 - B - u^6/27)^(1/3)
+14. t1 = u2 * c2        // u^2 / 3
+15.  x = x + t1         // x = (v^2 - B - u^6/27)^(1/3) + (u^2 / 3)
+16.  y = u * x          // u*x
+17.  y = y + v          // y = u*x + v
+18. Output h*(x, y)
 ~~~
 
 ### Shallue-Woestijne-Ulas Method {#swu}
@@ -846,7 +876,7 @@ Operations:
 8.  If gx1 is square, set x = x1 and y = sqrt(gx1)
 9.  If gx2 is square, set x = x2 and y = sqrt(gx2)
 10. If gx3 is square, set x = x3 and y = sqrt(gx3)
-11. Output (x, y)
+11. Output h*(x, y)
 ~~~
 
 #### Implementation
@@ -892,7 +922,7 @@ Steps:
 27.  gx = CMOV(gx3, gx2, e2)  // If e2=True, gx = gx2, else gx = gx3
 28.  gx = CMOV(gx, gx1, e1)   // If e1=True, gx = gx1, else gx = gx
 29.   y = sqrt(gx, q)
-30. Output (x, y)
+30. Output h*(x, y)
 ~~~
 
 ### Simplified SWU Method {#simple-swu}
@@ -918,7 +948,7 @@ Operations:
 5. gx2 = x2^3 + A*x2 + B
 6. If gx1 is square, set x = x1 and y = sqrt(gx1)
 7. If gx2 is square, set x = x2 and y = sqrt(gx2)
-8. Output (x, y)
+8. Output h*(x, y)
 ~~~
 
 #### Implementation
@@ -955,7 +985,7 @@ Steps:
 18.   x = CMOV(x2, x1, e)    // If e=True, x = x1, else x = x2
 19.  gx = CMOV(gx2, gx1, e)  // If e=True, gx = gx1, else gx = gx2
 20.   y = sqrt(gx, q)
-21. Output (x, y)
+21. Output h*(x, y)
 ~~~
 
 ## Encodings for Montgomery curves
@@ -967,7 +997,7 @@ curves defined by y^2 = x^3 + A\*x^2 + B\*x such that A\*B\*(A^2 - 4\*B) != 0.
 In particular, this method applies to the Montgomery curves y^2 = x^3 + A\*x^2 + x
 setting B=1.
 
-Preconditions: A Montgomery curve  such that A!=0.
+Preconditions: A Montgomery curve such that A!=0.
 
 Input: alpha, an octet string to be hashed.
 
@@ -986,7 +1016,7 @@ Operations:
 6.   e = gx1^((q - 1) / 2)
 7. If is_square(gx1), set x = x1 and y = -e * sqrt(gx1)
 8. If is_square(gx2), set x = x2 and y = -e * sqrt(gx2)
-9. Output (x, y)
+9. Output h*(x, y)
 ~~~
 
 #### Implementation
@@ -1026,7 +1056,7 @@ Steps:
 20.  y2 = sqrt(gx, q)
 22.  y1 = -y2
 22.   y = CMOV(y2, y1, e)    // If e=True, y=y1, else y=y2
-23. Output (x, y)
+23. Output h*(x, y)
 ~~~
 
 ## Encodings for twisted Edwards curves
@@ -1041,8 +1071,7 @@ Preconditions: A Twisted Edwards curve.
 
 Input: alpha, an octet string to be hashed.
 
-Constants: A and D, the parameters of the curve; c0, a non-square in F;
-c1 = 2 * (A + D) / (A - D).
+Constants: A and D, the parameters of the curve; N, a non-square in F.
 
 Output: (x,y), a point on E.
 
@@ -1050,13 +1079,14 @@ Operations:
 
 ~~~
 1.  u = hash2base(alpha)
-2. t1 = -c1 / (1 + c0 * u^2)
-3. t2 = -t1 - c1
-4. g1 = t1^3 + c1 * t1^2 + t1
-5. If is_square(g1), set t = t1, else t = t2
-6. y = (t - 1) / (t + 1)
-7. x = sq_root((y^2 - 1) / (D * y^2 - A), q)
-8. Output (x, y)
+2. c1 = 2 * (A + D) / (A - D)
+3. t1 = -c1 / (1 + N * u^2)
+4. t2 = -t1 - c1
+5. g1 = t1^3 + c1 * t1^2 + t1
+6. If is_square(g1), set t = t1, else t = t2
+7. y = (t - 1) / (t + 1)
+8. x = sqrt((y^2 - 1) / (D * y^2 - A), q)
+9. Output h*(x, y)
 ~~~
 
 #### Implementation
@@ -1098,8 +1128,8 @@ Steps:
 22. gx = 1 / gx
 23. t5 = t5 - 1
 24. gx = gx * t5
-25.  x = sq_root(gx, q)
-26. Output (x, y)
+25.  x = sqrt(gx, q)
+26. Output h*(x, y)
 ~~~
 
 ## Encodings for Supersingular curves
@@ -1124,7 +1154,7 @@ Operations:
 1. u = hash2base(alpha)
 2. x = (u^2 - B)^((2 * q - 1) / 3)
 3. y = u
-4. Output (x, y)
+4. Output h*(x, y)
 ~~~
 
 #### Implementation
@@ -1146,7 +1176,7 @@ Steps:
 3. t1 = t1 - B
 4.  x = t1^c1             // x = (u^2 - B)^((2 * q - 1) / 3)
 5.  y = u
-6. Output (x, y)
+6. Output h*(x, y)
 ~~~
 
 ### Elligator2A0 Method
@@ -1173,7 +1203,7 @@ Operations:
 3. gx2 = x2^3 + B * x2
 8. If gx1 is square, x = x1 and y = sqrt(gx1)
 9. If gx2 is square, x = x2 and y = sqrt(gx2)
-10. Output (x, y)
+10. Output h*(x, y)
 ~~~
 
 #### Implementation
@@ -1198,7 +1228,7 @@ Steps:
 9.   x = CMOV(x2, x1, e)    // If e=True, x = x1, else x = x2
 10. gx = CMOV(gx2, gx1, e)  // If e=True, gx = gx1, else gx = gx2
 11.  y = sqrt(gx, q)
-12. Output (x, y)
+12. Output h*(x, y)
 ~~~
 
 ## Encodings for Pairing-Friendly curves
@@ -1231,7 +1261,7 @@ Operations:
 7. If x1^3 + B is square, set x = x1 and y = e * sqrt(x1^3 + B)
 8. If x2^3 + B is square, set x = x2 and y = e * sqrt(x2^3 + B)
 8. If x3^3 + B is square, set x = x3 and y = e * sqrt(x3^3 + B)
-9. Output (x, y)
+9. Output h*(x, y)
 ~~~
 
 #### Implementation
@@ -1273,17 +1303,16 @@ Steps:
 21.  gx = CMOV(gx, gx1, e1)   // If e1=True, gx = gx1, else gx = gx
 22.   e = u^c3
 23.   y = e * sqrt(gx, q)
-24. Output (x, y)
+24. Output h*(x, y)
 ~~~
 
 # Random Oracles {#rom}
 
 A random oracle onto an elliptic curve can be instantiated using some
-general constructions. For example, in {{BR01}} it was proven a construction
-for obtaining a random oracle, however it requires a scalar point multiplication
-which turns hashing into an expensive operation.
-A better approach to get uniformity was given by Farashahi et al. [FFSTV13] and
-is defined as follows
+general constructions. For example, Brier et al. {{BR01}} proved a construction
+that requires a scalar point multiplication, however this approach turns hashing
+into an expensive operation.
+A more efficient method to get a random oracle was given by Farashahi et al. [FFSTV13] and is defined as follows
 
 ~~~
    hash2curveRO(alpha) = f(H0(alpha)) + f(H1(alpha))
@@ -1298,8 +1327,8 @@ Using the deterministic encodings from {{encodings}}, the random oracle recommen
 is instantiated as
 
 ~~~
- hash2curveRO(alpha) = map2curve(alpha || I2OSP(0x02, 1) )
-                     + map2curve(alpha || I2OSP(0x03, 1) )
+ hash2curveRO(alpha) = map2curve( alpha || I2OSP(0x02, 1) )
+                     + map2curve( alpha || I2OSP(0x03, 1) )
 ~~~
 
 where the addition operation is performed as a point addition on the
@@ -1328,27 +1357,14 @@ This document describes the following set of ciphersuites
 
 | Suite ID | E | H | f | ROM |
 |----------|---|---|---|-----|
-| H2C-0000 | P256         |  SHA256 | Simple SWU | True |
-| H2C-0000 | P384         |  SHA512 | Icart      | True |
-| H2C-0000 | curve25519   |  SHA512 | Elligator2 | True |
-| H2C-0000 | curve448     |  SHA512 | Elligator2 | True |
-| H2C-0000 | edwards25519 |  SHA512 | Elligator2 | True |
-| H2C-0000 | edwards448   |  SHA512 | Elligator2 | True |
-| H2C-0000 | SECP256K1    |  SHA512 | FT         | True |
-| H2C-0000 | BLS12381     |  SHA512 | FT         | True |
-
-## Cofactor multiplication
-
-Note that the encodings given above guarantee that the resulting point has
-coordinates satisfying the elliptic curve equation. However, to obtain a point
-in a desired subgroup of the curve, a multiplication by the correspondent
-cofactor must be performed. This is particular to elliptic curve groups of
-non-prime order, for example using Montgomery and Edwards curves.
-
-Similarly, this also applies to pairing-based protocols, which require points
-in particular subgroups, say G1 and G2. There exist efficient techniques to
-multiply points by cofactors to obtain points in G1 and G2 {{SC09}}, {{FU11}},
-{{BU18}}.
+| H2C-0001 | P256         |  SHA256 | Simple SWU | True |
+| H2C-0002 | P384         |  SHA512 | Icart      | True |
+| H2C-0003 | curve25519   |  SHA512 | Elligator2 | True |
+| H2C-0004 | curve448     |  SHA512 | Elligator2 | True |
+| H2C-0005 | edwards25519 |  SHA512 | Elligator2 | True |
+| H2C-0006 | edwards448   |  SHA512 | Elligator2 | True |
+| H2C-0007 | SECP256K1    |  SHA512 | FT         | True |
+| H2C-0008 | BLS12381     |  SHA512 | FT         | True |
 
 
 # IANA Considerations
@@ -1371,9 +1387,6 @@ earlier versions of this document.
 
 # Contributors
 
-* Armando Faz \\
-  Cloudflare \\
-  armfazh@cloudflare.com
 * Sharon Goldberg \\
   Boston University \\
   goldbe@cs.bu.edu

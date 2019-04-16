@@ -17,8 +17,7 @@ assert(not QUAD_NON_RES.is_square())
 
 h2c_suite = "H2C-Curve25519-SHA512-ELL2-"
 
-
-# Textbook implementation
+# Reference Implementation
 def elligator2(alpha):
     u = h2b_from_label(h2c_suite, alpha)
 
@@ -39,8 +38,8 @@ def elligator2(alpha):
 c1 = QUAD_NON_RES
 c2 = ZZ( (q-1)/2 )         #Integer Arithmetic
 
-# Implementation
-def elligator2_slp(alpha):
+# Constant Time Implementation
+def elligator2_CT(alpha):
     u = h2b_from_label(h2c_suite, alpha)
 
     x1 = u^2
@@ -86,7 +85,7 @@ if __name__ == "__main__":
         print("")
         print("Intermediate values:")
         print("")
-        pA, pB = elligator2(alpha), elligator2_slp(alpha)
+        pA, pB = elligator2(alpha), elligator2_CT(alpha)
         assert pA == pB
         print("")
         print("Output:")

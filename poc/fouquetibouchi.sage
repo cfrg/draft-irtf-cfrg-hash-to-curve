@@ -15,7 +15,7 @@ assert q%12 == 7, "p not congruent to 7 mod 12"
 
 h2c_suite = "H2C-BLS12381-SHA512-FT-"
 
-# Textbook implementation
+# Reference Implementation
 def fouquetibouchi(alpha):
     u = h2b_from_label(h2c_suite, alpha)
     S = sq_root(F(-3), q)
@@ -41,8 +41,8 @@ SQRT_MINUS3    = sq_root(F(-3), q)
 ONE_SQRT3_DIV2 = F((-1 + SQRT_MINUS3)/2)
 ORDER_OVER_2   = ZZ((q - 1)/2)           # Integer arithmetic
 
-# Implementation
-def fouquetibouchi_slp(alpha):
+# Constant Time Implementation
+def fouquetibouchi_CT(alpha):
     u = h2b_from_label(h2c_suite, alpha)
     tv("u ", u, 48)
 
@@ -97,7 +97,7 @@ if __name__ == "__main__":
         print("")
         print("Intermediate values:")
         print("")
-        pA, pB = fouquetibouchi(alpha), fouquetibouchi_slp(alpha)
+        pA, pB = fouquetibouchi(alpha), fouquetibouchi_CT(alpha)
         assert pA == pB
         print("")
         print("Output:")

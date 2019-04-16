@@ -32,7 +32,7 @@ def X3(u, v):
 def U(u, v):
     return u^3 * g(v)^2 * g(X2(u, v))
 
-# Textbook implementation
+# Reference Implementation
 def swu(alpha):
     u = h2b_from_label(h2c_suite, alpha + i2osp(0,1))
     v = h2b_from_label(h2c_suite, alpha + i2osp(1,1))
@@ -53,7 +53,8 @@ def swu(alpha):
 B_OVER_A =  - B / A
 ORDER_OVER_2 = (q - 1)/2
 
-def swu_slp(alpha):
+# Constant Time Implementation
+def swu_CT(alpha):
     u = h2b_from_label(h2c_suite, alpha + i2osp(0,1))
     x1 = h2b_from_label(h2c_suite, alpha + i2osp(1,1))
     tv("u", u, 32)
@@ -115,7 +116,7 @@ if __name__ == "__main__":
         print("")
         print("Intermediate values:")
         print("")
-        pA, pB = swu(alpha), swu_slp(alpha)
+        pA, pB = swu(alpha), swu_CT(alpha)
         assert pA == pB
         print("")
         print("Output:")

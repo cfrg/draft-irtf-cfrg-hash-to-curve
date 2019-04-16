@@ -12,7 +12,7 @@ E = EllipticCurve(F, [A, B])
 
 h2c_suite = "H2C-SS132-SHA256-BF-"
 
-# Textbook implementation
+# Reference implementation
 def bonehfranklin(alpha):
     assert q%3 == 2
     u = h2b_from_label(h2c_suite, alpha)
@@ -22,8 +22,8 @@ def bonehfranklin(alpha):
 # Constants
 ONE_THIRD = (2 * p - 1) // 3 # Integer Arithmetic
 
-# Implementation
-def bonehfranklin_slp(alpha):
+# Constant Time Implementation
+def bonehfranklin_CT(alpha):
     u = h2b_from_label(h2c_suite, alpha)
     tv("u ", u, 17)
 
@@ -48,7 +48,7 @@ if __name__ == "__main__":
         print("")
         print("Intermediate values:")
         print("")
-        pA, pB = bonehfranklin(alpha), bonehfranklin_slp(alpha)
+        pA, pB = bonehfranklin(alpha), bonehfranklin_CT(alpha)
         assert pA == pB
         print("")
         print("Output:")

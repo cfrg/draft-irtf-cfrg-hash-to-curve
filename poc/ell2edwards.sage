@@ -13,12 +13,16 @@ a = F(-1)
 d = F(-121665/121666)
 a1, a2, a3, a4, a6 = F(0), 2*(a+d)/(a-d), F(0), F(1), F(0)
 E = EllipticCurve(F, [a1, a2, a3, a4, a6])
-ZeroEdw = [F(0),F(1),F(0),F(1)] # (x,y,t,z)
+ZeroPointEdwards = [F(0),F(1),F(0),F(1)] # (x,y,t,z)
 sA = sqrt(F(-((2*(a+d)/(a-d))+2)))
 
 h2c_suite = "H2C-Curve25519-SHA512-ELL2-"
 
-def toMont(P):
+def toMontgomery(P):
+    """
+    Convert a twisted Edwards point P=(x,y) or P=(X,Y,T,Z) to a point on a
+    Montgomery curve.
+    """
     if len(P) == 2:
         x,y = P
         t = x*y
@@ -29,9 +33,12 @@ def toMont(P):
         raise Exception("wrong number of coordinates")
     return E( x*(z+y) , sA*z*(z+y), x*(z-y) )
 
-def toEdw(P):
+def toEdwards(P):
+    """
+    Convert a Montgomery point P=(X,Y,Z) to a point on a twisted Edwards curve.
+    """
     if P == E.point(0):
-        return ZeroEdw
+        return ZeroPointEdwards
     u,v,w = P
     x = sA*u/v
     y = (u-w)/(u+w)
@@ -42,6 +49,10 @@ def toEdw(P):
         raise Exception("Point not in Edwards curve")
 
 def isEdwardsPoint(P):
+    """
+    Returns True if the point P=(x,y) or P=(X,Y,T,Z) holds the twisted Edwards
+    curve equation, otherwise returns False.
+    """
     if len(P) == 2:
         x,y = P
         t = x*y
@@ -53,7 +64,11 @@ def isEdwardsPoint(P):
 
     return a*x**2 + y**2 == z**2 + d*t**2 and x*y == t*z
 
-def areEqualEdw(P,Q):
+def areEqualEdwards(P,Q):
+    """
+    Returns True if P and Q are equivalent twisted Edwards points, otherwise
+    returns False.
+    """
     if len(P) == 2:
         x1,y1 = P
         t1 = x1*y1
@@ -74,7 +89,10 @@ def areEqualEdw(P,Q):
        and (y1*z2 == y2*z1)  \
        and (t1*z2 == t2*z1)
 
-def toAffEdw(P):
+def toAffineEdwards(P):
+    """
+    Returns the affine version of the projective point P=(X,Y,T,Z).
+    """
     if len(P) == 2:
         x,y = P
         t = x*y
@@ -83,7 +101,7 @@ def toAffEdw(P):
         x,y,t,z = P
     return (x/z,y/z,t*z,1)
 
-# Textbook implementation
+# Reference implementation
 def ell2edwards(alpha):
     u = h2b_from_label(h2c_suite, alpha)
     N = QUAD_NON_RES*u**2
@@ -109,8 +127,8 @@ c1 = QUAD_NON_RES
 c2 = 2*(a+d)/(a-d)
 c3 = ZZ( (q-1)/2 )         #Integer Arithmetic
 
-# Implementation
-def ell2edwards_slp(alpha):
+# Constant Time Implementation
+def ell2edwards_CT(alpha):
     u = h2b_from_label(h2c_suite, alpha)
 
     t1 = u^2
@@ -155,8 +173,8 @@ def ell2edwards_slp(alpha):
 def test_equiv():
     for i in range(2**7):
         s = bytes(F.random_element())
-        r0 = elligator2(s) == toMont(ell2edwards(s))
-        r1 = areEqualEdw( ell2edwards(s) , toEdw(elligator2(s)) )
+        r0 = elligator2(s) == toMontgomery(ell2edwards(s))
+        r1 = areEqualEdwards( ell2edwards(s) , toEdwards(elligator2(s)) )
         assert r0 == r1, "not equal for s: {}" % s
 
 if __name__ == "__main__":
@@ -170,7 +188,7 @@ if __name__ == "__main__":
         print("")
         print("Intermediate values:")
         print("")
-        pA, pB = ell2edwards(alpha), ell2edwards_slp(alpha)
+        pA, pB = ell2edwards(alpha), ell2edwards_CT(alpha)
         assert pA == pB
         print("")
         print("Output:")

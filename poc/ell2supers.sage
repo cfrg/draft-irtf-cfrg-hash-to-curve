@@ -12,7 +12,7 @@ E = EllipticCurve(F, [a1, a2, a3, a4, a6])
 
 h2c_suite = "H2C-SIKEP503-SHA512-ELL2A0-"
 
-# Textbook implementation
+# Reference Implementation
 def elligator2A0(alpha):
     assert q%4 == 3
     u = h2b_from_label(h2c_suite, alpha)
@@ -30,8 +30,8 @@ def elligator2A0(alpha):
 
     return E(x, y)
 
-# Implementation
-def elligator2A0_slp(alpha):
+# Constant Time Implementation
+def elligator2A0_CT(alpha):
     u = h2b_from_label(h2c_suite, alpha)
 
     x1 = u
@@ -62,7 +62,7 @@ if __name__ == "__main__":
         print("")
         print("Intermediate values:")
         print("")
-        pA, pB = elligator2A0(alpha), elligator2A0_slp(alpha)
+        pA, pB = elligator2A0(alpha), elligator2A0_CT(alpha)
         assert pA == pB
         print("")
         print("Output:")
