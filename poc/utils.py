@@ -1,6 +1,7 @@
 import hashlib
 import struct
 import textwrap
+from common import PrimeDict
 
 DEBUG = False
 
@@ -65,7 +66,7 @@ def tv(label, v, len):
 class Ciphersuite:
     def __init__(self, label):
         (h2c_prefix, curve, hash_name, map_name, variant_name) = label.split("-")
-        self.curve = Curve(curve)
+        self.curve = ECurve(curve)
         self.hash = Hash(hash_name)
 
 class Hash:
@@ -77,24 +78,14 @@ class Hash:
         elif label == "SHA512":
             self.H = hashlib.sha512
         else:
-            raise ValueError("Hash %s is not recognized" % curve)
+            raise ValueError("Hash %s is not recognized" % label)
 
     def hbits(self):
         return self.H().digest_size * 8
 
-class Curve:
+class ECurve:
     def __init__(self, label):
-        if label == "Curve25519":
-            self.p = 2**255 - 19
-        elif label == "P256":
-            self.p = 2**256 - 2**224 + 2**192 + 2**96 - 1
-        elif label == "P384":
-            self.p = 2**384 - 2**128  - 2**96 + 2**32 - 1
-        elif label == "P503":
-            self.p = 2**250*3**159-1
-        elif label == "BN256":
-            mu = -(2**62 + 2**55 + 1)
-            pp = lambda x: 36*x**4 + 36*x**3 + 24*x**2 + 6*x + 1
-            self.p = pp(mu)
+        if PrimeDict.has_key(label):
+            self.p = PrimeDict[label]
         else:
-            raise ValueError("Curve %s is not recognized" % curve)
+            raise ValueError("Curve %s is not recognized" % label)

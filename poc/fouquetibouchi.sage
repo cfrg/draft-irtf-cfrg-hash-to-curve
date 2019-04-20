@@ -1,108 +1,94 @@
 from hash_to_base import *
 from utils import *
+load("common.sage")
 
-# BN curve
-t = -(2**62 + 2**55 + 1)
-pp = lambda x: 36*x**4 + 36*x**3 + 24*x**2 + 6*x + 1
-p = pp(t)
-assert is_prime(p)
-assert p%3 == 1
-F = GF(p)
+# BLS12381 curve
+p = PrimeDict["BLS12381"]
+m = 1
+q = p^m
+F = GF(q)
 A = F(0)
-B = F(1)
-E = EllipticCurve([A,B])
-S = sqrt(F(-3))
-assert is_square(1+B) == false
+B = F(4)
+E = EllipticCurve(F, [A,B])
 
-h2c_suite = "H2C-BN256-SHA512-FT-"
+assert q%12 == 7, "p not congruent to 7 mod 12"
 
-def f(x):
-    return F(x**3 + A*x + B)
+h2c_suite = "H2C-BLS12381-SHA512-FT-"
 
+# Reference Implementation
 def fouquetibouchi(alpha):
     u = h2b_from_label(h2c_suite, alpha)
-    u = F(u)
+    S = sq_root(F(-3), q)
 
-    w = (S*u)/(1+B+u**2)
-    x1 = (-1+S)/2-u*w
-    x2 = -1-x1
-    x3 = 1+1/w**2
-    e = legendre_symbol(u,p)
-    if is_square( f(x1) ) :
-        return E( [ x1, e * sqrt(f(x1)) ])
-    elif is_square( f(x2) ) :
-        return E( [ x2, e * sqrt(f(x2)) ])
-    else:
-        return E( [ x3, e * sqrt(f(x3)) ])
+    t1 = (S * u) / (1 + B + u**2)
+    x1 = ((-1 + S) / 2) - u * t1
+    x2 = -1 - x1
+    x3 = 1 + (1/t1**2)
+    e = u^((q-1) / 2)
+    if is_square(x1^3 + B):
+        x = x1
+        y = e * sq_root(x1^3+B,q)
+    elif is_square(x2^3 + B):
+        x = x2
+        y = e * sq_root(x2^3+B,q)
+    elif is_square(x3^3 + B):
+        x = x3
+        y = e * sq_root(x3^3+B,q)
+    return E(x, y)
 
+# Constants
+SQRT_MINUS3    = sq_root(F(-3), q)
+ONE_SQRT3_DIV2 = F((-1 + SQRT_MINUS3)/2)
+ORDER_OVER_2   = ZZ((q - 1)/2)           # Integer arithmetic
 
-SQRT_MINUS3 = sqrt(F(-3))              # Field arithmetic
-ONE_SQRT3_DIV2 = F((-1+SQRT_MINUS3)/2) # Field arithmetic
-ORDER_OVER_2 = ZZ((p - 1)/2)           # Integer arithmetic
-
-def fouquetibouchi_slp(alpha):
+# Constant Time Implementation
+def fouquetibouchi_CT(alpha):
     u = h2b_from_label(h2c_suite, alpha)
-    tv("u ", u, 32)
+    tv("u ", u, 48)
 
-    u = F(u)
-    t0 = u**2                 # u^2
-    t0 = t0+B+1               # u^2+B+1
-    t0 = 1/t0                 # 1/(u^2+B+1)
-    t0 = t0*u                 # u/(u^2+B+1)
-    t0 = t0*SQRT_MINUS3       # sqrt(-3)u/(u^2+B+1)
-    assert t0 == F(sqrt(F(-3))*u/(u**2+B+1))
-    tv("t0", t0, 32)
+    t1 = u^2
+    t1 = t1 + B + 1
+    t1 = mult_inv(t1, q)
+    t1 = t1 * u
+    t1 = t1 * SQRT_MINUS3
+    assert t1 == F(sq_root(F(-3), q) * u / (u**2 + B + 1))
+    tv("t1", t1, 48)
 
-    x1 = ONE_SQRT3_DIV2-u*t0  # (-1+sqrt(-3))/2-sqrt(-3)u^2/(u^2+B+1)
-    assert x1 == F((-1+sqrt(F(-3)))/2-sqrt(F(-3))*u**2/(u**2+B+1))
-    tv("x1", x1, 32)
+    x1 = u * t1
+    x1 = ONE_SQRT3_DIV2 - x1
+    assert x1 == F((-1 + sq_root(F(-3),q)) / 2 - sqrt(F(-3),q) * u**2 / (u**2 + B + 1))
+    tv("x1", x1, 48)
 
-    x2 = -1-x1
-    assert x2 == F(-1-((-1+sqrt(F(-3)))/2-sqrt(F(-3))*u**2/(u**2+B+1)))
-    tv("x2", x2, 32)
+    x2 = -1 - x1
+    assert x2 == F(-1 - ((-1 + sqrt(F(-3),q)) / 2 - sqrt(F(-3),q) * u**2 / (u**2 + B + 1)))
+    tv("x2", x2, 48)
 
-    t1 = t0**2
-    t1 = 1/t1
-    x3 = t1+1
-    assert x3 == F(1+1/t0**2)
-    tv("x3", x3, 32)
+    x3 = t1**2
+    x3 = mult_inv(x3, q)
+    x3 = x3 + 1
+    assert x3 == F(1 + 1 / t1**2)
+    tv("x3", x3, 48)
 
     e = u^ORDER_OVER_2
-    assert e == legendre_symbol(u,p)
-    tv("e", e, 32)
+    assert e == legendre_symbol(u, q)
+    tv("e", e, 48)
 
-    fx1 = x1^3+B
-    assert fx1 == F(x1**3+B)
-    tv("fx1", fx1, 32)
+    gx1 = x1^3 + B
+    gx2 = x2^3 + B
+    gx3 = x3^3 + B
+    e1 = is_QR(gx1, q)
+    e2 = is_QR(gx2, q)
 
-    s1 = fx1^ORDER_OVER_2
-    if s1 == 1:
-        y1 = e*sqrt(fx1)
-        tv("y1", y1, 32)
-        return E(x1, y1)
-
-    fx2 = x2^3+B
-    assert fx2 == F(x2**3+B)
-    tv("fx2", fx2, 32)
-
-    s2 = fx2^ORDER_OVER_2
-    if s2 == 1:
-        y2 = e*sqrt(fx2)
-        tv("y2", y2, 32)
-        return E(x2, y2)
-
-    fx3 = x3^3+B
-    assert fx3 == F(x3**3+B)
-    tv("fx3", fx3, 32)
-
-    y3 = e*sqrt(fx3)
-    tv("y3", y3, 32)
-    return E(x3, y3)
-
+    x = CMOV(x3, x2, e2)
+    x = CMOV(x, x1, e1)
+    gx = CMOV(gx3, gx2, e2)
+    gx = CMOV(gx, gx1, e1)
+    y = e * sq_root(gx, q)
+    return E(x, y)
 
 if __name__ == "__main__":
     enable_debug()
-    print "## Fouque-Tibouchi to BN256"
+    print "## Fouque-Tibouchi to BLS12381"
     for alpha in map2curve_alphas:
         print "\n~~~"
         print("Input:")
@@ -111,11 +97,11 @@ if __name__ == "__main__":
         print("")
         print("Intermediate values:")
         print("")
-        pA, pB = fouquetibouchi(alpha), fouquetibouchi_slp(alpha)
+        pA, pB = fouquetibouchi(alpha), fouquetibouchi_CT(alpha)
         assert pA == pB
         print("")
         print("Output:")
         print("")
-        tv("x", pB[0], 32)
-        tv("y", pB[1], 32)
+        tv("x", pB[0], 48)
+        tv("y", pB[1], 48)
         print "~~~"
