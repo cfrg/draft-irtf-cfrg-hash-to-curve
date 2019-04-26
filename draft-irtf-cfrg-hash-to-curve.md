@@ -242,7 +242,7 @@ normative:
     title: Constructing Brezing-Weng Pairing-Friendly Elliptic Curves Using Elements in the Cyclotomic Field
     seriesinfo:
         "In": Pairing-Based Cryptography - Pairing 2008
-        "pages": 126-135        
+        "pages": 126-135
         DOI: 10.1007/978-3-540-85538-5_9
     target: https://doi.org/10.1007/978-3-540-85538-5_9
     date: 2008
@@ -393,7 +393,7 @@ normative:
       -
         ins: M. Scott
         name: Michael Scott
-        org: School of Computing Dublin City University, Ballymun. Dublin, Ireland.        
+        org: School of Computing Dublin City University, Ballymun. Dublin, Ireland.
       -
         ins: N. Benger
         name: Naomi Benger
@@ -577,6 +577,21 @@ normative:
         ins: M. Tibouchi
         name: Mehdi Tibouchi
         org: Universite du Luxembourg, Ecole normale superieure
+  WB19:
+    title: Fast and simple constant-time hashing to the BLS12-381 elliptic curve
+    seriesinfo:
+        "Technical report": ePrint 2019/403
+    target: https://eprint.iacr.org/2019/403
+    date: 2019
+    author:
+      -
+        ins: R. S. Wahby
+        name: Riad S. Wahby
+        org: Stanford University
+      -
+        ins: D. Boneh
+        name: Dan Boneh
+        org: Stanford University
   FFSTV13:
     title: Indifferentiable deterministic hashing to elliptic and hyperelliptic curves
     seriesinfo:
@@ -937,7 +952,7 @@ multiplication by h, such as the ones described in {{SC09}}, {{FU11}}, and
 ## Encodings for Weierstrass curves
 
 The following encodings apply to elliptic curves defined by the equation
-E: y^2 = x^3 + A * x + B, where 4 * A^3 + 27 * B^2 != 0.
+E: y^2 = g(x) = x^3 + A * x + B, where 4 * A^3 + 27 * B^2 != 0.
 
 ### Icart Method {#icart}
 
@@ -1008,7 +1023,7 @@ algorithm relies on the following equality
   (u^3 * g(x1)^2 * g(x2))^2 = g(x1) * g(x2) * g(x3)
 ~~~
 
-where g(x) := x^3 + A * x + B. Thus, it computes three candidate points constructed
+Thus, it computes three candidate points constructed
 in such a way that at least one of them lies on the curve.
 
 Preconditions: A Weierstrass curve over F such that A!=0 and B!=0.
@@ -1058,7 +1073,7 @@ Steps:
 7.   t1 = u^2
 8.   t1 = t1 * gx1      // t1 = u^2 * gx1
 9.   t2 = t1^2
-10.  t2 = t2 + t1      
+10.  t2 = t2 + t1
 11.  t2 = 1 / t2        // t2 = 1 / (t1^2 + t1)
 12.  x2 = t2 + 1
 13.  x2 = x2 * c1       // x2 = (-B / A) * (1 + 1 / (u^4 * gx1^2 + u^2 * gx1))
@@ -1081,16 +1096,21 @@ Steps:
 30. Output h * (x, y)
 ~~~
 
-### Simplified SWU Method {#simple-swu}
+### Simplified Shallue-van de Woestijne-Ulas Method {#simple-swu}
 
-The map2curve\_simple\_swu(alpha) implements a simplified version of
-Shallue-van de Woestijne-Ulas algorithm given by Brier et al. {{BCIMRT10}}.
+The function map2curve\_simple\_swu(alpha) implements a simplification
+of the Shallue-van de Woestijne-Ulas map {{U07}} described by Brier et
+al. {{BCIMRT10}}, which they call the "simplified SWU" map. Wahby and Boneh
+{{WB19}} generalize this map to curves over fields of odd characteristic p > 3.
 
-Preconditions: A Weierstrass curve over F such that A!=0, B!=0, and p=3 (mod 4).
+Preconditions: A Weierstrass curve over F such that A!=0 and B!=0.
 
 Input: alpha, an octet string to be hashed.
 
-Constants: A and B, the parameters of the Weierstrass curve.
+Constants:
+
+- A and B, the parameters of the Weierstrass curve
+- Z, a non-square in F such that g(B / (Z * A)) is square in F
 
 Output: (x, y), a point on E.
 
@@ -1098,9 +1118,9 @@ Operations:
 
 ~~~
 1.   u = hash2base(alpha)
-2.  x1 = (-B / A) * (1 + (1 / (u^4 - u^2)))
+2.  x1 = (-B / A) * (1 + (1 / (Z^2 * u^4 + Z * u^2)))
 3. gx1 = x1^3 + A * x1 + B
-4.  x2 = -u^2 * x1
+4.  x2 = Z * u^2 * x1
 5. gx2 = x2^3 + A * x2 + B
 6. If gx1 is square, set x = x1 and y = sqrt(gx1)
 7. If gx2 is square, set x = x2 and y = sqrt(gx2)
@@ -1109,8 +1129,8 @@ Operations:
 
 #### Implementation
 
-The following procedure implements the Simple SWU's algorithm in a straight-line
-fashion.
+The following procedure implements the simplified SWU algorithm in a
+straight-line fashion.
 
 ~~~
 map2curve_simple_swu(alpha)
@@ -1118,21 +1138,21 @@ Input: alpha, an octet string to be hashed.
 Output: (x, y), a point on E.
 
 Constants:
-1.  c1 = - B / A
+1.  c1 = -B / A
 
 Steps:
 1.    u = hash2base(alpha)
-2.   t1 = -u^2            
-3.   t2 = t1^2            
-4.   x1 = t2 + t1
+2.   t1 = Z * u^2
+3.   x1 = t1^2
+4.   x1 = x1 + t1
 5.   x1 = 1 / x1
-6.   x1 = x1 + 1         
-7.   x1 = x1 * c1            // x1 = (-B / A) * (1 + (1 / (u^4 - u^2)))
+6.   x1 = x1 + 1
+7.   x1 = x1 * c1            // x1 = (-B / A) * (1 + (1 / (Z^2 * u^4 + Z u^2)))
 8.  gx1 = x1^2
 9.  gx1 = gx1 + A
 10. gx1 = gx1 * x1
 11. gx1 = gx1 + B            // gx1 = x1^3 + A * x1 + B
-12.  x2 = t1 * x1            // x2 = -u^2 * x1
+12.  x2 = t1 * x1            // x2 = Z * u^2 * x1
 13. gx2 = x2^2
 14. gx2 = gx2 + A
 15. gx2 = gx2 * x2
@@ -1185,14 +1205,14 @@ map2curve_elligator2(alpha)
 Input: alpha, an octet string to be hashed.
 Output: (x, y), a point on E.
 
-Constants:  
+Constants:
 1. c1 is an non-square in F.
 2. c2 = (q - 1) / 2      // Integer arithmetic
 
 Steps:
 1.    u = hash2base(alpha)
 2.   x1 = u^2
-3.   x1 = c1 * x1        
+3.   x1 = c1 * x1
 4.   x1 = x1 + 1
 5.   x1 = 1 / x1
 6.   x1 = A * x1
@@ -1255,7 +1275,7 @@ map2curve_ell2edwards(alpha)
 Input: alpha, an octet string to be hashed.
 Output: (x, y), a point on E.
 
-Constants:  
+Constants:
 1. c0 is an non-square in F.
 2. c1 = 2 * (A + D) / (A - D).
 
@@ -1432,8 +1452,8 @@ Input: alpha, an octet string to be hashed.
 Output: (x, y), a point on E.
 
 Constants:
-1. c1 = sqrt(-3)          
-2. c2 = (-1 + c1) / 2     
+1. c1 = sqrt(-3)
+2. c2 = (-1 + c1) / 2
 3. c3 = ((q - 1) / 2)    // Integer Arithmetic
 
 Steps:
@@ -1496,7 +1516,7 @@ curve.
 The following table lists recommended algorithms for different curves and
 mappings. To select a suitable algorithm, choose the mapping associated with
 the target curve. For example, Elligator2 is the recommended encoding for
-Curve25519, whereas Simple SWU is the recommended encoding for P-256.
+Curve25519, whereas simplified SWU is the recommended encoding for P-256.
 When the required hashing requires to be used in a protocol proven in the
 random oracle model, applications SHOULD use the Random Oracle construction
 given in {{rom}}.
@@ -1514,14 +1534,14 @@ This document describes the following set of ciphersuites
 
 | Suite ID | E | H | f | ROM |
 |----------|---|---|---|-----|
-| H2C-0001 | P256         |  SHA256 | Simple SWU | True |
-| H2C-0002 | P384         |  SHA512 | Icart      | True |
-| H2C-0003 | curve25519   |  SHA512 | Elligator2 | True |
-| H2C-0004 | curve448     |  SHA512 | Elligator2 | True |
-| H2C-0005 | edwards25519 |  SHA512 | Elligator2 | True |
-| H2C-0006 | edwards448   |  SHA512 | Elligator2 | True |
-| H2C-0007 | SECP256K1    |  SHA512 | FT         | True |
-| H2C-0008 | BLS12381     |  SHA512 | FT         | True |
+| H2C-0001 | P256         |  SHA256 | Simplified SWU | True |
+| H2C-0002 | P384         |  SHA512 | Icart          | True |
+| H2C-0003 | curve25519   |  SHA512 | Elligator2     | True |
+| H2C-0004 | curve448     |  SHA512 | Elligator2     | True |
+| H2C-0005 | edwards25519 |  SHA512 | Elligator2     | True |
+| H2C-0006 | edwards448   |  SHA512 | Elligator2     | True |
+| H2C-0007 | SECP256K1    |  SHA512 | FT             | True |
+| H2C-0008 | BLS12381     |  SHA512 | FT             | True |
 
 
 # IANA Considerations
@@ -2291,7 +2311,7 @@ Output:
           ab12655340
 ~~~
 
-## Simple SWU to P-256
+## Simplified SWU to P-256
 
 ~~~
 Input:
