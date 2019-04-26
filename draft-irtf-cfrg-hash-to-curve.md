@@ -817,11 +817,11 @@ Algorithms in this document make use of utility functions described below.
 
 # Hashing to a Finite Field {#hashtobase}
 
-The hash2base(x) function maps a bitstring x of any length into an element of a
+The hash2base(m) function maps a bitstring x of any length into an element of a
 field F. This function is parametrized by the field F ({{bg-curves}}) and by H,
 a cryptographic hash function that outputs at least floor(log2(p)) + 1 bits.
 
-At a high level, hash2base(x) works as follows. For q = p, the function hashes x,
+At a high level, hash2base(m) works as follows. For q = p, the function hashes x,
 converts the result to an integer, and reduces modulo p to produce a prime field element.
 When F is an extension field, i.e., F = GF(q), q = p^m, m > 1, an element of F can be
 constructed by hashing to m independent prime field elements (assuming that elements of
@@ -835,7 +835,7 @@ element of F. In practice, the output may be biased, i.e., some field
 elements are more likely to occur than others. This is true even when H
 outputs a uniformly random string (which is generally assumed). For example,
 if H=SHA256 and F is a field of characteristic p = 2^255 - 19, then the
-result of reducing H(x) (a 256-bit integer) modulo p is slightly more likely
+result of reducing H(m) (a 256-bit integer) modulo p is slightly more likely
 to be a value in \[0, 38\] than a value in \[39, 2^255 - 19). In this example
 the bias is negligible, but in general the bias can be significant.
 
@@ -854,14 +854,14 @@ implementation.
 The performance of hash2base may be limited by the length of the input x.
 In algorithms or ciphersuite combinations in which hash2base is called
 multiple times, implementors may consider hashing x before calling hash2base,
-i.e., setting x' := H(x) and evaluating hash2base(x').
+i.e., setting m' := H(m) and evaluating hash2base(m').
 
 ## Implementation
 
 The following procedure implements hash2base.
 
 ~~~
-hash2base(x)
+hash2base(m)
 
 Parameters:
   1. H, a cryptographic hash function producing k bits.
@@ -872,13 +872,13 @@ Output: y, an element in F.
 
 Steps:
   Case q=p
-    1. t1 = H(x)
+    1. t1 = H(m)
     2. t2 = OS2IP(t1)
     3. y = t2 mod p
     4. Output y
 
   Case q=p^m and m>1
-    1. t = H(x)
+    1. t = H(m)
     2. for i=0 to m - 1
     3.    t1 = H( t || I2OSP(i,2) )
     4.    t2 = OS2IP(t1)
@@ -924,7 +924,7 @@ As a rough style guide the following convention is used:
 Encodings guarantee that the resulting point satisfies the elliptic curve
 equation. However, to obtain a point in a subgroup of order r, the cofactor
 clearing process must be performed. In the description of each encoding, the
-last step returns h * (x,y) which represents the cofactor clearing operation.
+last step returns h * (x, y) which represents the cofactor clearing operation.
 
 For prime order groups, h=1 and then no operation is required. On the other
 hand, when h>1, cofactor clearing is performed, in most of cases, as a scalar
@@ -1092,7 +1092,7 @@ Input: alpha, an octet string to be hashed.
 
 Constants: A and B, the parameters of the Weierstrass curve.
 
-Output: (x,y), a point on E.
+Output: (x, y), a point on E.
 
 Operations:
 
@@ -1229,7 +1229,7 @@ Input: alpha, an octet string to be hashed.
 
 Constants: A and D, the parameters of the curve; N, a non-square in F.
 
-Output: (x,y), a point on E.
+Output: (x, y), a point on E.
 
 Operations:
 
