@@ -404,7 +404,7 @@ normative:
         ins: M. Ulas
         name: Maciej Ulas
         org: Institute of Mathematics, Jagiellonian University. Poland
-  BR01:
+  BCIMRT10:
     title: Efficient Indifferentiable Hashing into Ordinary Elliptic Curves
     seriesinfo:
         "In": Advances in Cryptology - CRYPTO 2010
@@ -928,7 +928,7 @@ Steps:
 ### Simplified SWU Method {#simple-swu}
 
 The map2curve_simple_swu(alpha) implements a simplified version of
-Shallue-Woestijne-Ulas algorithm given by Brier et al. {{BR01}}.
+Shallue-Woestijne-Ulas algorithm given by Brier et al. {{BCIMRT10}}.
 
 Preconditions: A Weierstrass curve over F such that A!=0, B!=0, and p=3 (mod 4).
 
@@ -1309,7 +1309,7 @@ Steps:
 # Random Oracles {#rom}
 
 A random oracle onto an elliptic curve can be instantiated using some
-general constructions. For example, Brier et al. {{BR01}} proved a construction
+general constructions. For example, Brier et al. {{BCIMRT10}} proved a construction
 that requires a scalar point multiplication, however this approach turns hashing
 into an expensive operation.
 A more efficient method to get a random oracle was given by Farashahi et al. [FFSTV13] and is defined as follows
@@ -1465,7 +1465,7 @@ is that none of them map injectively to the entire curve, but rather
 some fraction of the points. This makes them unable to use to directly
 construct a random oracle on the curve.
 
-Brier et al. {{BR01}} proposed a couple of solutions to this problem, The
+Brier et al. {{BCIMRT10}} proposed a couple of solutions to this problem, The
 first applies solely to Icart's method described above, by computing F(H0(m))
 + F(H1(m)) for two distinct hash functions H0, H1. The second uses a generator
 G, and computes F(H0(m)) + H1(m)\*G. Later, Farashahi et al. {{FFSTV13}}
