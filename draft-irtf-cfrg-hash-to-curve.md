@@ -435,7 +435,7 @@ normative:
        ins: F. Rodriguez-Henriquez
        org: Computer Science Department, CINVESTAV-IPN. Mexico
        name: Francisco Rodriguez-Henriquez
-  BU18:
+  BP18:
     title: Hashing to G2 on BLS pairing-friendly curves
     seriesinfo:
         "In": ACM Communications in Computer Algebra
@@ -934,20 +934,28 @@ As a rough style guide the following convention is used:
 
 - c1, c2, ...: are constant values, which can be computed in advance.
 
-## Clearing Cofactor
+## Clearing the cofactor
 
-Encodings guarantee that the resulting point satisfies the elliptic curve
-equation. However, to obtain a point in a subgroup of order r, the cofactor
-clearing process must be performed. In the description of each encoding, the
-last step returns h * (x, y) which represents the cofactor clearing operation.
+Deterministic encodings guarantee that their outputs satisfy the elliptic
+curve equation. To obtain a point in a subgroup of order r, however, the
+cofactor must be cleared. In the description of each encoding in this section,
+the last step returns h * (x, y); this represents the cofactor clearing
+operation, which can always be performed via a scalar multiplication by h.
+Note that, for elliptic curves having a prime number of points, h=1 and no
+operation is required.
 
-For prime order groups, h=1 and then no operation is required. On the other
-hand, when h>1, cofactor clearing is performed, in most of cases, as a scalar
-multiplication by h. However, on pairing-friendly curves, h is a large number
-when the subgroup G2 is over an extension field. In this case, cofactor
-clearing can be performed faster using better algorithms than scalar
-multiplication by h, such as the ones described in {{SC09}}, {{FU11}}, and
-{{BU18}}.
+In some cases, a scalar multiplication by h can be replaced by a faster
+method. For pairing-friendly curves having subgroup G2 over an extension
+field, Scott et al. {{SC09}} describe a method for fast cofactor clearing
+that exploits an efficiently-computable endomorphism. Fuentes-Castaneda
+et al. {{FU11}} propose an alternative method that is sometimes more efficient.
+Budroni and Pintore {{BP18}} give concrete instantiations of these methods
+for Barreto-Lynn-Scott pairing-friendly curves {{BLS02}}.
+
+Wahby and Boneh ({{WB19}}, Section 5) describe a trick due to Scott for
+fast cofactor clearing on any elliptic curve, in the case where the prime
+factorization of h and the number of points on the curve meet certain
+conditions.
 
 ## Encodings for Weierstrass curves
 
