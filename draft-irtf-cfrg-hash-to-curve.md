@@ -673,7 +673,7 @@ document are to be interpreted as described in {{RFC2119}}.
 
 # Background {#background}
 
-## Elliptic curves
+## Elliptic curves {#bg-curves}
 
 The following is a brief definition of elliptic curves, with an emphasis
 on defining important parameters and their relation to encoding.
@@ -817,29 +817,44 @@ Algorithms in this document make use of utility functions described below.
 
 # Hashing to a Finite Field {#hashtobase}
 
-The hash2base(x) function maps an arbitrary-large bitstring x into an element
-of a field F. Hence, it is parametrized by F and H, where H is a
-cryptographic hash function which outputs at least floor(log2(p)) + 1 bits.
+The hash2base(x) function maps a bitstring x of any length into an element of a
+field F. This function is parametrized by the field F ({{bg-curves}}) and by H,
+a cryptographic hash function that outputs at least floor(log2(p)) + 1 bits.
 
-When q=p, the function first hashes x, converts the result to an integer, and
-reduces modulo p to produce a prime field element.
-When m>1, q=p^m and an element of a finite field can be constructed using m
-prime field elements assuming that elements are in a polynomial representation.
+At a high level, hash2base(x) works as follows. For q = p, the function hashes x,
+converts the result to an integer, and reduces modulo p to produce a prime field element.
+When F is an extension field, i.e., F = GF(q), q = p^m, m > 1, an element of F can be
+constructed by hashing to m independent prime field elements (assuming that elements of
+the extension are represented as vectors of base field elements, e.g., in a primitive
+element basis).
 
-Uniformity: most algorithms assume that hash2base maps its input to the finite
-field uniformly. In practice, there will be inherent biases. For example,
-let H=SHA256 and F be a field of characteristic p = 2^255 - 19, then by reducing
-from a 256-bit output, the values from 2^256 - 38 to 2^256 - 1 have more
-probability to be chosen. In this example, the resulting bias is negligible,
-but for others this bias could be significant. This is a standard problem in
-generating uniformly distributed integers from a bitstring. In order to smooth
-out this bias, the hash2base algorithm should use a hash function that produces
-as many bits as possible before reducing modulo p. This approach is preferable
-to an iterated procedure, such as rejection sampling, since this can be hard to reliably implement in constant time.
+## Security and performance considerations
 
-Performance: hash2base requires hashing the entire input x. In some algorithms
-or ciphersuite combinations, hash2base is called multiple times. For large
-inputs, implementers can therefore consider hashing x before calling hash2base, i.e., setting x=H(x).
+Most algorithms assume that hash2base maps its input to a uniformly random
+element of F. In practice, the output may be biased, i.e., some field
+elements are more likely to occur than others. This is true even when H
+outputs a uniformly random string (which is generally assumed). For example,
+if H=SHA256 and F is a field of characteristic p = 2^255 - 19, then the
+result of reducing H(x) (a 256-bit integer) modulo p is slightly more likely
+to be a value in \[0, 38\] than a value in \[39, 2^255 - 19). In this example
+the bias is negligible, but in general the bias can be significant.
+
+This is a well-known problem in generating uniformly distributed elements
+of F from a bitstring. To reduce bias, the hash function H SHOULD produce
+more than the minimum floor(log2(p)) + 1 bits. In particular, if H outputs
+at least floor(log2(p)) + 1 + b bits, then the bias is at most 2^-b.
+Choosing, e.g., b = 128 for a curve with 128-bit security is a safe choice
+that has minimal effect on performance.
+
+Note that implementors SHOULD NOT use an iterated procedure (e.g., rejection
+sampling): these procedures are difficult to implement in constant time,
+and later well-meaning "optimizations" may completely break a constant-time
+implementation.
+
+The performance of hash2base may be limited by the length of the input x.
+In algorithms or ciphersuite combinations in which hash2base is called
+multiple times, implementors may consider hashing x before calling hash2base,
+i.e., setting x' := H(x) and evaluating hash2base(x').
 
 ## Implementation
 
@@ -851,7 +866,7 @@ hash2base(x)
 Parameters:
   1. H, a cryptographic hash function producing k bits.
   2. F, a finite field F of characteristic p and order q=p^m.
-Preconditions:  k >= floor(log2(p)) + 1.
+Preconditions:  k >= floor(log2(p)) + 1 + b, to ensure at most 2^-b bias.
 Input: x, an octet string to be hashed.
 Output: y, an element in F.
 
