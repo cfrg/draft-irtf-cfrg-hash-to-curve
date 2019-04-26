@@ -795,8 +795,9 @@ Algorithms in this document make use of utility functions described below.
   calculation. For instance, in prime fields, the square root of a quadratic
   residue x can be obtained as follows
   - If q=3 (mod 4), sqrt(x, q) := x^((q + 1) / 4).
-  - If q=5 (mod 8), set z := x^((q + 3) / 8) and verify that z^2 = -x, if so, update
-    z = z * sqrt(-1). Finally, sqrt(x, q) := z.
+  - If q=5 (mod 8), set z := x^((q + 3) / 8).
+    Next, check whether z^2 = -x; if so, update z := z * sqrt(-1).
+    Finally, sqrt(x, q) := z.
 
   For extension fields, there exist methods that can be used in replacement,
   see {{Adj13}}, {{SC85}}. Regardless the method chosen, the sqrt function
