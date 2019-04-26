@@ -76,10 +76,78 @@ normative:
         ins: T. Icart
         name: Thomas Icart
         org: Sagem Securite and Universite du Luxembourg
+  CK11:
+    title: The geometry of flex tangents to a cubic curve and its parameterizations
+    seriesinfo:
+        "In": Journal of Symbolic Computation, vol 47 issue 3
+        "pages": 266-281
+        DOI: 10.1016/j.jsc.2011.11.003
+    target: https://doi.org/10.1016/j.jsc.2011.11.003
+    date: 2012
+    author:
+      -
+        ins: J. Couveignes
+        name: Jean-Marc Couveignes
+        org: Université Bordeaux
+      -
+        ins: J. Kammerer
+        name: Jean-Gabriel Kammerer
+        org: Université de Rennes
+  F11:
+    title: Hashing into Hessian curves
+    seriesinfo:
+        "In": AFRICACRYPT 2011
+        "pages": 278-289
+        DOI: 10.1007/978-3-642-21969-6_17
+    target: https://doi.org/10.1007/978-3-642-21969-6_17
+    date: 2011
+    author:
+      -
+        ins: R. R. Farashahi
+        name: Reza R. Farashahi
+        org: Macquarie Universit
+  FSV09:
+    title: On hashing into elliptic curves
+    seriesinfo:
+        "In": Journal of Mathematical Cryptology, vol 3 no 4
+        "pages": 353-360
+        DOI: 10.1515/JMC.2009.022
+    target: https://doi.org/10.1515/JMC.2009.022
+    date: 2009
+    author:
+      -
+        ins: R. R. Farashahi
+        name: Reza R. Farashahi
+        org: Macquarie Universit
+      -
+        ins: I. E. Shparlinski
+        name: Igor E. Shparlinski
+        org: Macquarie Universit
+      -
+        ins: J. F. Voloch
+        name: J. Felipe Voloch
+        org: University of Texas
+  FT10:
+    title: Estimating the size of the image of deterministic hash functions to elliptic curves.
+    seriesinfo:
+        "In": LATINCRYPT 2010
+        "pages": 81-91
+        DOI: 10.1007/978-3-642-14712-8_5
+    target: https://doi.org/10.1007/978-3-642-14712-8_5
+    date: 2010
+    author:
+      -
+        ins: P. Fouque
+        name: Pierre-Alain Fouque
+        org: Ecole Normale Superieure and INRIA Rennes
+      -
+        ins: M. Tibouchi
+        name: Mehdi Tibouchi
+        org: NTT Secure Platform Laboratories
   FT12:
     title: Indifferentiable Hashing to Barreto-Naehrig Curves
     seriesinfo:
-        "In": Progress in Cryptology - LATINCRYPT 2012
+        "In": LATINCRYPT 2012
         "pages": 1-7
         DOI: 10.1007/978-3-642-33481-8_1
     target: https://doi.org/10.1007/978-3-642-33481-8_1
@@ -93,6 +161,48 @@ normative:
         ins: M. Tibouchi
         name: Mehdi Tibouchi
         org: NTT Secure Platform Laboratories
+  FJT13:
+    title: Injective encodings to elliptic curves
+    seriesinfo:
+        "In": ACISP 2013
+        "pages": 203-218
+        DOI: 10.1007/978-3-642-39059-3_14
+    target: https://doi.org/10.1007/978-3-642-39059-3_14
+    date: 2013
+    author:
+      -
+        ins: P. Fouque
+        name: Pierre-Alain Fouque
+        org: Ecole Normale Superieure and INRIA Rennes
+      -
+        ins: A. Joux
+        name: Antoine Joux
+        org: Sorbonne Université
+      -
+        ins: M. Tibouchi
+        name: Mehdi Tibouchi
+        org: NTT Secure Platform Laboratories
+  KLR10:
+    title: Encoding points on hyperelliptic curves over finite fields in deterministic polynomial time
+    seriesinfo:
+        "In": PAIRING 2010
+        "pages": 278-297
+        DOI: 10.1007/978-3-642-17455-1_18
+    target: https://doi.org/10.1007/978-3-642-17455-1_18
+    date: 2010
+    author:
+      -
+        ins: J. Kammerer
+        name: Jean-Gabriel Kammerer
+        org: Université de Rennes
+      -
+        ins: R. Lercier
+        name: Reynald Lercier
+        org: Université de Rennes
+      -
+        ins: G. Renault
+        name: Guénaël Renault
+        org: Université Pierre et Marie Curie
   Adj13:
     title: Square Root Computation over Even Extension Fields
     seriesinfo:
@@ -149,6 +259,23 @@ normative:
         ins: M. Scott
         name: Michael Scott
         org: School of Computing, Dublin City University, Ireland
+  TK17:
+    title: Improved elliptic curve hashing and point representation
+    seriesinfo:
+        "In": Designs, Codes, and Cryptography, vol 82
+        "pages": 161-177
+        DOI: 10.1007/s10623-016-0288-2
+    target: https://doi.org/10.1007/s10623-016-0288-2
+    date: 2017
+    author:
+      -
+        ins: M. Tibouchi
+        name: Mehdi Tibouchi
+        org: NTT Secure Platform Laboratories
+      -
+        ins: T. Kim
+        name: Taechan Kim
+        org: NTT Secure Platform Laboratories
   BF01:
     title: Identity-based encryption from the Weil pairing
     seriesinfo:
@@ -374,6 +501,19 @@ normative:
         ins: L. Panny
         name: Lorenz Panny
         org: Department of Mathematics and Computer Science, Technische Universiteit Eindhoven, The Netherlands
+  S05:
+    title: Points on elliptic curves over finite fields
+    seriesinfo:
+        "In": Acta Arithmetica, vol 117 no 3
+        "pages": 293-301
+        DOI: 10.4064/aa117-3-7
+    target: https://doi.org/10.4064/aa117-3-7
+    date: 2005
+    author:
+      -
+        ins: M. Skałba
+        name: Mariusz Skałba
+        org: Department of Mathematics, University of Warsaw
   SW06:
     title: Construction of rational points on elliptic curves over finite fields
     seriesinfo:
@@ -388,10 +528,10 @@ normative:
         name: Andrew Shallue
         org: Mathematics Department, University of Wisconsin-Madison. Madison, USA.
       -
-        ins: C. Woestijne
+        ins: C. van de Woestijne
         name: Christiaan van de Woestijne
         org: Mathematisch Instituut, Universiteit Leiden. Leiden, The Netherlands.
-  SWU07:
+  U07:
     title: Rational points on certain hyperelliptic curves over finite fields
     seriesinfo:
         "In": Bulletin Polish Acad. Sci. Math. vol 55
@@ -842,10 +982,10 @@ Steps:
 18. Output h * (x, y)
 ~~~
 
-### Shallue-Woestijne-Ulas Method {#swu}
+### Shallue-van de Woestijne-Ulas Method {#swu}
 
-The map2curve\_swu(alpha) implements the Shallue-Woestijne-Ulas (SWU) method by
-Ulas {{SWU07}}, which is based on Shallue and Woestijne {{SW06}} method. The
+The map2curve\_swu(alpha) implements the Shallue-van de Woestijne-Ulas (SWU) method by
+Ulas {{U07}}, which is based on the Shallue and van de Woestijne {{SW06}} method. The
 algorithm relies on the following equality
 
 ~~~
@@ -928,7 +1068,7 @@ Steps:
 ### Simplified SWU Method {#simple-swu}
 
 The map2curve\_simple\_swu(alpha) implements a simplified version of
-Shallue-Woestijne-Ulas algorithm given by Brier et al. {{BCIMRT10}}.
+Shallue-van de Woestijne-Ulas algorithm given by Brier et al. {{BCIMRT10}}.
 
 Preconditions: A Weierstrass curve over F such that A!=0, B!=0, and p=3 (mod 4).
 
@@ -1235,11 +1375,12 @@ Steps:
 
 ### Fouque-Tibouchi Method {#ftpairing}
 
-The map2curve\_ft(alpha) implements the Fouque-Tibouchi's method {{FT12}} for
-elliptic curves defined by y^2 = x^3 + B. Notice that this encoding covers the
-case q=1 (mod 3) which is not handled by Boneh-Franklin's method, e.g., the
-SECP256K1 curve {{SEC2}}. In addition, this encoding covers pairing-friendly
-curves, such as BN {{BN05}}, KSS {{KSS08}}, and BLS {{BLS02}} curves.
+Fouque and Tibouchi {{FT12}} describe a concrete set of parameters for the
+Shallue-van de Woestijne map {{SW06}} tailored to  elliptic curves defined by
+y^2 = x^3 + B over fields of characteristic q = 1 (mod 3). This covers curves
+not handled by the Boneh-Franklin method, e.g., SECP256K1 {{SEC2}}. It also
+covers pairing-friendly curves in the BN {{BN05}}, KSS {{KSS08}}, and BLS
+{{BLS02}} families.
 
 Preconditions: A Weierstrass curve over F such that q=7 (mod 12).
 
@@ -1452,26 +1593,40 @@ need to be a random oracle.
 
 ## Deterministic Encoding
 
-Shallue, Woestijne, and Ulas {{SW06}} first introduced a deterministic
-algorithm that maps elements in F\_{q} to a curve in time O(log^4 q), where q = p^n for
-some prime p, and time O(log^3 q) when q = 3 mod 4. Icart introduced yet another
-deterministic algorithm which maps F\_{q} to any EC where q = 2 mod 3 in time O(log^3 q) {{Icart09}}.
-Elligator (2) {{Elligator2}} is yet another deterministic algorithm for any odd-characteristic
-EC that has a point of order 2. Elligator2 can be applied to Curve25519 and Curve448, which
-are both CFRG-recommended curves {{RFC7748}}.
+Shallue and van de Woestijne {{SW06}} introduced a deterministic algorithm
+based on the work of Skałba {{S05}} that maps elements in F\_{q} to a curve
+in time O(log^4 q), where q = p^n for some prime p, and time O(log^3 q)
+when q = 3 mod 4. Ulas {{U07}} described a simpler version of this map,
+and Brier et al. {{BCIMRT10}} gave a further simplification, which the authors
+call the "simplified SWU" map.
 
-However, an important caveat to all of the above deterministic encoding functions,
-is that none of them map injectively to the entire curve, but rather
-some fraction of the points. This makes them unable to use to directly
-construct a random oracle on the curve.
+Icart introduced another deterministic algorithm which maps F\_{q} to any curve
+over a field of characteristic q = 2 mod 3 in time O(log^3 q) {{Icart09}}.
+This work resulted in several extensions and generalizations, including
+{{FSV09}}, {{FT10}}, {{KLR10}}, {{F11}}, and {{CK11}}.
 
-Brier et al. {{BCIMRT10}} proposed a couple of solutions to this problem, The
-first applies solely to Icart's method described above, by computing F(H0(m))
-+ F(H1(m)) for two distinct hash functions H0, H1. The second uses a generator
+Following the work of Farashahi {{F11}}, Fouque et al. {{FJT13}} describe an
+encoding to curves of characteristic q = 3 (mod 4) having a number of points
+divisible by 4.  Bernstein et al. {{Elligator2}} optimize this encoding, and
+describe a related encoding that they call "Elligator 2," which applies to
+any curve over a field of odd characteristic having a point of order 2.
+This includes Curve25519 and Curve448, both of which are CFRG-recommended
+curves {{RFC7748}}.
+
+An important caveat regarding all of the above deterministic encoding
+functions is that none of them map to the entire curve, but rather to some
+fraction of the points. This means that they cannot be used directly to
+construct a random oracle that outputs points on the curve.
+
+Brier et al. {{BCIMRT10}} proposed two solutions to this problem.  The first
+applies solely to Icart's method described above, by computing F(H0(m)) +
+F(H1(m)) for two distinct hash functions H0, H1. The second uses a generator
 G, and computes F(H0(m)) + H1(m) * G. Later, Farashahi et al. {{FFSTV13}}
-showed the generality of the F(H0(m)) + F(H1(m)) method, as well as the
-applicability to hyperelliptic curves (not covered here).
-
+improved the analysis of the F(H0(m)) + F(H1(m)) method, showing that this
+method applies to essentially all deterministic encodings to both elliptic
+and hyperelliptic curves (which are not covered in this document).
+Tibouchi and Kim {{TK17}} further refine the analysis and describe additional
+opportunities for optimization.
 
 # Try-and-Increment Method {#try}
 
@@ -1565,7 +1720,7 @@ def map2p384(u:felem_t) -> affine_t:
     return (x, y)
 ~~~
 
-## Shallue-Woestijne-Ulas Method
+## Shallue-van de Woestijne-Ulas Method
 
 The following hacspec program implements map2curve\_swu(alpha) for P-256.
 
