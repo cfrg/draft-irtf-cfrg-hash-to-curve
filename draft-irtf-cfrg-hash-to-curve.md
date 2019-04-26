@@ -651,8 +651,8 @@ given scheme is not necessarily included in the description of the protocol.
 Compounding this problem is the need to pick a suitable curve for the specific
 protocol.
 
-This document aims to address this lapse by providing a thorough set of
-recommendations across a range of implementations, and curve types. We provide
+This document aims to bridge this gap by providing a thorough set of
+recommendations across a range of implementations and curve types. We provide
 implementation and performance details for each mechanism, along with references
 to the security rationale behind each recommendation and guidance for
 applications not yet covered.
