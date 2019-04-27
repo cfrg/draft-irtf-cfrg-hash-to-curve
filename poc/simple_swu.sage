@@ -33,10 +33,13 @@ def simple_swu(alpha):
     x1 = X1(u)
     x2 = X2(u)
     assert U(u)^2 == -g(x1)*g(x2)
-    if is_square(g(x1)):
-        return E(x1, sq_root(g(x1),q))
+    t1 = sq_root(g(x1), q)
+    if t1^2 == g(x1):
+        # g(x1) is square
+        return E(x1, t1)
     else:
-        return E(x2, sq_root(g(x2),q))
+        # if g(x1) is not square, then sqrt(g(x2)) == u^3 * t1
+        return E(x2, u^3 * t1)
 
 # Constants
 B_OVER_A = - B / A
@@ -66,17 +69,12 @@ def simple_swu_CT(alpha):
     assert x2 == -u^2 * x1
     tv("x2", x2, 32)
 
-    gx2 = x2 ^ 2
-    gx2 = gx2 + A
-    gx2 = gx2 * x2
-    gx2 = gx2 + B      # gx2 = x2^3 + A*x2 + B
-    tv("gx1", gx2, 32)
-    assert gx2 == g(x2)
+    t3 = pow(gx1, (p+1)//4, p)  # if gx1 is square, this is the sqrt
+    t4 = t3 * u^3
 
-    e = is_QR(gx1, q)
+    e = t3^2 == gx1
     x = CMOV(x2, x1, e)
-    gx = CMOV(gx2, gx1, e)
-    y = sq_root(gx, q)
+    y = CMOV(t4, t3, e)
     return E(x, y)
 
 if __name__ == "__main__":
