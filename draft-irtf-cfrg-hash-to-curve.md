@@ -655,14 +655,14 @@ arbitrary string to a point on an Elliptic Curve.
 
 # Introduction {#introduction}
 
-Many cryptographic protocols require a procedure which maps arbitrary input,
+Many cryptographic protocols require a procedure which encodes arbitrary input,
 e.g., a password, to a point on an elliptic curve (EC). This procedure is known
 as hashing to an elliptic curve. Prominent examples of cryptosystems that
 hash to elliptic curves include Simple Password Exponential Key Exchange
 {{Jablon96}}, Password Authenticated Key Exchange {{BMP00}}, Identity-Based
 Encryption {{BF01}} and Boneh-Lynn-Shacham signatures {{BLS01}}.
 
-Unfortunately for implementors, the precise mapping which is suitable for a
+Unfortunately for implementors, the precise encoding which is suitable for a
 given scheme is not necessarily included in the description of the protocol.
 Compounding this problem is the need to pick a suitable curve for the specific
 protocol.
@@ -673,7 +673,7 @@ implementation and performance details for each mechanism, along with references
 to the security rationale behind each recommendation and guidance for
 applications not yet covered.
 
-Each algorithm conforms to a common interface, i.e., it maps a bitstring
+Each algorithm conforms to a common interface, i.e., it encodes a bitstring
 {0, 1}^\* to a point on an elliptic curve E. For each variant, we describe the requirements for
 E to make it work. Sample code for each variant is presented in the
 appendix.  Unless otherwise stated, all elliptic curve points are assumed to be
@@ -735,7 +735,7 @@ Summary of quantities:
 | h | Cofactor, h>=1. | Constant used in cofactor clearing to map to prime-order subgroup. |
 
 ## Terminology
-In the following, we categorize the terminology for mapping bitstrings to points
+In the following, we categorize the terminology for encoding bitstrings to points
 on elliptic curves.
 
 ### Encoding {#term-encoding}
@@ -770,10 +770,10 @@ on bit strings that were not generated using the serialization procedure.
 
 ### Random Oracle {#term-rom}
 
-In practice, two types of mappings are common: (1) injective encodings, which
+In practice, two types of encodings are common: (1) injective encodings, which
 can be used to construct a PRF as F(k, m) = k * H(m), and (2) random oracles,
 which used by PAKE protocols {{BMP00}}, short BLS signatures {{BLS01}}, and
-IBE schemes {{BF01}}. When the required mapping is not clear, applications
+IBE schemes {{BF01}}. When the required encodings is not clear, applications
 SHOULD use a random oracle.
 
 Cryptographic protocols which are proven secure in the random oracle model (ROM)
@@ -781,7 +781,7 @@ often require a hash function that maps bitstrings to elements of a group and
 that behaves as a random oracle, i.e., its response must be uniformly
 distributed on the set of outputs (uniformity property).
 Instantiating one of these protocols with an elliptic curve group motivates
-the term "hashing to the curve", i.e., mapping bitstrings to points on an
+the term "hashing to the curve", i.e., encoding bitstrings to points on an
 elliptic curve.
 
 The hash2curve(alpha) function can be easily constructed by
