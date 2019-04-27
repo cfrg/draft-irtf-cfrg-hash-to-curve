@@ -655,11 +655,12 @@ arbitrary string to a point on an Elliptic Curve.
 
 # Introduction {#introduction}
 
-Many cryptographic protocols require a procedure which maps arbitrary input, e.g.,
-passwords, to points on an elliptic curve (EC). Prominent examples include
-Simple Password Exponential Key Exchange {{Jablon96}}, Password Authenticated
-Key Exchange {{BMP00}}, Identity-Based Encryption {{BF01}} and
-Boneh-Lynn-Shacham signatures {{BLS01}}.
+Many cryptographic protocols require a procedure which maps arbitrary input,
+e.g., a password, to a point on an elliptic curve (EC). This procedure is known
+as hashing to an elliptic curve. Prominent examples of cryptosystems that
+hash to elliptic curves include Simple Password Exponential Key Exchange
+{{Jablon96}}, Password Authenticated Key Exchange {{BMP00}}, Identity-Based
+Encryption {{BF01}} and Boneh-Lynn-Shacham signatures {{BLS01}}.
 
 Unfortunately for implementors, the precise mapping which is suitable for a
 given scheme is not necessarily included in the description of the protocol.
@@ -677,7 +678,7 @@ Each algorithm conforms to a common interface, i.e., it maps a bitstring
 E to make it work. Sample code for each variant is presented in the
 appendix.  Unless otherwise stated, all elliptic curve points are assumed to be
 represented as affine coordinates, i.e., the pair (x, y) denotes a point on an
-elliptic curve.
+elliptic curve (see {{bg-curves}}).
 
 ## Requirements
 
@@ -690,29 +691,38 @@ document are to be interpreted as described in {{RFC2119}}.
 
 ## Elliptic curves {#bg-curves}
 
-The following is a brief definition of elliptic curves, with an emphasis
-on defining important parameters and their relation to encoding.
+The following is a brief definition of elliptic curves, with an emphasis on
+important parameters and their relation to hashing to curves.
 
-Let F be the finite field GF(q) of prime characteristic p.
-For most applications, F is a prime field, in which case q=p, otherwise q=p^m
-for an integer m>1.
+Let F be the finite field GF(q) of prime characteristic p. In most cases F
+is a prime field, so q=p. Otherwise, F is a field extension, so q=p^m for
+an integer m > 1. This document assumes that elements of field extensions
+are written in a primitive element or polynomial basis, i.e., as vectors
+of m elements of GF(p) where vector elements are written in ascending order
+by degree. For example, if q=p^2 and the primitive element basis is {1, i},
+then the vector (a, b) corresponds to the element a + b * i.
 
-Elliptic curves can be represented by equations of different standard forms,
-including, but not limited to Weierstrass, Montgomery, and Edwards. Each
-of these variants correspond to a different category of curve equation.
-Certain encoding functions may have requirements on the curve form, the
-characteristic of the field, and the parameters of the curve.
+An elliptic curve E is specified by a cubic equation in two variables and a
+finite field F. An elliptic curve equation takes one of several standard forms,
+including (but not limited to) Weierstrass, Montgomery, and Edwards. Each of
+these forms defines a category of curve equations that is sometimes called a
+"curve shape."
 
-An elliptic curve E is specified by an equation and a finite field F. The curve
-E forms a group, whose elements are points who satisfy the curve equation,
-and the coordinates of a point are elements of F. As a group, E has order n,
-which is the number of points on the curve. For security reasons, it is a
-strong requirement that all cryptographic operations take place in a prime
-order group. However, not all elliptic curves generate groups of prime order.
-For example, some elliptic curves have order n = h * r, where r is a large prime,
-and h is a non-negative integer known as the cofactor. Thus, one may wish an
-encoding that returns points on a subgroup of order r. To this end, the cofactor
-clearing process consists on multiplying a point P on E by the cofactor h, this guarantees that hP is a point belonging to a subgroup of order r.
+The curve E forms an algebraic group whose elements are the points (x, y)
+satisfying the curve equation, where x and y are elements of F. This group
+has order n, meaning that there are n distinct points (x, y). In general,
+security of cryptographic primitives requires using a group of prime order.
+However, not all elliptic curves induce groups of prime order: most elliptic
+curves have order n = h * r, where r is a large prime and h is a non-negative
+integer called the cofactor. Thus, for cryptographic applications a hash
+function to the curve E should return points in the subgroup of order r. For
+a point not in the prime-order subgroup, the process of mapping to a point
+in the prime-order subgroup is called clearing the cofactor; we discuss this
+process in {{cofactor-clearing}}.
+
+Certain encoding functions restrict the curve shape, the characteristic
+of the field, and/or the parameters of the curve. For each encoding,
+this document lists the relevant restrictions.
 
 Summary of quantities:
 
@@ -789,26 +799,23 @@ as a building block for obtaining a random oracle as is described in {{rom}}.
 
 Algorithms in this document make use of utility functions described below.
 
-- is\_square(x, q): It returns True whenever the value x is a quadratic residue
-  in a field of order q. Due to Euler's criterion, this function can be
-  calculated in constant time as
+- is\_square(x, q): This function returns True whenever the value x is a
+  square in GF(q). Due to Euler's criterion, this function can be calculated
+  in constant time as
 
-  ~~~
-    is_square(x, q) := { True,  if x^((q - 1) / 2) is 0 or 1;
-                       { False, otherwise.
-  ~~~
-
-  For clarity, it is generally preferred to use this formula directly, and
-  annotate its usage with this definition.
+~~~
+is_square(x, q) := { True,  if x^((q - 1) / 2) is 0 or 1;
+                   { False, otherwise.
+~~~
 
 - sqrt(x, q): The sqrt operation is a multi-valued function, i.e. there exist
-  two roots of x whenever x is a quadratic residue. To maintain compatibility
+  two roots of x whenever x is square. To maintain compatibility
   across implementations, a single-valued sqrt function is necessary. One way
   to get such a function is by distinguishing a principal square root through a
   predicate that only one of the roots holds.
   Alternatively, an implementation of sqrt can use fixed formulas for its
-  calculation. For instance, in prime fields, the square root of a quadratic
-  residue x can be obtained as follows
+  calculation. For instance, in prime fields, the square root of a
+  square x can be obtained as follows
   - If q=3 (mod 4), sqrt(x, q) := x^((q + 1) / 4).
   - If q=5 (mod 8), set z := x^((q + 3) / 8).
     Next, check whether z^2 = -x; if so, update z := z * sqrt(-1).
@@ -825,6 +832,31 @@ Algorithms in this document make use of utility functions described below.
   all bits of C together. The resulting selector will be either 0 if all bits
   of C are zero, or 1 if at least one bit of C is 1.
 
+- sgn0(x): This function returns either +1 or -1, indicating the sign of x.
+  This function considers 0 to be positive.
+  The following procedure implements sgn0(x) in constant time.
+  See {{bg-curves}} for a discussion of representing x as a vector.
+
+~~~
+sgn0(x)
+
+Parameters:
+  1. F, a finite field of characteristic p and order q = p^m, m >= 1.
+Input: x, an element of F
+Output: -1 or 1.
+
+Notation: x_i is the i^th element of the vector representation of x.
+
+Steps:
+1. sign = 0
+2. for i=0 to m - 1
+3.   if x_i > (p - 1) / 2                  # x_i is negative
+4.     sign = CMOV(sign, -1, sign == 0)
+5.   elif x_i > 0                          # x_i is positive (and nonzero)
+6.     sign = CMOV(sign, 1, sign == 0)
+7. return CMOV(sign, 1, sign == 0)         # regard x = 0 as positive
+~~~
+
 - I2OSP and OS2IP: These functions are used to convert an octet string to
   and from a non-negative integer {{RFC8017}}.
 
@@ -839,9 +871,8 @@ a cryptographic hash function that outputs at least floor(log2(p)) + 1 bits.
 At a high level, hash2base(m) works as follows. For q = p, the function hashes x,
 converts the result to an integer, and reduces modulo p to produce a prime field element.
 When F is an extension field, i.e., F = GF(q), q = p^m, m > 1, an element of F can be
-constructed by hashing to m independent prime field elements (assuming that elements of
-the extension are represented as vectors of base field elements, e.g., in a primitive
-element basis).
+constructed by hashing to m independent elements of GF(p) (see {{bg-curves}} for
+a discussion of extension field element representation).
 
 ## Security and performance considerations
 
@@ -854,8 +885,7 @@ result of reducing H(m) (a 256-bit integer) modulo p is slightly more likely
 to be a value in \[0, 38\] than a value in \[39, 2^255 - 19). In this example
 the bias is negligible, but in general the bias can be significant.
 
-This is a well-known problem in generating uniformly distributed elements
-of F from a bitstring. To reduce bias, the hash function H SHOULD produce
+To reduce bias, the hash function H SHOULD produce
 more than the minimum floor(log2(p)) + 1 bits. In particular, if H outputs
 at least floor(log2(p)) + 1 + b bits, then the bias is at most 2^-b.
 Choosing, e.g., b = 128 for a curve with 128-bit security is a safe choice
@@ -880,7 +910,7 @@ hash2base(m)
 
 Parameters:
   1. H, a cryptographic hash function producing k bits.
-  2. F, a finite field F of characteristic p and order q=p^m.
+  2. F, a finite field of characteristic p and order q=p^m.
 Preconditions:  k >= floor(log2(p)) + 1 + b, to ensure at most 2^-b bias.
 Input: x, an octet string to be hashed.
 Output: y, an element in F.
@@ -934,7 +964,7 @@ As a rough style guide the following convention is used:
 
 - c1, c2, ...: are constant values, which can be computed in advance.
 
-## Clearing the cofactor
+## Clearing the cofactor {#cofactor-clearing}
 
 Deterministic encodings guarantee that their outputs satisfy the elliptic
 curve equation. To obtain a point in a subgroup of order r, however, the
