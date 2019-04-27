@@ -930,6 +930,7 @@ Steps:
     5.    e_i = t2 mod p
     6. Output y = ( e_0, ..., e_{m - 1} )
 ~~~
+<!-- HACK _{ -->
 
 # Deterministic Encodings  {#encodings}
 
@@ -949,8 +950,8 @@ certain algebraic conditions must hold in order to be applied.
 
 As a rough style guide the following convention is used:
 
-- All arithmetic operations are performed over the finite field, unless
-  otherwise be explicitly stated, e.g., integer arithmetic.
+- All arithmetic operations are performed over a field F, unless
+  explicitly stated otherwise.
 
 - (x, y): are the affine coordinates of a point obtained by the encoding method.
   Indexed values are used when the algorithm calculates some candidate values.
@@ -986,6 +987,13 @@ Wahby and Boneh ({{WB19}}, Section 5) describe a trick due to Scott for
 fast cofactor clearing on any elliptic curve, in the case where the prime
 factorization of h and the number of points on the curve meet certain
 conditions.
+
+## Exceptional cases {#map-exceptions}
+
+Some maps described in this section have exceptional cases, i.e., values u =
+hash2base(alpha) on which the map is undefined. These cases must be handled
+carefully, especially for constant-time implementations. For each map below, we
+discuss exceptional cases and show how to handle such cases in constant time.
 
 ## Encodings for Weierstrass curves
 
