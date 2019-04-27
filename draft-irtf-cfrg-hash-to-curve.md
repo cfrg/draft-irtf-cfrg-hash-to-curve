@@ -1064,20 +1064,21 @@ Output: (x, y), a point on E.
 
 Constants:
 1.  c1 = -B / A
+2.  c2 = Z
 
 Steps:
 1.    u = hash2base(alpha)
-2.   t1 = Z * u^2
+2.   t1 = c2 * u^2
 3.   x1 = t1^2
 4.   x1 = x1 + t1
 5.   x1 = 1 / x1
 6.   x1 = x1 + 1
-7.   x1 = x1 * c1            // x1 = (-B / A) * (1 + (1 / (Z^2 * u^4 + Z u^2)))
+7.   x1 = x1 * c1            // x1 = (-B / A) * (1 + (1 / (c2^2 * u^4 + c2 u^2)))
 8.  gx1 = x1^2
 9.  gx1 = gx1 + A
 10. gx1 = gx1 * x1
 11. gx1 = gx1 + B            // gx1 = x1^3 + A * x1 + B
-12.  x2 = t1 * x1            // x2 = Z * u^2 * x1
+12.  x2 = t1 * x1            // x2 = c2 * u^2 * x1
 13. gx2 = x2^2
 14. gx2 = gx2 + A
 15. gx2 = gx2 * x2
@@ -1347,7 +1348,7 @@ Preconditions: A Weierstrass curve over F such that q=7 (mod 12).
 
 Input: alpha, an octet string to be hashed.
 
-Constants: B, the constant of the Weierstrass curve; and S=sqrt(-3) in F.
+Constants: B, the parameter of the Weierstrass curve, and S=sqrt(-3) in F.
 
 Output: (x, y), a point on E.
 
@@ -1406,6 +1407,85 @@ Steps:
 22.   e = u^c3
 23.   y = e * sqrt(gx, q)
 24. Output h * (x, y)
+~~~
+
+### Simplified Shallue-van de Woestijne-Ulas Method {#simple-swu-pairing-friendly}
+
+Wahby and Boneh {{WB19}} show how to adapt the simplified SWU map to
+certain Weierstrass curves having either A = 0 or B = 0. (Neither case is
+supported in the description of {{simple-swu}}).
+
+This method requires finding another elliptic curve
+
+~~~
+E': y^2 = g'(x) = x^3 + A' * x + B'
+~~~
+
+that is isogenous to E having A' != 0 and B' != 0; this is possible, for
+example, using {{SAGE}}; we give an example in {{finding-isogeny}}.
+
+Preconditions: An elliptic curve E over F such that p > 3 isogenous to E',
+with a map iso\_map(x, y) that applies the isogeny map to a point on E'
+to return a point on E.
+
+Input: alpha, an octet string to be hashed.
+
+Constants:
+
+- A' and B', the parameters of the isogenous Weierstrass curve E'.
+- Z, a non-square in F such that g'(B' / (Z * A')) is square in F
+
+Output: (x, y), a point on E.
+
+Operations:
+
+~~~
+1.   u = hash2base(alpha)
+2.  x1 = (-B' / A') * (1 + (1 / (Z^2 * u^4 + Z * u^2)))
+3. gx1 = x1^3 + A' * x1 + B'
+4.  x2 = Z * u^2 * x1
+5. gx2 = x2^3 + A' * x2 + B'
+6. If gx1 is square, set x' = x1 and y' = sqrt(gx1)
+7. If gx2 is square, set x' = x2 and y' = sqrt(gx2)
+8. (x, y) = iso_map(x, y)
+8. Output h * (x, y)
+~~~
+
+#### Implementation
+
+The following procedure implements the indirect simplified SWU algorithm in a
+straight-line fashion. This implementation assumes that q = 3 mod 4. For
+discussion of how to generalize to q = 1 mod 4, see {{WB19}}, Section 4.
+
+~~~
+map2curve_simple_swu_pf(alpha)
+Input: alpha, an octet string to be hashed.
+Output: (x, y), a point on E.
+
+Constants:
+1.  c1 = -B' / A'
+2.  c2 = Z
+
+Steps:
+1.    u = hash2base(alpha)
+2.   t1 = c2 * u^2
+3.   t2 = t1^2
+4.   x1 = t1 + t2
+5.   x1 = 1 / x1
+6.   x1 = x1 + 1
+7.   x1 = x1 * c1    // x1 = (-B' / A') * (1 + (1 / (c2^2 * u^4 + c2 u^2)))
+8.  gx1 = x1^2
+9.  gx1 = gx1 + A'
+10. gx1 = gx1 * x1
+11. gx1 = gx1 + B'            // gx1 = g'(x1) = x1^3 + A' * x1 + B'
+12.  x2 = t1 * x1             // x2 = c2 * u^2 * x1
+13.  t3 = gx1^((p + 1) / 4)   // if gx1 is square, this is sqrt(g'(x1))
+14.  t4 = t3 * u^3            // if gx1 is not square, this is sqrt(g'(x2))
+15.   e = t3^2 == gx1
+16.  x' = CMOV(x2, x1, e)     // If e=True, x' = x1, else x' = x2
+17.  y' = CMOV(t4, t3, e)     // If e=True, y' = t3, else y' = t4
+18. (x, y) = iso_map(x', y')  // use isogeny map to get point on E
+19. Output h * (x, y)
 ~~~
 
 # Random Oracles {#rom}
@@ -1816,7 +1896,16 @@ def map2curve25519(r:felem_t) -> felem_t:
     return x
 ~~~
 
+## Finding a curve isogenous to E {#finding-isogeny}
 
+The pairing-friendly variant of the simplified SWU map described by Wahby and Boneh
+({{WB19}}; {{simple-swu-pairing-friendly}}) requires finding a curve E' that is isogenous
+to the target curve E. In this section, we give an example of how to find an isogenous
+curve and extract the isogeny map.
+
+~~~
+TODO
+~~~
 
 # Test Vectors
 
