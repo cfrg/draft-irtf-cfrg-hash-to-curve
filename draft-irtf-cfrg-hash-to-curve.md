@@ -1425,7 +1425,7 @@ that is isogenous to E having A' != 0 and B' != 0; this is possible, for
 example, using {{SAGE}}; we give an example in {{finding-isogeny}}.
 
 Preconditions: An elliptic curve E over F such that p > 3 isogenous to E',
-with a map iso\_map(x, y) that applies the isogeny map to a point on E'
+with a function iso\_map(x, y) that applies the isogeny map to a point on E'
 to return a point on E.
 
 Input: alpha, an octet string to be hashed.
@@ -1522,7 +1522,7 @@ The following table lists recommended algorithms for different curves and
 mappings. To select a suitable algorithm, choose the mapping associated with
 the target curve. For example, Elligator2 is the recommended encoding for
 Curve25519, whereas simplified SWU is the recommended encoding for P-256.
-When the required hashing requires to be used in a protocol proven in the
+When the hash function is to be used in a protocol whose security is proven in the
 random oracle model, applications SHOULD use the Random Oracle construction
 given in {{rom}}.
 
@@ -1697,8 +1697,8 @@ string into an EC point.
 # Sample Code {#samplecode}
 
 This section contains reference implementations for each map2curve variant built
-using {{hacspec}}.  The code presented here corresponds to the example Sage {{SAGE}} code found at {{github-repo}}. Which is additionally used to generate intermediate test
-vectors.
+using {{hacspec}}.  The code presented here corresponds to the example Sage {{SAGE}} code found at {{github-repo}},
+which is also used to generate intermediate test vectors.
 
 ## Icart Method
 
