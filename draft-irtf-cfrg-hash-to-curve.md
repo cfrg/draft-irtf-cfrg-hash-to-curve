@@ -1055,7 +1055,10 @@ Operations:
 #### Implementation
 
 The following procedure implements the simplified SWU algorithm in a
-straight-line fashion.
+straight-line fashion. This implementation is optimized for the case
+that q = 3 mod 4, which applies to P-256 and the base field curve of
+BLS12-381. For discussion of how to generalize to q = 1 mod 4, see
+{{WB19}}, Section 4 or the example code found at {{github-repo}}.
 
 ~~~
 map2curve_simple_swu(alpha)
@@ -1065,29 +1068,28 @@ Output: (x, y), a point on E.
 Constants:
 1.  c1 = -B / A
 2.  c2 = Z
+3.  c3 = sqrt(-Z^3)
 
 Steps:
 1.    u = hash2base(alpha)
 2.   t1 = c2 * u^2
-3.   x1 = t1^2
-4.   x1 = x1 + t1
+3.   t2 = t1^2
+4.   x1 = t1 + t2
 5.   x1 = 1 / x1
 6.   x1 = x1 + 1
-7.   x1 = x1 * c1            // x1 = (-B / A) * (1 + (1 / (c2^2 * u^4 + c2 u^2)))
+7.   x1 = x1 * c1    // x1 = (-B / A) * (1 + (1 / (c2^2 * u^4 + c2 * u^2)))
 8.  gx1 = x1^2
 9.  gx1 = gx1 + A
 10. gx1 = gx1 * x1
-11. gx1 = gx1 + B            // gx1 = x1^3 + A * x1 + B
+11. gx1 = gx1 + B            // gx1 = g(x1) = x1^3 + A * x1 + B
 12.  x2 = t1 * x1            // x2 = c2 * u^2 * x1
-13. gx2 = x2^2
-14. gx2 = gx2 + A
-15. gx2 = gx2 * x2
-16. gx2 = gx2 + B            // gx2 = x2^3 + A * x2 + B
-17.   e = is_square(gx1, q)
-18.   x = CMOV(x2, x1, e)    // If e=True, x = x1, else x = x2
-19.  gx = CMOV(gx2, gx1, e)  // If e=True, gx = gx1, else gx = gx2
-20.   y = sqrt(gx, q)
-21. Output h * (x, y)
+13.  t3 = gx1^((p + 1) / 4)  // if gx1 is square, this is sqrt(g(x1))
+14.  t4 = t3 * c3
+15.  t4 = t4 * u^3           // if gx1 is not square, this is sqrt(g(x2))
+16.   e = t3^2 == gx1
+17.   x = CMOV(x2, x1, e)    // if e=True, x = x1, else x = x2
+18.   y = CMOV(t4, t3, e)    // if e=True, y = t3, else y = t4
+19. Output h * (x, y)
 ~~~
 
 ## Encodings for Montgomery curves
@@ -1409,11 +1411,12 @@ Steps:
 24. Output h * (x, y)
 ~~~
 
-### Simplified Shallue-van de Woestijne-Ulas Method {#simple-swu-pairing-friendly}
+### Simplified SWU for Pairing-Friendly Curves {#simple-swu-pairing-friendly}
 
 Wahby and Boneh {{WB19}} show how to adapt the simplified SWU map to
-certain Weierstrass curves having either A = 0 or B = 0. (Neither case is
-supported in the description of {{simple-swu}}).
+certain Weierstrass curves having either A = 0 or B = 0, one of which is
+almost always true for pairing-friendly curves. Note that neither case is
+supported by the map of {{simple-swu}}.
 
 This method requires finding another elliptic curve
 
@@ -1421,72 +1424,38 @@ This method requires finding another elliptic curve
 E': y^2 = g'(x) = x^3 + A' * x + B'
 ~~~
 
-that is isogenous to E having A' != 0 and B' != 0; this is possible, for
-example, using {{SAGE}}; we give an example in {{finding-isogeny}}.
+that is isogenous to E and has A' != 0 and B' != 0. One can do this,
+for example, using {{SAGE}}; we give sample code in {{finding-isogeny}}.
+This isogeny defines a map iso\_map(x', y') that takes as input a point
+on E' and produces as output a point on E.
 
-Preconditions: An elliptic curve E over F such that p > 3 isogenous to E',
-with a function iso\_map(x, y) that applies the isogeny map to a point on E'
-to return a point on E.
+Once E' and iso\_map are identified, this map is straightforward: on input
+alpha, first apply the simplified SWU map to get a point on E', then apply
+the isogeny map to that point to get a point on E.
+
+Preconditions: An elliptic curve E' with A' != 0 and B' != 0 that is
+isogenous to the target curve E with isogeny map iso\_map(x, y) from
+E' to E.
 
 Input: alpha, an octet string to be hashed.
 
-Constants:
+Helper functions:
 
-- A' and B', the parameters of the isogenous Weierstrass curve E'.
-- Z, a non-square in F such that g'(B' / (Z * A')) is square in F
+- map2curve\_simple\_swu is the map of {{simple-swu}} to E'
+- iso\_map is the isogeny map from E' to E
 
 Output: (x, y), a point on E.
 
 Operations:
 
 ~~~
-1.   u = hash2base(alpha)
-2.  x1 = (-B' / A') * (1 + (1 / (Z^2 * u^4 + Z * u^2)))
-3. gx1 = x1^3 + A' * x1 + B'
-4.  x2 = Z * u^2 * x1
-5. gx2 = x2^3 + A' * x2 + B'
-6. If gx1 is square, set x' = x1 and y' = sqrt(gx1)
-7. If gx2 is square, set x' = x2 and y' = sqrt(gx2)
-8. (x, y) = iso_map(x, y)
+1. (x', y') = map2curve_simple_swu(alpha)  // (x', y') is a point on E'
+8. (x, y)   = iso_map(x', y')              // (x, y) is a point on E
 8. Output h * (x, y)
 ~~~
 
-#### Implementation
-
-The following procedure implements the indirect simplified SWU algorithm in a
-straight-line fashion. This implementation assumes that q = 3 mod 4. For
-discussion of how to generalize to q = 1 mod 4, see {{WB19}}, Section 4.
-
-~~~
-map2curve_simple_swu_pf(alpha)
-Input: alpha, an octet string to be hashed.
-Output: (x, y), a point on E.
-
-Constants:
-1.  c1 = -B' / A'
-2.  c2 = Z
-
-Steps:
-1.    u = hash2base(alpha)
-2.   t1 = c2 * u^2
-3.   t2 = t1^2
-4.   x1 = t1 + t2
-5.   x1 = 1 / x1
-6.   x1 = x1 + 1
-7.   x1 = x1 * c1    // x1 = (-B' / A') * (1 + (1 / (c2^2 * u^4 + c2 u^2)))
-8.  gx1 = x1^2
-9.  gx1 = gx1 + A'
-10. gx1 = gx1 * x1
-11. gx1 = gx1 + B'            // gx1 = g'(x1) = x1^3 + A' * x1 + B'
-12.  x2 = t1 * x1             // x2 = c2 * u^2 * x1
-13.  t3 = gx1^((p + 1) / 4)   // if gx1 is square, this is sqrt(g'(x1))
-14.  t4 = t3 * u^3            // if gx1 is not square, this is sqrt(g'(x2))
-15.   e = t3^2 == gx1
-16.  x' = CMOV(x2, x1, e)     // If e=True, x' = x1, else x' = x2
-17.  y' = CMOV(t4, t3, e)     // If e=True, y' = t3, else y' = t4
-18. (x, y) = iso_map(x', y')  // use isogeny map to get point on E
-19. Output h * (x, y)
-~~~
+We do not repeat the sample implementation of {{simple-swu}} here.
+See {{github-repo}} or {{WB19}} for details on implementing the isogeny map.
 
 # Random Oracles {#rom}
 
