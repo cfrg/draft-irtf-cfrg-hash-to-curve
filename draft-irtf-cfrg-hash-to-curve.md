@@ -857,6 +857,11 @@ Steps:
 7. return CMOV(sign, 1, sign == 0)         # regard x = 0 as positive
 ~~~
 
+- inv0(x, q): This function returns the multiplicative inverse of x mod q.
+  If x == 0, the inverse is undefined, and this function instead returns 0.
+  To implement inv0 in constant time, compute alpha = x^(q-2) mod q.
+  Notice on input 0, the output is 0 as required.
+
 - I2OSP and OS2IP: These functions are used to convert an octet string to
   and from a non-negative integer {{RFC8017}}.
 
@@ -992,8 +997,15 @@ conditions.
 
 Some maps described in this section have exceptional cases, i.e., values u =
 hash2base(alpha) on which the map is undefined. These cases must be handled
-carefully, especially for constant-time implementations. For each map below, we
-discuss exceptional cases and show how to handle such cases in constant time.
+carefully, especially for constant-time implementations.
+
+Most of the time, exceptional inputs result in attempting to compute the
+multiplicative inverse of 0 in F. Implementations SHOULD use inv0 ({{utility}})
+to compute multiplicative inverses, but this may not be enough to ensure
+that a given mapping outputs a valid point on the target elliptic curve.
+
+For each map below, we discuss exceptional cases and show how to handle them
+in constant time.
 
 ## Encodings for Weierstrass curves
 
@@ -1013,14 +1025,19 @@ Constants: A and B, the parameters of the Weierstrass curve.
 
 Output: (x, y), a point on E.
 
+Exceptions: The only exceptional case is hash2base(alpha) == 0.
+Implementations must detect this case by testing whether u = 0
+and setting u = 1 if so.
+
 Operations:
 
 ~~~
 1. u = hash2base(alpha)
-2. v = (3 * A - u^4) / (6 * u)
-3. x = (v^2 - B - (u^6 / 27))^((2 * q - 1) / 3) + (u^2 / 3)
-4. y = u * x + v
-5. Output h * (x, y)
+2. If u == 0, set u = 1
+3. v = (3 * A - u^4) / (6 * u)
+4. x = (v^2 - B - (u^6 / 27))^((2 * p - 1) / 3) + (u^2 / 3)
+5. y = u * x + v
+6. Output h * (x, y)
 ~~~
 
 #### Implementation
@@ -1040,23 +1057,25 @@ Constants:
 
 Steps:
 1.   u = hash2base(alpha)
-2.  u2 = u^2            // u^2
-3.  u4 = u2^2           // u^4
-4.   v = c4 - u4        // 3 * A - u^4
-5.  t1 = 6 * u          // 6 * u
-6.  t1 = 1 / t1         // 1 / (6 * u)
-7.   v = v * t1         // v = (3 * A - u^4) / (6 * u)
-8.  x1 = v^2            // v^2
-9.  x1 = x1 - B         // v^2 - B
-10. u6 = u4 * c3        // u^4 / 27
-11. u6 = u6 * u2        // u^6 / 27
-12. x1 = x1 - u6        // v^2 - B - u^6 / 27
-13. x1 = x^c1           // (v^2 - B - u^6 / 27)^(1 / 3)
-14. t1 = u2 * c2        // u^2 / 3
-15.  x = x + t1         // x = (v^2 - B - u^6 / 27)^(1 / 3) + (u^2 / 3)
-16.  y = u * x          // u * x
-17.  y = y + v          // y = u * x + v
-18. Output h * (x, y)
+2.   e = u == 0
+3.   u = CMOV(u, 1, e)  // handle exceptional case u == 0
+4.  u2 = u^2            // u^2
+5.  u4 = u2^2           // u^4
+6.   v = c4 - u4        // 3 * A - u^4
+7.  t1 = 6 * u          // 6 * u
+8.  t1 = inv0(t1)       // 1 / (6 * u)
+9.   v = v * t1         // v = (3 * A - u^4) / (6 * u)
+10. x1 = v^2            // v^2
+11. x1 = x1 - B         // v^2 - B
+12. u6 = u4 * c3        // u^4 / 27
+13. u6 = u6 * u2        // u^6 / 27
+14. x1 = x1 - u6        // v^2 - B - u^6 / 27
+15. x1 = x^c1           // (v^2 - B - u^6 / 27)^(1 / 3)
+16. t1 = u2 * c2        // u^2 / 3
+17.  x = x + t1         // x = (v^2 - B - u^6 / 27)^(1 / 3) + (u^2 / 3)
+18.  y = u * x          // u * x
+19.  y = y + v          // y = u * x + v
+20. Output h * (x, y)
 ~~~
 
 ### Simplified Shallue-van de Woestijne-Ulas Method {#simple-swu}
@@ -1113,7 +1132,7 @@ Steps:
 2.   t1 = c2 * u^2
 3.   t2 = t1^2
 4.   x1 = t1 + t2
-5.   x1 = 1 / x1
+5.   x1 = inv0(x1)
 6.   x1 = x1 + 1
 7.   x1 = x1 * c1    // x1 = (-B / A) * (1 + (1 / (c2^2 * u^4 + c2 * u^2)))
 8.  gx1 = x1^2
@@ -1180,7 +1199,7 @@ Steps:
 2.   x1 = u^2
 3.   x1 = c1 * x1
 4.   x1 = x1 + 1
-5.   x1 = 1 / x1
+5.   x1 = inv0(x1)
 6.   x1 = A * x1
 7.   x1 = -x1            // x1 = -A / (1 + N * u^2)
 8.  gx1 = x1 + A
@@ -1250,7 +1269,7 @@ Steps:
 2.  t1 = u^2
 3.  t1 = c0 * t1
 4.  t1 = t1 + 1
-5.  t1 = 1 / t1
+5.  t1 = inv0(t1)
 6.  t1 = t1 * c1
 7.  t1 = -t1                // t1 = -c1 / (1 + c0 * u^2)
 8.  t2 = -t1 - c1           // t2 = -x1 - c1
@@ -1261,13 +1280,13 @@ Steps:
 13.  e = is_square(g1, q)
 14. t3 = CMOV(t2, t1, e)    // If e=True, t=t1, else t=t2
 15. t4 = t3 + 1
-16. t4 = 1 / t4
+16. t4 = inv0(t4)
 17.  y = t3 - 1
 18.  y = y * t4
 19. t5 = y^2
 20. gx = t5 * D
 21. gx = gx - A
-22. gx = 1 / gx
+22. gx = inv0(gx)
 23. t5 = t5 - 1
 24. gx = gx * t5
 25.  x = sqrt(gx, q)
@@ -1426,14 +1445,14 @@ Steps:
 1.    u = hash2base(alpha)
 2.   t1 = u^2
 3.   t1 = t1 + B + 1
-4.   t1 = 1 / t1
+4.   t1 = inv0(t1)
 5.   t1 = t1 * u
 6.   t1 = t1 * c1      // t1 = sqrt(-3) * u / (u^2 + B + 1)
 7.   x1 = u * t1
 8.   x1 = c2 - x1      // x1 = (-1 + sqrt(-3)) / 2 - sqrt(-3) * u / (u^2 + B + 1)
 9.   x2 = -1 - x1      // x2 = -1 - x1
 10.  x3 = t1^2
-11.  x3 = 1 / x3
+11.  x3 = inv0(x3)
 12.  x3 = x3 + 1       // x3 = 1 + (1 / t1^2)
 13. gx1 = x1^3 + B
 14. gx2 = x2^3 + B

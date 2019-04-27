@@ -17,7 +17,7 @@ h2c_suite = "H2C-P384-SHA512-Icart-"
 def icart(alpha):
     u = h2b_from_label(h2c_suite, alpha)
     if u == 0:
-        return E(0)
+        u = 1
     u = F(u)
     v = (3*A - u^4)/(6*u)
     x = (v^2 - B - u^6/F(27))^((2*p-1)//3) + (u^2/F(3))
@@ -33,6 +33,8 @@ THREE_A   = F(3) * A
 # Constant Time Implementation
 def icart_CT(alpha):
     u = h2b_from_label(h2c_suite, alpha)
+    e = u == 0
+    u = CMOV(u, 1, e)
     tv("u", u, 48)
 
     u = F(u)
