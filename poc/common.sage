@@ -33,6 +33,30 @@ PrimeDict = {
     "BN382": bnPrime(-(2^94 + 2^78 + 2^67 + 2^64 + 2^48 + 1)),
 }
 
+def sgn0(x):
+    """
+    Returns -1 if x is 'negative', else 1.
+    """
+    p = x.base_ring().order()
+    if x.parent().degree() == 1:
+        # not a field extension
+        xi_values = (x,)
+    else:
+        # field extension
+        xi_values = x._vector_()
+    sign = 0
+    threshold = ZZ((p-1) // 2)
+    # compute the sign in constant time
+    for xi in xi_values:
+        zz_xi = ZZ(xi)
+        sign_squared = sign * sign
+        # sign of this digit
+        xi_sign = -2 * int(zz_xi > threshold) + int(zz_xi > 0)
+        # update sign with this digit's sign if sign == 0
+        sign = (1 - sign_squared) * xi_sign + sign_squared * sign
+    sign_squared = sign * sign
+    return (1 - sign_squared) + sign * sign_squared
+
 def CMOV(x, y, b):
     """
     Returns x if b=False; otherwise returns y
@@ -57,11 +81,10 @@ def mult_inv(x, p):
 
 def absolute(x, p):
     """
-    Returns |x|=x if x =< (p-1)/2, ohterwise returns -x modulo p.
+    Returns |x|=x if x is positive, else -x
     """
-    lim = (p-1)//2
-    if ZZ(x) > ZZ(lim):
-        x = -x%p
+    if sgn0(x) == -1:
+        return -x
     return x
 
 def sq_root(x, p):
