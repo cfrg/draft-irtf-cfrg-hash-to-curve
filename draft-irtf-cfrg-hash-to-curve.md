@@ -203,7 +203,7 @@ normative:
         ins: G. Renault
         name: Guénaël Renault
         org: Université Pierre et Marie Curie
-  Adj13:
+  AR13:
     title: Square Root Computation over Even Extension Fields
     seriesinfo:
         "In": IEEE Transactions on Computers. vol 63 issue 11
@@ -356,7 +356,7 @@ normative:
         ins: S. Patel
         name: Sarvar Patel
         org: Bell Laboratories, Lucent Technologies
-  Jablon96:
+  J96:
     title: Strong password-only authenticated key exchange
     seriesinfo:
         "In": SIGCOMM Computer Communication Review, vol 26 issue 5
@@ -373,15 +373,15 @@ normative:
     title: hacspec
     target: https://github.com/HACS-workshop/hacspec
     date: Jan, 2019
-  ElligatorAGL:
+  L13:
     title: Implementing Elligator for Curve25519
     target: https://www.imperialviolet.org/2013/12/25/elligator.html
+    date: 2013
     author:
       -
         ins: A. Langley
         name: Adam Langley
-    date: 2013
-  SC09:
+  SBCDBK09:
     title: Fast Hashing to G2 on Pairing-Friendly Curves
     seriesinfo:
         "In": Pairing-Based Cryptography - Pairing 2009
@@ -414,7 +414,7 @@ normative:
         ins: E. J. Kachisa
         name: Ezekiel J. Kachisa
         org: School of Computing Dublin City University, Ballymun. Dublin, Ireland.
-  FU11:
+  FKR11:
     title: Fast Hashing to G2 on Pairing-Friendly Curves
     seriesinfo:
         "In": Selected Areas in Cryptography
@@ -452,7 +452,7 @@ normative:
         ins: F. Pintore
         name: Federico Pintore
         org: University of Trento, Italy
-  Elligator2:
+  BHKL13:
     title: Elligator - elliptic-curve points indistinguishable from uniform random strings
     seriesinfo:
         "In": Proceedings of the 2013 ACM SIGSAC conference on computer and communications security.
@@ -477,7 +477,7 @@ normative:
         ins: T. Lange
         name: Tanja Lange
         org: Department of Mathematics and Computer Science, Technische Universiteit Eindhoven, The Netherlands
-  Elligator2A0:
+  BLMP19:
     title: Quantum circuits for the CSIDH optimizing quantum evaluation of isogenies
     seriesinfo:
         "In": Advances in Cryptology - EUROCRYPT 2019
@@ -621,7 +621,7 @@ normative:
         ins: J. F. Voloch
         name: J. Felipe Voloch
         org: University of Texas
-  SC85:
+  S85:
     title: Elliptic Curves Over Finite Fields and the Computation of Square Roots mod p
     seriesinfo:
         "In": Mathematics of Computation vol 44 issue 170
@@ -659,7 +659,7 @@ Many cryptographic protocols require a procedure which encodes arbitrary input,
 e.g., a password, to a point on an elliptic curve (EC). This procedure is known
 as hashing to an elliptic curve. Prominent examples of cryptosystems that
 hash to elliptic curves include Simple Password Exponential Key Exchange
-{{Jablon96}}, Password Authenticated Key Exchange {{BMP00}}, Identity-Based
+{{J96}}, Password Authenticated Key Exchange {{BMP00}}, Identity-Based
 Encryption {{BF01}} and Boneh-Lynn-Shacham signatures {{BLS01}}.
 
 Unfortunately for implementors, the precise encoding which is suitable for a
@@ -830,7 +830,7 @@ is_square(x, q) := { True,  if x^((q - 1) / 2) is 0 or 1;
   are precomputed constants.)
   An alternative to selecting a single-valued sqrt is to choose a predicate that only
   one of the roots holds (e.g., select the positive sqrt; see the sgn0 function below).
-  {{Adj13}} and {{SC85}} describe methods that work in other field extensions.
+  {{AR13}} and {{S85}} describe methods that work in other field extensions.
   Regardless of the method chosen, the sqrt function MUST be performed in constant time.
 
 
@@ -991,9 +991,9 @@ operation is required.
 
 In some cases, a scalar multiplication by h can be replaced by a faster
 method. For pairing-friendly curves having subgroup G2 over an extension
-field, Scott et al. {{SC09}} describe a method for fast cofactor clearing
+field, Scott et al. {{SBCDBK09}} describe a method for fast cofactor clearing
 that exploits an efficiently-computable endomorphism. Fuentes-Castaneda
-et al. {{FU11}} propose an alternative method that is sometimes more efficient.
+et al. {{FKR11}} propose an alternative method that is sometimes more efficient.
 Budroni and Pintore {{BP18}} give concrete instantiations of these methods
 for Barreto-Lynn-Scott pairing-friendly curves {{BLS02}}.
 
@@ -1172,7 +1172,7 @@ Steps:
 
 ### Elligator2 Method {#elligator2}
 
-The map2curve\_elligator2(alpha) implements the Elligator2 {{Elligator2}} for
+The map2curve\_elligator2(alpha) implements the Elligator2 {{BHKL13}} for
 curves defined by y^2 = x^3 + A * x^2 + B * x such that A * B * (A^2 - 4 * B) != 0.
 In particular, this method applies to the Montgomery curves y^2 = x^3 + A * x^2 + x
 setting B=1.
@@ -1244,7 +1244,7 @@ Steps:
 ### Elligator2 Method {#ell2edwards}
 
 The map2curve\_ell2edwards(alpha) implements an adaptation of Elligator2
-{{Elligator2}} for twisted Edwards curves defined by A * x^2 + y^2 = 1 + D * x^2 * y^2
+{{BHKL13}} for twisted Edwards curves defined by A * x^2 + y^2 = 1 + D * x^2 * y^2
 over a field F.
 
 Preconditions: A Twisted Edwards curve.
@@ -1362,7 +1362,7 @@ Steps:
 ### Elligator2A0 Method
 
 The map2curve\_ell2A0(alpha) implements an adaptation of Elligator2
-{{Elligator2A0}} targeting the supersingular curves defined by y^2 = x^3 + B * x
+{{BLMP19}} targeting the supersingular curves defined by y^2 = x^3 + B * x
 over a field F such that q=3 (mod 4).
 
 Preconditions: A supersingular curve over F such that q=3 (mod 4).
@@ -1609,7 +1609,7 @@ method only covers about 5/8 of the points.
 # Acknowledgements
 
 The authors would like to thank Adam Langley for this detailed writeup up Elligator2 with
-Curve25519 {{ElligatorAGL}}. We also thank Sean Devlin and Thomas Icart for feedback on
+Curve25519 {{L13}}. We also thank Sean Devlin and Thomas Icart for feedback on
 earlier versions of this document.
 
 # Contributors
@@ -1672,7 +1672,7 @@ given y1 = map2curve(m1) and y2 = map2curve(m2) for any m1 and m2, it must
 be true that y2 = H(m2) / H(m1) * map2curve(m1). This relationship would not
 hold (with overwhelming probability) for truly random values y1 and y2.
 This causes catastrophic failure in many cases. However, one exception is found in
-SPEKE {{Jablon96}}, which constructs a base for a Diffie-Hellman key exchange by
+SPEKE {{J96}}, which constructs a base for a Diffie-Hellman key exchange by
 hashing the password to a curve point. Notably the use of a hash function is
 purely for encoding an arbitrary length string to a curve point, and does not
 need to be a random oracle.
@@ -1693,7 +1693,7 @@ This work resulted in several extensions and generalizations, including
 
 Following the work of Farashahi {{F11}}, Fouque et al. {{FJT13}} describe an
 encoding to curves of characteristic q = 3 (mod 4) having a number of points
-divisible by 4.  Bernstein et al. {{Elligator2}} optimize this encoding, and
+divisible by 4.  Bernstein et al. {{BHKL13}} optimize this encoding, and
 describe a related encoding that they call "Elligator 2," which applies to
 any curve over a field of odd characteristic having a point of order 2.
 This includes Curve25519 and Curve448, both of which are CFRG-recommended
