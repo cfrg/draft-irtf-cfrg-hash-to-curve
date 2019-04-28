@@ -810,20 +810,29 @@ is_square(x, q) := { True,  if x^((q - 1) / 2) is 0 or 1;
 
 - sqrt(x, q): The sqrt operation is a multi-valued function, i.e. there exist
   two roots of x whenever x is square. To maintain compatibility
-  across implementations, a single-valued sqrt function is necessary. One way
-  to get such a function is by distinguishing a principal square root through a
-  predicate that only one of the roots holds.
-  Alternatively, an implementation of sqrt can use fixed formulas for its
-  calculation. For instance, in prime fields, the square root of a
-  square x can be obtained as follows
-  - If q=3 (mod 4), sqrt(x, q) := x^((q + 1) / 4).
-  - If q=5 (mod 8), set z := x^((q + 3) / 8).
-    Next, check whether z^2 = -x; if so, update z := z * sqrt(-1).
-    Finally, sqrt(x, q) := z.
+  across implementations, a single-valued sqrt function is necessary.
+  The preferred way of selecting a single-valued sqrt is to fix a deterministic
+  algorithm particular to q. As specific examples:
 
-  For extension fields, there exist methods that can be used in replacement,
-  see {{Adj13}}, {{SC85}}. Regardless the method chosen, the sqrt function
-  MUST be performed in constant time.
+  - If q=3 (mod 4), sqrt(x, q) := x^((q + 1) / 4).
+  - If q=5 (mod 8):
+    1. Set z := x^((q + 3) / 8).
+    2. Check whether z^2 == -x; if so, update z := z * sqrt(-1).
+    3. Finally, sqrt(x, q) := z.
+  - If q=9 (mod 16), which includes q=p^2 when p=3 (mod 4):
+    1. Set z := x^((q+7) / 16).
+    2. Check whether (z * sqrt(-1))^2 == x; if so, update z := z * sqrt(-1).
+    3. Check whether (z * sqrt(sqrt(-1))^2) == x; if so, update z := z * sqrt(sqrt(-1)).
+    4. Check whether (z * sqrt(-sqrt(-1))^2) == x; if so, update z := z * sqrt(-sqrt(-1)).
+    5. Finally, sqrt(x, q) := z.
+
+  (In the second and third cases above, the values sqrt(-1), sqrt(sqrt(-1)), and sqrt(-sqrt(-1))
+  are precomputed constants.)
+  An alternative to selecting a single-valued sqrt is to choose a predicate that only
+  one of the roots holds (e.g., select the positive sqrt; see the sgn0 function below).
+  {{Adj13}} and {{SC85}} describe methods that work in other field extensions.
+  Regardless of the method chosen, the sqrt function MUST be performed in constant time.
+
 
 - CMOV(a, b, c): If c=0, CMOV returns a, otherwise returns b. To prevent against
   timing attacks, this operation must run in constant time without revealing the
