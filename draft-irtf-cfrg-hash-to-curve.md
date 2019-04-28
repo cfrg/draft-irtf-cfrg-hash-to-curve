@@ -1023,7 +1023,7 @@ E: y^2 = g(x) = x^3 + A * x + B, where 4 * A^3 + 27 * B^2 != 0.
 
 ### Icart Method {#icart}
 
-The map2curve\_icart(alpha) implements the Icart encoding method from {{Icart09}}.
+The function map2curve\_icart(alpha) implements the Icart encoding method from {{Icart09}}.
 
 Preconditions: An elliptic curve over F, such that p>3 and q=p^m=2 (mod 3), or
 p=2 (mod 3) and odd m.
@@ -1101,7 +1101,10 @@ Input: alpha, an octet string to be hashed.
 Constants:
 
 - A and B, the parameters of the Weierstrass curve
-- Z the smallest (in absolute value) non-square in F such that g(B / (Z * A)) is square in F
+
+- Z the smallest (in absolute value) non-square in F such that g(B / (Z *
+  A)) is square in F, breaking ties by choosing the positive value.
+
 
 Output: (x, y), a point on E.
 
@@ -1130,14 +1133,16 @@ Operations:
 
 The following procedure implements the simplified SWU algorithm in a
 straight-line fashion. This implementation is optimized for the case
-that q = 3 mod 4, which applies to P-256 and the base field curve of
-BLS12-381. For discussion of how to generalize to q = 1 mod 4, see
+that q = 3 (mod 4), which applies to P-256.
+For discussion of how to generalize to q = 1 (mod 4), see
 {{WB19}} (Section 4) or the example code found at {{github-repo}}.
 
 ~~~
 map2curve_simple_swu(alpha)
 Input: alpha, an octet string to be hashed.
 Output: (x, y), a point on E.
+
+Precondition: q = 3 (mod 4)
 
 Constants:
 1.  c1 = -B / A
@@ -1172,78 +1177,128 @@ Steps:
 
 ### Elligator2 Method {#elligator2}
 
-The map2curve\_elligator2(alpha) implements the Elligator2 {{BHKL13}} for
+The function map2curve\_elligator2(alpha) implements the Elligator2 {{BHKL13}} for
 curves defined by y^2 = x^3 + A * x^2 + B * x such that A * B * (A^2 - 4 * B) != 0.
 In particular, this method applies to the Montgomery curves y^2 = x^3 + A * x^2 + x
 setting B=1.
 
-Preconditions: A Montgomery curve such that A!=0.
+Preconditions: A Montgomery curve such that A != 0 and A^2 - 4 is non-square in F.
 
 Input: alpha, an octet string to be hashed.
 
-Constants: A and B, the parameters of the curve; N, a non-square in F.
+Constants:
+
+- A and B, the parameters of the curve
+
+- Z the smallest (in absolute value) non-square in F, breaking ties by choosing
+  the positive value.
 
 Output: (x, y), a point on E.
+
+Exceptions: The exceptional case is Z * u^2 == -1, i.e., 1 + Z * u^2 == 0.
+Implementations must detect this case and set x1 = -A.
+Note that this can only happen when q = 3 (mod 4).
 
 Operations:
 
 ~~~
 1.   u = hash2base(alpha)
-2.  x1 = -A / (1 + N * u^2)
-3. gx1 = x1^3 + A * x1^2 + B * x1
-4.  x2 = -x1 - A
-5. gx2 = x2^3 + A * x2^2 + B * x2
-6.   e = gx1^((q - 1) / 2)
-7. If is_square(gx1), set x = x1 and y = -e * sqrt(gx1)
-8. If is_square(gx2), set x = x2 and y = -e * sqrt(gx2)
-9. Output h * (x, y)
+2.  x1 = -A * inv0(1 + Z * u^2)
+3. If x1 == 0, set x1 = -A.
+4. gx1 = x1^3 + A * x1^2 + B * x1
+5.  x2 = -x1 - A
+6. gx2 = x2^3 + A * x2^2 + B * x2
+7.   e = gx1^((q - 1) / 2)
+8. If is_square(gx1), set x = x1 and y = -e * sqrt(gx1)
+9. If is_square(gx2), set x = x2 and y = -e * sqrt(gx2)
+10. Output h * (x, y)
 ~~~
 
-#### Implementation
+#### Implementation, q=3 (mod 4)
 
-The following procedure implements elligator2 algorithm in a straight-line
-fashion.
+The following procedure implements Elligator 2 in a straight-line
+fashion for curves where q=3 (mod 4), including Curve448.
 
 ~~~
-map2curve_elligator2(alpha)
+map2curve_elligator2_3mod4(alpha)
 Input: alpha, an octet string to be hashed.
 Output: (x, y), a point on E.
 
 Constants:
-1. c1 is an non-square in F.
-2. c2 = (q - 1) / 2      // Integer arithmetic
+1. c1 is Z^((q + 1) / 4) in F.
 
 Steps:
 1.    u = hash2base(alpha)
 2.   x1 = u^2
-3.   x1 = c1 * x1
+3.   x1 = Z * x1
 4.   x1 = x1 + 1
 5.   x1 = inv0(x1)
-6.   x1 = A * x1
-7.   x1 = -x1            // x1 = -A / (1 + N * u^2)
-8.  gx1 = x1 + A
-9.  gx1 = gx1 * x1
-10. gx1 = gx1 + B
-11. gx1 = gx1 * x1       // gx1 = x1^3 + A * x1^2 + B * x1
-12.  x2 = -x1 - A        // x2 = -x1 - A
-13. gx2 = x2 + A
-14. gx2 = gx2 * x2
-15. gx2 = gx2 + B
-16. gx2 = gx2 * x2       // gx2 = x2^3 + A * x2^2 + B * x2
-17.   e = is_square(gx1, q)
-18.   x = CMOV(x2, x1, e)    // If e=True, x=x1, else x=x2
-19.  gx = CMOV(gx2, gx1, e)  // If e=True, x=gx1, else x=gx2
-20.  y2 = sqrt(gx, q)
-22.  y1 = -y2
-22.   y = CMOV(y2, y1, e)    // If e=True, y=y1, else y=y2
-23. Output h * (x, y)
+6.   e1 = x1 == 0
+7.   x1 = CMOV(x1, 1, e1)     // if x1 == 0, set x1 == 1
+8.   x1 = -A * x1             // x1 = -A / (1 + Z * u^2)
+9.  gx1 = x1 + A
+10. gx1 = gx1 * x1
+11. gx1 = gx1 + B
+12. gx1 = gx1 * x1            // gx1 = x1^3 + A * x1^2 + B * x1
+13.  y1 = gx1^((q + 1) / 4)
+14.  x2 = -x1 - A
+15.  y2 = y1 * u
+16.  y2 = y2 * c1             // y2 = sqrt(g(x2)) if g(x1) is not square
+17.  y1 = -y1
+18.  e2 = y1^2 == gx1
+19.   x = CMOV(x2, x1, e2)    // If e=True, x=x1, else x=x2
+20.   y = CMOV(y2, y1, e2)    // If e=True, y=y1, else y=y2
+21. Output h * (x, y)
+~~~
+
+#### Implementation, q=5 (mod 8)
+
+The following is a straight-line implementation of Elligator 2
+for curves where q=5 (mod 8), including Curve25519.
+
+~~~
+map2curve_elligator2_5mod8(alpha)
+Input: alpha, an octet string to be hashed.
+Output: (x, y), a point on E.
+
+Constants:
+1. c1 is Z^((q + 3) / 8) in F.
+2. c2 is sqrt(-1) in F.
+
+Steps:
+1.    u = hash2base(alpha)
+2.   t1 = u^2
+3.   t1 = Z * t1
+4.   x1 = t1 + 1
+5.   x1 = inv0(x1)            // cannot be 0 because q=5 mod 8
+6.   x1 = -A * x1             // x1 = -A / (1 + Z * u^2)
+7.  gx1 = x1 + A
+8.  gx1 = gx1 * x1
+9.  gx1 = gx1 + B
+10. gx1 = gx1 * x1            // gx1 = x1^3 + A * x1^2 + B * x1
+11. y11 = gx1^((q + 3) / 8)
+12. y12 = c2 * y11
+13.  e1 = y12^2 == gx1
+14.  y1 = CMOV(y11, y12, e1)  // if gx1 is square, this is its sqrt
+15.  x2 = -x1 - A
+16. y21 = y11 * u
+17. y21 = y21 * c1
+18. y22 = c2 * y21
+19. gx2 = t1 * gx1
+20.  e2 = y22^2 == gx2
+21.  y2 = CMOV(y21, y22, e2)  // if gx2 is square, this is the sqrt
+22.  y1 = -y1
+23.  e3 = y1^2 == gx1
+24.   x = CMOV(x2, x1, e3)    // if e=True, x=x1, else x=x2
+25.   y = CMOV(y2, y1, e3)    // if e=True, y=y1, else y=y2
+26. Output h * (x, y)
 ~~~
 
 ## Encodings for twisted Edwards curves
 
 ### Elligator2 Method {#ell2edwards}
 
-The map2curve\_ell2edwards(alpha) implements an adaptation of Elligator2
+The function map2curve\_ell2edwards(alpha) implements an adaptation of Elligator2
 {{BHKL13}} for twisted Edwards curves defined by A * x^2 + y^2 = 1 + D * x^2 * y^2
 over a field F.
 
@@ -1251,7 +1306,12 @@ Preconditions: A Twisted Edwards curve.
 
 Input: alpha, an octet string to be hashed.
 
-Constants: A and D, the parameters of the curve; N, a non-square in F.
+Constants:
+
+- A and D, the parameters of the curve
+
+- Z the smallest (in absolute value) non-square in F, breaking ties by choosing
+  the positive value.
 
 Output: (x, y), a point on E.
 
@@ -1260,7 +1320,7 @@ Operations:
 ~~~
 1.  u = hash2base(alpha)
 2. c1 = 2 * (A + D) / (A - D)
-3. t1 = -c1 / (1 + N * u^2)
+3. t1 = -c1 / (1 + Z * u^2)
 4. t2 = -t1 - c1
 5. g1 = t1^3 + c1 * t1^2 + t1
 6. If is_square(g1), set t = t1, else t = t2
@@ -1316,7 +1376,7 @@ Steps:
 
 ### Boneh-Franklin Method {#supersingular}
 
-The map2curve\_bf(alpha) implements the Boneh-Franklin method {{BF01}} which
+The function map2curve\_bf(alpha) implements the Boneh-Franklin method {{BF01}} which
 covers the supersingular curves defined by y^2 = x^3 + B over a field F such
 that q=2 (mod 3).
 
@@ -1361,7 +1421,7 @@ Steps:
 
 ### Elligator2A0 Method
 
-The map2curve\_ell2A0(alpha) implements an adaptation of Elligator2
+The function map2curve\_ell2A0(alpha) implements an adaptation of Elligator2
 {{BLMP19}} targeting the supersingular curves defined by y^2 = x^3 + B * x
 over a field F such that q=3 (mod 4).
 
