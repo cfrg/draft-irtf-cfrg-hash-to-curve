@@ -1092,21 +1092,29 @@ Input: alpha, an octet string to be hashed.
 Constants:
 
 - A and B, the parameters of the Weierstrass curve
-- Z, a non-square in F such that g(B / (Z * A)) is square in F
+- Z the smallest (in absolute value) non-square in F such that g(B / (Z * A)) is square in F
 
 Output: (x, y), a point on E.
+
+Exceptions: The exceptional cases are values of u such that
+Z^2 * u^4 + Z * u^2 == 0. This includes u == 0, and may include
+other values depending on Z. Implementations must detect
+this case and set x1 = B / (Z * A), which is guaranteed to be
+square by the condition on Z given above.
 
 Operations:
 
 ~~~
 1.   u = hash2base(alpha)
-2.  x1 = (-B / A) * (1 + (1 / (Z^2 * u^4 + Z * u^2)))
-3. gx1 = x1^3 + A * x1 + B
-4.  x2 = Z * u^2 * x1
-5. gx2 = x2^3 + A * x2 + B
-6. If gx1 is square, set x = x1 and y = sqrt(gx1)
-7. If gx2 is square, set x = x2 and y = sqrt(gx2)
-8. Output h * (x, y)
+2. den = inv0(Z^2 * u^4 + Z * u^2)
+3.  x1 = (-B / A) * (1 + den)
+4. If den == 0, set x1 = B / (Z * A)
+5. gx1 = x1^3 + A * x1 + B
+6.  x2 = Z * u^2 * x1
+7. gx2 = x2^3 + A * x2 + B
+8. If gx1 is square, set x = x1 and y = sqrt(gx1)
+9. If gx2 is square, set x = x2 and y = sqrt(gx2)
+10. Output h * (x, y)
 ~~~
 
 #### Implementation
@@ -1115,7 +1123,7 @@ The following procedure implements the simplified SWU algorithm in a
 straight-line fashion. This implementation is optimized for the case
 that q = 3 mod 4, which applies to P-256 and the base field curve of
 BLS12-381. For discussion of how to generalize to q = 1 mod 4, see
-{{WB19}}, Section 4 or the example code found at {{github-repo}}.
+{{WB19}} (Section 4) or the example code found at {{github-repo}}.
 
 ~~~
 map2curve_simple_swu(alpha)
@@ -1124,28 +1132,30 @@ Output: (x, y), a point on E.
 
 Constants:
 1.  c1 = -B / A
-2.  c2 = Z
-3.  c3 = sqrt(-Z^3)
+3.  c2 = -1 / Z
+4.  c3 = sqrt(-Z^3)
 
 Steps:
 1.    u = hash2base(alpha)
-2.   t1 = c2 * u^2
+2.   t1 = Z * u^2
 3.   t2 = t1^2
 4.   x1 = t1 + t2
 5.   x1 = inv0(x1)
-6.   x1 = x1 + 1
-7.   x1 = x1 * c1    // x1 = (-B / A) * (1 + (1 / (c2^2 * u^4 + c2 * u^2)))
+6.   e1 = x1 == 0
+7.   x1 = x1 + 1
+8.   x1 = CMOV(x1, c2, e1)   // if (t1 + t2) == 0, set x1 = -1 / Z
+7.   x1 = x1 * c1      // x1 = (-B / A) * (1 + (1 / (Z^2 * u^4 + Z * u^2)))
 8.  gx1 = x1^2
 9.  gx1 = gx1 + A
 10. gx1 = gx1 * x1
 11. gx1 = gx1 + B            // gx1 = g(x1) = x1^3 + A * x1 + B
-12.  x2 = t1 * x1            // x2 = c2 * u^2 * x1
+12.  x2 = t1 * x1            // x2 = Z * u^2 * x1
 13.  t3 = gx1^((p + 1) / 4)  // if gx1 is square, this is sqrt(g(x1))
 14.  t4 = t3 * c3
 15.  t4 = t4 * u^3           // if gx1 is not square, this is sqrt(g(x2))
-16.   e = t3^2 == gx1
-17.   x = CMOV(x2, x1, e)    // if e=True, x = x1, else x = x2
-18.   y = CMOV(t4, t3, e)    // if e=True, y = t3, else y = t4
+16.  e2 = t3^2 == gx1
+17.   x = CMOV(x2, x1, e2)   // if e2=True, x = x1, else x = x2
+18.   y = CMOV(t4, t3, e2)   // if e2=True, y = t3, else y = t4
 19. Output h * (x, y)
 ~~~
 
