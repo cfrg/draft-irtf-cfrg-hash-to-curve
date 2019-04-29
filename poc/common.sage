@@ -26,9 +26,10 @@ PrimeDict = {
     # Old SNARKs and zCash prime (BN254)
     "zCASH": 21888242871839275222246405745257275088696311157297823662689037894645226208583,
     # New zCash prime 381 is slight below the new 384 bits for 128-bit security
-    "BLS12381": blsPrime(-0xd201000000010000),
+    "BLS12_381_1": blsPrime(-0xd201000000010000),
+    "BLS12_381_2": blsPrime(-0xd201000000010000),
     # Scott ia.cr/2019/077 (new 128-bit security)
-    "BLS12384": blsPrime(0x10008000001001200),
+    "BLS12_384": blsPrime(0x10008000001001200),
     # Barreto curve y = x^3+2
     "BN382": bnPrime(-(2^94 + 2^78 + 2^67 + 2^64 + 2^48 + 1)),
 }

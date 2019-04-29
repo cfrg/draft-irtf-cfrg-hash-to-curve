@@ -3,7 +3,7 @@ from utils import *
 load("common.sage")
 
 # BLS12381 curve
-p = PrimeDict["BLS12381"]
+p = PrimeDict["BLS12_381_1"]
 m = 1
 q = p^m
 F = GF(q)
@@ -13,7 +13,7 @@ E = EllipticCurve(F, [A,B])
 
 assert q%12 == 7, "p not congruent to 7 mod 12"
 
-h2c_suite = "H2C-BLS12381-SHA512-FT-"
+h2c_suite = "H2C-BLS12_381_1-SHA512-FT-"
 
 # Reference Implementation
 def fouquetibouchi(alpha):
@@ -88,7 +88,7 @@ def fouquetibouchi_CT(alpha):
 
 if __name__ == "__main__":
     enable_debug()
-    print "## Fouque-Tibouchi to BLS12381"
+    print "## Fouque-Tibouchi to BLS12-381 G1"
     for alpha in map2curve_alphas:
         print "\n~~~"
         print("Input:")
