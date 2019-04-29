@@ -25,18 +25,31 @@ def hash_to_base(x, H, hbits, p, label):
     return F(y)
 
 # Helper function to extract parameters from a ciphersuite label
-def h2b_from_label(label, x):
+def h2b_from_label(label, x, m=1):
     cs = Ciphersuite(label)
     H = cs.hash.H
     hbits = cs.hash.hbits()
     p = cs.curve.p
 
-    value = hash_to_base(x, H, hbits, p, label)
-    if len(x) == 0 and DEBUG:
-        print("hash2base('" + label + "', nil ) = \n\t" + str(value))
-    elif DEBUG:
-        print("hash2base('" + label + "', " + pprint_hex(x) + ") = \n\t" + str(value))
-    return value
+    if m < 1:
+        raise RuntimeError("invalid extension degree; must be >= 1")
+
+    if m == 1:
+        value = hash_to_base(x, H, hbits, p, label)
+        if len(x) == 0 and DEBUG:
+            print("hash2base('" + label + "', nil ) = \n\t" + str(value))
+        elif DEBUG:
+            print("hash2base('" + label + "', " + pprint_hex(x) + ") = \n\t" + str(value))
+        return value
+
+    # hash to field extension of degree m
+    h = H()
+    h.update(x)
+    t = h.digest()
+    ret = [None] * m
+    for idx in range(0, m):
+        ret[idx] = hash_to_base("%s%s" % (t, i2osp(idx, 2)), H, hbits, p, label)
+    return ret
 
 if __name__ == "__main__":
     print "## Sample hash2base"

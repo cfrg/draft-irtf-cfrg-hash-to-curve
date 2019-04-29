@@ -164,9 +164,7 @@ def osswu2_help(u):
 
 # map from a string, optionally clearing the cofactor
 def map2curve_osswu2(alpha):
-    # XXX how do we actually want to handle hashing to an element of Fp2?
-    u1 = h2b_from_label(h2c_suite + "coord1", alpha)
-    u2 = h2b_from_label(h2c_suite + "coord2", alpha)
+    (u1, u2) = h2b_from_label(h2c_suite, alpha, 2)
     P = osswu2_help(F2(u1 + X * u2))
     return P
 
@@ -226,9 +224,7 @@ def osswu2_CT_help(u):
 
 # map from a string using CT impl; always clear cofactor
 def map2curve_osswu2_CT(alpha):
-    # XXX how do we actually want to handle hashing to an element of Fp2?
-    u1 = h2b_from_label(h2c_suite + "coord1", alpha)
-    u2 = h2b_from_label(h2c_suite + "coord2", alpha)
+    (u1, u2) = h2b_from_label(h2c_suite, alpha, 2)
     P = osswu2_CT_help(F2(u1 + X * u2))
     return clear_h2(P)
 
