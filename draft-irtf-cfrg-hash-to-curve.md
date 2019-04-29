@@ -1126,7 +1126,7 @@ Operations:
 7. gx2 = x2^3 + A * x2 + B
 8. If gx1 is square, set x = x1 and y = sqrt(gx1)
 9. If gx2 is square, set x = x2 and y = sqrt(gx2)
-10. Output h * (x, y)
+10. Output h * (x, sgn0(u) * y)
 ~~~
 
 #### Implementation
@@ -1167,10 +1167,12 @@ Steps:
 13.  t3 = gx1^((p + 1) / 4)  // if gx1 is square, this is sqrt(g(x1))
 14.  t4 = t3 * c3
 15.  t4 = t4 * u^3           // if gx1 is not square, this is sqrt(g(x2))
-16.  e2 = t3^2 == gx1
-17.   x = CMOV(x2, x1, e2)   // if e2=True, x = x1, else x = x2
-18.   y = CMOV(t4, t3, e2)   // if e2=True, y = t3, else y = t4
-19. Output h * (x, y)
+16.  e2 = sgn0(u) == -1
+17.  t3 = CMOV(t3, -t3, e2)
+18.  e3 = t3^2 == gx1
+19.   x = CMOV(x2, x1, e3)   // if e2=True, x = x1, else x = x2
+20.   y = CMOV(t4, t3, e3)   // if e2=True, y = t3, else y = t4
+21. Output h * (x, y)
 ~~~
 
 ## Encodings for Montgomery curves
@@ -1208,9 +1210,8 @@ Operations:
 4. gx1 = x1^3 + A * x1^2 + B * x1
 5.  x2 = -x1 - A
 6. gx2 = x2^3 + A * x2^2 + B * x2
-7.   e = gx1^((q - 1) / 2)
-8. If is_square(gx1), set x = x1 and y = -e * sqrt(gx1)
-9. If is_square(gx2), set x = x2 and y = -e * sqrt(gx2)
+8. If is_square(gx1), set x = x1 and y = -1 * sqrt(gx1)
+9. If is_square(gx2), set x = x2 and y = sqrt(gx2)
 10. Output h * (x, y)
 ~~~
 
@@ -1242,13 +1243,15 @@ Steps:
 12. gx1 = gx1 * x1            // gx1 = x1^3 + A * x1^2 + B * x1
 13.  y1 = gx1^((q + 1) / 4)
 14.  x2 = -x1 - A
+17.  e2 = sgn0(u) == -1
 15.  y2 = y1 * u
-16.  y2 = y2 * c1             // y2 = sqrt(g(x2)) if g(x1) is not square
-17.  y1 = -y1
-18.  e2 = y1^2 == gx1
-19.   x = CMOV(x2, x1, e2)    // If e=True, x=x1, else x=x2
-20.   y = CMOV(y2, y1, e2)    // If e=True, y=y1, else y=y2
-21. Output h * (x, y)
+16.  y2 = y2 * c1
+17.  y2 = CMOV(y2, -y2, e2)   // y2 = sqrt(g(x2)) if g(x1) is not square
+18.  y1 = -y1
+19.  e3 = y1^2 == gx1
+20.   x = CMOV(x2, x1, e3)    // If e=True, x=x1, else x=x2
+21.   y = CMOV(y2, y1, e3)    // If e=True, y=y1, else y=y2
+22. Output h * (x, y)
 ~~~
 
 #### Implementation, q=5 (mod 8)
@@ -1279,19 +1282,22 @@ Steps:
 11. y11 = gx1^((q + 3) / 8)
 12. y12 = c2 * y11
 13.  e1 = y12^2 == gx1
-14.  y1 = CMOV(y11, y12, e1)  // if gx1 is square, this is its sqrt
-15.  x2 = -x1 - A
-16. y21 = y11 * u
-17. y21 = y21 * c1
-18. y22 = c2 * y21
-19. gx2 = t1 * gx1
-20.  e2 = y22^2 == gx2
-21.  y2 = CMOV(y21, y22, e2)  // if gx2 is square, this is the sqrt
-22.  y1 = -y1
-23.  e3 = y1^2 == gx1
-24.   x = CMOV(x2, x1, e3)    // if e=True, x=x1, else x=x2
-25.   y = CMOV(y2, y1, e3)    // if e=True, y=y1, else y=y2
-26. Output h * (x, y)
+14.  y1 = CMOV(y11, y12, e1)
+15.  e2 = sgn0(y1) == -1
+16.  y1 = CMOV(-y1, y1, e2)   // if gx1 is square, this is its sqrt
+17.  x2 = -x1 - A
+18. y21 = y11 * u
+19. y21 = y21 * c1
+20. y22 = c2 * y21
+21. gx2 = t1 * gx1
+22.  e3 = y22^2 == gx2
+23.  y2 = CMOV(y21, y22, e3)
+24.  e4 = sgn0(y2) == -1
+25.  y2 = CMOV(y2, -y2, e4)   // if gx2 is square, this is its sqrt
+26.  e5 = y1^2 == gx1
+27.   x = CMOV(x2, x1, e5)    // if e=True, x=x1, else x=x2
+28.   y = CMOV(y2, y1, e5)    // if e=True, y=y1, else y=y2
+29. Output h * (x, y)
 ~~~
 
 ## Encodings for twisted Edwards curves
