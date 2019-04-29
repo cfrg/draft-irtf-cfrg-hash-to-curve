@@ -17,7 +17,8 @@ test: all \
 	test_ell2supers \
 	test_fouquetibouchi \
 	test_sswu_bls12-381_g1 \
-	test_sswu_bls12-381_g2
+	test_sswu_bls12-381_g2 \
+	test_svdw
 
 clean:
 	@rm -f *.pyc *.sage.py common.py hash_to_base.py
