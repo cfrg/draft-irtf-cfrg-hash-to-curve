@@ -1111,8 +1111,8 @@ Output: (x, y), a point on E.
 Exceptions: The exceptional cases are values of u such that
 Z^2 * u^4 + Z * u^2 == 0. This includes u == 0, and may include
 other values depending on Z. Implementations must detect
-this case and set x1 = B / (Z * A), which is guaranteed to be
-square by the condition on Z given above.
+this case and set x1 = B / (Z * A), which guarantees that g(x1)
+is square by the condition on Z given above.
 
 Operations:
 
@@ -1179,12 +1179,11 @@ Steps:
 
 ### Elligator2 Method {#elligator2}
 
-The function map2curve\_elligator2(alpha) implements the Elligator2 {{BHKL13}} for
-curves defined by y^2 = x^3 + A * x^2 + B * x such that A * B * (A^2 - 4 * B) != 0.
-In particular, this method applies to the Montgomery curves y^2 = x^3 + A * x^2 + x
-setting B=1.
+The function map2curve\_elligator2(alpha) implements Elligator2 {{BHKL13}} for
+curves defined by y^2 = x^3 + A * x^2 + B * x such that A * B * (A^2 - 4 * B) != 0
+and A^2 - 4 * B is non-square in F.
 
-Preconditions: A Montgomery curve such that A != 0 and A^2 - 4 is non-square in F.
+Preconditions: A Montgomery curve where A != 0, B != 0, and A^2 - 4 is non-square in F.
 
 Input: alpha, an octet string to be hashed.
 
