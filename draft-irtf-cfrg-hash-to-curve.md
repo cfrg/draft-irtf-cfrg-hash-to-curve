@@ -1478,41 +1478,56 @@ Steps:
 
 ## Encodings for Pairing-Friendly curves
 
-### Fouque-Tibouchi Method {#ftpairing}
+### Shallue-van de Woestijne Method {#swpairing}
 
-Fouque and Tibouchi {{FT12}} describe a concrete set of parameters for the
-Shallue-van de Woestijne encoding {{SW06}} tailored to  elliptic curves defined by
-y^2 = x^3 + B over fields of characteristic q = 1 (mod 3). This covers curves
-not handled by the Boneh-Franklin method, e.g., SECP256K1 {{SEC2}}. It also
-covers pairing-friendly curves in the BN {{BN05}}, KSS {{KSS08}}, and BLS
-{{BLS02}} families.
+Shallue and van de Woestijne {{SW06}} describe an encoding that applies to
+essentially any elliptic curve. Fouque and Tibouchi {{FT12}} give a concrete
+set of parameters for this encoding geared toward Barreto-Naehrig pairing-friendly curves
+{{BN05}}, i.e., curves y^2 = x^3 + B over fields of characteristic q=1 (mod 3).
+Wahby and Boneh {{WB19}} suggest a small generalization of the Fouque-Tibouchi
+parameters that results in a uniform method for handling exceptional cases.
 
-Preconditions: A Weierstrass curve over F such that q=7 (mod 12).
+This encoding method covers curves not handled by other methods, e.g.,
+SECP256K1 {{SEC2}}. It also covers pairing-friendly curves in the BN {{BN05}},
+KSS {{KSS08}}, and BLS {{BLS02}} families. (Note that the encoding
+described in {{simple-swu-pairing-friendly}} is faster, when it applies.)
+
+Preconditions: An elliptic curve y^2 = g(x) = x^3 + B over F such that q=1 (mod 3) and B != 0.
 
 Input: alpha, an octet string to be hashed.
 
-Constants: B, the parameter of the Weierstrass curve, and S=sqrt(-3) in F.
+Constants:
+
+- B, the parameter of the Weierstrass curve
+- Z, the smallest (in absolute value) element of F such that
+  g((sqrt(-3 * Z^2) - Z) / 2) is square, breaking ties by choosing
+  the positive value.
 
 Output: (x, y), a point on E.
+
+Exceptions: The exceptional cases for u = hash2base(alpha) occur when
+u^2 * (u^2 + g(Z)) == 0. The restriction on Z given above ensures that
+implementations that use inv0 to invert this product are exception free.
 
 Operations:
 
 ~~~
 1.  u = hash2base(alpha)
-2. t1 = (S * u) / (1 + B + u^2)
-3. x1 = ((-1 + S) / 2) - u * t1
-4. x2 = -1 - x1
-5. x3 = 1 + (1 / t1^2)
-6.  e = u^((p - 1) / 2)
-7. If x1^3 + B is square, set x = x1 and y = e * sqrt(x1^3 + B)
-8. If x2^3 + B is square, set x = x2 and y = e * sqrt(x2^3 + B)
-8. If x3^3 + B is square, set x = x3 and y = e * sqrt(x3^3 + B)
-9. Output h * (x, y)
+2. t1 = u^2 + g(Z)
+3. t2 = inv0(u^2 * t1)
+4. t3 = u^4 * t2 * sqrt(-3 * Z^2)
+5. x1 = ((sqrt(-3 * Z^2) - Z) / 2) - t3
+6. x2 = t3 - ((sqrt(-3 * Z^2) + Z) / 2)
+7. x3 = Z - (t1^3 * t2 / (3 * Z^2))
+8.  If g(x1) is square, set x = x1 and y = sgn0(u) * sqrt(g(x1))
+9.  If g(x2) is square, set x = x2 and y = sgn0(u) * sqrt(g(x2))
+10. If g(x3) is square, set x = x3 and y = sgn0(u) * sqrt(g(x3))
+11. Output h * (x, y)
 ~~~
 
 #### Implementation
 
-The following procedure implements the Fouque-Tibouchi's algorithm in a
+The following procedure implements the Shallue and van de Woestijne method in a
 straight-line fashion.
 
 ~~~
@@ -1521,35 +1536,48 @@ Input: alpha, an octet string to be hashed.
 Output: (x, y), a point on E.
 
 Constants:
-1. c1 = sqrt(-3)
-2. c2 = (-1 + c1) / 2
-3. c3 = ((q - 1) / 2)    // Integer Arithmetic
+1. c1 = g(Z)
+2. c2 = sqrt(-3 * Z^2)
+3. c3 = (sqrt(-3 * Z^2) - Z) / 2
+4. c4 = (sqrt(-3 * Z^2) + Z) / 2
+5. c5 = 1 / (3 * Z^2)
 
 Steps:
 1.    u = hash2base(alpha)
 2.   t1 = u^2
-3.   t1 = t1 + B + 1
-4.   t1 = inv0(t1)
-5.   t1 = t1 * u
-6.   t1 = t1 * c1      // t1 = sqrt(-3) * u / (u^2 + B + 1)
-7.   x1 = u * t1
-8.   x1 = c2 - x1      // x1 = (-1 + sqrt(-3)) / 2 - sqrt(-3) * u / (u^2 + B + 1)
-9.   x2 = -1 - x1      // x2 = -1 - x1
-10.  x3 = t1^2
-11.  x3 = inv0(x3)
-12.  x3 = x3 + 1       // x3 = 1 + (1 / t1^2)
-13. gx1 = x1^3 + B
-14. gx2 = x2^3 + B
-15. gx3 = x3^3 + B
-16.  e1 = is_square(gx1, q)
-17.  e2 = is_square(gx2, q)
-18.   x = CMOV(x3, x2, e2)    // If e2=True, x = x2, else x = x3
-19.   x = CMOV(x, x1, e1)     // If e1=True, x = x1, else x = x
-20.  gx = CMOV(gx3, gx2, e2)  // If e2=True, gx = gx2, else gx = gx3
-21.  gx = CMOV(gx, gx1, e1)   // If e1=True, gx = gx1, else gx = gx
-22.   e = u^c3
-23.   y = e * sqrt(gx, q)
-24. Output h * (x, y)
+3.   t2 = t1 + c1           // t2 = u^2 + g(Z)
+4.   t3 = t1 * t2
+5.   t4 = inv0(t3)          // t4 = 1 / (u^2 * (u^2 + g(Z)))
+6.   t3 = t1^2
+7.   t3 = t3 * t4
+8.   t3 = t3 * c2           // t3 = u^2 * sqrt(-3 * Z^2) / (u^2 + g(Z))
+9.   x1 = c3 - t3
+10. gx1 = x1^2
+11. gx1 = gx1 * x1
+12. gx1 = gx1 + B           // gx1 = x1^3 + B
+13.  e1 = is_square(gx1)
+14.  x2 = t3 - c4
+15. gx2 = x2^2
+16. gx2 = gx2 * x2
+17. gx2 = gx2 + B           // gx2 = x2^3 + B
+18.  e2 = is_square(gx2)
+19.  e3 = e1 OR e2          // logical OR
+20.  x3 = t2^2
+21.  x3 = x3 * t2
+22.  x3 = x3 * t4
+23.  x3 = x3 * c5
+24.  x3 = Z - x3            // Z - (u^2 + g(Z))^2 / (3 Z^2 u^2)
+25. gx3 = x3^2
+26. gx3 = gx3 * x3
+27. gx3 = gx3 + B           // gx3 = x3^3 + B
+28.   x = CMOV(x2, x1, e1)  // select x1 if gx1 is square
+29.  gx = CMOV(gx2, gx1, e1)
+30.   x = CMOV(x3, x, e3)   // select x3 if gx1 and gx2 are not square
+31.  gx = CMOV(gx3, gx, e3)
+32.   y = sqrt(gx, q)
+33.  e4 = sgn0(u) == -1
+34.   y = CMOV(y, -y, e4)   // select correct sign of y
+35. Output h * (x, y)
 ~~~
 
 ### Simplified SWU for Pairing-Friendly Curves {#simple-swu-pairing-friendly}
