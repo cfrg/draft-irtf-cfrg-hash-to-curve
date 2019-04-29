@@ -21,6 +21,7 @@ h2c_suite = "H2C-Curve25519-SHA512-ELL2-"
 def elligator2(alpha):
     u = h2b_from_label(h2c_suite, alpha)
 
+    # no exceptional case when q = 5 mod 8
     x1 = -A / (1 + (QUAD_NON_RES * u^2))
     gx1 = x1^3 + A * x1^2 + B * x1
     x2 = -x1 - A

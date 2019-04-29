@@ -50,7 +50,7 @@ def simple_swu(alpha):
         return E(x2, u^3 * t1)
 
 # Constants
-B_OVER_A = - B / A
+MB_OVER_A = - B / A
 M1_OVER_Z = - 1 / Z
 
 # Constant Time Implementation
@@ -65,7 +65,7 @@ def simple_swu_CT(alpha):
     e1 = x1 == 0
     x1 = x1 + 1
     x1 = CMOV(x1, M1_OVER_Z, e1)
-    x1 = x1 * B_OVER_A
+    x1 = x1 * MB_OVER_A
     assert (e1 and x1 == (B / (Z * A))) or x1 == (-B/A) * (1 + 1 / (Z^2 * u^4 + Z * u^2))
     tv("x1", x1, 32)
 
