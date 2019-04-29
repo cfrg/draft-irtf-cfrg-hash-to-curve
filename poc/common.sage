@@ -79,13 +79,11 @@ def mult_inv(x, p):
     """
     return x**(p-2)
 
-def absolute(x, p):
+def absolute(x, _):
     """
     Returns |x|=x if x is positive, else -x
     """
-    if sgn0(x) == -1:
-        return -x
-    return x
+    return CMOV(x, -x, sgn0(x) == -1)
 
 def sq_root(x, p):
     """
