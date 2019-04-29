@@ -1102,7 +1102,7 @@ Constants:
 
 - A and B, the parameters of the Weierstrass curve
 
-- Z the smallest (in absolute value) non-square in F such that g(B / (Z *
+- Z, the smallest (in absolute value) non-square in F such that g(B / (Z *
   A)) is square in F, breaking ties by choosing the positive value.
 
 
@@ -1191,7 +1191,7 @@ Constants:
 
 - A and B, the parameters of the curve
 
-- Z the smallest (in absolute value) non-square in F, breaking ties by choosing
+- Z, the smallest (in absolute value) non-square in F, breaking ties by choosing
   the positive value.
 
 Output: (x, y), a point on E.
@@ -1315,7 +1315,7 @@ Constants:
 
 - A and D, the parameters of the curve
 
-- Z the smallest (in absolute value) non-square in F, breaking ties by choosing
+- Z, the smallest (in absolute value) non-square in F, breaking ties by choosing
   the positive value.
 
 Output: (x, y), a point on E.
