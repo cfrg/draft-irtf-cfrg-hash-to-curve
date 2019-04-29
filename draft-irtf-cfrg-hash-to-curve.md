@@ -1004,16 +1004,16 @@ conditions.
 
 ## Exceptional cases {#map-exceptions}
 
-Some maps described in this section have exceptional cases, i.e., values u =
-hash2base(alpha) on which the map is undefined. These cases must be handled
+Some encodings described in this section have exceptional cases, i.e., values u =
+hash2base(alpha) on which the encoding is undefined. These cases must be handled
 carefully, especially for constant-time implementations.
 
 Most of the time, exceptional inputs result in attempting to compute the
 multiplicative inverse of 0 in F. Implementations SHOULD use inv0 ({{utility}})
 to compute multiplicative inverses, but this may not be enough to ensure
-that a given mapping outputs a valid point on the target elliptic curve.
+that a given encoding outputs a valid point on the target elliptic curve.
 
-For each map below, we discuss exceptional cases and show how to handle them
+For each encoding below, we discuss exceptional cases and show how to handle them
 in constant time.
 
 ## Encodings for Weierstrass curves
@@ -1090,9 +1090,9 @@ Steps:
 ### Simplified Shallue-van de Woestijne-Ulas Method {#simple-swu}
 
 The function map2curve\_simple\_swu(alpha) implements a simplification
-of the Shallue-van de Woestijne-Ulas map {{U07}} described by Brier et
+of the Shallue-van de Woestijne-Ulas encoding {{U07}} described by Brier et
 al. {{BCIMRT10}}, which they call the "simplified SWU" map. Wahby and Boneh
-{{WB19}} generalize this map to curves over fields of odd characteristic p > 3.
+{{WB19}} generalize this encoding to curves over fields of odd characteristic p > 3.
 
 Preconditions: A Weierstrass curve over F such that A!=0 and B!=0.
 
@@ -1481,7 +1481,7 @@ Steps:
 ### Fouque-Tibouchi Method {#ftpairing}
 
 Fouque and Tibouchi {{FT12}} describe a concrete set of parameters for the
-Shallue-van de Woestijne map {{SW06}} tailored to  elliptic curves defined by
+Shallue-van de Woestijne encoding {{SW06}} tailored to  elliptic curves defined by
 y^2 = x^3 + B over fields of characteristic q = 1 (mod 3). This covers curves
 not handled by the Boneh-Franklin method, e.g., SECP256K1 {{SEC2}}. It also
 covers pairing-friendly curves in the BN {{BN05}}, KSS {{KSS08}}, and BLS
@@ -1554,10 +1554,10 @@ Steps:
 
 ### Simplified SWU for Pairing-Friendly Curves {#simple-swu-pairing-friendly}
 
-Wahby and Boneh {{WB19}} show how to adapt the simplified SWU map to
+Wahby and Boneh {{WB19}} show how to adapt the simplified SWU encoding to
 certain Weierstrass curves having either A = 0 or B = 0, one of which is
 almost always true for pairing-friendly curves. Note that neither case is
-supported by the map of {{simple-swu}}.
+supported by the encoding of {{simple-swu}}.
 
 This method requires finding another elliptic curve
 
@@ -1570,8 +1570,8 @@ for example, using {{SAGE}}; we give sample code in {{finding-isogeny}}.
 This isogeny defines a map iso\_map(x', y') that takes as input a point
 on E' and produces as output a point on E.
 
-Once E' and iso\_map are identified, this map is straightforward: on input
-alpha, first apply the simplified SWU map to get a point on E', then apply
+Once E' and iso\_map are identified, this encoding is straightforward: on input
+alpha, first apply the simplified SWU encoding to get a point on E', then apply
 the isogeny map to that point to get a point on E.
 
 Preconditions: An elliptic curve E' with A' != 0 and B' != 0 that is
@@ -1582,7 +1582,7 @@ Input: alpha, an octet string to be hashed.
 
 Helper functions:
 
-- map2curve\_simple\_swu is the map of {{simple-swu}} to E'
+- map2curve\_simple\_swu is the encoding of {{simple-swu}} to E'
 - iso\_map is the isogeny map from E' to E
 
 Output: (x, y), a point on E.
@@ -1629,7 +1629,7 @@ curve.
 # Suites for Hashing {#suites}
 
 The following table lists recommended algorithms for different curves and
-mappings. To select a suitable algorithm, choose the mapping associated with
+encodings. To select a suitable algorithm, choose the encoding associated with
 the target curve. For example, Elligator2 is the recommended encoding for
 Curve25519, whereas simplified SWU is the recommended encoding for P-256.
 When the hash function is to be used in a protocol whose security is proven in the
@@ -1668,8 +1668,8 @@ This document has no IANA actions.
 Each encoding function variant accepts arbitrary input and maps it to a pseudorandom
 point on the curve. Points are close to indistinguishable from randomly chosen
 elements on the curve. Not all encoding functions are full-domain hashes. Elligator2,
-for example, only maps strings to "about half of all curve points," whereas Icart's
-method only covers about 5/8 of the points.
+for example, maps strings to about half of all curve points, whereas Icart's
+method covers about 5/8 of the points.
 
 # Acknowledgements
 
@@ -2008,7 +2008,7 @@ def map2curve25519(r:felem_t) -> felem_t:
 
 ## Finding a curve isogenous to E {#finding-isogeny}
 
-The pairing-friendly variant of the simplified SWU map described by Wahby and Boneh
+The pairing-friendly variant of the simplified SWU encoding described by Wahby and Boneh
 ({{WB19}}; {{simple-swu-pairing-friendly}}) requires finding a curve E' that is isogenous
 to the target curve E. In this section, we give an example of how to find an isogenous
 curve and extract the isogeny map.
