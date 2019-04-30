@@ -1703,14 +1703,14 @@ This document describes the following set of ciphersuites
 
 | Suite ID | E | H | f | ROM |
 |----------|---|---|---|-----|
-| H2C-0001 | P256         |  SHA256 | Simplified SWU | True |
-| H2C-0002 | P384         |  SHA512 | Icart          | True |
-| H2C-0003 | curve25519   |  SHA512 | Elligator 2    | True |
-| H2C-0004 | curve448     |  SHA512 | Elligator 2    | True |
-| H2C-0005 | edwards25519 |  SHA512 | Elligator 2    | True |
-| H2C-0006 | edwards448   |  SHA512 | Elligator 2    | True |
-| H2C-0007 | SECP256K1    |  SHA512 | FT             | True |
-| H2C-0008 | BLS12381     |  SHA512 | FT             | True |
+| H2C-0001 | P256         |  SHA256 | Simplified SWU           | True |
+| H2C-0002 | P384         |  SHA512 | Icart                    | True |
+| H2C-0003 | curve25519   |  SHA512 | Elligator 2              | True |
+| H2C-0004 | curve448     |  SHA512 | Elligator 2              | True |
+| H2C-0005 | edwards25519 |  SHA512 | Elligator 2              | True |
+| H2C-0006 | edwards448   |  SHA512 | Elligator 2              | True |
+| H2C-0007 | SECP256K1    |  SHA512 | Shallue-van de Woestijne | True |
+| H2C-0008 | BLS12381     |  SHA512 | Simplified SWU           | True |
 
 
 # IANA Considerations
