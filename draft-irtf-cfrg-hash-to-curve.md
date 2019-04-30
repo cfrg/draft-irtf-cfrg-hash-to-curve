@@ -76,6 +76,48 @@ normative:
         ins: T. Icart
         name: Thomas Icart
         org: Sagem Securite and Universite du Luxembourg
+  BBJLP08:
+    title: Twisted Edwards curves
+    seriesinfo:
+        "In": AFRICACRYPT 2008
+        "pages": 389-405
+        DOI: 10.1007/978-3-540-68164-9_26
+    target: https://doi.org/10.1007/978-3-540-68164-9_26
+    date: 2008
+    author:
+      -
+        ins: D. J. Bernstein
+        name: Daniel J. Bernstein
+        org: Department of Computer Science, University of Illinois at Chicago, USA
+      -
+        ins: P. Birkner
+        name: Peter Birkner
+        org: Department of Mathematics and Computer Science, Technische Universiteit Eindhoven, The Netherlands
+      -
+        ins: M. Joye
+        name: Marc Joye
+        org: Thomson R&D France
+      -
+        ins: T. Lange
+        name: Tanja Lange
+        org: Department of Mathematics and Computer Science, Technische Universiteit Eindhoven, The Netherlands
+      -
+        ins: C. Peters
+        name: Christiane Peters
+        org: Department of Mathematics and Computer Science, Technische Universiteit Eindhoven, The Netherlands
+  M87:
+    title: Speeding the Pollard and clliptic curve methods of factorization
+    seriesinfo:
+        "In": Mathematics of Computation, vol 48
+        "pages": 243-264
+        DOI: 10.1090/S0025-5718-1987-0866113-7
+    target: https://doi.org/10.1090/S0025-5718-1987-0866113-7
+    date: 1987
+    author:
+      -
+        ins: P. L. Montgomery
+        name: Peter L. Montgomery
+        org: System Development Corporation, Santa Monica, CA
   CK11:
     title: The geometry of flex tangents to a cubic curve and its parameterizations
     seriesinfo:
@@ -1303,78 +1345,65 @@ Steps:
 
 ### Elligator2 Method {#ell2edwards}
 
-The function map2curve\_ell2edwards(alpha) implements an adaptation of Elligator2
-{{BHKL13}} for twisted Edwards curves defined by A * x^2 + y^2 = 1 + D * x^2 * y^2
-over a field F.
+Twisted Edwards curves and Montgomery curves are closely related: every
+twisted Edwards curve is birationally equivalent to a Montgomery curve
+({{BBJLP08}}, Theorem 3.2). To hash to a twisted Edwards curve, hash
+to the equivalent Montgomery curve and evaluate the rational map to
+obtain a point on the twisted Edwards curve.
 
-Preconditions: A Twisted Edwards curve.
+For a twisted Edwards curve given by a * x^2 + y^2 = 1 + d * x^2 * y^2,
+first compute A and B, the parameters of the equivalent Montgomery curve,
+as follows:
+
+- A = (a + 2) / 2
+- B = (a - d)^2 / 16
+
+Next, use A and B as the curve parameters in the Elligator 2 method of
+{{elligator2}} to obtain a point (x', y') on the Montgomery curve.
+Finally, convert (x', y') to a point (x, y) on the target curve.
+Letting B' = 4 / (a - d), compute
+
+- x = x' / y'
+- y = (B' * x' - 1) / (B' * x' + 1)
+
+This can be done in one inversion using Montgomery's trick {{M87}}:
+invert the product y' * (B' * x' + 1), then multiply by y' to obtain
+1 / (B' * x' + 1), and likewise for 1 / y'.
+
+Preconditions: A twisted Edwards curve.
 
 Input: alpha, an octet string to be hashed.
 
 Constants:
 
-- A and D, the parameters of the curve
+- A and B, the parameters of the equivalent Montgomery curve, and B' = 1 / sqrt(B).
 
 - Z, the smallest (in absolute value) non-square in F, breaking ties by choosing
   the positive value.
 
 Output: (x, y), a point on E.
 
-Operations:
+Exceptions: The exceptions for the Elligator 2 encoding are as given in
+{{elligator2}}. When converting to a point on the twisted Edwards curve, the remaining exceptions
+are y' == 0 or B' * x' == -1. Implementors must detect these cases and return (x, y) = (0, 1).
+
+The following straight-line implementation handles the exceptional cases:
 
 ~~~
-1.  u = hash2base(alpha)
-2. c1 = 2 * (A + D) / (A - D)
-3. t1 = -c1 / (1 + Z * u^2)
-4. t2 = -t1 - c1
-5. g1 = t1^3 + c1 * t1^2 + t1
-6. If is_square(g1), set t = t1, else t = t2
-7. y = (t - 1) / (t + 1)
-8. x = sqrt((y^2 - 1) / (D * y^2 - A), q)
-9. Output h * (x, y)
-~~~
-
-#### Implementation
-
-The following procedure implements elligator2 method in a straight-line
-fashion.
-
-~~~
-map2curve_ell2edwards(alpha)
-Input: alpha, an octet string to be hashed.
-Output: (x, y), a point on E.
-
-Constants:
-1. c0 is an non-square in F.
-2. c1 = 2 * (A + D) / (A - D).
-
-Steps:
-1.   u = hash2base(alpha)
-2.  t1 = u^2
-3.  t1 = c0 * t1
-4.  t1 = t1 + 1
-5.  t1 = inv0(t1)
-6.  t1 = t1 * c1
-7.  t1 = -t1                // t1 = -c1 / (1 + c0 * u^2)
-8.  t2 = -t1 - c1           // t2 = -x1 - c1
-9.  g1 = t1 + c1
-10. g1 = g1 * t1
-11. g1 = g1 + 1
-12. g1 = g1 * t1            // g1 = t1^3 + c1 * t1^2 + t1
-13.  e = is_square(g1, q)
-14. t3 = CMOV(t2, t1, e)    // If e=True, t=t1, else t=t2
-15. t4 = t3 + 1
-16. t4 = inv0(t4)
-17.  y = t3 - 1
-18.  y = y * t4
-19. t5 = y^2
-20. gx = t5 * D
-21. gx = gx - A
-22. gx = inv0(gx)
-23. t5 = t5 - 1
-24. gx = gx * t5
-25.  x = sqrt(gx, q)
-26. Output h * (x, y)
+1. (x', y') = map2curve_elligator2(alpha)  // a Montgomery point
+2.       x' = x' * B'
+3.       y' = y' * B'
+4.       t1 = x' + 1
+5.       t2 = y' * t1
+6.       t2 = inv0(t2)
+7.        x = t1 * t2
+8.        x = x * x'
+9.        y = x' - 1
+10.       y = y * t2
+11.       y = y * y'
+12.       e = y == 0
+13.       y = CMOV(y, 1, e)
+14. Output h * (x, y)
 ~~~
 
 ## Encodings for Supersingular curves
