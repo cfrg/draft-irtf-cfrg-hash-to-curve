@@ -1,4 +1,3 @@
-# vim: syntax=python
 from hash_to_base import *
 from utils import *
 load("common.sage")
