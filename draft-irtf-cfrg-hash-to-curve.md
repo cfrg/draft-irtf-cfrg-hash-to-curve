@@ -520,7 +520,7 @@ normative:
         name: Tanja Lange
         org: Department of Mathematics and Computer Science, Technische Universiteit Eindhoven, The Netherlands
   BLMP19:
-    title: Quantum circuits for the CSIDH optimizing quantum evaluation of isogenies
+    title: "Quantum circuits for the CSIDH: optimizing quantum evaluation of isogenies"
     seriesinfo:
         "In": Advances in Cryptology - EUROCRYPT 2019
         DOI: 10.1007/978-3-030-17656-3
@@ -1456,7 +1456,7 @@ Steps:
 ### Elligator2A0 Method
 
 The function map2curve\_ell2A0(alpha) implements an adaptation of Elligator2
-{{BLMP19}} targeting the supersingular curves defined by y^2 = x^3 + B * x
+{{BLMP19}} targeting supersingular curves defined by y^2 = x^3 + B * x
 over a field F such that q=3 (mod 4).
 
 Preconditions: A supersingular curve over F such that q=3 (mod 4).
@@ -1473,11 +1473,11 @@ Operations:
 1.   u = hash2base(alpha)
 2.  x1 = u
 3. gx1 = x1^3 + B * x1
-2.  x2 = -x1
-3. gx2 = x2^3 + B * x2
-8. If gx1 is square, x = x1 and y = sqrt(gx1)
-9. If gx2 is square, x = x2 and y = sqrt(gx2)
-10. Output h * (x, y)
+4.  x2 = -x1
+5. gx2 = x2^3 + B * x2
+6. If gx1 is square, x = x1 and y = sqrt(gx1)
+7. If gx2 is square, x = x2 and y = sqrt(gx2)
+8. Output h * (x, y)
 ~~~
 
 #### Implementation
@@ -1493,16 +1493,14 @@ Output: (x, y), a point on E.
 Steps:
 1.   u = hash2base(alpha)
 2.  x1 = u
-3. gx1 = x1^2
-4. gx1 = gx1 + B
-5. gx1 = gx1 * x1     // gx1 = x1^3 + B * x1
-6.  x2 = -x1
-7. gx2 = -gx1         // gx2 = x2^3 + B * x2
-8.   e = is_square(gx1, q)
-9.   x = CMOV(x2, x1, e)    // If e=True, x = x1, else x = x2
-10. gx = CMOV(gx2, gx1, e)  // If e=True, gx = gx1, else gx = gx2
-11.  y = sqrt(gx, q)
-12. Output h * (x, y)
+3.  x2 = -x1
+4. gx1 = x1^2
+5. gx1 = gx1 + B
+6. gx1 = gx1 * x1           // gx1 = x1^3 + B * x1
+7.   y = gx1^((p + 1) / 4)  // this is either sqrt(gx1) or sqrt(gx2)
+8.   e = y^2 == gx1
+9.   x = CMOV(x2, x1, e)
+10. Output h * (x, y)
 ~~~
 
 ## Encodings for Pairing-Friendly curves
