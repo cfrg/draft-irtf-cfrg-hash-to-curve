@@ -1219,9 +1219,9 @@ Steps:
 
 ## Encodings for Montgomery curves
 
-### Elligator2 Method {#elligator2}
+### Elligator 2 Method {#elligator2}
 
-The function map2curve\_elligator2(alpha) implements Elligator2 {{BHKL13}} for
+The function map2curve\_elligator2(alpha) implements Elligator 2 {{BHKL13}} for
 curves defined by y^2 = x^3 + A * x^2 + B * x such that A * B * (A^2 - 4 * B) != 0
 and A^2 - 4 * B is non-square in F.
 
@@ -1343,7 +1343,7 @@ Steps:
 
 ## Encodings for twisted Edwards curves
 
-### Elligator2 Method {#ell2edwards}
+### Elligator 2 Method {#ell2edwards}
 
 Twisted Edwards curves and Montgomery curves are closely related: every
 twisted Edwards curve is birationally equivalent to a Montgomery curve
@@ -1453,11 +1453,10 @@ Steps:
 6. Output h * (x, y)
 ~~~
 
-### Elligator2A0 Method
+### Elligator 2, A=0 Method
 
-The function map2curve\_ell2A0(alpha) implements an adaptation of Elligator2
-{{BLMP19}} targeting supersingular curves defined by y^2 = x^3 + B * x
-over a field F such that q=3 (mod 4).
+The function map2curve\_ell2A0(alpha) implements an adaptation of Elligator 2
+{{BLMP19}} targeting curves given by y^2 = x^3 + B * x over F such that q=3 (mod 4).
 
 Preconditions: A supersingular curve over F such that q=3 (mod 4).
 
@@ -1482,7 +1481,7 @@ Operations:
 
 #### Implementation
 
-The following procedure implements the Elligator2's algorithm for supersingular
+The following procedure implements the Elligator 2 algorithm for supersingular
 curves in a straight-line fashion.
 
 ~~~
@@ -1685,7 +1684,7 @@ curve.
 
 The following table lists recommended algorithms for different curves and
 encodings. To select a suitable algorithm, choose the encoding associated with
-the target curve. For example, Elligator2 is the recommended encoding for
+the target curve. For example, Elligator 2 is the recommended encoding for
 Curve25519, whereas simplified SWU is the recommended encoding for P-256.
 When the hash function is to be used in a protocol whose security is proven in the
 random oracle model, applications SHOULD use the Random Oracle construction
@@ -1706,10 +1705,10 @@ This document describes the following set of ciphersuites
 |----------|---|---|---|-----|
 | H2C-0001 | P256         |  SHA256 | Simplified SWU | True |
 | H2C-0002 | P384         |  SHA512 | Icart          | True |
-| H2C-0003 | curve25519   |  SHA512 | Elligator2     | True |
-| H2C-0004 | curve448     |  SHA512 | Elligator2     | True |
-| H2C-0005 | edwards25519 |  SHA512 | Elligator2     | True |
-| H2C-0006 | edwards448   |  SHA512 | Elligator2     | True |
+| H2C-0003 | curve25519   |  SHA512 | Elligator 2    | True |
+| H2C-0004 | curve448     |  SHA512 | Elligator 2    | True |
+| H2C-0005 | edwards25519 |  SHA512 | Elligator 2    | True |
+| H2C-0006 | edwards448   |  SHA512 | Elligator 2    | True |
 | H2C-0007 | SECP256K1    |  SHA512 | FT             | True |
 | H2C-0008 | BLS12381     |  SHA512 | FT             | True |
 
@@ -1722,13 +1721,13 @@ This document has no IANA actions.
 
 Each encoding function variant accepts arbitrary input and maps it to a pseudorandom
 point on the curve. Points are close to indistinguishable from randomly chosen
-elements on the curve. Not all encoding functions are full-domain hashes. Elligator2,
+elements on the curve. Not all encoding functions are full-domain hashes. Elligator 2,
 for example, maps strings to about half of all curve points, whereas Icart's
 method covers about 5/8 of the points.
 
 # Acknowledgements
 
-The authors would like to thank Adam Langley for this detailed writeup up Elligator2 with
+The authors would like to thank Adam Langley for this detailed writeup up Elligator 2 with
 Curve25519 {{L13}}. We also thank Sean Devlin and Thomas Icart for feedback on
 earlier versions of this document.
 
@@ -2031,7 +2030,7 @@ def map2BN256(u:felem_t) -> affine_t:
     return (x3,y3)
 ~~~
 
-## Elligator2 Method
+## Elligator 2 Method
 
 The following hacspec program implements map2curve\_elligator2(alpha) for Curve25519.
 
@@ -2103,7 +2102,7 @@ print ymap
 This section contains test vectors, generated from reference Sage code, for
 each map2curve variant and the hash2base function described in {{hashtobase}}.
 
-## Elligator2 to Curve25519
+## Elligator 2 to Curve25519
 
 ~~~
 Input:
