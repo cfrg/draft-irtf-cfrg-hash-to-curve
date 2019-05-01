@@ -62,11 +62,12 @@ def ellig448_help(u):
     y = sq_root(gx1, q)
     if is_square(gx1):
         x = x1
-        y = -y
     else:
         x = x2
-        y = sgn0(u) * u * y * c1
+        y = u * y * c1
 
+    y *= sgn0(u) * sgn0(y)      # fix sign of y
+    assert sgn0(u) == sgn0(y)
     return E(x, y)
 
 def map2curve_ellig2(alpha):
@@ -98,15 +99,15 @@ def ellig448_CT_help(u):
     tv("gx2", gx2, 56)
 
     y1 = gx1 ** ((q + 1) // 4)
-    e2 = sgn0(u) == -1
     y2 = y1 * u
     y2 = y2 * c1
-    y2 = CMOV(y2, -y2, e2)
-    y1 = -y1
-    e3 = y1 ** 2 == gx1
+    e2 = y1 ** 2 == gx1
 
-    x = CMOV(x2, x1, e3)
-    y = CMOV(y2, y1, e3)
+    x = CMOV(x2, x1, e2)
+    y = CMOV(y2, y1, e2)
+
+    e3 = sgn0(u) == sgn0(y) # fix sign of y
+    y = CMOV(-y, y, e3)
 
     return E(x, y)
 

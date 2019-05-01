@@ -1036,6 +1036,17 @@ fast cofactor clearing on any elliptic curve, in the case where the prime
 factorization of h and the number of points on the curve meet certain
 conditions.
 
+## Sign of the resulting point {#point-sign}
+
+In general, elliptic curves have equations of the form y^2 = g(x).
+Most of the encodings in this section first identify an x such that
+g(x) is square, then take a square root to find y. Since there
+are two square roots when g(x) != 0, the specification of each encoding
+function in this section includes how to determine the sign of y.
+
+We specify the sign of y rather than the sign of sqrt(g(x)) because
+this gives implementors more optimization leeway.
+
 ## Exceptional cases {#map-exceptions}
 
 Some encodings described in this section have exceptional cases, i.e., values u =
@@ -1067,6 +1078,9 @@ Input: alpha, an octet string to be hashed.
 Constants: A and B, the parameters of the Weierstrass curve.
 
 Output: (x, y), a point on E.
+
+Sign of y: this encoding does not compute a square root, so there
+is no ambiguity regarding the sign of y.
 
 Exceptions: The only exceptional case is hash2base(alpha) == 0.
 Implementations must detect this case by testing whether u = 0
@@ -1139,8 +1153,10 @@ Constants:
 - Z, the smallest (in absolute value) non-square in F such that g(B / (Z *
   A)) is square in F, breaking ties by choosing the positive value.
 
-
 Output: (x, y), a point on E.
+
+Sign of y: for u = hash2base(alpha), this encoding ignores the sign of u.
+Thus, we set sgn0(y) == sgn0(u).
 
 Exceptions: The exceptional cases are values of u such that
 Z^2 * u^4 + Z * u^2 == 0. This includes u == 0, and may include
@@ -1154,13 +1170,14 @@ Operations:
 1.   u = hash2base(alpha)
 2. den = inv0(Z^2 * u^4 + Z * u^2)
 3.  x1 = (-B / A) * (1 + den)
-4. If den == 0, set x1 = B / (Z * A)
+4.  If den == 0, set x1 = B / (Z * A)
 5. gx1 = x1^3 + A * x1 + B
 6.  x2 = Z * u^2 * x1
 7. gx2 = x2^3 + A * x2 + B
-8. If gx1 is square, set x = x1 and y = sqrt(gx1)
-9. If gx2 is square, set x = x2 and y = sqrt(gx2)
-10. Output h * (x, sgn0(u) * y)
+8.  If gx1 is square, set x = x1 and y = sqrt(gx1)
+9.  If gx2 is square, set x = x2 and y = sqrt(gx2)
+10. If sgn0(u) != sgn0(y), set y = -y
+11. Output h * (x, y)
 ~~~
 
 #### Implementation
@@ -1201,11 +1218,11 @@ Steps:
 13.  t3 = gx1^((p + 1) / 4)  // if gx1 is square, this is sqrt(g(x1))
 14.  t4 = t3 * c3
 15.  t4 = t4 * u^3           // if gx1 is not square, this is sqrt(g(x2))
-16.  e2 = sgn0(u) == -1
-17.  t3 = CMOV(t3, -t3, e2)
-18.  e3 = t3^2 == gx1
-19.   x = CMOV(x2, x1, e3)   // if e2=True, x = x1, else x = x2
-20.   y = CMOV(t4, t3, e3)   // if e2=True, y = t3, else y = t4
+16.  e3 = t3^2 == gx1
+17.   x = CMOV(x2, x1, e3)   // if e2=True, x = x1, else x = x2
+18.   y = CMOV(t4, t3, e3)   // if e2=True, y = t3, else y = t4
+19.  e4 = sgn0(u) == sgn0(y)
+20.   y = CMOV(-y, y, e4)
 21. Output h * (x, y)
 ~~~
 
@@ -1230,6 +1247,9 @@ Constants:
 
 Output: (x, y), a point on E.
 
+Sign of y: for u = hash2base(alpha), this encoding ignores the sign of u.
+Thus, we set sgn0(y) == sgn0(u).
+
 Exceptions: The exceptional case is Z * u^2 == -1, i.e., 1 + Z * u^2 == 0.
 Implementations must detect this case and set x1 = -A.
 Note that this can only happen when q = 3 (mod 4).
@@ -1239,13 +1259,14 @@ Operations:
 ~~~
 1.   u = hash2base(alpha)
 2.  x1 = -A * inv0(1 + Z * u^2)
-3. If x1 == 0, set x1 = -A.
+3.  If x1 == 0, set x1 = -A.
 4. gx1 = x1^3 + A * x1^2 + B * x1
 5.  x2 = -x1 - A
 6. gx2 = x2^3 + A * x2^2 + B * x2
-8. If is_square(gx1), set x = x1 and y = -1 * sqrt(gx1)
-9. If is_square(gx2), set x = x2 and y = sqrt(gx2)
-10. Output h * (x, y)
+8.  If is_square(gx1), set x = x1 and y = sqrt(gx1)
+9.  If is_square(gx2), set x = x2 and y = sqrt(gx2)
+10. If sgn0(u) != sgn0(y), set y = -y
+11. Output h * (x, y)
 ~~~
 
 #### Implementation, q=3 (mod 4)
@@ -1276,14 +1297,13 @@ Steps:
 12. gx1 = gx1 * x1            // gx1 = x1^3 + A * x1^2 + B * x1
 13.  y1 = gx1^((q + 1) / 4)
 14.  x2 = -x1 - A
-17.  e2 = sgn0(u) == -1
 15.  y2 = y1 * u
 16.  y2 = y2 * c1
-17.  y2 = CMOV(y2, -y2, e2)   // y2 = sqrt(g(x2)) if g(x1) is not square
-18.  y1 = -y1
-19.  e3 = y1^2 == gx1
-20.   x = CMOV(x2, x1, e3)    // If e=True, x=x1, else x=x2
-21.   y = CMOV(y2, y1, e3)    // If e=True, y=y1, else y=y2
+17.  e2 = y1^2 == gx1
+18.   x = CMOV(x2, x1, e2)    // If e=True, x=x1, else x=x2
+19.   y = CMOV(y2, y1, e2)    // If e=True, y=y1, else y=y2
+20.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
+21.   y = CMOV(-y, y, e3)
 22. Output h * (x, y)
 ~~~
 
@@ -1315,22 +1335,20 @@ Steps:
 11. y11 = gx1^((q + 3) / 8)
 12. y12 = c2 * y11
 13.  e1 = y12^2 == gx1
-14.  y1 = CMOV(y11, y12, e1)
-15.  e2 = sgn0(y1) == -1
-16.  y1 = CMOV(-y1, y1, e2)   // if gx1 is square, this is its sqrt
-17.  x2 = -x1 - A
-18. y21 = y11 * u
-19. y21 = y21 * c1
-20. y22 = c2 * y21
-21. gx2 = t1 * gx1
-22.  e3 = y22^2 == gx2
-23.  y2 = CMOV(y21, y22, e3)
-24.  e4 = sgn0(y2) == -1
-25.  y2 = CMOV(y2, -y2, e4)   // if gx2 is square, this is its sqrt
-26.  e5 = y1^2 == gx1
-27.   x = CMOV(x2, x1, e5)    // if e=True, x=x1, else x=x2
-28.   y = CMOV(y2, y1, e5)    // if e=True, y=y1, else y=y2
-29. Output h * (x, y)
+14.  y1 = CMOV(y11, y12, e1)  // if gx1 is square, this is its sqrt
+15.  x2 = -x1 - A
+16. y21 = y11 * u
+17. y21 = y21 * c1
+18. y22 = c2 * y21
+19. gx2 = t1 * gx1
+20.  e2 = y22^2 == gx2
+21.  y2 = CMOV(y21, y22, e2)  // if gx2 is square, this is its sqrt
+22.  e3 = y1^2 == gx1
+23.   x = CMOV(x2, x1, e3)    // if e=True, x=x1, else x=x2
+24.   y = CMOV(y2, y1, e3)    // if e=True, y=y1, else y=y2
+25.  e4 = sgn0(u) == sgn0(y)  // fix sign of y
+26.   y = CMOV(-y, y, e4)
+27. Output h * (x, y)
 ~~~
 
 ## Encodings for twisted Edwards curves
@@ -1375,6 +1393,9 @@ Constants:
 
 Output: (x, y), a point on E.
 
+Sign of y: for this map, the sign is determined by map2curve_elligator2.
+No further sign adjustments are required.
+
 Exceptions: The exceptions for the Elligator 2 encoding are as given in
 {{elligator2}}. When converting to a point on the twisted Edwards curve, the remaining exceptions
 are y' == 0 or B' * x' == -1. Implementors must detect these cases and return (x, y) = (0, 1).
@@ -1413,6 +1434,10 @@ Input: alpha, an octet string to be hashed.
 Constants: B, the parameter of the supersingular curve.
 
 Output: (x, y), a point on E.
+
+Sign of y: determined by sign of u. No adjustments are necessary.
+
+Exceptions: none.
 
 Operations:
 
@@ -1458,6 +1483,11 @@ Constants: B, the parameter of the supersingular curve.
 
 Output: (x, y), a point on E.
 
+Sign of y: for u = hash2base(alpha), u and -u give the same x-coordinate. Thus,
+we fix sgn0(y) == +1.
+
+Exceptions: none.
+
 Operations:
 
 ~~~
@@ -1468,7 +1498,8 @@ Operations:
 5. gx2 = x2^3 + B * x2
 6. If gx1 is square, x = x1 and y = sqrt(gx1)
 7. If gx2 is square, x = x2 and y = sqrt(gx2)
-8. Output h * (x, y)
+8. If sgn0(y) == -1, set y = -y.
+9. Output h * (x, y)
 ~~~
 
 #### Implementation
@@ -1489,9 +1520,11 @@ Steps:
 5. gx1 = gx1 + B
 6. gx1 = gx1 * x1           // gx1 = x1^3 + B * x1
 7.   y = gx1^((p + 1) / 4)  // this is either sqrt(gx1) or sqrt(gx2)
-8.   e = y^2 == gx1
-9.   x = CMOV(x2, x1, e)
-10. Output h * (x, y)
+8.  e1 = y^2 == gx1
+9.   x = CMOV(x2, x1, e1)
+10. e2 = sgn0(y) == 1
+11.  y = CMOV(-y, y, e2)
+12. Output h * (x, y)
 ~~~
 
 ## Encodings for Pairing-Friendly curves
@@ -1523,6 +1556,9 @@ Constants:
 
 Output: (x, y), a point on E.
 
+Sign of y: for u = hash2base(alpha), this encoding ignores the sign of u.
+Thus, we set sgn0(y) == sgn0(u).
+
 Exceptions: The exceptional cases for u = hash2base(alpha) occur when
 u^2 * (u^2 + g(Z)) == 0. The restriction on Z given above ensures that
 implementations that use inv0 to invert this product are exception free.
@@ -1537,10 +1573,11 @@ Operations:
 5. x1 = ((sqrt(-3 * Z^2) - Z) / 2) - t3
 6. x2 = t3 - ((sqrt(-3 * Z^2) + Z) / 2)
 7. x3 = Z - (t1^3 * t2 / (3 * Z^2))
-8.  If g(x1) is square, set x = x1 and y = sgn0(u) * sqrt(g(x1))
-9.  If g(x2) is square, set x = x2 and y = sgn0(u) * sqrt(g(x2))
-10. If g(x3) is square, set x = x3 and y = sgn0(u) * sqrt(g(x3))
-11. Output h * (x, y)
+8.  If g(x1) is square, set x = x1 and y = sqrt(g(x1))
+9.  If g(x2) is square, set x = x2 and y = sqrt(g(x2))
+10. If g(x3) is square, set x = x3 and y = sqrt(g(x3))
+11. If sgn0(u) != sgn0(y), set y = -y
+12. Output h * (x, y)
 ~~~
 
 #### Implementation
@@ -1593,8 +1630,8 @@ Steps:
 30.   x = CMOV(x3, x, e3)   // select x3 if gx1 and gx2 are not square
 31.  gx = CMOV(gx3, gx, e3)
 32.   y = sqrt(gx, q)
-33.  e4 = sgn0(u) == -1
-34.   y = CMOV(y, -y, e4)   // select correct sign of y
+33.  e4 = sgn0(u) == sgn0(y)
+34.   y = CMOV(-y, y, e4)   // select correct sign of y
 35. Output h * (x, y)
 ~~~
 
@@ -1630,6 +1667,13 @@ Helper functions:
 
 - map2curve\_simple\_swu is the encoding of {{simple-swu}} to E'
 - iso\_map is the isogeny map from E' to E
+
+Sign of y: for this map, the sign is determined by map2curve_elligator2.
+No further sign adjustments are necessary. (Note, however, that the specification
+of iso\_map must include its sign.)
+
+Exceptions: map2curve\_simple\_swu handles its exceptional cases.
+In the exceptional cases for iso\_map, it should return the identity point on E.
 
 Output: (x, y), a point on E.
 

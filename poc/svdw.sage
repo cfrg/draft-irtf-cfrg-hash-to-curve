@@ -34,27 +34,26 @@ def svdw(alpha):
     x2 = t3 - ((sqrt(-3 * Z^2) + Z) / 2)
     x3 = Z - (t1^3 * t2 / F(3 * Z^2))
 
-    # sign of resulting point is given by sign of u
-    negate = sgn0(u)
-
     gx1 = g(x1)
     gx2 = g(x2)
     gx3 = g(x3)
     if gx1.is_square():
         x = x1
-        y = negate * sq_root(gx1, q)
+        y = sq_root(gx1, q)
 
     elif gx2.is_square():
         x = x2
-        y = negate * sq_root(gx2, q)
+        y = sq_root(gx2, q)
 
     elif gx3.is_square():
         x = x3
-        y = negate * sq_root(gx3, q)
+        y = sq_root(gx3, q)
 
     else:
         raise ValueError("none of gx1, gx2, gx3 are square")
 
+    y *= sgn0(u) * sgn0(y)
+    assert sgn0(u) == sgn0(y)
     return E(x, y)
 
 # Constants
@@ -115,8 +114,8 @@ def svdw_CT(alpha):
     gx = CMOV(gx3, gx, e3)
 
     y = gx ** ((p + 1) // 4)
-    e4 = sgn0(u) == -1
-    y = CMOV(y, -y, e4)
+    e4 = sgn0(u) == sgn0(y)
+    y = CMOV(-y, y, e4)
 
     return E(x, y)
 

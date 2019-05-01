@@ -33,6 +33,9 @@ def elligator2(alpha):
     else:
         x = x2
         y = sq_root(gx2, q)
+
+    y *= sgn0(u) * sgn0(y)
+    assert sgn0(u) == sgn0(y)
     return E(x, y)
 
 # Constants
@@ -68,18 +71,19 @@ def elligator2_CT(alpha):
     y12 = y11 * c3
     e1 = y12 ** 2 == gx1
     y1 = CMOV(y11, y12, e1)
-    y1 = -1 * absolute(y1, q)
 
     y21 = y11 * u
     y21 = y21 * c2
     y22 = y21 * c3
     e2 = y22 ** 2 == gx2
     y2 = CMOV(y21, y22, e2)
-    y2 = absolute(y2, q)
 
     e3 = y1 ** 2 == gx1
     x = CMOV(x2, x1, e3)
     y = CMOV(y2, y1, e3)
+
+    e4 = sgn0(u) == sgn0(y)     # fix sign of y
+    y = CMOV(-y, y, e4)
 
     return E(x, y)
 

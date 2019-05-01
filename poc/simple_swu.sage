@@ -45,10 +45,15 @@ def simple_swu(alpha):
     t1 = sq_root(g(x1), q)
     if t1^2 == g(x1):
         # g(x1) is square
-        return E(x1, sgn0(u) * t1)
+        (x, y) = (x1, t1)
     else:
         # if g(x1) is not square, then sqrt(g(x2)) == u^3 * t1
-        return E(x2, u^3 * SQRT_MZ3 * t1)
+        (x, y) = (x2, u^3 * SQRT_MZ3 * t1)
+
+    negate = sgn0(u) * sgn0(y)
+    y *= negate
+    assert sgn0(y) == sgn0(u)
+    return E(x, y)
 
 # Constants
 MB_OVER_A = - B / A
@@ -81,15 +86,17 @@ def simple_swu_CT(alpha):
     assert x2 == Z * u^2 * x1
     tv("x2", x2, 32)
 
-    t3 = pow(gx1, (p+1)//4, p)
+    t3 = pow(gx1, (p+1)//4, p)  # if gx1 is square, this is the sqrt
     t4 = t3 * SQRT_MZ3
     t4 = t4 * u^3               # if gx2 is square, this is the sqrt
-    e2 = sgn0(u) == -1
-    t3 = CMOV(t3, -t3, e2)      # if gx1 is square, this is the sqrt
 
-    e3 = t3^2 == gx1
-    x = CMOV(x2, x1, e3)
-    y = CMOV(t4, t3, e3)
+    e2 = t3^2 == gx1
+    x = CMOV(x2, x1, e2)
+    y = CMOV(t4, t3, e2)
+
+    e3 = sgn0(u) == sgn0(y)     # fix sgn0(u) == sgn0(y)
+    y = CMOV(-y, y, e3)
+
     return E(x, y)
 
 if __name__ == "__main__":

@@ -140,7 +140,9 @@ def osswu2_help(u):
         y0_candidate = sqrt_candidate * root_of_unity
         if y0_candidate ** 2 == gx0:
             # found y0
-            y0 = sgn0(u) * y0_candidate
+            y0 = y0_candidate
+            y0 *= sgn0(u) * sgn0(y0)
+            assert sgn0(y0) == sgn0(u)
             return iso2(Ell2p(x0, y0))
 
     # if we got here, the g(X0(u)) was not square
@@ -156,6 +158,8 @@ def osswu2_help(u):
             # found y1
             # don't need to negate because t^3 preserves the sign of t
             y1 = y1_candidate
+            y1 *= sgn0(u) * sgn0(y1)
+            assert sgn0(y1) == sgn0(u)
             return iso2(Ell2p(x1, y1))
 
     # if we got here, something went very wrong
@@ -209,16 +213,18 @@ def osswu2_CT_help(u):
     gx2 = Z ** 3 * u ** 6 * gx1
     tv2("gx2", gx2, 48)
     t4 = t3 * u ** 3
-    e3 = sgn0(u) == -1
-    t3 = CMOV(t3, -t3, e3)
     for eta_value in etas:
         t4_cand = t4 * eta_value
-        e4 = t4_cand ** 2 == gx2
-        t4 = CMOV(t4, t4_cand, e4)
+        e3 = t4_cand ** 2 == gx2
+        t4 = CMOV(t4, t4_cand, e3)
 
-    e5 = t3 ** 2 == gx1
-    x = CMOV(x2, x1, e5)
-    y = CMOV(t4, t3, e5)
+    e4 = t3 ** 2 == gx1
+    x = CMOV(x2, x1, e4)
+    y = CMOV(t4, t3, e4)
+
+    e5 = sgn0(u) == sgn0(y)     # fix sign of y == sign of u
+    y = CMOV(-y, y, e5)
+
     return iso2(Ell2p(x, y))
 
 # map from a string using CT impl; always clear cofactor

@@ -52,20 +52,22 @@ def osswu_help(u):
 
     if sqrt_candidate ** 2 == gx0:
         # gx0 is square, and we found the square root
-        # negate y if t is negative
-        y0 = sgn0(u) * sqrt_candidate
-        # (x0,y0) is a point on EllP; apply the 11-isogeny map to get back to Ell
-        return iso(EllP(x0, y0))
+        (x, y) = (x0, sqrt_candidate)
 
-    # if we got here, the g(X0(t)) was not square
-    # X1(t) == xi t^2 X0(t)
-    x1 = F(Z * u ** 2 * x0)
+    else:
+        # g(X0(t)) was not square
+        # X1(t) == xi t^2 X0(t)
+        x1 = F(Z * u ** 2 * x0)
 
-    # if g(X0(t)) is not square, then sqrt(g(X1(t))) == t^3 * g(X0(t)) ^ ((p+1)/4)
-    # don't need to negate y1 because t^3 preserves the sign of t
-    y1 = sqrt_candidate * u ** 3
-    assert y1 ** 2 == g1p(x1)
-    return iso(EllP(x1, y1))
+        # if g(X0(t)) is not square, then sqrt(g(X1(t))) == t^3 * g(X0(t)) ^ ((p+1)/4)
+        # don't need to negate y1 because t^3 preserves the sign of t
+        y1 = sqrt_candidate * u ** 3
+        assert y1 ** 2 == g1p(x1)
+        (x, y) = (x1, y1)
+
+    y = y * sgn0(u) * sgn0(y)
+    assert sgn0(u) == sgn0(y)
+    return iso(EllP(x, y))
 
 # map from a string; never clear the cofactor
 def map2curve_osswu(alpha):
@@ -105,12 +107,14 @@ def osswu_CT_help(u):
 
     t3 = gx1 ** ((p + 1) // 4)
     t4 = t3 * u ** 3            # sqrt(g(x2)) if g(x2) is square
-    e2 = sgn0(u) == -1
-    t3 = CMOV(t3, -t3, e2)      # sqrt(g(x1)) if g(x1) is square
 
-    e3 = t3 ** 2 == gx1
-    x = CMOV(x2, x1, e3)
-    y = CMOV(t4, t3, e3)
+    e2 = t3 ** 2 == gx1
+    x = CMOV(x2, x1, e2)
+    y = CMOV(t4, t3, e2)
+
+    e3 = sgn0(u) == sgn0(y)
+    y = CMOV(-y, y, e3)
+
     return iso(EllP(x, y))
 
 # map from a string using CT impl; always clear the cofactor
