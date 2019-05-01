@@ -11,6 +11,7 @@ A = F(-3)
 B = F(0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b)
 E = EllipticCurve(F, [A, B])
 Z = F(-2) # smallest in abs val s.t. Z is nonsquare and g(B / (Z * A)) is square
+SQRT_MZ3 = sqrt(F(-Z**3))
 assert not Z.is_square()
 
 h2c_suite = "H2C-P256-SHA256-SSWU-"
@@ -47,7 +48,7 @@ def simple_swu(alpha):
         return E(x1, sgn0(u) * t1)
     else:
         # if g(x1) is not square, then sqrt(g(x2)) == u^3 * t1
-        return E(x2, u^3 * t1)
+        return E(x2, u^3 * SQRT_MZ3 * t1)
 
 # Constants
 MB_OVER_A = - B / A
@@ -81,7 +82,8 @@ def simple_swu_CT(alpha):
     tv("x2", x2, 32)
 
     t3 = pow(gx1, (p+1)//4, p)
-    t4 = t3 * u^3               # if gx2 is square, this is the sqrt
+    t4 = t3 * SQRT_MZ3
+    t4 = t4 * u^3               # if gx2 is square, this is the sqrt
     e2 = sgn0(u) == -1
     t3 = CMOV(t3, -t3, e2)      # if gx1 is square, this is the sqrt
 
