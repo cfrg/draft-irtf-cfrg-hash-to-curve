@@ -813,7 +813,7 @@ on bit strings that were not generated using the serialization procedure.
 ### Random Oracle {#term-rom}
 
 In practice, two types of encodings are common: (1) injective encodings, which
-can be used to construct a PRF as F(k, m) = k * H(m), and (2) random oracles,
+can be used to construct a PRF as F(k, m) = k * H(msg), and (2) random oracles,
 which used by PAKE protocols {{BMP00}}, short BLS signatures {{BLS01}}, and
 IBE schemes {{BF01}}. When the required encodings is not clear, applications
 SHOULD use a random oracle.
@@ -920,73 +920,65 @@ Steps:
 
 # Hashing to a Finite Field {#hashtobase}
 
-The hash2base(m) function maps a bitstring x of any length into an element of a
+The hash2base(msg) function maps a string msg of any length into an element of a
 field F. This function is parametrized by the field F ({{bg-curves}}) and by H,
-a cryptographic hash function that outputs at least floor(log2(p)) + 1 bits.
+a cryptographic hash function that outputs b bits.
 
-At a high level, hash2base(m) works as follows. For q = p, the function hashes x,
-converts the result to an integer, and reduces modulo p to produce a prime field element.
-When F is an extension field, i.e., F = GF(q), q = p^m, m > 1, an element of F can be
-constructed by hashing to m independent elements of GF(p) (see {{bg-curves}} for
-a discussion of extension field element representation).
+At a high level, for q = p^m the order of F, hash2base(msg) outputs a vector of m elements,
+each an integer modulo p (see {{bg-curves}} for a brief discussion of
+representing elements in extension fields).
 
 ## Security and performance considerations
 
-Most algorithms assume that hash2base maps its input to a uniformly random
-element of F. In practice, the output may be biased, i.e., some field
+Hash2base should map its input to a uniformly random element of F.
+In practice, however, the output may be biased, meaning that some field
 elements are more likely to occur than others. This is true even when H
-outputs a uniformly random string (which is generally assumed). For example,
+outputs a uniformly random string (as is generally assumed). For example,
 if H=SHA256 and F is a field of characteristic p = 2^255 - 19, then the
-result of reducing H(m) (a 256-bit integer) modulo p is slightly more likely
+result of reducing H(msg) (a 256-bit integer) modulo p is slightly more likely
 to be a value in \[0, 38\] than a value in \[39, 2^255 - 19). In this example
 the bias is negligible, but in general the bias can be significant.
 
-To reduce bias, the hash function H SHOULD produce
-more than the minimum floor(log2(p)) + 1 bits. In particular, if H outputs
-at least floor(log2(p)) + 1 + b bits, then the bias is at most 2^-b.
-Choosing, e.g., b = 128 for a curve with 128-bit security is a safe choice
-that has minimal effect on performance.
+To control bias, the input msg should be hashed to an integer comprising more than log2(p) bits.
+In particular, reducing an integer of ceil(log2(p)) + k bits modulo p gives bias
+at most 2^-k, which is a safe choice for a cryptosystem with k-bit security.
+Thus, if H outputs b bits, then H should be evaluated W = ceil((ceil(log2(p)) + k) / b)
+times to produce a W * b bit integer, which is then reduced modulo p.
 
-Note that implementors SHOULD NOT use an iterated procedure (e.g., rejection
-sampling): these procedures are difficult to implement in constant time,
-and later well-meaning "optimizations" may completely break a constant-time
-implementation.
+Note that implementors SHOULD NOT use an iterated procedure, i.e., rejection
+sampling. The reason is that these procedures are difficult to implement in constant time,
+and later well-meaning "optimizations" may silently render an implementation
+non-constant-time.
 
-The performance of hash2base may be limited by the length of the input x.
-In algorithms or ciphersuite combinations in which hash2base is called
-multiple times, implementors may consider hashing x before calling hash2base,
-i.e., setting m' := H(m) and evaluating hash2base(m').
+The performance of hash2base may be limited by the length of the input m.
+To prevent this, hash2base first computes m' = H(msg) and then derives the
+required bits from m'. This entails one extra invocation of H, a
+negligible overhead.
 
 ## Implementation
 
 The following procedure implements hash2base.
 
 ~~~
-hash2base(m)
+hash2base(msg)
 
 Parameters:
-  1. H, a cryptographic hash function producing k bits.
+  1. H, a cryptographic hash function producing b bits.
   2. F, a finite field of characteristic p and order q=p^m.
-Preconditions:  k >= floor(log2(p)) + 1 + b, to ensure at most 2^-b bias.
-Input: x, an octet string to be hashed.
-Output: y, an element in F.
+  3. W = ceil((ceil(log2(p)) + k) / b), where k is the security
+     parameter of the cryptosystem (e.g., k = 128).
+Input: m, an octet string to be hashed.
+Output: u, an element in F.
 
 Steps:
-  Case q=p
-    1. t1 = H(m)
-    2. t2 = OS2IP(t1)
-    3. y = t2 mod p
-    4. Output y
-
-  Case q=p^m and m>1
-    1. t = H(m)
-    2. for i=0 to m - 1
-    3.    t1 = H( t || I2OSP(i,2) )
-    4.    t2 = OS2IP(t1)
-    5.    e_i = t2 mod p
-    6. Output y = ( e_0, ..., e_{m - 1} )
+1. m' = H(msg)
+2. for i in (1, ..., m):
+3.   t = ""     // initialize t to the empty string
+4.   for j in (1, ..., W):
+5.     t = t || H( m' || I2OSP(i, 1) || I2OSP(j, 1) )
+6.   e_i = OS2IP(t) mod p
+7. Output y = ( e_1, ..., e_m )
 ~~~
-<!-- HACK _{ -->
 
 # Deterministic Encodings  {#encodings}
 
@@ -1673,8 +1665,8 @@ Using the deterministic encodings from {{encodings}}, the random oracle recommen
 is instantiated as
 
 ~~~
- hash2curveRO(alpha) = map2curve( alpha || I2OSP(0x02, 1) )
-                     + map2curve( alpha || I2OSP(0x03, 1) )
+ hash2curveRO(alpha) = map2curve( alpha || I2OSP(0, 1) )
+                     + map2curve( alpha || I2OSP(1, 1) )
 ~~~
 
 where the addition operation is performed as a point addition on the
@@ -1760,7 +1752,7 @@ is approximately a 1/2 chance that there exist a corresponding y value such that
 (x, y) is on the curve E.
 
 This motivates the construction of the MapToGroup
-method described by Boneh et al. {{BLS01}}. For an input message m, a counter i,
+method described by Boneh et al. {{BLS01}}. For an input message msg, a counter i,
 and a standard hash function H : {0, 1}^\* -> GF(p) x {0, 1}, one computes (x, b)
 = H(i || m), where i || m denotes concatenation of the two values. Next, test to
 see whether there exists a corresponding y value such that (x, y) is on the
@@ -1783,7 +1775,7 @@ are undesirable.
 
 ## Naive Encoding
 
-A naive solution includes computing H(m) * G as map2curve(m), where H is a standard hash
+A naive solution includes computing map2curve(msg) = H(msg) * G, where H is a hash
 function H : {0, 1}^\* -> GF(p), and G is a generator of the curve. Although
 efficient, this solution is unsuitable for constructing a random oracle onto
 E, since the discrete logarithm with respect to G is known. For example,
@@ -1824,10 +1816,10 @@ fraction of the points. This means that they cannot be used directly to
 construct a random oracle that outputs points on the curve.
 
 Brier et al. {{BCIMRT10}} proposed two solutions to this problem.  The first
-applies solely to Icart's method described above, by computing F(H0(m)) +
-F(H1(m)) for two distinct hash functions H0, H1. The second uses a generator
-G, and computes F(H0(m)) + H1(m) * G. Later, Farashahi et al. {{FFSTV13}}
-improved the analysis of the F(H0(m)) + F(H1(m)) method, showing that this
+applies solely to Icart's method described above, by computing F(H0(msg)) +
+F(H1(msg)) for two distinct hash functions H0, H1. The second uses a generator
+G, and computes F(H0(msg)) + H1(msg) * G. Later, Farashahi et al. {{FFSTV13}}
+improved the analysis of the F(H0(msg)) + F(H1(msg)) method, showing that this
 method applies to essentially all deterministic encodings to both elliptic
 and hyperelliptic curves (which are not covered in this document).
 Tibouchi and Kim {{TK17}} further refine the analysis and describe additional
@@ -1835,11 +1827,12 @@ opportunities for optimization.
 
 # Try-and-Increment Method {#try}
 
-In cases where constant time execution is not required, the so-called
-try-and-increment method may be appropriate. As discussion in {{introduction}},
-this variant works by hashing input m using a standard hash function ("Hash"), e.g., SHA256, and
-then checking to see if the resulting point (m, f(m)), for curve function f, belongs on E.
-This is detailed below.
+In cases where constant time execution is not required, the
+"try-and-increment" method may be appropriate. As discussion in {{introduction}},
+this variant works by computing x = hash2base(msg) ({{hashtobase}}) and then
+checking to see if x is the x-coordinate of a point on the curve E.
+
+In more detail:
 
 ~~~
 1. ctr = 0
@@ -1847,7 +1840,7 @@ This is detailed below.
 3. While h is "INVALID" or h is EC point at infinity:
 4.1   CTR = I2OSP(ctr, 4)
 4.2   ctr = ctr + 1
-4.3   attempted_hash = Hash(m || CTR)
+4.3   attempted_hash = Hash(msg || CTR)
 4.4   h = RS2ECP(attempted_hash)
 4.5   If h is not "INVALID" and cofactor > 1, set h = h * cofactor
 5. Output h
