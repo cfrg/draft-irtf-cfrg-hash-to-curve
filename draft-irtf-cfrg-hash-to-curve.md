@@ -977,7 +977,7 @@ Steps:
 4.   for j in (1, ..., W):
 5.     t = t || H( m' || I2OSP(i, 1) || I2OSP(j, 1) )
 6.   e_i = OS2IP(t) mod p
-7. Output y = ( e_1, ..., e_m )
+7. Output u = ( e_1, ..., e_m )
 ~~~
 
 # Deterministic Encodings  {#encodings}
