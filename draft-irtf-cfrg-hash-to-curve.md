@@ -967,7 +967,7 @@ Parameters:
   2. F, a finite field of characteristic p and order q=p^m.
   3. W = ceil((ceil(log2(p)) + k) / b), where k is the security
      parameter of the cryptosystem (e.g., k = 128).
-Input: m, an octet string to be hashed.
+Input: msg, an octet string to be hashed.
 Output: u, an element in F.
 
 Steps:
