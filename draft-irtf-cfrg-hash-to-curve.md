@@ -1690,31 +1690,32 @@ See {{github-repo}} or {{WB19}} for details on implementing the isogeny map.
 
 # Random Oracles {#rom}
 
-A random oracle onto an elliptic curve can be instantiated using some
-general constructions. For example, Brier et al. {{BCIMRT10}} proved a construction
-that requires a scalar point multiplication, however this approach turns hashing
-into an expensive operation.
-A more efficient method to get a random oracle was given by Farashahi et al. [FFSTV13] and is defined as follows
+Brier et al. {{BCIMRT10}} describe two generic constructions that give a
+hash function approximating a random oracle. Farashahi et al. {{FFSTV13}}
+and Tibouchi and Kim {{TK17}} refine this analysis. In particular, Farashahi
+et al. show that summing two independent evaluations of any of the
+deterministic endings of {{encodings}} suffices to approximate a random
+oracle to an elliptic curve. In other words:
 
 ~~~
    hash2curveRO(alpha) = f(H0(alpha)) + f(H1(alpha))
 ~~~
 
-where f: F -> E is a deterministic encoding function; and H0 and H1 are hash
-functions modeled as random oracles mapping bitstrings to elements in a field F.
+where f: F -> E is a deterministic encoding, and H0 and H1 are hash
+functions (modeled as random oracles) mapping strings to elements of F.
 
-## Interface
+## Implementation
 
-Using the deterministic encodings from {{encodings}}, the random oracle recommended
-is instantiated as
+To instantiate a random oracle from the encodings of {{encodings}},
+compute the following:
 
 ~~~
  hash2curveRO(alpha) = map2curve( alpha || I2OSP(0, 1) )
                      + map2curve( alpha || I2OSP(1, 1) )
 ~~~
 
-where the addition operation is performed as a point addition on the
-curve.
+where the addition operations corresponds to point addition on the target
+elliptic curve.
 
 # Suites for Hashing {#suites}
 
@@ -1756,10 +1757,13 @@ This document has no IANA actions.
 # Security Considerations
 
 Each encoding function variant accepts arbitrary input and maps it to a pseudorandom
-point on the curve. Points are close to indistinguishable from randomly chosen
-elements on the curve. Not all encoding functions are full-domain hashes. Elligator 2,
-for example, maps strings to about half of all curve points, whereas Icart's
-method covers about 5/8 of the points.
+point on the curve.
+Directly evaluating the encodings of {{encodings}} produces an output that is
+distinguishable from random.
+{{rom}} shows how to use these encodings to construct a function approximating a
+random oracle.
+
+{{hashtobase}} describes considerations for uniformly hashing to field elements.
 
 # Acknowledgements
 
