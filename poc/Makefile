@@ -12,6 +12,7 @@ test: all \
 	test_icart \
 	test_simple_swu \
 	test_ell2montg \
+	test_ell2_ed448 \
 	test_ell2edwards \
 	test_bonehfranklin \
 	test_ell2supers \
