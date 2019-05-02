@@ -900,7 +900,7 @@ Notation: x_i is the i^th element of the vector representation of x.
 
 Steps:
 1. sign = 0
-2. for i=0 to m - 1
+2. for i in (1, ..., m):
 3.   if x_i > (p - 1) / 2                  # x_i is negative
 4.     sign = CMOV(sign, -1, sign == 0)
 5.   elif x_i > 0                          # x_i is positive (and nonzero)
