@@ -966,7 +966,7 @@ The hash2base(msg) function maps a string msg of any length into an element of a
 field F. This function is parametrized by the field F ({{bg-curves}}) and by H,
 a cryptographic hash function that outputs b bits.
 
-## Security and performance considerations
+## Security considerations
 
 hash2base should map its input to a uniformly random element of F.
 In practice, however, the output may be biased, meaning that some field
@@ -989,17 +989,34 @@ sampling. The reason is that these procedures are difficult to implement in cons
 and later well-meaning "optimizations" may silently render an implementation
 non-constant-time.
 
+## Performance considerations
+
 The performance of hash2base may be limited by the length of the input m.
-To prevent this, hash2base first computes m' = H(msg) and then derives the
+To address this, hash2base first computes m' = H(msg) and then derives the
 required bits from m'. This entails one extra invocation of H, a
-negligible overhead.
+negligible overhead in the context of hashing to elliptic curves.
+
+The random oracle construction of {{rom}} requires evaluating two independent
+hash functions H0 and H1 on msg. One way to instantiate independent hashes is
+to compute hash2base(msg || I2OSP(0, 1)) and hash2base(msg || I2OSP(1, 1)).
+For long messages this is either inefficient (because it entails hashing msg
+twice) or requires non-black-box use of H. To sidestep both of these issues,
+hash2base takes a second optional argument, ctr, which is appended to m', i.e.,
+m' = H(msg) || I2OSP(ctr, 1). This allows implementors to share one computation
+of H(msg) between multiple invocations of hash2base with different ctr values.
 
 ## Implementation {#hash2base-impl}
 
 The following procedure implements hash2base.
 
 ~~~
-hash2base(msg)
+hash2base(msg, ctr)
+
+Arguments:
+  1. msg is the message to hash.
+  2. ctr is an integer argument, 0 <= ctr < 256.
+     This is used to efficiently create independent
+     instances of hash2base (see discussion above).
 
 Parameters:
   1. H, a cryptographic hash function producing b bits.
@@ -1010,7 +1027,7 @@ Input: msg, an octet string to be hashed.
 Output: u, an element in F.
 
 Steps:
-1. m' = H(msg)
+1. m' = H(msg) || I2OSP(ctr, 1)
 2. for i in (1, ..., m):
 3.   t = ""     // initialize t to the empty string
 4.   for j in (1, ..., W):
@@ -1026,12 +1043,14 @@ Steps:
 The generic interface for deterministic encoding functions to elliptic curves is as follows:
 
 ~~~
-(x, y) = map2curve(alpha)
+(x, y) = map2curve(alpha, ctr=0)
 ~~~
 
-where alpha is an octet string to be hashed to a point on the curve with affine
-coordinates (x, y) defined over F. Observe that each encoding requires that
-certain algebraic conditions must hold in order to be applied.
+alpha is an octet string to be hashed to a point on the curve with affine
+coordinates (x, y) defined over F.
+
+ctr is an integer in \[0, 255\] that is passed to hash2base. If not specified,
+ctr SHOULD default to 0.
 
 ## Notation
 
