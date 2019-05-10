@@ -815,7 +815,7 @@ on bit strings that were not generated using the serialization procedure.
 In practice, two types of encodings are common: (1) injective encodings, which
 can be used to construct a PRF as F(k, m) = k * H(msg), and (2) random oracles,
 which used by PAKE protocols {{BMP00}}, short BLS signatures {{BLS01}}, and
-IBE schemes {{BF01}}. When the required encodings is not clear, applications
+IBE schemes {{BF01}}. When the required encoding is not clear, applications
 SHOULD use a random oracle.
 
 Cryptographic protocols which are proven secure in the random oracle model (ROM)
