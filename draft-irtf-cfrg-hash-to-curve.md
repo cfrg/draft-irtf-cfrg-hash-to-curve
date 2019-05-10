@@ -929,7 +929,7 @@ representing elements in extension fields).
 
 ## Security and performance considerations
 
-Hash2base should map its input to a uniformly random element of F.
+hash2base should map its input to a uniformly random element of F.
 In practice, however, the output may be biased, meaning that some field
 elements are more likely to occur than others. This is true even when H
 outputs a uniformly random string (as is generally assumed). For example,
