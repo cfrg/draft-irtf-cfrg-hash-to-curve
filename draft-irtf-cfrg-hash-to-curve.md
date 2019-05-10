@@ -942,7 +942,8 @@ To control bias, the input msg should be hashed to an integer comprising more th
 In particular, reducing an integer of ceil(log2(p)) + k bits modulo p gives bias
 at most 2^-k, which is a safe choice for a cryptosystem with k-bit security.
 Thus, if H outputs b bits, then H should be evaluated W = ceil((ceil(log2(p)) + k) / b)
-times to produce a W * b bit integer, which is then reduced modulo p.
+times and the results concatenated to produce a W * b bit integer, which is then reduced modulo p.
+{{hash2base-impl}} details this procedure.
 
 Note that implementors SHOULD NOT use an iterated procedure, i.e., rejection
 sampling. The reason is that these procedures are difficult to implement in constant time,
@@ -954,7 +955,7 @@ To prevent this, hash2base first computes m' = H(msg) and then derives the
 required bits from m'. This entails one extra invocation of H, a
 negligible overhead.
 
-## Implementation
+## Implementation {#hash2base-impl}
 
 The following procedure implements hash2base.
 
