@@ -901,11 +901,10 @@ Notation: x_i is the i^th element of the vector representation of x.
 Steps:
 1. sign = 0
 2. for i in (1, ..., m):
-3.   if x_i > (p - 1) / 2                  # x_i is negative
-4.     sign = CMOV(sign, -1, sign == 0)
-5.   elif x_i > 0                          # x_i is positive (and nonzero)
-6.     sign = CMOV(sign, 1, sign == 0)
-7. return CMOV(sign, 1, sign == 0)         # regard x = 0 as positive
+3.   sign_i = CMOV(1, -1, x_i > (p - 1) / 2)
+4.   sign_i = CMOV(sign_i, 0, x_i == 0)
+5.   sign = CMOV(sign, sign_i, sign == 0)
+6. return CMOV(sign, 1, sign == 0)         # regard x = 0 as positive
 ~~~
 
 - inv0(x, q): This function returns the multiplicative inverse of x mod q.
