@@ -63,6 +63,13 @@ normative:
     author:
       -
         org: Standards for Efficient Cryptography Group (SECG)
+  FIPS186-4:
+    title: "FIPS Publication 186-4: Digital Signature Standard"
+    target: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf
+    date: Jul, 2013
+    author:
+      -
+        org: National Institute of Standards and Technology (NIST)
   Icart09:
     title: How to Hash into Elliptic Curves
     seriesinfo:
@@ -1020,7 +1027,8 @@ curve equation. To obtain a point in a subgroup of order r, however, the
 cofactor must be cleared. In the description of each encoding in this section,
 the last step returns h * (x, y); this represents the cofactor clearing
 operation, which can always be performed via a scalar multiplication by h.
-Note that, for elliptic curves having a prime number of points, h=1 and no
+Note that, for elliptic curves having a prime number of points (for example,
+the NIST curves P-256, P-384, and P-521 {{FIPS186-4}}), h=1 and no
 operation is required.
 
 In some cases, a scalar multiplication by h can be replaced by a faster
