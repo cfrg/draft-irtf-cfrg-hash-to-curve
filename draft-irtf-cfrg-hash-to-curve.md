@@ -916,7 +916,7 @@ Steps:
 
 - inv0(x, q): This function returns the multiplicative inverse of x mod q.
   If x == 0, the inverse is undefined, and this function instead returns 0.
-  To implement inv0 in constant time, compute alpha = x^(q-2) mod q.
+  To implement inv0 in constant time, compute alpha = x^(q - 2) mod q.
   Notice on input 0, the output is 0 as required.
 
 - I2OSP and OS2IP: These functions are used to convert an octet string to
@@ -949,7 +949,7 @@ To control bias, the input msg should be hashed to an integer comprising more th
 In particular, reducing an integer of ceil(log2(p)) + k bits modulo p gives bias
 at most 2^-k, which is a safe choice for a cryptosystem with k-bit security.
 Thus, if H outputs b bits, then H should be evaluated W = ceil((ceil(log2(p)) + k) / b)
-times and the results concatenated to produce a W * b bit integer, which is then reduced modulo p.
+times and the results concatenated to produce a (W * b)-bit integer, which is then reduced modulo p.
 {{hash2base-impl}} details this procedure.
 
 Note that implementors SHOULD NOT use an iterated procedure, i.e., rejection
@@ -1116,7 +1116,7 @@ Output: (x, y), a point on E.
 
 Constants:
 1. c1 = (2 * p - 1) / 3   // Integer arithmetic
-2  c2 = 1 / 3
+2. c2 = 1 / 3
 3. c3 = c2^3
 4. c4 = 3 * A
 
@@ -1156,7 +1156,7 @@ Input: alpha, an octet string to be hashed.
 
 Constants:
 
-- A and B, the parameters of the Weierstrass curve
+- A and B, the parameters of the Weierstrass curve.
 
 - Z, the smallest (in absolute value) non-square in F such that g(B / (Z *
   A)) is square in F, breaking ties by choosing the positive value.
@@ -1205,8 +1205,8 @@ Precondition: q = 3 (mod 4)
 
 Constants:
 1.  c1 = -B / A
-3.  c2 = -1 / Z
-4.  c3 = sqrt(-Z^3)
+2.  c2 = -1 / Z
+3.  c3 = sqrt(-Z^3)
 
 Steps:
 1.    u = hash2base(alpha)
@@ -1227,8 +1227,8 @@ Steps:
 14.  t4 = t3 * c3
 15.  t4 = t4 * u^3           // if gx1 is not square, this is sqrt(g(x2))
 16.  e3 = t3^2 == gx1
-17.   x = CMOV(x2, x1, e3)   // if e2=True, x = x1, else x = x2
-18.   y = CMOV(t4, t3, e3)   // if e2=True, y = t3, else y = t4
+17.   x = CMOV(x2, x1, e3)   // if e2 == True, x = x1, else x = x2
+18.   y = CMOV(t4, t3, e3)   // if e2 == True, y = t3, else y = t4
 19.  e4 = sgn0(u) == sgn0(y)
 20.   y = CMOV(-y, y, e4)
 21. Output h * (x, y)
@@ -1308,8 +1308,8 @@ Steps:
 15.  y2 = y1 * u
 16.  y2 = y2 * c1
 17.  e2 = y1^2 == gx1
-18.   x = CMOV(x2, x1, e2)    // If e=True, x=x1, else x=x2
-19.   y = CMOV(y2, y1, e2)    // If e=True, y=y1, else y=y2
+18.   x = CMOV(x2, x1, e2)    // If e == True, x=x1, else x=x2
+19.   y = CMOV(y2, y1, e2)    // If e == True, y=y1, else y=y2
 20.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
 21.   y = CMOV(-y, y, e3)
 22. Output h * (x, y)
@@ -1352,8 +1352,8 @@ Steps:
 20.  e2 = y22^2 == gx2
 21.  y2 = CMOV(y21, y22, e2)  // if gx2 is square, this is its sqrt
 22.  e3 = y1^2 == gx1
-23.   x = CMOV(x2, x1, e3)    // if e=True, x=x1, else x=x2
-24.   y = CMOV(y2, y1, e3)    // if e=True, y=y1, else y=y2
+23.   x = CMOV(x2, x1, e3)    // if e == True, x=x1, else x=x2
+24.   y = CMOV(y2, y1, e3)    // if e == True, y=y1, else y=y2
 25.  e4 = sgn0(u) == sgn0(y)  // fix sign of y
 26.   y = CMOV(-y, y, e4)
 27. Output h * (x, y)
@@ -1706,7 +1706,7 @@ deterministic endings of {{encodings}} suffices to approximate a random
 oracle to an elliptic curve. In other words:
 
 ~~~
-   hash2curveRO(alpha) = f(H0(alpha)) + f(H1(alpha))
+   hash2curve(alpha) = f(H0(alpha)) + f(H1(alpha))
 ~~~
 
 where f: F -> E is a deterministic encoding, and H0 and H1 are hash
@@ -1718,8 +1718,8 @@ To instantiate a random oracle from the encodings of {{encodings}},
 compute the following:
 
 ~~~
- hash2curveRO(alpha) = map2curve( alpha || I2OSP(0, 1) )
-                     + map2curve( alpha || I2OSP(1, 1) )
+ hash2curve(alpha) = map2curve( alpha || I2OSP(0, 1) )
+                   + map2curve( alpha || I2OSP(1, 1) )
 ~~~
 
 where the addition operations corresponds to point addition on the target
