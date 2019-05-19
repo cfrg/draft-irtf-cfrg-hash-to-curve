@@ -820,7 +820,7 @@ on bit strings that were not generated using the serialization procedure.
 ### Random Oracle {#term-rom}
 
 In practice, two types of encodings are common: (1) injective encodings, which
-can be used to construct a PRF as F(k, m) = k * H(msg), and (2) random oracles,
+can be used to construct a PRF as F(k, msg) = k * H(msg), and (2) random oracles,
 which used by PAKE protocols {{BMP00}}, short BLS signatures {{BLS01}}, and
 IBE schemes {{BF01}}. When the required encoding is not clear, applications
 SHOULD use a random oracle.
@@ -1810,7 +1810,7 @@ is approximately a 1/2 chance that there exist a corresponding y value such that
 This motivates the construction of the MapToGroup
 method described by Boneh et al. {{BLS01}}. For an input message msg, a counter i,
 and a standard hash function H : {0, 1}^\* -> GF(p) x {0, 1}, one computes (x, b)
-= H(i || m), where i || m denotes concatenation of the two values. Next, test to
+= H(i || msg), where i || msg denotes concatenation of the two values. Next, test to
 see whether there exists a corresponding y value such that (x, y) is on the
 curve, returning (x, y) if successful, where b determines whether to take +/- y.
 If there does not exist such a y, then increment i and repeat. A maximum counter
@@ -1824,7 +1824,7 @@ less than log2(p), one can make use of the spare bits in order to encode
 the counter value. Allocating more space for the counter increases the expansion,
 but reduces the failure probability.
 
-Since the running time of the MapToGroup algorithm depends on m,
+Since the running time of the MapToGroup algorithm depends on msg,
 this algorithm is NOT safe for cases sensitive to timing side channel attacks.
 Deterministic algorithms are needed in such cases where failures
 are undesirable.
