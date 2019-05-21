@@ -179,7 +179,7 @@ normative:
   FT10:
     title: Estimating the size of the image of deterministic hash functions to elliptic curves.
     seriesinfo:
-        "In": LATINCRYPT 2010
+        "In": Progress in Cryptology - LATINCRYPT 2010
         "pages": 81-91
         DOI: 10.1007/978-3-642-14712-8_5
     target: https://doi.org/10.1007/978-3-642-14712-8_5
@@ -196,7 +196,7 @@ normative:
   FT12:
     title: Indifferentiable Hashing to Barreto-Naehrig Curves
     seriesinfo:
-        "In": LATINCRYPT 2012
+        "In": Progress in Cryptology - LATINCRYPT 2012
         "pages": 1-7
         DOI: 10.1007/978-3-642-33481-8_1
     target: https://doi.org/10.1007/978-3-642-33481-8_1
@@ -226,7 +226,7 @@ normative:
       -
         ins: A. Joux
         name: Antoine Joux
-        org: Sorbonne Université
+        org: Sorbonne Universite
       -
         ins: M. Tibouchi
         name: Mehdi Tibouchi
@@ -243,15 +243,15 @@ normative:
       -
         ins: J. Kammerer
         name: Jean-Gabriel Kammerer
-        org: Université de Rennes
+        org: Universite de Rennes
       -
         ins: R. Lercier
         name: Reynald Lercier
-        org: Université de Rennes
+        org: Universite de Rennes
       -
         ins: G. Renault
-        name: Guénaël Renault
-        org: Université Pierre et Marie Curie
+        name: Guenael Renault
+        org: Universite Pierre et Marie Curie
   AR13:
     title: Square Root Computation over Even Extension Fields
     seriesinfo:
@@ -746,30 +746,28 @@ important parameters and their relation to hashing to curves.
 Let F be the finite field GF(q) of prime characteristic p. In most cases F
 is a prime field, so q=p. Otherwise, F is a field extension, so q=p^m for
 an integer m > 1. This document assumes that elements of field extensions
-are written in a primitive element or polynomial basis, i.e., as vectors
-of m elements of GF(p) where vector elements are written in ascending order
+are written in a primitive element or polynomial basis, i.e., as
+of m elements of GF(p) written in ascending order
 by degree. For example, if q=p^2 and the primitive element basis is {1, i},
 then the vector (a, b) corresponds to the element a + b * i.
 
 An elliptic curve E is specified by a cubic equation in two variables and a
 finite field F. An elliptic curve equation takes one of several standard forms,
-including (but not limited to) Weierstrass, Montgomery, and Edwards. Each of
-these forms defines a category of curve equations that is sometimes called a
-"curve shape."
+including (but not limited to) Weierstrass, Montgomery, and Edwards.
 
 The curve E forms an algebraic group whose elements are the points (x, y)
 satisfying the curve equation, where x and y are elements of F. This group
 has order n, meaning that there are n distinct points (x, y). In general,
 security of cryptographic primitives requires using a group of prime order.
 However, not all elliptic curves induce groups of prime order: most elliptic
-curves have order n = h * r, where r is a large prime and h is a non-negative
+curves have order n = h * r, where r is a large prime and h is an
 integer called the cofactor. Thus, for cryptographic applications a hash
 function to the curve E should return points in the subgroup of order r. For
 a point not in the prime-order subgroup, the process of mapping to a point
 in the prime-order subgroup is called clearing the cofactor; we discuss this
 process in {{cofactor-clearing}}.
 
-Certain encoding functions restrict the curve shape, the characteristic
+Certain encoding functions restrict the form of the curve equation, the characteristic
 of the field, and/or the parameters of the curve. For each encoding,
 this document lists the relevant restrictions.
 
@@ -914,8 +912,8 @@ Steps:
 6. return CMOV(sign, 1, sign == 0)         # regard x = 0 as positive
 ~~~
 
-- inv0(x, q): This function returns the multiplicative inverse of x mod q.
-  If x == 0, the inverse is undefined, and this function instead returns 0.
+- inv0(x, q): This function returns the multiplicative inverse of x mod q,
+  extended to all of F by fixing inv0(0) == 0.
   To implement inv0 in constant time, compute alpha = x^(q - 2) mod q.
   Notice on input 0, the output is 0 as required.
 
@@ -929,10 +927,6 @@ Steps:
 The hash2base(msg) function maps a string msg of any length into an element of a
 field F. This function is parametrized by the field F ({{bg-curves}}) and by H,
 a cryptographic hash function that outputs b bits.
-
-At a high level, for q = p^m the order of F, hash2base(msg) outputs a vector of m elements,
-each an integer modulo p (see {{bg-curves}} for a brief discussion of
-representing elements in extension fields).
 
 ## Security and performance considerations
 
@@ -1057,17 +1051,14 @@ this gives implementors more optimization leeway.
 
 ## Exceptional cases {#map-exceptions}
 
-Some encodings described in this section have exceptional cases, i.e., values u =
-hash2base(alpha) on which the encoding is undefined. These cases must be handled
+Encodings may have have exceptional cases, i.e., values u = hash2base(alpha)
+on which the encoding is undefined. These cases must be handled
 carefully, especially for constant-time implementations.
 
-Most of the time, exceptional inputs result in attempting to compute the
-multiplicative inverse of 0 in F. Implementations SHOULD use inv0 ({{utility}})
-to compute multiplicative inverses, but this may not be enough to ensure
-that a given encoding outputs a valid point on the target elliptic curve.
-
-For each encoding below, we discuss exceptional cases and show how to handle them
-in constant time.
+For each encoding in this section, we discuss the exceptional cases and show
+how to handle them in constant time. Note that all implementations SHOULD use
+inv0 ({{utility}}) to compute multiplicative inverses, to avoid exceptional
+cases that result from attempting to compute the inverse of 0.
 
 ## Encodings for Weierstrass curves
 
