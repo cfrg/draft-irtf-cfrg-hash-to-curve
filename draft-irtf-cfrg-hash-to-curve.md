@@ -1040,17 +1040,20 @@ Steps:
 
 ## Interface
 
-The generic interface for deterministic encoding functions to elliptic curves is as follows:
+The generic interface shared by all encodings in this section is as follows:
 
 ~~~
 (x, y) = map2curve(alpha, ctr=0)
 ~~~
 
-alpha is an octet string to be hashed to a point on the curve with affine
-coordinates (x, y) defined over F.
+Inputs:
 
-ctr is an integer in \[0, 255\] that is passed to hash2base. If not specified,
-ctr SHOULD default to 0.
+- alpha is an octet string to be hashed to a point on the curve with affine coordinates (x, y) defined over F.
+
+- ctr is an integer in \[0, 255\] that is passed to hash2base.
+  This argument is used in {{rom}} to efficiently construct orthogonal mappings.
+  If not specified, ctr SHOULD default to 0.
+
 
 ## Notation
 
@@ -1134,11 +1137,7 @@ The function map2curve\_icart(alpha) implements the Icart encoding method from {
 Preconditions: An elliptic curve over F, such that p>3 and q=p^m=2 (mod 3), or
 p=2 (mod 3) and odd m.
 
-Input: alpha, an octet string to be hashed.
-
 Constants: A and B, the parameters of the Weierstrass curve.
-
-Output: (x, y), a point on E.
 
 Sign of y: this encoding does not compute a square root, so there
 is no ambiguity regarding the sign of y.
@@ -1205,16 +1204,12 @@ al. {{BCIMRT10}}, which they call the "simplified SWU" map. Wahby and Boneh
 
 Preconditions: A Weierstrass curve over F such that A!=0 and B!=0.
 
-Input: alpha, an octet string to be hashed.
-
 Constants:
 
 - A and B, the parameters of the Weierstrass curve.
 
 - Z, the smallest (in absolute value) non-square in F such that g(B / (Z *
   A)) is square in F, breaking ties by choosing the positive value.
-
-Output: (x, y), a point on E.
 
 Sign of y: for u = hash2base(alpha), this encoding ignores the sign of u.
 Thus, we set sgn0(y) == sgn0(u).
@@ -1297,16 +1292,12 @@ and A^2 - 4 * B is non-square in F.
 
 Preconditions: A Montgomery curve where A != 0, B != 0, and A^2 - 4 is non-square in F.
 
-Input: alpha, an octet string to be hashed.
-
 Constants:
 
 - A and B, the parameters of the curve
 
 - Z, the smallest (in absolute value) non-square in F, breaking ties by choosing
   the positive value.
-
-Output: (x, y), a point on E.
 
 Sign of y: for u = hash2base(alpha), this encoding ignores the sign of u.
 Thus, we set sgn0(y) == sgn0(u).
@@ -1443,16 +1434,12 @@ invert the product y' * (B' * x' + 1), then multiply by y' to obtain
 
 Preconditions: A twisted Edwards curve.
 
-Input: alpha, an octet string to be hashed.
-
 Constants:
 
 - A and B, the parameters of the equivalent Montgomery curve, and B' = 1 / sqrt(B).
 
 - Z, the smallest (in absolute value) non-square in F, breaking ties by choosing
   the positive value.
-
-Output: (x, y), a point on E.
 
 Sign of y: for this map, the sign is determined by map2curve_elligator2.
 No further sign adjustments are required.
@@ -1490,11 +1477,7 @@ that q=2 (mod 3).
 
 Preconditions: A supersingular curve over F such that q=2 (mod 3).
 
-Input: alpha, an octet string to be hashed.
-
 Constants: B, the parameter of the supersingular curve.
-
-Output: (x, y), a point on E.
 
 Sign of y: determined by sign of u. No adjustments are necessary.
 
@@ -1538,11 +1521,7 @@ The function map2curve\_ell2A0(alpha) implements an adaptation of Elligator 2
 
 Preconditions: A supersingular curve over F such that q=3 (mod 4).
 
-Input: alpha, an octet string to be hashed.
-
 Constants: B, the parameter of the supersingular curve.
-
-Output: (x, y), a point on E.
 
 Sign of y: for u = hash2base(alpha), u and -u give the same x-coordinate.
 Thus, we set sgn0(y) == sgn0(u).
@@ -1606,16 +1585,12 @@ described in {{simple-swu-pairing-friendly}} is faster, when it applies.)
 
 Preconditions: An elliptic curve y^2 = g(x) = x^3 + B over F such that q=1 (mod 3) and B != 0.
 
-Input: alpha, an octet string to be hashed.
-
 Constants:
 
 - B, the parameter of the Weierstrass curve
 - Z, the smallest (in absolute value) element of F such that
   g((sqrt(-3 * Z^2) - Z) / 2) is square, breaking ties by choosing
   the positive value.
-
-Output: (x, y), a point on E.
 
 Sign of y: for u = hash2base(alpha), this encoding ignores the sign of u.
 Thus, we set sgn0(y) == sgn0(u).
@@ -1722,8 +1697,6 @@ Preconditions: An elliptic curve E' with A' != 0 and B' != 0 that is
 isogenous to the target curve E with isogeny map iso\_map(x, y) from
 E' to E.
 
-Input: alpha, an octet string to be hashed.
-
 Helper functions:
 
 - map2curve\_simple\_swu is the encoding of {{simple-swu}} to E'
@@ -1735,8 +1708,6 @@ of iso\_map must include its sign.)
 
 Exceptions: map2curve\_simple\_swu handles its exceptional cases.
 In the exceptional cases for iso\_map, it should return the identity point on E.
-
-Output: (x, y), a point on E.
 
 Operations:
 
