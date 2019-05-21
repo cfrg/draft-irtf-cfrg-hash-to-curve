@@ -1016,25 +1016,28 @@ As a rough style guide the following convention is used:
 
 ## Clearing the cofactor {#cofactor-clearing}
 
-Deterministic encodings guarantee that their outputs satisfy the elliptic
-curve equation. To obtain a point in a subgroup of order r, however, the
-cofactor must be cleared. In the description of each encoding in this section,
-the last step returns h * (x, y); this represents the cofactor clearing
-operation, which can always be performed via a scalar multiplication by h.
-Note that, for elliptic curves having a prime number of points (for example,
-the NIST curves P-256, P-384, and P-521 {{FIPS186-4}}), h=1 and no
-operation is required.
+The encodings of this section always output a point on the elliptic curve,
+i.e., a point in a group of order h * r ({{bg-curves}}).
+Obtaining a point in the subgroup of prime order r may require
+a final operation, called "clearing the cofactor."
+In the description of each encoding in this section, this operation is represented
+abstractly as clear\_h(x, y), which takes as input a point on the curve and returns
+a point in the subgroup of prime order.
 
-In some cases, a scalar multiplication by h can be replaced by a faster
-method. For pairing-friendly curves having subgroup G2 over an extension
-field, Scott et al. {{SBCDBK09}} describe a method for fast cofactor clearing
+The operation clear\_h(x, y) can always be implemented as a scalar multiplication by h.
+For elliptic curves where h = 1, i.e., curves with a prime number of points (for example,
+the NIST curves P-256, P-384, and P-521 {{FIPS186-4}}), no operation is required.
+
+In some cases, it is possible to clear the cofactor via a faster method than scalar multiplication.
+For pairing-friendly curves having subgroup G2 over an extension
+field, Scott et al. {{SBCDBK09}} describe a method for faster cofactor clearing
 that exploits an efficiently-computable endomorphism. Fuentes-Castaneda
 et al. {{FKR11}} propose an alternative method that is sometimes more efficient.
 Budroni and Pintore {{BP18}} give concrete instantiations of these methods
 for Barreto-Lynn-Scott pairing-friendly curves {{BLS02}}.
 
 Wahby and Boneh ({{WB19}}, Section 5) describe a trick due to Scott for
-fast cofactor clearing on any elliptic curve, in the case where the prime
+faster cofactor clearing on any elliptic curve for which the prime
 factorization of h and the number of points on the curve meet certain
 conditions.
 
@@ -1093,7 +1096,7 @@ Operations:
 3. v = (3 * A - u^4) / (6 * u)
 4. x = (v^2 - B - (u^6 / 27))^((2 * p - 1) / 3) + (u^2 / 3)
 5. y = u * x + v
-6. Output h * (x, y)
+6. Output clear_h(x, y)
 ~~~
 
 #### Implementation
@@ -1131,7 +1134,7 @@ Steps:
 17.  x = x + t1         // x = (v^2 - B - u^6 / 27)^(1 / 3) + (u^2 / 3)
 18.  y = u * x          // u * x
 19.  y = y + v          // y = u * x + v
-20. Output h * (x, y)
+20. Output clear_h(x, y)
 ~~~
 
 ### Simplified Shallue-van de Woestijne-Ulas Method {#simple-swu}
@@ -1176,7 +1179,7 @@ Operations:
 8.  If gx1 is square, set x = x1 and y = sqrt(gx1)
 9.  If gx2 is square, set x = x2 and y = sqrt(gx2)
 10. If sgn0(u) != sgn0(y), set y = -y
-11. Output h * (x, y)
+11. Output clear_h(x, y)
 ~~~
 
 #### Implementation
@@ -1222,7 +1225,7 @@ Steps:
 18.   y = CMOV(t4, t3, e3)   // if e2 == True, y = t3, else y = t4
 19.  e4 = sgn0(u) == sgn0(y)
 20.   y = CMOV(-y, y, e4)
-21. Output h * (x, y)
+21. Output clear_h(x, y)
 ~~~
 
 ## Encodings for Montgomery curves
@@ -1265,7 +1268,7 @@ Operations:
 8.  If is_square(gx1), set x = x1 and y = sqrt(gx1)
 9.  If is_square(gx2), set x = x2 and y = sqrt(gx2)
 10. If sgn0(u) != sgn0(y), set y = -y
-11. Output h * (x, y)
+11. Output clear_h(x, y)
 ~~~
 
 #### Implementation, q=3 (mod 4)
@@ -1303,7 +1306,7 @@ Steps:
 19.   y = CMOV(y2, y1, e2)    // If e == True, y=y1, else y=y2
 20.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
 21.   y = CMOV(-y, y, e3)
-22. Output h * (x, y)
+22. Output clear_h(x, y)
 ~~~
 
 #### Implementation, q=5 (mod 8)
@@ -1347,7 +1350,7 @@ Steps:
 24.   y = CMOV(y2, y1, e3)    // if e == True, y=y1, else y=y2
 25.  e4 = sgn0(u) == sgn0(y)  // fix sign of y
 26.   y = CMOV(-y, y, e4)
-27. Output h * (x, y)
+27. Output clear_h(x, y)
 ~~~
 
 ## Encodings for twisted Edwards curves
@@ -1415,7 +1418,7 @@ The following straight-line implementation handles the exceptional cases:
 11.       y = y * y'
 12.       e = y == 0
 13.       y = CMOV(y, 1, e)
-14. Output h * (x, y)
+14. Output clear_h(x, y)
 ~~~
 
 ## Encodings for Supersingular curves
@@ -1444,7 +1447,7 @@ Operations:
 1. u = hash2base(alpha)
 2. x = (u^2 - B)^((2 * q - 1) / 3)
 3. y = u
-4. Output h * (x, y)
+4. Output clear_h(x, y)
 ~~~
 
 #### Implementation
@@ -1466,7 +1469,7 @@ Steps:
 3. t1 = t1 - B
 4.  x = t1^c1             // x = (u^2 - B)^((2 * q - 1) / 3)
 5.  y = u
-6. Output h * (x, y)
+6. Output clear_h(x, y)
 ~~~
 
 ### Elligator 2, A=0 Method
@@ -1498,7 +1501,7 @@ Operations:
 6. If gx1 is square, x = x1 and y = sqrt(gx1)
 7. If gx2 is square, x = x2 and y = sqrt(gx2)
 8. If sgn0(u) != sgn0(y), set y = -y.
-9. Output h * (x, y)
+9. Output clear_h(x, y)
 ~~~
 
 #### Implementation
@@ -1523,7 +1526,7 @@ Steps:
 9.   x = CMOV(x2, x1, e1)
 10. e2 = sgn0(u) == sgn0(y)
 11.  y = CMOV(-y, y, e2)
-12. Output h * (x, y)
+12. Output clear_h(x, y)
 ~~~
 
 ## Encodings for Pairing-Friendly curves
@@ -1576,7 +1579,7 @@ Operations:
 9.  If g(x2) is square, set x = x2 and y = sqrt(g(x2))
 10. If g(x3) is square, set x = x3 and y = sqrt(g(x3))
 11. If sgn0(u) != sgn0(y), set y = -y
-12. Output h * (x, y)
+12. Output clear_h(x, y)
 ~~~
 
 #### Implementation
@@ -1631,7 +1634,7 @@ Steps:
 32.   y = sqrt(gx, q)
 33.  e4 = sgn0(u) == sgn0(y)
 34.   y = CMOV(-y, y, e4)   // select correct sign of y
-35. Output h * (x, y)
+35. Output clear_h(x, y)
 ~~~
 
 ### Simplified SWU for Pairing-Friendly Curves {#simple-swu-pairing-friendly}
@@ -1681,7 +1684,7 @@ Operations:
 ~~~
 1. (x', y') = map2curve_simple_swu(alpha)  // (x', y') is a point on E'
 8. (x, y)   = iso_map(x', y')              // (x, y) is a point on E
-8. Output h * (x, y)
+8. Output clear_h(x, y)
 ~~~
 
 We do not repeat the sample implementation of {{simple-swu}} here.
