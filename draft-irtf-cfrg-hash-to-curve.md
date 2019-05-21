@@ -1482,8 +1482,8 @@ Constants: B, the parameter of the supersingular curve.
 
 Output: (x, y), a point on E.
 
-Sign of y: for u = hash2base(alpha), u and -u give the same x-coordinate. Thus,
-we fix sgn0(y) == +1.
+Sign of y: for u = hash2base(alpha), u and -u give the same x-coordinate.
+Thus, we set sgn0(y) == sgn0(u).
 
 Exceptions: none.
 
@@ -1497,7 +1497,7 @@ Operations:
 5. gx2 = x2^3 + B * x2
 6. If gx1 is square, x = x1 and y = sqrt(gx1)
 7. If gx2 is square, x = x2 and y = sqrt(gx2)
-8. If sgn0(y) == -1, set y = -y.
+8. If sgn0(u) != sgn0(y), set y = -y.
 9. Output h * (x, y)
 ~~~
 
@@ -1521,7 +1521,7 @@ Steps:
 7.   y = gx1^((p + 1) / 4)  // this is either sqrt(gx1) or sqrt(gx2)
 8.  e1 = y^2 == gx1
 9.   x = CMOV(x2, x1, e1)
-10. e2 = sgn0(y) == 1
+10. e2 = sgn0(u) == sgn0(y)
 11.  y = CMOV(-y, y, e2)
 12. Output h * (x, y)
 ~~~

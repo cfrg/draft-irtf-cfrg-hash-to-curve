@@ -29,8 +29,8 @@ def elligator2A0(alpha):
     else:
         x = x2
 
-    y *= sgn0(y)
-    assert sgn0(y) == 1
+    y *= sgn0(y) * sgn0(u)
+    assert sgn0(y) == sgn0(y)
     return E(x, y)
 
 # Constant Time Implementation
@@ -48,7 +48,7 @@ def elligator2A0_CT(alpha):
     e1 = y ** 2 == gx1
     x = CMOV(x2, x1, e1)
 
-    e2 = sgn0(y) == 1
+    e2 = sgn0(y) == sgn0(u)
     y = CMOV(-y, y, e2)
 
     return E(x,y)
