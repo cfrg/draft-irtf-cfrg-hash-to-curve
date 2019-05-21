@@ -1652,8 +1652,8 @@ This method requires finding another elliptic curve
 E': y^2 = g'(x) = x^3 + A' * x + B'
 ~~~
 
-that is isogenous to E and has A' != 0 and B' != 0. One can do this,
-for example, using {{SAGE}}; we give sample code in {{finding-isogeny}}.
+that is isogenous to E and has A' != 0 and B' != 0.
+(One might do this, for example, using {{SAGE}}; details are beyond the scope of this document.)
 This isogeny defines a map iso\_map(x', y') that takes as input a point
 on E' and produces as output a point on E.
 
@@ -2103,43 +2103,6 @@ def map2curve25519(r:felem_t) -> felem_t:
         x = d
 
     return x
-~~~
-
-## Finding a curve isogenous to E {#finding-isogeny}
-
-The pairing-friendly variant of the simplified SWU encoding described by Wahby and Boneh
-({{WB19}}; {{simple-swu-pairing-friendly}}) requires finding a curve E' that is isogenous
-to the target curve E. In this section, we give an example of how to find an isogenous
-curve and extract the isogeny map.
-
-The below Sage {{SAGE}} script finds a curve isogenous to the BLS12-381
-curve over the base field.
-
-~~~
-import sage.schemes.elliptic_curves.isogeny_small_degree as isd
-
-z = -0xd201000000010000                # BLS parameter for BLS12-381
-p = z + (z^4 - z^2 + 1) * (z - 1)^2 // 3
-F = GF(p)
-Ell = EllipticCurve(F, [0, 4])         # BLS12-381 Fp curve: y^2 = x^3 + 4
-
-# look for isogenies up to degree 13 to curves over Fp having
-# j-invariant not in {0, 1728}, which implies A != 0 and B != 0
-for p_test in (2, 3, 5, 7, 11, 13):
-  isos = [ i for i in isd.isogenies_prime_degree(Ell, p_test)
-             if i.codomain().j_invariant() not in (0, 1728) ]
-  if len(isos) > 0:
-    break
-
-my_iso = isos[0].dual()                # need isogeny map from E' to E
-Ell_prime = my_iso.domain()            # this is the curve E'
-assert my_iso(Ell_prime.random_point()).curve() == Ell
-print "Found isogeny of degree %d" % my_iso.degree()
-
-# show the isogeny maps
-(xmap, ymap) = my_iso.rational_maps()
-print xmap
-print ymap
 ~~~
 
 # Test Vectors
