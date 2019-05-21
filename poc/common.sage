@@ -15,6 +15,8 @@ PrimeDict = {
     # Curve448
     "Curve448": 2**448-2**224-1,
     "Ed448": 2**448-2**224-1,
+    # SECP256K1
+    "SECP256K1": 2**256 - 2**32 - 2**9 - 2**8 - 2**7 - 2**6 - 2**4 - 1,
     # SIKE-P503
     "SIKEP503": 2**250*3**159-1,
     # NIST P-521
@@ -26,12 +28,37 @@ PrimeDict = {
     # Old SNARKs and zCash prime (BN254)
     "zCASH": 21888242871839275222246405745257275088696311157297823662689037894645226208583,
     # New zCash prime 381 is slight below the new 384 bits for 128-bit security
-    "BLS12381": blsPrime(-0xd201000000010000),
+    "BLS12_381_1": blsPrime(-0xd201000000010000),
+    "BLS12_381_2": blsPrime(-0xd201000000010000),
     # Scott ia.cr/2019/077 (new 128-bit security)
-    "BLS12384": blsPrime(0x10008000001001200),
+    "BLS12_384": blsPrime(0x10008000001001200),
     # Barreto curve y = x^3+2
     "BN382": bnPrime(-(2^94 + 2^78 + 2^67 + 2^64 + 2^48 + 1)),
 }
+
+def sgn0(x):
+    """
+    Returns -1 if x is 'negative', else 1.
+    """
+    p = x.base_ring().order()
+    if x.parent().degree() == 1:
+        # not a field extension
+        xi_values = (x,)
+    else:
+        # field extension
+        xi_values = x._vector_()
+    sign = 0
+    threshold = ZZ((p-1) // 2)
+    # compute the sign in constant time
+    for xi in xi_values:
+        zz_xi = ZZ(xi)
+        sign_squared = sign * sign
+        # sign of this digit
+        xi_sign = -2 * int(zz_xi > threshold) + int(zz_xi > 0)
+        # update sign with this digit's sign if sign == 0
+        sign = (1 - sign_squared) * xi_sign + sign_squared * sign
+    sign_squared = sign * sign
+    return (1 - sign_squared) + sign * sign_squared
 
 def CMOV(x, y, b):
     """
@@ -55,14 +82,11 @@ def mult_inv(x, p):
     """
     return x**(p-2)
 
-def absolute(x, p):
+def absolute(x, _):
     """
-    Returns |x|=x if x =< (p-1)/2, ohterwise returns -x modulo p.
+    Returns |x|=x if x is positive, else -x
     """
-    lim = (p-1)//2
-    if ZZ(x) > ZZ(lim):
-        x = -x%p
-    return x
+    return CMOV(x, -x, sgn0(x) == -1)
 
 def sq_root(x, p):
     """

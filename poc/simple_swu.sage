@@ -10,19 +10,28 @@ F = GF(q)
 A = F(-3)
 B = F(0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b)
 E = EllipticCurve(F, [A, B])
+Z = F(-2) # smallest in abs val s.t. Z is nonsquare and g(B / (Z * A)) is square
+SQRT_MZ3 = sqrt(F(-Z**3))
+assert not Z.is_square()
 
 h2c_suite = "H2C-P256-SHA256-SSWU-"
 
 # Section 7 of https://link.springer.com/content/pdf/10.1007/978-3-642-14623-7_13.pdf
+# Optimizations described in https://eprint.iacr.org/2019/403
 
 def g(x):
     return x^3 + A*x + B
 
+assert g(B / (Z * A)).is_square()
+
 def X1(u):
-    return (-B / A) * (1 + mult_inv(u^4 - u^2,q))
+    den = mult_inv(Z^2 * u^4 + Z * u^2, q)
+    if den == 0:
+        return B / (Z * A)
+    return (-B / A) * (1 + den)
 
 def X2(u):
-    return - u^2 * X1(u)
+    return Z * u^2 * X1(u)
 
 def U(u):
     return u^3 * g(X1(u))
@@ -32,27 +41,38 @@ def simple_swu(alpha):
     u = h2b_from_label(h2c_suite, alpha)
     x1 = X1(u)
     x2 = X2(u)
-    assert U(u)^2 == -g(x1)*g(x2)
-    if is_square(g(x1)):
-        return E(x1, sq_root(g(x1),q))
+    assert mult_inv(Z^2 * u^4 + Z * u^2, q) == 0 or U(u)^2 * Z^3 == g(x1)*g(x2)
+    t1 = sq_root(g(x1), q)
+    if t1^2 == g(x1):
+        # g(x1) is square
+        (x, y) = (x1, t1)
     else:
-        return E(x2, sq_root(g(x2),q))
+        # if g(x1) is not square, then sqrt(g(x2)) == u^3 * t1
+        (x, y) = (x2, u^3 * SQRT_MZ3 * t1)
+
+    negate = sgn0(u) * sgn0(y)
+    y *= negate
+    assert sgn0(y) == sgn0(u)
+    return E(x, y)
 
 # Constants
-B_OVER_A = - B / A
+MB_OVER_A = - B / A
+M1_OVER_Z = - 1 / Z
 
 # Constant Time Implementation
 def simple_swu_CT(alpha):
     u = h2b_from_label(h2c_suite, alpha)
     tv("u", u, 32)
 
-    t1 = -u^2
+    t1 = Z * u^2
     t2 = t1^2
     x1 = t2 + t1
     x1 = mult_inv(x1, q)
+    e1 = x1 == 0
     x1 = x1 + 1
-    x1 = x1 * B_OVER_A
-    assert x1 == (-B/A) * (1 + 1 / (u^4  - u^2))
+    x1 = CMOV(x1, M1_OVER_Z, e1)
+    x1 = x1 * MB_OVER_A
+    assert (e1 and x1 == (B / (Z * A))) or x1 == (-B/A) * (1 + 1 / (Z^2 * u^4 + Z * u^2))
     tv("x1", x1, 32)
 
     gx1 = x1 ^ 2
@@ -62,21 +82,21 @@ def simple_swu_CT(alpha):
     assert gx1 == g(x1)
     tv("gx1", gx1, 32)
 
-    x2 = t1 * x1       # x2 = -u^2 * x1
-    assert x2 == -u^2 * x1
+    x2 = t1 * x1       # x2 = Z * u^2 * x1
+    assert x2 == Z * u^2 * x1
     tv("x2", x2, 32)
 
-    gx2 = x2 ^ 2
-    gx2 = gx2 + A
-    gx2 = gx2 * x2
-    gx2 = gx2 + B      # gx2 = x2^3 + A*x2 + B
-    tv("gx1", gx2, 32)
-    assert gx2 == g(x2)
+    t3 = pow(gx1, (p+1)//4, p)  # if gx1 is square, this is the sqrt
+    t4 = t3 * SQRT_MZ3
+    t4 = t4 * u^3               # if gx2 is square, this is the sqrt
 
-    e = is_QR(gx1, q)
-    x = CMOV(x2, x1, e)
-    gx = CMOV(gx2, gx1, e)
-    y = sq_root(gx, q)
+    e2 = t3^2 == gx1
+    x = CMOV(x2, x1, e2)
+    y = CMOV(t4, t3, e2)
+
+    e3 = sgn0(u) == sgn0(y)     # fix sgn0(u) == sgn0(y)
+    y = CMOV(-y, y, e3)
+
     return E(x, y)
 
 if __name__ == "__main__":

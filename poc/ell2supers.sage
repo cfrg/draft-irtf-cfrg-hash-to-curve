@@ -20,14 +20,17 @@ def elligator2A0(alpha):
     x1 = u
     gx1 = x1^3 + B * x1
     x2 = -x1
-    gx2 = x2^3 + B * x2
-    if is_square(gx1):
+    assert x2^3 + B * x2 == -gx1
+
+    # when p = 3 mod 4, gx1^((p+1)/4) is either sqrt(gx1) or sqrt(-gx1 == gx2)
+    y = sq_root(gx1, q)
+    if y ** 2 == gx1:
         x = x1
-        y = sq_root(gx1, q)
     else:
         x = x2
-        y = sq_root(gx2, q)
 
+    y *= sgn0(y) * sgn0(u)
+    assert sgn0(y) == sgn0(y)
     return E(x, y)
 
 # Constant Time Implementation
@@ -35,19 +38,18 @@ def elligator2A0_CT(alpha):
     u = h2b_from_label(h2c_suite, alpha)
 
     x1 = u
+    x2 = -x1
     gx1 = x1^2
     gx1 = gx1 + B
     gx1 = gx1 * x1
     tv("gx1", gx1, 63)
 
-    x2 = -x1
-    gx2 = -gx1
-    tv("gx2", gx2, 63)
+    y = sq_root(gx1, q)
+    e1 = y ** 2 == gx1
+    x = CMOV(x2, x1, e1)
 
-    e = is_QR(gx1, q)
-    x = CMOV(x2, x1, e)
-    gx = CMOV(gx2, gx1, e)
-    y = sq_root(gx, q)
+    e2 = sgn0(y) == sgn0(u)
+    y = CMOV(-y, y, e2)
 
     return E(x,y)
 

@@ -8,35 +8,51 @@ def format_input(label, x):
     return "h2b%s%s%s" % (label, i2osp(len(x), 4), x)
 
 # Hash bytestring input to a field element.
-def hash_to_base(x, H, hbits, p, label):
+def hash_to_base(x, H, p, label, words_per_elm, n_elms):
     assert type(x) is bytes
     F = GF(p)
-    min_bits = floor(log(p, 2).n()) + 1
-    assert hbits >= min_bits, "Need at least %d bits to hash p. H only outputs %d" % (min_bits, hbits)
-    xin = format_input(label, x) # concatenate inputs
+    
+    # first, hash input
+    xin = format_input(label, x)
     h = H()
     h.update(xin)
-    t1 = h.digest()
-    t1 = os2ip(t1) # recover integer from hash output
-    # s = t1 >> (hbits - 1)
-    t2 = t1 & ((1 << hbits) - 1)
-    t3 = ZZ(t2)
-    y = t3 % p
-    return F(y)
+    xin_hashed = h.digest()
+    del h
+
+    # create the requested outputs
+    ret_vals = [None] * n_elms
+    for idx in range(0, n_elms):
+        # for each output, evaluate the hash words_per_elm times
+        t = b""
+        for jdx in range(0, words_per_elm):
+            h = H()
+            h.update(xin_hashed + i2osp(idx, 1) + i2osp(jdx, 1))
+            t += h.digest()
+        ret_vals[idx] = F(os2ip(t))
+
+    return ret_vals
 
 # Helper function to extract parameters from a ciphersuite label
-def h2b_from_label(label, x):
+def h2b_from_label(label, x, m=1, k=128):
     cs = Ciphersuite(label)
     H = cs.hash.H
     hbits = cs.hash.hbits()
     p = cs.curve.p
 
-    value = hash_to_base(x, H, hbits, p, label)
+    if m < 1:
+        raise RuntimeError("invalid extension degree; must be >= 1")
+
     if len(x) == 0 and DEBUG:
         print("hash2base('" + label + "', nil ) = \n\t" + str(value))
     elif DEBUG:
         print("hash2base('" + label + "', " + pprint_hex(x) + ") = \n\t" + str(value))
-    return value
+
+    # round up number of words per element
+    words_per_elm = (int(p).bit_length() + k + hbits - 1) // hbits
+    vals = hash_to_base(x, H, p, label, words_per_elm, m)
+    if m == 1:
+        return vals[0]
+    return vals
 
 if __name__ == "__main__":
     print "## Sample hash2base"
