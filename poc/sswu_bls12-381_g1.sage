@@ -122,7 +122,7 @@ def map2curve_osswu_CT(alpha):
     u = F(h2b_from_label(h2c_suite, alpha))
     tv("u  ", u, 48)
     P = osswu_CT_help(u)
-    return (ell_u - 1) * P
+    return (1 - ell_u) * P
 
 if __name__ == "__main__":
     assert osswu_CT_help(F(0)) == osswu_help(F(0))  # check exceptional case
@@ -138,7 +138,7 @@ if __name__ == "__main__":
         print("")
         P = map2curve_osswu(alpha)
         Pc = map2curve_osswu_CT(alpha)
-        assert P * (ell_u - 1) == Pc  # make sure that Pc is correct relative to P
+        assert P * (1 - ell_u) == Pc  # make sure that Pc is correct relative to P
         assert Pc * r == Ell(0,1,0)   # make sure that Pc is of the correct order
         print("Output:")
         print("")
