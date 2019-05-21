@@ -1046,11 +1046,13 @@ conditions.
 In general, elliptic curves have equations of the form y^2 = g(x).
 Most of the encodings in this section first identify an x such that
 g(x) is square, then take a square root to find y. Since there
-are two square roots when g(x) != 0, the specification of each encoding
-function in this section includes how to determine the sign of y.
+are two square roots when g(x) != 0, this results in an ambiguity
+regarding the sign of y.
 
-We specify the sign of y rather than the sign of sqrt(g(x)) because
-this gives implementors more optimization leeway.
+To resolve this ambiguity, the encodings in this section specify
+the sign of the y-coordinate in terms of the input to the encoding function.
+We take this approach for two reasons: first, this covers elliptic curves over any field in a uniform way,
+and second, it gives implementors leeway to optimize their square-root implementations.
 
 ## Exceptional cases {#map-exceptions}
 
