@@ -968,21 +968,31 @@ a cryptographic hash function that outputs b bits.
 
 ## Security considerations
 
-hash2base should map its input to a uniformly random element of F.
-In practice, however, the output may be biased, meaning that some field
-elements are more likely to occur than others. This is true even when H
-outputs a uniformly random string (as is generally assumed). For example,
+For security, hash2base should be collision resistant, and should map its
+input to a uniformly random element of F.
+
+To ensure sufficient collision resistance, the number of bits output by
+the hash function H should be b >= 2 * k, where k is the target security
+level in bits. For example, for 128-bit security, b >= 256 bits; in this
+case, SHA256 would be an appropriate choice for H.
+
+Ensuring that the hash2base output is a uniform random element of H requires
+care, even when H outputs a uniformly random string, as is generally assumed
+(in other words, even when modeling H as a random oracle). For example,
 if H=SHA256 and F is a field of characteristic p = 2^255 - 19, then the
 result of reducing H(msg) (a 256-bit integer) modulo p is slightly more likely
 to be a value in \[0, 38\] than a value in \[39, 2^255 - 19). In this example
-the bias is negligible, but in general the bias can be significant.
+the bias is negligible, but in general it can be significant.
 
-To control bias, the input msg should be hashed to an integer comprising more than log2(p) bits.
-In particular, reducing an integer of ceil(log2(p)) + k bits modulo p gives bias
-at most 2^-k, which is a safe choice for a cryptosystem with k-bit security.
-Thus, if H outputs b bits, then H should be evaluated W = ceil((ceil(log2(p)) + k) / b)
-times and the results concatenated to produce a (W * b)-bit integer, which is then reduced modulo p.
-{{hash2base-impl}} details this procedure.
+To control bias, the input msg should be hashed to an integer comprising at
+least ceil(log2(p)) + k bits; reducing this integer modulo p gives bias at
+most 2^-k, which is a safe choice for a cryptosystem with k-bit security.
+To obtain such an integer, hash H with b-bit output should be evaluated W =
+ceil((ceil(log2(p)) + k) / b) times and the results concatenated to produce a
+(W * b)-bit integer. For example, for H=SHA256, k=128-bit security, and p
+a 256-bit prime, W = ceil((256 + 128) / 256) = 2.
+
+{{hash2base-impl}} details the hash2base procedure.
 
 Note that implementors SHOULD NOT use an iterated procedure, i.e., rejection
 sampling. The reason is that these procedures are difficult to implement in constant time,
@@ -993,7 +1003,7 @@ non-constant-time.
 
 The performance of hash2base may be limited by the length of the input m.
 To address this, hash2base first computes m' = H(msg) and then derives the
-required bits from m'. This entails one extra invocation of H, a
+required bits from m'. This entails one extra invocation of H, which is a
 negligible overhead in the context of hashing to elliptic curves.
 
 The random oracle construction of {{rom}} requires evaluating two independent
