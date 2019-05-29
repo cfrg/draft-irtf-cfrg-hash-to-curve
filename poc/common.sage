@@ -56,7 +56,7 @@ def sgn0(x):
         xi_values = x._vector_()
     sign = 0
     # compute the sign in constant time
-    for xi in xi_values:
+    for xi in reversed(xi_values):
         zz_xi = ZZ(xi)
         # sign of this digit
         sign_i = CMOV(1, -1, zz_xi > threshold)
