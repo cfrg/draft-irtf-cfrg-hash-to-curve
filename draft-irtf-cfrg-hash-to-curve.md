@@ -846,6 +846,13 @@ as a building block for obtaining a random oracle as is described in {{rom}}.
 
 Algorithms in this document make use of utility functions described below.
 
+- CMOV(a, b, c): If c=0, CMOV returns a, otherwise returns b. To prevent against
+  timing attacks, this operation must run in constant time without revealing the
+  value of c. Commonly, implementations assume that the selector is c=1 or c=0.
+  In this case, given a bitstring C, the desired selector c can be computed by OR-ing
+  all bits of C together. The resulting selector will be either 0 if all bits
+  of C are zero, or 1 if at least one bit of C is 1.
+
 - is\_square(x, q): This function returns True whenever the value x is a
   square in GF(q). Due to Euler's criterion, this function can be calculated
   in constant time as
@@ -856,37 +863,68 @@ is_square(x, q) := { True,  if x^((q - 1) / 2) is 0 or 1;
 ~~~
 
 - sqrt(x, q): The sqrt operation is a multi-valued function, i.e. there exist
-  two roots of x whenever x is square. To maintain compatibility
-  across implementations, a single-valued sqrt function is necessary.
-  The preferred way of selecting a single-valued sqrt is to fix a deterministic
-  algorithm particular to q. As specific examples:
+  two roots of x whenever x is square.
+  To maintain compatibility across implementations while allowing implementors
+  leeway for optimizations, this document does not require sqrt() to return a
+  particular value. Instead, as explained in {{point-sign}}, any higher-level
+  function that computes square roots also specifies how to determine the sign
+  of the result.
 
-  - If q=3 (mod 4), sqrt(x, q) := x^((q + 1) / 4).
-  - If q=5 (mod 8):
-    1. Set z := x^((q + 3) / 8).
-    2. Check whether z^2 == -x; if so, update z := z * sqrt(-1).
-    3. Finally, sqrt(x, q) := z.
-  - If q=9 (mod 16), which includes q=p^2 when p=3 (mod 4):
-    1. Set z := x^((q+7) / 16).
-    2. Check whether (z * sqrt(-1))^2 == x; if so, update z := z * sqrt(-1).
-    3. Check whether (z * sqrt(sqrt(-1))^2) == x; if so, update z := z * sqrt(sqrt(-1)).
-    4. Check whether (z * sqrt(-sqrt(-1))^2) == x; if so, update z := z * sqrt(-sqrt(-1)).
-    5. Finally, sqrt(x, q) := z.
+  The preferred way of computing square roots is to fix a deterministic
+  algorithm particular to q. We give algorithms for the three most common
+  cases immediately below; other cases are analogous.
 
-  (In the second and third cases above, the values sqrt(-1), sqrt(sqrt(-1)), and sqrt(-sqrt(-1))
-  are precomputed constants.)
-  An alternative to selecting a single-valued sqrt is to choose a predicate that only
-  one of the roots holds (e.g., select the positive sqrt; see the sgn0 function below).
-  {{AR13}} and {{S85}} describe methods that work in other field extensions.
+  Note that Case 3 below applies to GF(p^2) when p = 3 mod 8.
+  {{AR13}} and {{S85}} describe methods that work for other field extensions.
   Regardless of the method chosen, the sqrt function MUST be performed in constant time.
 
+~~~
+sqrt(x, q)
 
-- CMOV(a, b, c): If c=0, CMOV returns a, otherwise returns b. To prevent against
-  timing attacks, this operation must run in constant time without revealing the
-  value of c. Commonly some implementations assume the selector be c=1 or c=0;
-  thus, given a bitstring C, the desired selector c can be computed by OR-ing
-  all bits of C together. The resulting selector will be either 0 if all bits
-  of C are zero, or 1 if at least one bit of C is 1.
+Input: x, an element of GF(q).
+Output: a such that a * a == x.
+
+======
+
+Case 1: q = 3 (mod 4)
+
+Procedure:
+1. return x^((q + 1) / 4)
+
+======
+
+Case 2: q = 5 (mod 8)
+
+Constants:
+- c1 = sqrt(-1) in GF(q), i.e., c1 * c1 = -1 mod q.
+
+Procedure:
+1. t1 = x^((q + 3) / 8)
+2. e = t1 * t1 == x
+3. return CMOV(t1 * c1, t1, e)
+
+======
+
+Case 3: q = 9 (mod 16)
+
+Constants:
+- c1 = sqrt(-1) in GF(q), i.e., c1 * c1 = -1 mod q.
+- c2 = sqrt(sqrt(-1)) in GF(q), i.e., c2 * c2 = c1 mod q.
+- c3 = sqrt(-sqrt(-1)) in GF(q), i.e., c3 * c3 = -c1 mod q.
+
+Procedure:
+1.  t1 = x^((q + 7) / 16)
+2.  t2 = c1 * t1
+3.  t3 = c2 * t1
+4.  t4 = c3 * t1
+5.  e1 = t2 * t2 == x
+6.  e2 = t3 * t3 == x
+7.  t1 = CMOV(t1, t2, e1)  // select t2 if t2 * t2 == x
+8.  t2 = CMOV(t4, t3, e2)  // select t3 if t3 * t3 == x
+9.  e3 = t2 * t2 == x
+10. t1 = CMOV(t1, t2, e3)  // select the sqrt from t1 and t2
+11. return t1
+~~~
 
 - sgn0(x): This function returns either +1 or -1, indicating the sign of x.
   This function considers 0 to be positive.
