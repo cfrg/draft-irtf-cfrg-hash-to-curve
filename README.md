@@ -30,3 +30,14 @@ These implementations are for reference only. They MUST NOT be used in productio
 
 See the
 [guidelines for contributions](https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/blob/master/CONTRIBUTING.md).
+
+## Diagram
+
+Hashing an arbitrary string into a point of an elliptic curve group (or subgroup).
+
+High resolution [PDF](./drawings/desc.pdf)
+
+Sources: [XML draw.io](./drawings/desc.xml)
+
+
+![Alt text](drawings/desc.png)
