@@ -966,7 +966,7 @@ The hash2base(msg) function maps a string msg of any length into an element of a
 field F. This function is parametrized by the field F ({{bg-curves}}) and by H,
 a cryptographic hash function that outputs b bits.
 
-## Security considerations
+## Security considerations {#hash2base-sec}
 
 For security, hash2base should be collision resistant, and should map its
 input to a uniformly random element of F.
@@ -1001,19 +1001,26 @@ non-constant-time.
 
 ## Performance considerations {#hash2base-perf}
 
-The performance of hash2base may be limited by the length of the input m.
-To address this, hash2base first computes m' = H(msg) and then derives the
-required bits from m'. This entails one extra invocation of H, which is a
+Since hash2base may invoke H multiple times ({{hash2base-sec}}), its
+performance may be limited by the length of the input msg.
+To address this, hash2base first computes H(msg) and then derives the
+required bits from this value via further invocations of H.
+For short messages this entails one extra invocation of H, which is a
 negligible overhead in the context of hashing to elliptic curves.
 
-The random oracle construction of {{rom}} requires evaluating two independent
-hash functions H0 and H1 on msg. One way to instantiate independent hashes is
-to compute hash2base(msg || I2OSP(0, 1)) and hash2base(msg || I2OSP(1, 1)).
-For long messages this is either inefficient (because it entails hashing msg
-twice) or requires non-black-box use of H. To sidestep both of these issues,
-hash2base takes a second argument, ctr, which is appended to m', i.e.,
-m' = H(msg) || I2OSP(ctr, 1). This allows implementors to share one computation
-of H(msg) between multiple invocations of hash2base with different ctr values.
+A related issue is that the random oracle construction of {{rom}} requires
+evaluating two independent hash functions H0 and H1 on msg.
+A standard way to instantiate independent hashes is to append a counter to
+the value being hashed, e.g., H(msg || 0) and H(msg || 1).
+If msg is long, however, this is either inefficient (because it entails hashing
+msg twice) or requires non-black-box use of H (e.g., partial evaluation).
+
+To sidestep both of these issues, hash2base takes a second argument, ctr,
+which it appends to H(msg) rather than to msg.
+This means that two invocations of hash2base on the same msg with different
+ctr values both start by computing the value H(msg).
+This is an improvement because it allows sharing one evaluation of H(msg) among
+multiple invocations of hash2base, by factoring out the common computation.
 
 ## Implementation {#hash2base-impl}
 
