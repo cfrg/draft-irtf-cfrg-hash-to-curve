@@ -981,8 +981,8 @@ care, even when H outputs a uniformly random string, as is generally assumed
 (in other words, even when modeling H as a random oracle). For example,
 if H=SHA256 and F is a field of characteristic p = 2^255 - 19, then the
 result of reducing H(msg) (a 256-bit integer) modulo p is slightly more likely
-to be a value in \[0, 38\] than a value in \[39, 2^255 - 19). In this example
-the bias is negligible, but in general it can be significant.
+to be in \[0, 38\] than if the value were selected uniformly at random.
+In this example the bias is negligible, but in general it can be significant.
 
 To control bias, the input msg should be hashed to an integer comprising at
 least ceil(log2(p)) + k bits; reducing this integer modulo p gives bias at
