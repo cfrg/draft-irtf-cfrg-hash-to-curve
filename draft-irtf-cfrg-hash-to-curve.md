@@ -976,7 +976,7 @@ the hash function H should be b >= 2 * k, where k is the target security
 level in bits. For example, for 128-bit security, b >= 256 bits; in this
 case, SHA256 would be an appropriate choice for H.
 
-Ensuring that the hash2base output is a uniform random element of H requires
+Ensuring that the hash2base output is a uniform random element of F requires
 care, even when H outputs a uniformly random string, as is generally assumed
 (in other words, even when modeling H as a random oracle). For example,
 if H=SHA256 and F is a field of characteristic p = 2^255 - 19, then the
@@ -994,8 +994,9 @@ a 256-bit prime, W = ceil((256 + 128) / 256) = 2.
 
 {{hash2base-impl}} details the hash2base procedure.
 
-Note that implementors SHOULD NOT use an iterated procedure, i.e., rejection
-sampling. The reason is that these procedures are difficult to implement in constant time,
+Note that implementors SHOULD NOT use rejection sampling to generate a uniformly
+random element of F.
+The reason is that these procedures are difficult to implement in constant time,
 and later well-meaning "optimizations" may silently render an implementation
 non-constant-time.
 
