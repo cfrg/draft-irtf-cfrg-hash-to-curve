@@ -137,11 +137,11 @@ normative:
       -
         ins: J. Couveignes
         name: Jean-Marc Couveignes
-        org: Université Bordeaux
+        org: Universite Bordeaux
       -
         ins: J. Kammerer
         name: Jean-Gabriel Kammerer
-        org: Université de Rennes
+        org: Universite de Rennes
   F11:
     title: Hashing into Hessian curves
     seriesinfo:
@@ -755,21 +755,22 @@ An elliptic curve E is specified by a cubic equation in two variables and a
 finite field F. An elliptic curve equation takes one of several standard forms,
 including (but not limited to) Weierstrass, Montgomery, and Edwards.
 
-The curve E forms an algebraic group whose elements are the points (x, y)
-satisfying the curve equation, where x and y are elements of F. This group
-has order n, meaning that there are n distinct points (x, y). In general,
-security of cryptographic primitives requires using a group of prime order.
-However, not all elliptic curves induce groups of prime order: most elliptic
-curves have order n = h * r, where r is a large prime and h is an
-integer called the cofactor. Thus, for cryptographic applications a hash
-function to the curve E should return points in the subgroup of order r. For
-a point not in the prime-order subgroup, the process of mapping to a point
-in the prime-order subgroup is called clearing the cofactor; we discuss this
-process in {{cofactor-clearing}}.
+The curve E forms an algebraic group, denoted as E(F), whose elements are the
+points (x, y) satisfying the curve equation, where x and y are elements of F.
+This group has order n, meaning that there are n distinct points.
 
-Certain encoding functions restrict the form of the curve equation, the characteristic
-of the field, and/or the parameters of the curve. For each encoding,
-this document lists the relevant restrictions.
+In general, security of cryptographic primitives requires a group G of
+prime order. However, not all elliptic curves induce groups of prime order.
+Because of that, G is usually taken as a subgroup of E(F) in such a way that G
+has prime order r, where n = h * r. In this equation, h is an integer known as
+the cofactor.
+The process of mapping to an elliptic curve point to a point belonging to a
+subgroup of order r is called clearing the cofactor. We discuss this process
+in {{cofactor-clearing}}.
+
+Certain encoding functions restrict the form of the curve equation, the
+characteristic of the field, and/or the parameters of the curve. For each
+encoding, this document lists the relevant restrictions.
 
 Summary of quantities:
 
@@ -777,9 +778,11 @@ Summary of quantities:
 |:------:|---------|-----------|
 | F,q,p | Finite field F of characteristic p and #F=q=p^m. | For prime fields, q=p; otherwise, q=p^m and m>1. |
 | E | Elliptic curve. | E is specified by an equation and a field F. |
-| n | Number of points on E, #E(F)=n. | This value can be factored as n=h * r. |
-| r | Order of a prime subgroup of E. | If n is not prime, may need mapping to points in a subgroup of order r. |
-| h | Cofactor, h>=1. | Constant used in cofactor clearing to map to prime-order subgroup. |
+| E(F) | The group of points induced by E. | A set of points with coordinates (x,y) satisfying the elliptic curve equation. |
+| n | Number of points on E(F), #E(F)=n. | This value could be prime or composite. |
+| G | A group of r points. | A subgroup of E(F). |
+| r | Order of G. | This value is a prime number. |
+| h | Cofactor, h>=1. | This is an integer number satisfying n = h * r.  |
 
 ## Terminology
 In the following, we categorize the terminology for encoding bitstrings to points
@@ -841,6 +844,41 @@ On the other hand, the uniformity property is not met as the output of an
 encoding is distinguishable from a random distribution. Hence, using
 hash2curve(alpha) is not sufficient to get uniformity, however it can be used
 as a building block for obtaining a random oracle as is described in {{rom}}.
+
+
+# Roadmap on Hash to Curve.
+
+The hash2curve(alpha) mapping defines a general framework for mapping bit
+strings into points of a prime group G.
+
+~~~
+hash2curve(alpha)
+
+Input: alpha, an arbitrary-length bit string.
+Output: P, a point in the group G.
+
+Steps:
+1. u = hash2base(alpha)   // {0,1}* -> F   
+2. Q = map2curve(u)       //    F   -> E(F)
+3. P = clearCofactor(Q)   //   E(F) -> G   
+4. Output P
+~~~
+
+Since the functions in each step must hold particular properties, detailed
+definitions are given in the subsequent sections. First, {{utility}} introduces
+some utility functions that are used across the document. {{hashtobase}}
+describes the hash2base function. Due to the diversity of elliptic curve models
+there exist several ways construct points from a field elements. Some
+possible choices are described in {{encodings}}. Similarly, clearing the
+cofactor is particular to the group G, and this is discussed in {{cofactor-clearing}}.
+
+Notice that cryptographic protocols proven in the random oracle model usually
+require that hash2curve mappings behave as random oracles. {{rom}} gives a
+construction of hash2curve that fulfills this requirement.
+
+{{suites}} of this document provides a list of suites for hashing to curve.
+Each suite can be considered as a full set of parameters and algorithms required
+to instantiate a specific hash2curve mapping for a given group G of interest.
 
 # Utility Functions {#utility}
 
@@ -1099,32 +1137,6 @@ As a rough style guide the following convention is used:
 
 - c1, c2, ...: are constant values, which can be computed in advance.
 
-## Clearing the cofactor {#cofactor-clearing}
-
-The encodings of this section always output a point on the elliptic curve,
-i.e., a point in a group of order h * r ({{bg-curves}}).
-Obtaining a point in the subgroup of prime order r may require
-a final operation, called "clearing the cofactor."
-In the description of each encoding in this section, this operation is represented
-abstractly as clear\_h(x, y), which takes as input a point on the curve and returns
-a point in the subgroup of prime order.
-
-The operation clear\_h(x, y) can always be implemented as a scalar multiplication by h.
-For elliptic curves where h = 1, i.e., curves with a prime number of points (for example,
-the NIST curves P-256, P-384, and P-521 {{FIPS186-4}}), no operation is required.
-
-In some cases, it is possible to clear the cofactor via a faster method than scalar multiplication.
-For pairing-friendly curves having subgroup G2 over an extension
-field, Scott et al. {{SBCDBK09}} describe a method for faster cofactor clearing
-that exploits an efficiently-computable endomorphism. Fuentes-Castaneda
-et al. {{FKR11}} propose an alternative method that is sometimes more efficient.
-Budroni and Pintore {{BP18}} give concrete instantiations of these methods
-for Barreto-Lynn-Scott pairing-friendly curves {{BLS02}}.
-
-Wahby and Boneh ({{WB19}}, Section 5) describe a trick due to Scott for
-faster cofactor clearing on any elliptic curve for which the prime
-factorization of h and the number of points on the curve meet certain
-conditions.
 
 ## Sign of the resulting point {#point-sign}
 
@@ -1730,6 +1742,34 @@ Operations:
 
 We do not repeat the sample implementation of {{simple-swu}} here.
 See {{github-repo}} or {{WB19}} for details on implementing the isogeny map.
+
+# Clearing the cofactor {#cofactor-clearing}
+
+The encodings of this section always output a point on the elliptic curve,
+i.e., a point in a group of order h * r ({{bg-curves}}).
+Obtaining a point in the subgroup of prime order r may require
+a final operation, called "clearing the cofactor."
+In the description of each encoding in this section, this operation is represented
+abstractly as clear\_h(x, y), which takes as input a point on the curve and returns
+a point in the subgroup of prime order.
+
+The operation clear\_h(x, y) can always be implemented as a scalar multiplication by h.
+For elliptic curves where h = 1, i.e., curves with a prime number of points (for example,
+the NIST curves P-256, P-384, and P-521 {{FIPS186-4}}), no operation is required.
+
+In some cases, it is possible to clear the cofactor via a faster method than scalar multiplication.
+For pairing-friendly curves having subgroup G2 over an extension
+field, Scott et al. {{SBCDBK09}} describe a method for faster cofactor clearing
+that exploits an efficiently-computable endomorphism. Fuentes-Castaneda
+et al. {{FKR11}} propose an alternative method that is sometimes more efficient.
+Budroni and Pintore {{BP18}} give concrete instantiations of these methods
+for Barreto-Lynn-Scott pairing-friendly curves {{BLS02}}.
+
+Wahby and Boneh ({{WB19}}, Section 5) describe a trick due to Scott for
+faster cofactor clearing on any elliptic curve for which the prime
+factorization of h and the number of points on the curve meet certain
+conditions.
+
 
 # Random Oracles {#rom}
 
