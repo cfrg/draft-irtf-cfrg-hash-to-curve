@@ -1038,7 +1038,7 @@ Parameters:
 
 Inputs:
 - msg is the message to hash.
-- ctr is an integer argument, 0 <= ctr < 256.
+- ctr is either 0 or 1.
   This is used to efficiently create independent
   instances of hash2base (see discussion above).
 
@@ -1067,19 +1067,18 @@ The generic interface shared by all encodings in this section is as follows:
 The output (x, y) specifies a point on an elliptic curve defined over base field F;
 x and y are elements of F.
 
-The input u is an element of F that MUST be the output of the hash2base function
-({{hashtobase}}). The argument ctr to hash2base SHOULD be 0, except as described
-in {{rom}}.
-
-Thus, to map an octet string alpha to a point (x, y) using any of the encodings
-in this section, compute
+The input u is an element of F that MUST be the output of the hash2base
+function ({{hashtobase}}). The value of the ctr argument to hash2base MUST
+be 0 when instantiating an injective encoding. Thus, to map an octet string
+alpha to a point (x, y) using any of the encodings in this section, compute
 
 ~~~
 u = hash2base(alpha, 0)
 (x, y) = map2curve(u)
 ~~~
 
-Note that the output (x, y) is not a uniformly random point; see {{rom}}.
+Note that the output (x, y) is not a uniformly random point. If uniformity
+is required for security, the construction of {{rom}} MUST be used instead.
 
 ## Notation
 
