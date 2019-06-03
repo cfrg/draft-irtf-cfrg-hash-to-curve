@@ -8,15 +8,18 @@ def format_input(label, x):
     return "h2b%s%s%s" % (label, i2osp(len(x), 4), x)
 
 # Hash bytestring input to a field element.
-def hash_to_base(x, H, p, label, words_per_elm, n_elms):
+def hash_to_base(x, H, p, label, words_per_elm, n_elms, ctr):
     assert type(x) is bytes
     F = GF(p)
     
-    # first, hash input
+    # first, hash the input
+    ### NOTE that when computing hash_to_base multiple times on
+    ###      the same x and different ctr values, one can optimize
+    ###      what's below by only computing H(xin).
     xin = format_input(label, x)
     h = H()
     h.update(xin)
-    xin_hashed = h.digest()
+    m_prime = h.digest() + i2osp(ctr, 1)
     del h
 
     # create the requested outputs
@@ -26,14 +29,14 @@ def hash_to_base(x, H, p, label, words_per_elm, n_elms):
         t = b""
         for jdx in range(0, words_per_elm):
             h = H()
-            h.update(xin_hashed + i2osp(idx, 1) + i2osp(jdx, 1))
+            h.update(m_prime + i2osp(idx, 1) + i2osp(jdx, 1))
             t += h.digest()
         ret_vals[idx] = F(os2ip(t))
 
     return ret_vals
 
 # Helper function to extract parameters from a ciphersuite label
-def h2b_from_label(label, x, m=1, k=128):
+def h2b_from_label(label, x, m=1, k=128, ctr=0):
     cs = Ciphersuite(label)
     H = cs.hash.H
     hbits = cs.hash.hbits()
@@ -49,7 +52,7 @@ def h2b_from_label(label, x, m=1, k=128):
 
     # round up number of words per element
     words_per_elm = (int(p).bit_length() + k + hbits - 1) // hbits
-    vals = hash_to_base(x, H, p, label, words_per_elm, m)
+    vals = hash_to_base(x, H, p, label, words_per_elm, m, ctr)
     if m == 1:
         return vals[0]
     return vals

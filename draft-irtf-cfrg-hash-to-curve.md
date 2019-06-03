@@ -966,51 +966,86 @@ The hash2base(msg) function maps a string msg of any length into an element of a
 field F. This function is parametrized by the field F ({{bg-curves}}) and by H,
 a cryptographic hash function that outputs b bits.
 
-## Security and performance considerations
+## Security considerations {#hash2base-sec}
 
-hash2base should map its input to a uniformly random element of F.
-In practice, however, the output may be biased, meaning that some field
-elements are more likely to occur than others. This is true even when H
-outputs a uniformly random string (as is generally assumed). For example,
+For security, hash2base should be collision resistant, and should map its
+input to a uniformly random element of F.
+
+To ensure sufficient collision resistance, the number of bits output by
+the hash function H should be b >= 2 * k, where k is the target security
+level in bits. For example, for 128-bit security, b >= 256 bits; in this
+case, SHA256 would be an appropriate choice for H.
+
+Ensuring that the hash2base output is a uniform random element of F requires
+care, even when H outputs a uniformly random string, as is generally assumed
+(in other words, even when modeling H as a random oracle). For example,
 if H=SHA256 and F is a field of characteristic p = 2^255 - 19, then the
 result of reducing H(msg) (a 256-bit integer) modulo p is slightly more likely
-to be a value in \[0, 38\] than a value in \[39, 2^255 - 19). In this example
-the bias is negligible, but in general the bias can be significant.
+to be in \[0, 38\] than if the value were selected uniformly at random.
+In this example the bias is negligible, but in general it can be significant.
 
-To control bias, the input msg should be hashed to an integer comprising more than log2(p) bits.
-In particular, reducing an integer of ceil(log2(p)) + k bits modulo p gives bias
-at most 2^-k, which is a safe choice for a cryptosystem with k-bit security.
-Thus, if H outputs b bits, then H should be evaluated W = ceil((ceil(log2(p)) + k) / b)
-times and the results concatenated to produce a (W * b)-bit integer, which is then reduced modulo p.
-{{hash2base-impl}} details this procedure.
+To control bias, the input msg should be hashed to an integer comprising at
+least ceil(log2(p)) + k bits; reducing this integer modulo p gives bias at
+most 2^-k, which is a safe choice for a cryptosystem with k-bit security.
+To obtain such an integer, hash H with b-bit output should be evaluated W =
+ceil((ceil(log2(p)) + k) / b) times and the results concatenated to produce a
+(W * b)-bit integer. For example, for H=SHA256, k=128-bit security, and p
+a 256-bit prime, W = ceil((256 + 128) / 256) = 2.
 
-Note that implementors SHOULD NOT use an iterated procedure, i.e., rejection
-sampling. The reason is that these procedures are difficult to implement in constant time,
+{{hash2base-impl}} details the hash2base procedure.
+
+Note that implementors SHOULD NOT use rejection sampling to generate a uniformly
+random element of F.
+The reason is that these procedures are difficult to implement in constant time,
 and later well-meaning "optimizations" may silently render an implementation
 non-constant-time.
 
-The performance of hash2base may be limited by the length of the input m.
-To prevent this, hash2base first computes m' = H(msg) and then derives the
-required bits from m'. This entails one extra invocation of H, a
-negligible overhead.
+## Performance considerations {#hash2base-perf}
+
+Since hash2base may invoke H multiple times ({{hash2base-sec}}), its
+performance may be limited by the length of the input msg.
+To address this, hash2base first computes H(msg) and then derives the
+required bits from this value via further invocations of H.
+For short messages this entails one extra invocation of H, which is a
+negligible overhead in the context of hashing to elliptic curves.
+
+A related issue is that the random oracle construction of {{rom}} requires
+evaluating two independent hash functions H0 and H1 on msg.
+A standard way to instantiate independent hashes is to append a counter to
+the value being hashed, e.g., H(msg || 0) and H(msg || 1).
+If msg is long, however, this is either inefficient (because it entails hashing
+msg twice) or requires non-black-box use of H (e.g., partial evaluation).
+
+To sidestep both of these issues, hash2base takes a second argument, ctr,
+which it appends to H(msg) rather than to msg.
+This means that two invocations of hash2base on the same msg with different
+ctr values both start by computing the value H(msg).
+This is an improvement because it allows sharing one evaluation of H(msg) among
+multiple invocations of hash2base, by factoring out the common computation.
 
 ## Implementation {#hash2base-impl}
 
 The following procedure implements hash2base.
 
 ~~~
-hash2base(msg)
+hash2base(msg, ctr)
 
 Parameters:
-  1. H, a cryptographic hash function producing b bits.
-  2. F, a finite field of characteristic p and order q=p^m.
-  3. W = ceil((ceil(log2(p)) + k) / b), where k is the security
-     parameter of the cryptosystem (e.g., k = 128).
-Input: msg, an octet string to be hashed.
+- H, a cryptographic hash function producing b bits.
+- F, a finite field of characteristic p and order q=p^m.
+- W = ceil((ceil(log2(p)) + k) / b), where k is the security
+  parameter of the cryptosystem (e.g., k = 128).
+
+Inputs:
+- msg is the message to hash.
+- ctr is either 0 or 1.
+  This is used to efficiently create independent
+  instances of hash2base (see discussion above).
+
 Output: u, an element in F.
 
 Steps:
-1. m' = H(msg)
+1. m' = H(msg) || I2OSP(ctr, 1)
 2. for i in (1, ..., m):
 3.   t = ""     // initialize t to the empty string
 4.   for j in (1, ..., W):
@@ -1023,15 +1058,27 @@ Steps:
 
 ## Interface
 
-The generic interface for deterministic encoding functions to elliptic curves is as follows:
+The generic interface shared by all encodings in this section is as follows:
 
 ~~~
-(x, y) = map2curve(alpha)
+(x, y) = map2curve(u)
 ~~~
 
-where alpha is an octet string to be hashed to a point on the curve with affine
-coordinates (x, y) defined over F. Observe that each encoding requires that
-certain algebraic conditions must hold in order to be applied.
+The output (x, y) specifies a point on an elliptic curve defined over base field F;
+x and y are elements of F.
+
+The input u is an element of F that MUST be the output of the hash2base
+function ({{hashtobase}}). The value of the ctr argument to hash2base MUST
+be 0 when instantiating an injective encoding. Thus, to map an octet string
+alpha to a point (x, y) using any of the encodings in this section, compute
+
+~~~
+u = hash2base(alpha, 0)
+(x, y) = map2curve(u)
+~~~
+
+Note that the output (x, y) is not a uniformly random point. If uniformity
+is required for security, the construction of {{rom}} MUST be used instead.
 
 ## Notation
 
@@ -1040,11 +1087,11 @@ As a rough style guide the following convention is used:
 - All arithmetic operations are performed over a field F, unless
   explicitly stated otherwise.
 
+- u: the input to the encoding function.
+  This is an element of F produced by the hash2base function.
+
 - (x, y): are the affine coordinates of a point obtained by the encoding method.
   Indexed values are used when the algorithm calculates some candidate values.
-
-- u: denotes an element of F produced by the hash2base function and is used
-  as initial value of the encoding.
 
 - t1, t2, ...: are reusable temporary variables. For notable variables,
     distinct names are used easing the debugging process when correlating with
@@ -1094,7 +1141,7 @@ and second, it gives implementors leeway to optimize their square-root implement
 
 ## Exceptional cases {#map-exceptions}
 
-Encodings may have have exceptional cases, i.e., values u = hash2base(alpha)
+Encodings may have have exceptional cases, i.e., inputs u
 on which the encoding is undefined. These cases must be handled
 carefully, especially for constant-time implementations.
 
@@ -1115,28 +1162,23 @@ The function map2curve\_icart(alpha) implements the Icart encoding method from {
 Preconditions: An elliptic curve over F, such that p>3 and q=p^m=2 (mod 3), or
 p=2 (mod 3) and odd m.
 
-Input: alpha, an octet string to be hashed.
-
 Constants: A and B, the parameters of the Weierstrass curve.
-
-Output: (x, y), a point on E.
 
 Sign of y: this encoding does not compute a square root, so there
 is no ambiguity regarding the sign of y.
 
-Exceptions: The only exceptional case is hash2base(alpha) == 0.
-Implementations must detect this case by testing whether u = 0
+Exceptions: The only exceptional case is u == 0.
+Implementations must detect this case by testing whether u == 0
 and setting u = 1 if so.
 
 Operations:
 
 ~~~
-1. u = hash2base(alpha)
-2. If u == 0, set u = 1
-3. v = (3 * A - u^4) / (6 * u)
-4. x = (v^2 - B - (u^6 / 27))^((2 * p - 1) / 3) + (u^2 / 3)
-5. y = u * x + v
-6. Output clear_h(x, y)
+1. If u == 0, set u = 1
+2. v = (3 * A - u^4) / (6 * u)
+3. x = (v^2 - B - (u^6 / 27))^((2 * p - 1) / 3) + (u^2 / 3)
+4. y = u * x + v
+5. Output clear_h(x, y)
 ~~~
 
 #### Implementation
@@ -1144,8 +1186,8 @@ Operations:
 The following procedure implements Icart's algorithm in a straight-line fashion.
 
 ~~~
-map2curve_icart(alpha)
-Input: alpha, an octet string to be hashed.
+map2curve_icart(u)
+Input: u, an element of F.
 Output: (x, y), a point on E.
 
 Constants:
@@ -1155,26 +1197,25 @@ Constants:
 4. c4 = 3 * A
 
 Steps:
-1.   u = hash2base(alpha)
-2.   e = u == 0
-3.   u = CMOV(u, 1, e)  // handle exceptional case u == 0
-4.  u2 = u^2            // u^2
-5.  u4 = u2^2           // u^4
-6.   v = c4 - u4        // 3 * A - u^4
-7.  t1 = 6 * u          // 6 * u
-8.  t1 = inv0(t1)       // 1 / (6 * u)
-9.   v = v * t1         // v = (3 * A - u^4) / (6 * u)
-10. x1 = v^2            // v^2
-11. x1 = x1 - B         // v^2 - B
-12. u6 = u4 * c3        // u^4 / 27
-13. u6 = u6 * u2        // u^6 / 27
-14. x1 = x1 - u6        // v^2 - B - u^6 / 27
-15. x1 = x^c1           // (v^2 - B - u^6 / 27)^(1 / 3)
-16. t1 = u2 * c2        // u^2 / 3
-17.  x = x + t1         // x = (v^2 - B - u^6 / 27)^(1 / 3) + (u^2 / 3)
-18.  y = u * x          // u * x
-19.  y = y + v          // y = u * x + v
-20. Output clear_h(x, y)
+1.   e = u == 0
+2.   u = CMOV(u, 1, e)  // handle exceptional case u == 0
+3.  u2 = u^2            // u^2
+4.  u4 = u2^2           // u^4
+5.   v = c4 - u4        // 3 * A - u^4
+6.  t1 = 6 * u          // 6 * u
+7.  t1 = inv0(t1)       // 1 / (6 * u)
+8.   v = v * t1         // v = (3 * A - u^4) / (6 * u)
+9.  x1 = v^2            // v^2
+10. x1 = x1 - B         // v^2 - B
+11. u6 = u4 * c3        // u^4 / 27
+12. u6 = u6 * u2        // u^6 / 27
+13. x1 = x1 - u6        // v^2 - B - u^6 / 27
+14. x1 = x^c1           // (v^2 - B - u^6 / 27)^(1 / 3)
+15. t1 = u2 * c2        // u^2 / 3
+16.  x = x + t1         // x = (v^2 - B - u^6 / 27)^(1 / 3) + (u^2 / 3)
+17.  y = u * x          // u * x
+18.  y = y + v          // y = u * x + v
+19. Output clear_h(x, y)
 ~~~
 
 ### Simplified Shallue-van de Woestijne-Ulas Method {#simple-swu}
@@ -1186,8 +1227,6 @@ al. {{BCIMRT10}}, which they call the "simplified SWU" map. Wahby and Boneh
 
 Preconditions: A Weierstrass curve over F such that A!=0 and B!=0.
 
-Input: alpha, an octet string to be hashed.
-
 Constants:
 
 - A and B, the parameters of the Weierstrass curve.
@@ -1195,9 +1234,7 @@ Constants:
 - Z, the smallest (in absolute value) non-square in F such that g(B / (Z *
   A)) is square in F, breaking ties by choosing the positive value.
 
-Output: (x, y), a point on E.
-
-Sign of y: for u = hash2base(alpha), this encoding ignores the sign of u.
+Sign of y: Inputs u and -u give the same x-coordinate.
 Thus, we set sgn0(y) == sgn0(u).
 
 Exceptions: The exceptional cases are values of u such that
@@ -1209,17 +1246,16 @@ is square by the condition on Z given above.
 Operations:
 
 ~~~
-1.   u = hash2base(alpha)
-2. den = inv0(Z^2 * u^4 + Z * u^2)
-3.  x1 = (-B / A) * (1 + den)
-4.  If den == 0, set x1 = B / (Z * A)
-5. gx1 = x1^3 + A * x1 + B
-6.  x2 = Z * u^2 * x1
-7. gx2 = x2^3 + A * x2 + B
-8.  If gx1 is square, set x = x1 and y = sqrt(gx1)
-9.  If gx2 is square, set x = x2 and y = sqrt(gx2)
-10. If sgn0(u) != sgn0(y), set y = -y
-11. Output clear_h(x, y)
+1. den = inv0(Z^2 * u^4 + Z * u^2)
+2.  x1 = (-B / A) * (1 + den)
+3.  If den == 0, set x1 = B / (Z * A)
+4. gx1 = x1^3 + A * x1 + B
+5.  x2 = Z * u^2 * x1
+6. gx2 = x2^3 + A * x2 + B
+7.  If gx1 is square, set x = x1 and y = sqrt(gx1)
+8.  If gx2 is square, set x = x2 and y = sqrt(gx2)
+9.  If sgn0(u) != sgn0(y), set y = -y
+10. Output clear_h(x, y)
 ~~~
 
 #### Implementation
@@ -1231,8 +1267,8 @@ For discussion of how to generalize to q = 1 (mod 4), see
 {{WB19}} (Section 4) or the example code found at {{github-repo}}.
 
 ~~~
-map2curve_simple_swu(alpha)
-Input: alpha, an octet string to be hashed.
+map2curve_simple_swu(u)
+Input: u, an element of F.
 Output: (x, y), a point on E.
 
 Precondition: q = 3 (mod 4)
@@ -1243,29 +1279,28 @@ Constants:
 3.  c3 = sqrt(-Z^3)
 
 Steps:
-1.    u = hash2base(alpha)
-2.   t1 = Z * u^2
-3.   t2 = t1^2
-4.   x1 = t1 + t2
-5.   x1 = inv0(x1)
-6.   e1 = x1 == 0
-7.   x1 = x1 + 1
-8.   x1 = CMOV(x1, c2, e1)   // if (t1 + t2) == 0, set x1 = -1 / Z
-7.   x1 = x1 * c1      // x1 = (-B / A) * (1 + (1 / (Z^2 * u^4 + Z * u^2)))
-8.  gx1 = x1^2
-9.  gx1 = gx1 + A
-10. gx1 = gx1 * x1
-11. gx1 = gx1 + B            // gx1 = g(x1) = x1^3 + A * x1 + B
-12.  x2 = t1 * x1            // x2 = Z * u^2 * x1
-13.  t3 = gx1^((p + 1) / 4)  // if gx1 is square, this is sqrt(g(x1))
-14.  t4 = t3 * c3
-15.  t4 = t4 * u^3           // if gx1 is not square, this is sqrt(g(x2))
-16.  e3 = t3^2 == gx1
-17.   x = CMOV(x2, x1, e3)   // if e2 == True, x = x1, else x = x2
-18.   y = CMOV(t4, t3, e3)   // if e2 == True, y = t3, else y = t4
-19.  e4 = sgn0(u) == sgn0(y)
-20.   y = CMOV(-y, y, e4)
-21. Output clear_h(x, y)
+1.   t1 = Z * u^2
+2.   t2 = t1^2
+3.   x1 = t1 + t2
+4.   x1 = inv0(x1)
+5.   e1 = x1 == 0
+6.   x1 = x1 + 1
+7.   x1 = CMOV(x1, c2, e1)   // if (t1 + t2) == 0, set x1 = -1 / Z
+8.   x1 = x1 * c1      // x1 = (-B / A) * (1 + (1 / (Z^2 * u^4 + Z * u^2)))
+9.  gx1 = x1^2
+10. gx1 = gx1 + A
+11. gx1 = gx1 * x1
+12. gx1 = gx1 + B            // gx1 = g(x1) = x1^3 + A * x1 + B
+13.  x2 = t1 * x1            // x2 = Z * u^2 * x1
+14.  t3 = gx1^((p + 1) / 4)  // if gx1 is square, this is sqrt(g(x1))
+15.  t4 = t3 * c3
+16.  t4 = t4 * u^3           // if gx1 is not square, this is sqrt(g(x2))
+17.  e3 = t3^2 == gx1
+18.   x = CMOV(x2, x1, e3)   // if e2 == True, x = x1, else x = x2
+19.   y = CMOV(t4, t3, e3)   // if e2 == True, y = t3, else y = t4
+20.  e4 = sgn0(u) == sgn0(y)
+21.   y = CMOV(-y, y, e4)
+22. Output clear_h(x, y)
 ~~~
 
 ## Encodings for Montgomery curves
@@ -1278,8 +1313,6 @@ and A^2 - 4 * B is non-square in F.
 
 Preconditions: A Montgomery curve where A != 0, B != 0, and A^2 - 4 is non-square in F.
 
-Input: alpha, an octet string to be hashed.
-
 Constants:
 
 - A and B, the parameters of the curve
@@ -1287,9 +1320,7 @@ Constants:
 - Z, the smallest (in absolute value) non-square in F, breaking ties by choosing
   the positive value.
 
-Output: (x, y), a point on E.
-
-Sign of y: for u = hash2base(alpha), this encoding ignores the sign of u.
+Sign of y: Inputs u and -u give the same x-coordinate.
 Thus, we set sgn0(y) == sgn0(u).
 
 Exceptions: The exceptional case is Z * u^2 == -1, i.e., 1 + Z * u^2 == 0.
@@ -1299,16 +1330,15 @@ Note that this can only happen when q = 3 (mod 4).
 Operations:
 
 ~~~
-1.   u = hash2base(alpha)
-2.  x1 = -A * inv0(1 + Z * u^2)
-3.  If x1 == 0, set x1 = -A.
-4. gx1 = x1^3 + A * x1^2 + B * x1
-5.  x2 = -x1 - A
-6. gx2 = x2^3 + A * x2^2 + B * x2
-8.  If is_square(gx1), set x = x1 and y = sqrt(gx1)
-9.  If is_square(gx2), set x = x2 and y = sqrt(gx2)
-10. If sgn0(u) != sgn0(y), set y = -y
-11. Output clear_h(x, y)
+1.  x1 = -A * inv0(1 + Z * u^2)
+2.  If x1 == 0, set x1 = -A.
+3. gx1 = x1^3 + A * x1^2 + B * x1
+4.  x2 = -x1 - A
+5. gx2 = x2^3 + A * x2^2 + B * x2
+6.  If is_square(gx1), set x = x1 and y = sqrt(gx1)
+7.  If is_square(gx2), set x = x2 and y = sqrt(gx2)
+8.  If sgn0(u) != sgn0(y), set y = -y
+9.  Output clear_h(x, y)
 ~~~
 
 #### Implementation, q=3 (mod 4)
@@ -1317,36 +1347,35 @@ The following procedure implements Elligator 2 in a straight-line
 fashion for curves where q=3 (mod 4), including Curve448.
 
 ~~~
-map2curve_elligator2_3mod4(alpha)
-Input: alpha, an octet string to be hashed.
+map2curve_elligator2_3mod4(u)
+Input: u, an element of F.
 Output: (x, y), a point on E.
 
 Constants:
 1. c1 is Z^((q + 1) / 4) in F.
 
 Steps:
-1.    u = hash2base(alpha)
-2.   x1 = u^2
-3.   x1 = Z * x1
-4.   x1 = x1 + 1
-5.   x1 = inv0(x1)
-6.   e1 = x1 == 0
-7.   x1 = CMOV(x1, 1, e1)     // if x1 == 0, set x1 == 1
-8.   x1 = -A * x1             // x1 = -A / (1 + Z * u^2)
-9.  gx1 = x1 + A
-10. gx1 = gx1 * x1
-11. gx1 = gx1 + B
-12. gx1 = gx1 * x1            // gx1 = x1^3 + A * x1^2 + B * x1
-13.  y1 = gx1^((q + 1) / 4)
-14.  x2 = -x1 - A
-15.  y2 = y1 * u
-16.  y2 = y2 * c1
-17.  e2 = y1^2 == gx1
-18.   x = CMOV(x2, x1, e2)    // If e == True, x=x1, else x=x2
-19.   y = CMOV(y2, y1, e2)    // If e == True, y=y1, else y=y2
-20.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
-21.   y = CMOV(-y, y, e3)
-22. Output clear_h(x, y)
+1.   x1 = u^2
+2.   x1 = Z * x1
+3.   x1 = x1 + 1
+4.   x1 = inv0(x1)
+5.   e1 = x1 == 0
+6.   x1 = CMOV(x1, 1, e1)     // if x1 == 0, set x1 == 1
+7.   x1 = -A * x1             // x1 = -A / (1 + Z * u^2)
+8.  gx1 = x1 + A
+9.  gx1 = gx1 * x1
+10. gx1 = gx1 + B
+11. gx1 = gx1 * x1            // gx1 = x1^3 + A * x1^2 + B * x1
+12.  y1 = gx1^((q + 1) / 4)
+13.  x2 = -x1 - A
+14.  y2 = y1 * u
+15.  y2 = y2 * c1
+16.  e2 = y1^2 == gx1
+17.   x = CMOV(x2, x1, e2)    // If e == True, x=x1, else x=x2
+18.   y = CMOV(y2, y1, e2)    // If e == True, y=y1, else y=y2
+19.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
+20.   y = CMOV(-y, y, e3)
+21. Output clear_h(x, y)
 ~~~
 
 #### Implementation, q=5 (mod 8)
@@ -1355,8 +1384,8 @@ The following is a straight-line implementation of Elligator 2
 for curves where q=5 (mod 8), including Curve25519.
 
 ~~~
-map2curve_elligator2_5mod8(alpha)
-Input: alpha, an octet string to be hashed.
+map2curve_elligator2_5mod8(u)
+Input: u, an element of F.
 Output: (x, y), a point on E.
 
 Constants:
@@ -1364,33 +1393,32 @@ Constants:
 2. c2 is sqrt(-1) in F.
 
 Steps:
-1.    u = hash2base(alpha)
-2.   t1 = u^2
-3.   t1 = Z * t1
-4.   x1 = t1 + 1
-5.   x1 = inv0(x1)            // cannot be 0 because q=5 mod 8
-6.   x1 = -A * x1             // x1 = -A / (1 + Z * u^2)
-7.  gx1 = x1 + A
-8.  gx1 = gx1 * x1
-9.  gx1 = gx1 + B
-10. gx1 = gx1 * x1            // gx1 = x1^3 + A * x1^2 + B * x1
-11. y11 = gx1^((q + 3) / 8)
-12. y12 = c2 * y11
-13.  e1 = y12^2 == gx1
-14.  y1 = CMOV(y11, y12, e1)  // if gx1 is square, this is its sqrt
-15.  x2 = -x1 - A
-16. y21 = y11 * u
-17. y21 = y21 * c1
-18. y22 = c2 * y21
-19. gx2 = t1 * gx1
-20.  e2 = y22^2 == gx2
-21.  y2 = CMOV(y21, y22, e2)  // if gx2 is square, this is its sqrt
-22.  e3 = y1^2 == gx1
-23.   x = CMOV(x2, x1, e3)    // if e == True, x=x1, else x=x2
-24.   y = CMOV(y2, y1, e3)    // if e == True, y=y1, else y=y2
-25.  e4 = sgn0(u) == sgn0(y)  // fix sign of y
-26.   y = CMOV(-y, y, e4)
-27. Output clear_h(x, y)
+1.   t1 = u^2
+2.   t1 = Z * t1
+3.   x1 = t1 + 1
+4.   x1 = inv0(x1)            // cannot be 0 because q=5 mod 8
+5.   x1 = -A * x1             // x1 = -A / (1 + Z * u^2)
+6.  gx1 = x1 + A
+7.  gx1 = gx1 * x1
+8.  gx1 = gx1 + B
+9.  gx1 = gx1 * x1            // gx1 = x1^3 + A * x1^2 + B * x1
+10. y11 = gx1^((q + 3) / 8)
+11. y12 = c2 * y11
+12.  e1 = y12^2 == gx1
+13.  y1 = CMOV(y11, y12, e1)  // if gx1 is square, this is its sqrt
+14.  x2 = -x1 - A
+15. y21 = y11 * u
+16. y21 = y21 * c1
+17. y22 = c2 * y21
+18. gx2 = t1 * gx1
+19.  e2 = y22^2 == gx2
+20.  y2 = CMOV(y21, y22, e2)  // if gx2 is square, this is its sqrt
+21.  e3 = y1^2 == gx1
+22.   x = CMOV(x2, x1, e3)    // if e == True, x=x1, else x=x2
+23.   y = CMOV(y2, y1, e3)    // if e == True, y=y1, else y=y2
+24.  e4 = sgn0(u) == sgn0(y)  // fix sign of y
+25.   y = CMOV(-y, y, e4)
+26. Output clear_h(x, y)
 ~~~
 
 ## Encodings for twisted Edwards curves
@@ -1424,16 +1452,12 @@ invert the product y' * (B' * x' + 1), then multiply by y' to obtain
 
 Preconditions: A twisted Edwards curve.
 
-Input: alpha, an octet string to be hashed.
-
 Constants:
 
 - A and B, the parameters of the equivalent Montgomery curve, and B' = 1 / sqrt(B).
 
 - Z, the smallest (in absolute value) non-square in F, breaking ties by choosing
   the positive value.
-
-Output: (x, y), a point on E.
 
 Sign of y: for this map, the sign is determined by map2curve_elligator2.
 No further sign adjustments are required.
@@ -1445,7 +1469,7 @@ are y' == 0 or B' * x' == -1. Implementors must detect these cases and return (x
 The following straight-line implementation handles the exceptional cases:
 
 ~~~
-1. (x', y') = map2curve_elligator2(alpha)  // a Montgomery point
+1. (x', y') = map2curve_elligator2(u)   // a Montgomery point
 2.       x' = x' * B'
 3.       y' = y' * B'
 4.       t1 = x' + 1
@@ -1471,11 +1495,7 @@ that q=2 (mod 3).
 
 Preconditions: A supersingular curve over F such that q=2 (mod 3).
 
-Input: alpha, an octet string to be hashed.
-
 Constants: B, the parameter of the supersingular curve.
-
-Output: (x, y), a point on E.
 
 Sign of y: determined by sign of u. No adjustments are necessary.
 
@@ -1484,10 +1504,9 @@ Exceptions: none.
 Operations:
 
 ~~~
-1. u = hash2base(alpha)
-2. x = (u^2 - B)^((2 * q - 1) / 3)
-3. y = u
-4. Output clear_h(x, y)
+1. x = (u^2 - B)^((2 * q - 1) / 3)
+2. y = u
+3. Output clear_h(x, y)
 ~~~
 
 #### Implementation
@@ -1496,20 +1515,19 @@ The following procedure implements the Boneh-Franklin's algorithm in a
 straight-line fashion.
 
 ~~~
-map2curve_bf(alpha)
-Input: alpha, an octet string to be hashed.
+map2curve_bf(u)
+Input: u, an element of F.
 Output: (x, y), a point on E.
 
 Constants:
 1. c1 = (2 * q - 1) / 3   // Integer arithmetic
 
 Steps:
-1.  u = hash2base(alpha)
-2. t1 = u^2
-3. t1 = t1 - B
-4.  x = t1^c1             // x = (u^2 - B)^((2 * q - 1) / 3)
-5.  y = u
-6. Output clear_h(x, y)
+1. t1 = u^2
+2. t1 = t1 - B
+3.  x = t1^c1             // x = (u^2 - B)^((2 * q - 1) / 3)
+4.  y = u
+5. Output clear_h(x, y)
 ~~~
 
 ### Elligator 2, A=0 Method
@@ -1519,13 +1537,9 @@ The function map2curve\_ell2A0(alpha) implements an adaptation of Elligator 2
 
 Preconditions: A supersingular curve over F such that q=3 (mod 4).
 
-Input: alpha, an octet string to be hashed.
-
 Constants: B, the parameter of the supersingular curve.
 
-Output: (x, y), a point on E.
-
-Sign of y: for u = hash2base(alpha), u and -u give the same x-coordinate.
+Sign of y: Inputs u and -u give the same x-coordinate.
 Thus, we set sgn0(y) == sgn0(u).
 
 Exceptions: none.
@@ -1533,15 +1547,14 @@ Exceptions: none.
 Operations:
 
 ~~~
-1.   u = hash2base(alpha)
-2.  x1 = u
-3. gx1 = x1^3 + B * x1
-4.  x2 = -x1
-5. gx2 = x2^3 + B * x2
-6. If gx1 is square, x = x1 and y = sqrt(gx1)
-7. If gx2 is square, x = x2 and y = sqrt(gx2)
-8. If sgn0(u) != sgn0(y), set y = -y.
-9. Output clear_h(x, y)
+1.  x1 = u
+2. gx1 = x1^3 + B * x1
+3.  x2 = -x1
+4. gx2 = x2^3 + B * x2
+5. If gx1 is square, x = x1 and y = sqrt(gx1)
+6. If gx2 is square, x = x2 and y = sqrt(gx2)
+7. If sgn0(u) != sgn0(y), set y = -y.
+8. Output clear_h(x, y)
 ~~~
 
 #### Implementation
@@ -1550,23 +1563,22 @@ The following procedure implements the Elligator 2 algorithm for supersingular
 curves in a straight-line fashion.
 
 ~~~
-map2curve_ell2A0(alpha)
-Input: alpha, an octet string to be hashed.
+map2curve_ell2A0(u)
+Input: u, an element of F.
 Output: (x, y), a point on E.
 
 Steps:
-1.   u = hash2base(alpha)
-2.  x1 = u
-3.  x2 = -x1
-4. gx1 = x1^2
-5. gx1 = gx1 + B
-6. gx1 = gx1 * x1           // gx1 = x1^3 + B * x1
-7.   y = gx1^((p + 1) / 4)  // this is either sqrt(gx1) or sqrt(gx2)
-8.  e1 = y^2 == gx1
-9.   x = CMOV(x2, x1, e1)
-10. e2 = sgn0(u) == sgn0(y)
-11.  y = CMOV(-y, y, e2)
-12. Output clear_h(x, y)
+1.  x1 = u
+2.  x2 = -x1
+3. gx1 = x1^2
+4. gx1 = gx1 + B
+5. gx1 = gx1 * x1           // gx1 = x1^3 + B * x1
+6.   y = gx1^((p + 1) / 4)  // this is either sqrt(gx1) or sqrt(gx2)
+7.  e1 = y^2 == gx1
+8.   x = CMOV(x2, x1, e1)
+9.  e2 = sgn0(u) == sgn0(y)
+10.  y = CMOV(-y, y, e2)
+11. Output clear_h(x, y)
 ~~~
 
 ## Encodings for Pairing-Friendly curves
@@ -1587,8 +1599,6 @@ described in {{simple-swu-pairing-friendly}} is faster, when it applies.)
 
 Preconditions: An elliptic curve y^2 = g(x) = x^3 + B over F such that q=1 (mod 3) and B != 0.
 
-Input: alpha, an octet string to be hashed.
-
 Constants:
 
 - B, the parameter of the Weierstrass curve
@@ -1596,30 +1606,27 @@ Constants:
   g((sqrt(-3 * Z^2) - Z) / 2) is square, breaking ties by choosing
   the positive value.
 
-Output: (x, y), a point on E.
-
-Sign of y: for u = hash2base(alpha), this encoding ignores the sign of u.
+Sign of y: Inputs u and -u give the same x-coordinate.
 Thus, we set sgn0(y) == sgn0(u).
 
-Exceptions: The exceptional cases for u = hash2base(alpha) occur when
+Exceptions: The exceptional cases for u occur when
 u^2 * (u^2 + g(Z)) == 0. The restriction on Z given above ensures that
 implementations that use inv0 to invert this product are exception free.
 
 Operations:
 
 ~~~
-1.  u = hash2base(alpha)
-2. t1 = u^2 + g(Z)
-3. t2 = inv0(u^2 * t1)
-4. t3 = u^4 * t2 * sqrt(-3 * Z^2)
-5. x1 = ((sqrt(-3 * Z^2) - Z) / 2) - t3
-6. x2 = t3 - ((sqrt(-3 * Z^2) + Z) / 2)
-7. x3 = Z - (t1^3 * t2 / (3 * Z^2))
-8.  If g(x1) is square, set x = x1 and y = sqrt(g(x1))
-9.  If g(x2) is square, set x = x2 and y = sqrt(g(x2))
-10. If g(x3) is square, set x = x3 and y = sqrt(g(x3))
-11. If sgn0(u) != sgn0(y), set y = -y
-12. Output clear_h(x, y)
+1. t1 = u^2 + g(Z)
+2. t2 = inv0(u^2 * t1)
+3. t3 = u^4 * t2 * sqrt(-3 * Z^2)
+4. x1 = ((sqrt(-3 * Z^2) - Z) / 2) - t3
+5. x2 = t3 - ((sqrt(-3 * Z^2) + Z) / 2)
+6. x3 = Z - (t1^3 * t2 / (3 * Z^2))
+7.  If g(x1) is square, set x = x1 and y = sqrt(g(x1))
+8.  If g(x2) is square, set x = x2 and y = sqrt(g(x2))
+9.  If g(x3) is square, set x = x3 and y = sqrt(g(x3))
+10. If sgn0(u) != sgn0(y), set y = -y
+11. Output clear_h(x, y)
 ~~~
 
 #### Implementation
@@ -1628,8 +1635,8 @@ The following procedure implements the Shallue and van de Woestijne method in a
 straight-line fashion.
 
 ~~~
-map2curve_ft(alpha)
-Input: alpha, an octet string to be hashed.
+map2curve_svdw(u)
+Input: u, an element of F.
 Output: (x, y), a point on E.
 
 Constants:
@@ -1640,41 +1647,40 @@ Constants:
 5. c5 = 1 / (3 * Z^2)
 
 Steps:
-1.    u = hash2base(alpha)
-2.   t1 = u^2
-3.   t2 = t1 + c1           // t2 = u^2 + g(Z)
-4.   t3 = t1 * t2
-5.   t4 = inv0(t3)          // t4 = 1 / (u^2 * (u^2 + g(Z)))
-6.   t3 = t1^2
-7.   t3 = t3 * t4
-8.   t3 = t3 * c2           // t3 = u^2 * sqrt(-3 * Z^2) / (u^2 + g(Z))
-9.   x1 = c3 - t3
-10. gx1 = x1^2
-11. gx1 = gx1 * x1
-12. gx1 = gx1 + B           // gx1 = x1^3 + B
-13.  e1 = is_square(gx1)
-14.  x2 = t3 - c4
-15. gx2 = x2^2
-16. gx2 = gx2 * x2
-17. gx2 = gx2 + B           // gx2 = x2^3 + B
-18.  e2 = is_square(gx2)
-19.  e3 = e1 OR e2          // logical OR
-20.  x3 = t2^2
-21.  x3 = x3 * t2
-22.  x3 = x3 * t4
-23.  x3 = x3 * c5
-24.  x3 = Z - x3            // Z - (u^2 + g(Z))^2 / (3 Z^2 u^2)
-25. gx3 = x3^2
-26. gx3 = gx3 * x3
-27. gx3 = gx3 + B           // gx3 = x3^3 + B
-28.   x = CMOV(x2, x1, e1)  // select x1 if gx1 is square
-29.  gx = CMOV(gx2, gx1, e1)
-30.   x = CMOV(x3, x, e3)   // select x3 if gx1 and gx2 are not square
-31.  gx = CMOV(gx3, gx, e3)
-32.   y = sqrt(gx, q)
-33.  e4 = sgn0(u) == sgn0(y)
-34.   y = CMOV(-y, y, e4)   // select correct sign of y
-35. Output clear_h(x, y)
+1.   t1 = u^2
+2.   t2 = t1 + c1           // t2 = u^2 + g(Z)
+3.   t3 = t1 * t2
+4.   t4 = inv0(t3)          // t4 = 1 / (u^2 * (u^2 + g(Z)))
+5.   t3 = t1^2
+6.   t3 = t3 * t4
+7.   t3 = t3 * c2           // t3 = u^2 * sqrt(-3 * Z^2) / (u^2 + g(Z))
+8.   x1 = c3 - t3
+9.  gx1 = x1^2
+10. gx1 = gx1 * x1
+11. gx1 = gx1 + B           // gx1 = x1^3 + B
+12.  e1 = is_square(gx1)
+13.  x2 = t3 - c4
+14. gx2 = x2^2
+15. gx2 = gx2 * x2
+16. gx2 = gx2 + B           // gx2 = x2^3 + B
+17.  e2 = is_square(gx2)
+18.  e3 = e1 OR e2          // logical OR
+19.  x3 = t2^2
+20.  x3 = x3 * t2
+21.  x3 = x3 * t4
+22.  x3 = x3 * c5
+23.  x3 = Z - x3            // Z - (u^2 + g(Z))^2 / (3 Z^2 u^2)
+24. gx3 = x3^2
+25. gx3 = gx3 * x3
+26. gx3 = gx3 + B           // gx3 = x3^3 + B
+27.   x = CMOV(x2, x1, e1)  // select x1 if gx1 is square
+28.  gx = CMOV(gx2, gx1, e1)
+29.   x = CMOV(x3, x, e3)   // select x3 if gx1 and gx2 are not square
+30.  gx = CMOV(gx3, gx, e3)
+31.   y = sqrt(gx, q)
+32.  e4 = sgn0(u) == sgn0(y)
+33.   y = CMOV(-y, y, e4)   // select correct sign of y
+34. Output clear_h(x, y)
 ~~~
 
 ### Simplified SWU for Pairing-Friendly Curves {#simple-swu-pairing-friendly}
@@ -1703,27 +1709,22 @@ Preconditions: An elliptic curve E' with A' != 0 and B' != 0 that is
 isogenous to the target curve E with isogeny map iso\_map(x, y) from
 E' to E.
 
-Input: alpha, an octet string to be hashed.
-
 Helper functions:
 
 - map2curve\_simple\_swu is the encoding of {{simple-swu}} to E'
 - iso\_map is the isogeny map from E' to E
 
 Sign of y: for this map, the sign is determined by map2curve_elligator2.
-No further sign adjustments are necessary. (Note, however, that the specification
-of iso\_map must include its sign.)
+No further sign adjustments are necessary.
 
 Exceptions: map2curve\_simple\_swu handles its exceptional cases.
-In the exceptional cases for iso\_map, it should return the identity point on E.
-
-Output: (x, y), a point on E.
+Exceptional cases of iso\_map should return the identity point on E.
 
 Operations:
 
 ~~~
-1. (x', y') = map2curve_simple_swu(alpha)  // (x', y') is a point on E'
-8. (x, y)   = iso_map(x', y')              // (x, y) is a point on E
+1. (x', y') = map2curve_simple_swu(u)    // (x', y') is on E'
+8. (x, y)   = iso_map(x', y')            // (x, y) is on E
 8. Output clear_h(x, y)
 ~~~
 
@@ -1737,27 +1738,26 @@ hash function approximating a random oracle. Farashahi et al. {{FFSTV13}}
 and Tibouchi and Kim {{TK17}} refine this analysis. In particular, Farashahi
 et al. show that summing two independent evaluations of any of the
 deterministic endings of {{encodings}} suffices to approximate a random
-oracle to an elliptic curve. In other words:
-
-~~~
-   hash2curve(alpha) = f(H0(alpha)) + f(H1(alpha))
-~~~
-
-where f: F -> E is a deterministic encoding, and H0 and H1 are hash
-functions (modeled as random oracles) mapping strings to elements of F.
+oracle to an elliptic curve.
 
 ## Implementation
 
-To instantiate a random oracle from the encodings of {{encodings}},
+To instantiate a random oracle from any of the encodings of {{encodings}},
 compute the following:
 
 ~~~
- hash2curve(alpha) = map2curve( alpha || I2OSP(0, 1) )
-                   + map2curve( alpha || I2OSP(1, 1) )
+u0 = hash2base(alpha, 0)
+u1 = hash2base(alpha, 1)
+(x, y) = map2curve(u0) + map2curve(u1)
 ~~~
 
-where the addition operations corresponds to point addition on the target
-elliptic curve.
+where map2curve is the chosen encoding and the addition operation is elliptic
+curve point addition.
+
+As described in {{hash2base-perf}}, implementors MAY factor the common
+computation of H(alpha) out of the invocations of hash2base. For long
+messages, this gives good performance without requiring higher-level
+protocols to pre-hash alpha.
 
 # Suites for Hashing {#suites}
 
