@@ -1748,10 +1748,10 @@ compute the following:
 ~~~
 u0 = hash2base(alpha, 0)
 u1 = hash2base(alpha, 1)
-(x, y) = map2curve(u0) (+) map2curve(u1)
+(x, y) = map2curve(u0) + map2curve(u1)
 ~~~
 
-where map2curve is the chosen encoding and the (+) operation is elliptic
+where map2curve is the chosen encoding and the addition operation is elliptic
 curve point addition.
 
 As described in {{hash2base-perf}}, implementors MAY factor the common
