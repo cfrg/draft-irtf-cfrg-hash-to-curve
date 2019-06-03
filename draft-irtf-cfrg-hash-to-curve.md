@@ -892,47 +892,78 @@ Instantiating one of these protocols with an elliptic curve group motivates
 the term "hashing to the curve", i.e., encoding bitstrings to points on an
 elliptic curve.
 
-The hash2curve(alpha) function can be easily constructed by
-using the output of a cryptographically secure hash function H as the input of
-an encoding function.
-On the one hand, hash2curve is difficult to invert since it is computationally
-intractable to produce an input alpha that maps to hash2curve(alpha) due to H
-is pre-image resistant.
+One can easily construct a hash to curve function h(x) by using the output of a
+cryptographically secure hash function H as the input of an encoding function.
+On the one hand, h(x) is difficult to invert since it is computationally
+intractable to produce an input x that maps to h(x) due to H is pre-image
+resistant.
 On the other hand, the uniformity property is not met as the output of an
 encoding is distinguishable from a random distribution. Hence, using
-hash2curve(alpha) is not sufficient to get uniformity, however it can be used
-as a building block for obtaining a random oracle as is described in {{rom}}.
+h(x) is not sufficient to get uniformity and cannot be used as a random oracle.
+
+Brier et al. {{BCIMRT10}} describe two generic constructions that give a
+hash function approximating a random oracle. Farashahi et al. {{FFSTV13}}
+and Tibouchi and Kim {{TK17}} refine this analysis. In particular, Farashahi
+et al. show that summing two independent evaluations of any of the
+deterministic endings of {{encodings}} suffices to approximate a random
+oracle to an elliptic curve. In other words:
+
+~~~
+   h(x) = f(H0(x)) + f(H1(x))
+~~~
+
+where f: F -> E(F) is a deterministic encoding, H0 and H1 are hash
+functions (modeled as random oracles) mapping strings to elements of F, and the
+addition operation corresponds to point addition on the target elliptic curve.
 
 
-# Roadmap on Hash to Curve.
+# Roadmap on Hash to Curve. {#roadmap}
 
-The hash2curve(alpha) mapping defines a general framework for mapping bit
+The following functions provide a general framework for mapping bit
 strings into points of a prime group G.
 
-~~~
-hash2curve(alpha)
+ - Injective encodings. A bit string is mapped to a point in G, however,
+   the distribution of this function is not uniform.
 
-Input: alpha, an arbitrary-length bit string.
-Output: P, a point in the group G.
+   ~~~
+   h2cInjective(alpha)
 
-Steps:
-1. u = hash2base(alpha)   // {0,1}* -> F   
-2. Q = map2curve(u)       //    F   -> E(F)
-3. P = clearCofactor(Q)   //   E(F) -> G   
-4. Output P
-~~~
+   Input: alpha, an arbitrary-length bit string.
+   Output: P, a point in the group G.
 
-Since the functions in each step must hold particular properties, detailed
-definitions are given in the subsequent sections. Firstly, {{utility}} introduces
-some utility functions that are used across the document. Then, {{hashtobase}}
-describes the hash2base function. Note that there exist several ways to
-instantiate a map2curve function. Thus, some possible choices are described in
-{{encodings}}. Similarly, clearing the cofactor is particular to the group G,
-this is discussed in {{cofactor-clearing}}.
+   Steps:
+   1. u = hash2base(alpha, I2OSP(0, 1)) // {0,1}* -> F   
+   2. Q = map2curve(u)                  //   F    -> E(F)
+   3. P = clearCofactor(Q)              //  E(F)  -> G   
+   4. Output P
+   ~~~
 
-Notice that cryptographic protocols proven in the random oracle model usually
-require that hash2curve mappings behave as random oracles. {{rom}} gives a
-construction of hash2curve that fulfills this requirement.
+ - Random Oracle. Unlike injective encodings, this function can be used as a
+   random oracle of points.
+
+   ~~~
+   h2cRandomOracle(alpha)
+
+   Input: alpha, an arbitrary-length bit string.
+   Output: P, a point in the group G.
+
+   Steps:
+   1. u0 = hash2base(alpha, I2OSP(0, 1))  //    {0,1}*   -> F   
+   2. u1 = hash2base(alpha, I2OSP(1, 1))  //    {0,1}*   -> F   
+   3. Q0 = map2curve(u0)                  //      F      -> E(F)
+   4. Q1 = map2curve(u1)                  //      F      -> E(F)
+   5. R = Q0 + Q1                         // E(F) x E(F) -> E(F)
+   6. P = clearCofactor(R)                //     E(F)    -> G   
+   7. Output P
+   ~~~
+
+The pieces used for constructing these functions hold particular properties,
+which are described in the subsequent sections. First, {{utility}} introduces
+some utility functions that are used across the document. {{hashtobase}}
+describes the hash2base function. Due to the diversity of elliptic curve models
+there exist several ways construct points from a field elements. Some
+possible choices are described in {{encodings}}. Similarly, clearing the
+cofactor is particular to the group G, and this is discussed in {{cofactor-clearing}}.
 
 {{suites}} of this document provides a list of suites for hashing to curve.
 Each suite can be considered as a full set of parameters and algorithms required
@@ -1109,7 +1140,7 @@ required bits from this value via further invocations of H.
 For short messages this entails one extra invocation of H, which is a
 negligible overhead in the context of hashing to elliptic curves.
 
-A related issue is that the random oracle construction of {{rom}} requires
+A related issue is that the random oracle construction of {{term-rom}} requires
 evaluating two independent hash functions H0 and H1 on msg.
 A standard way to instantiate independent hashes is to append a counter to
 the value being hashed, e.g., H(msg || 0) and H(msg || 1).
@@ -1178,7 +1209,8 @@ u = hash2base(alpha, 0)
 ~~~
 
 Note that the output (x, y) is not a uniformly random point. If uniformity
-is required for security, the construction of {{rom}} MUST be used instead.
+is required for security, the random oracle construction of {{roadmap}} MUST be
+used instead.
 
 ## Notation
 
@@ -1832,36 +1864,6 @@ faster cofactor clearing on any elliptic curve for which the prime
 factorization of h and the number of points on the curve meet certain
 conditions.
 
-
-# Random Oracles {#rom}
-
-Brier et al. {{BCIMRT10}} describe two generic constructions that give a
-hash function approximating a random oracle. Farashahi et al. {{FFSTV13}}
-and Tibouchi and Kim {{TK17}} refine this analysis. In particular, Farashahi
-et al. show that summing two independent evaluations of any of the
-deterministic endings of {{encodings}} suffices to approximate a random
-oracle to an elliptic curve. In other words:
-
-~~~
-   hash2curve(alpha) = f(H0(alpha)) + f(H1(alpha))
-~~~
-
-where f: F -> E is a deterministic encoding, and H0 and H1 are hash
-functions (modeled as random oracles) mapping strings to elements of F.
-
-## Implementation
-
-To instantiate a random oracle from the encodings of {{encodings}},
-compute the following:
-
-~~~
- hash2curve(alpha) = map2curve( alpha || I2OSP(0, 1) )
-                   + map2curve( alpha || I2OSP(1, 1) )
-~~~
-
-where the addition operations corresponds to point addition on the target
-elliptic curve.
-
 # Suites for Hashing {#suites}
 
 The following table lists recommended algorithms for different curves and
@@ -1870,7 +1872,7 @@ the target curve. For example, Elligator 2 is the recommended encoding for
 Curve25519, whereas simplified SWU is the recommended encoding for P-256.
 When the hash function is to be used in a protocol whose security is proven in the
 random oracle model, applications SHOULD use the Random Oracle construction
-given in {{rom}}.
+given in {{roadmap}}.
 
 A suite is a bundle of algorithms that provides concrete recommendations for
 hashing bitstrings into points of specific elliptic curve groups. Each suite is
@@ -1905,7 +1907,7 @@ Each encoding function variant accepts arbitrary input and maps it to a pseudora
 point on the curve.
 Directly evaluating the encodings of {{encodings}} produces an output that is
 distinguishable from random.
-{{rom}} shows how to use these encodings to construct a function approximating a
+{{roadmap}} shows how to use these encodings to construct a function approximating a
 random oracle.
 
 {{hashtobase}} describes considerations for uniformly hashing to field elements.
