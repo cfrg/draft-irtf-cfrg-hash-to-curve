@@ -943,7 +943,7 @@ Notation: x_i is the i^th element of the vector representation of x.
 
 Steps:
 1. sign = 0
-2. for i in (1, ..., m):
+2. for i in (m, m - 1, ..., 1):
 3.   sign_i = CMOV(1, -1, x_i > (p - 1) / 2)
 4.   sign_i = CMOV(sign_i, 0, x_i == 0)
 5.   sign = CMOV(sign, sign_i, sign == 0)

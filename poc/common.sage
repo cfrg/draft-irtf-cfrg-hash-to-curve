@@ -36,11 +36,18 @@ PrimeDict = {
     "BN382": bnPrime(-(2^94 + 2^78 + 2^67 + 2^64 + 2^48 + 1)),
 }
 
+def CMOV(x, y, b):
+    """
+    Returns x if b=False; otherwise returns y
+    """
+    return int(not(bool(b)))*x + int(bool(b))*y
+
 def sgn0(x):
     """
     Returns -1 if x is 'negative', else 1.
     """
     p = x.base_ring().order()
+    threshold = ZZ((p-1) // 2)
     if x.parent().degree() == 1:
         # not a field extension
         xi_values = (x,)
@@ -48,23 +55,15 @@ def sgn0(x):
         # field extension
         xi_values = x._vector_()
     sign = 0
-    threshold = ZZ((p-1) // 2)
     # compute the sign in constant time
-    for xi in xi_values:
+    for xi in reversed(xi_values):
         zz_xi = ZZ(xi)
-        sign_squared = sign * sign
         # sign of this digit
-        xi_sign = -2 * int(zz_xi > threshold) + int(zz_xi > 0)
-        # update sign with this digit's sign if sign == 0
-        sign = (1 - sign_squared) * xi_sign + sign_squared * sign
-    sign_squared = sign * sign
-    return (1 - sign_squared) + sign * sign_squared
-
-def CMOV(x, y, b):
-    """
-    Returns x if b=False; otherwise returns y
-    """
-    return int(not(bool(b)))*x + int(bool(b))*y
+        sign_i = CMOV(1, -1, zz_xi > threshold)
+        sign_i = CMOV(sign_i, 0, zz_xi == 0)
+        # set sign to this digit's sign if sign == 0
+        sign = CMOV(sign, sign_i, sign == 0)
+    return CMOV(sign, 1, sign == 0)
 
 def is_QR(x, p):
     """
