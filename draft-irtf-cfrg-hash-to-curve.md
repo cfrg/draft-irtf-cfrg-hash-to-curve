@@ -1924,16 +1924,16 @@ fraction of the points on almost any curve.
 Ulas {{U07}} describes a simpler version of this map, and Brier et
 al. {{BCIMRT10}} give a further simplification, which the authors call the
 "simplified SWU" map.
-The simplified map applies only to fields of characteristic q = 3 mod 4;
+The simplified map applies only to fields of characteristic p = 3 mod 4;
 Wahby and Boneh {{WB19}} generalize to fields of any characteristic.
 
 Icart gives another deterministic algorithm which maps to any curve
-over a field of characteristic q = 2 mod 3 {{Icart09}}.
+over a field of characteristic p = 2 mod 3 {{Icart09}}.
 Several extensions and generalizations follow this work, including
 {{FSV09}}, {{FT10}}, {{KLR10}}, {{F11}}, and {{CK11}}.
 
 Following the work of Farashahi {{F11}}, Fouque et al. {{FJT13}} describe an
-encoding to curves of characteristic q = 3 (mod 4) having a number of points
+encoding to curves of characteristic p = 3 mod 4 having a number of points
 divisible by 4.  Bernstein et al. {{BHKL13}} optimize this encoding, and
 describe a related encoding that they call "Elligator 2," which applies to
 any curve over a field of odd characteristic having a point of order 2.
