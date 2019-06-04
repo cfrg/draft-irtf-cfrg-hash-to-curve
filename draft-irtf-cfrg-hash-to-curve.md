@@ -308,6 +308,48 @@ normative:
         ins: M. Scott
         name: Michael Scott
         org: School of Computing, Dublin City University, Ireland
+  AFQTZ14:
+    title: Binary Elligator squared
+    seriesinfo:
+        "In": Selected Areas in Cryptography - SAC 2014
+        "pages": 20-37
+        DOI: 10.1007/978-3-319-13051-4_2
+    target: https://doi.org/10.1007/978-3-319-13051-4_2
+    date: 2014
+    author:
+      -
+        ins: D. F. Aranha
+        name: Diego F. Aranha
+        org: Institute of Computing, University of Campinas
+      -
+        ins: P. A. Fouque
+        name: Pierre-Alain Fouque
+        org: Universite de Rennes 1 and Institut Universitaire de France
+      -
+        ins: C. Qian
+        name: Chen Qian
+        org: ENS Rennes
+      -
+        ins: M. Tibouchi
+        name: Mehdi Tibouchi
+        org: NTT Secure Platform Laboratories
+      -
+        ins: J. C. Zapalowicz
+        name: Jean-Christophe Zapalowicz
+        org: INRIA
+  T14:
+    title: "Elligator squared: Uniform points on elliptic curves of prime order as uniform random strings"
+    seriesinfo:
+        "In": Financial Cryptography and Data Security - FC 2014
+        "pages": 139-156
+        DOI: 10.1007/978-3-662-45472-5_10
+    target: https://doi.org/10.1007/978-3-662-45472-5_10
+    date: 2014
+    author:
+      -
+        ins: M. Tibouchi
+        name: Mehdi Tibouchi
+        org: NTT Secure Platform Laboratories
   TK17:
     title: Improved elliptic curve hashing and point representation
     seriesinfo:
@@ -550,6 +592,23 @@ normative:
         ins: L. Panny
         name: Lorenz Panny
         org: Department of Mathematics and Computer Science, Technische Universiteit Eindhoven, The Netherlands
+  SS04:
+    title: On equations y^2 = x^n + k in a finite field.
+    seriesinfo:
+        "In": Bulletin Polish Acad. Sci. Math. vol 52, no 3
+        "pages": 223-226
+        DOI: 10.4064/ba52-3-1
+    target: https://doi.org/10.4064/ba52-3-1
+    date: 2004
+    author:
+      -
+        ins: A. Schinzel
+        name: Andrzej Schinzel
+        org: Department of Mathemetics, University of Warsaw
+      -
+        ins: M. Skalba
+        name: Mariusz Skalba
+        org: Department of Mathematics, University of Warsaw
   S05:
     title: Points on elliptic curves over finite fields
     seriesinfo:
@@ -560,8 +619,8 @@ normative:
     date: 2005
     author:
       -
-        ins: M. Skałba
-        name: Mariusz Skałba
+        ins: M. Skalba
+        name: Mariusz Skalba
         org: Department of Mathematics, University of Warsaw
   SW06:
     title: Construction of rational points on elliptic curves over finite fields
@@ -583,7 +642,7 @@ normative:
   U07:
     title: Rational points on certain hyperelliptic curves over finite fields
     seriesinfo:
-        "In": Bulletin Polish Acad. Sci. Math. vol 55
+        "In": Bulletin Polish Acad. Sci. Math. vol 55, no 2
         "pages": 97-104
         DOI: 10.4064/ba55-2-1
     target: https://doi.org/10.4064/ba55-2-1
@@ -1827,73 +1886,54 @@ earlier versions of this document.
 
 # Related Work {#related}
 
-In this chapter, we  give a background to some common methods to encode or
-hash to the curve, motivated by the similar exposition in {{Icart09}}.
-Understanding of this material is not required in order to choose a
-suitable encoding function - we defer this to {{suites}}
- - the background covered here can work as a template for analyzing encoding
-functions not found in this document, and as a guide for further research
-into the topics covered.
+The problem of mapping arbitrary bit strings to elliptic curve points
+has been the subject of both practical and theoretical research.
+This section briefly describes the background and research results
+that underly the recommendations in this document.
+This section is provided for informational purposes only.
 
-## Probabilistic Encoding
+A naive but generally insecure method of mapping a string alpha to
+a point on an elliptic curve E having n points is to first fix a point G that
+generates the elliptic curve group, and a hash function Hn from bitstrings
+to integers less than n; then compute Hn(alpha) * G, where the * operator
+represents scalar multiplication. The reason this approach is insecure is
+that the resulting point has a known discrete log relationship to G.
+Thus, except in cases where this method is specified by the protocol,
+it must not be used; doing so risks catastrophic security failures.
 
-As mentioned in {{background}}, as a rule of thumb, for every x in GF(p), there
-is approximately a 1/2 chance that there exist a corresponding y value such that
-(x, y) is on the curve E.
+Boneh et al. {{BLS01}} describe an encoding method they call MapToGroup,
+which works roughly as follows: first, use the input string to initialize a
+pseudorandom number generator, then use the generator to produce a pseudorandom
+value x in F.
+If x is the x-coordinate of a point on the elliptic curve, output that
+point. Otherwise, generate a new pseudorandom value x in F and try again.
+Since a random value x in F has probability about 1/2 of corresponding to
+a point on the curve, the expected number of tries is just two.
+However, the running time of this method depends on the input string,
+which means that it is not safe to use in protocols sensitive to timing
+side channels.
 
-This motivates the construction of the MapToGroup
-method described by Boneh et al. {{BLS01}}. For an input message msg, a counter i,
-and a standard hash function H : {0, 1}^\* -> GF(p) x {0, 1}, one computes (x, b)
-= H(i || msg), where i || msg denotes concatenation of the two values. Next, test to
-see whether there exists a corresponding y value such that (x, y) is on the
-curve, returning (x, y) if successful, where b determines whether to take +/- y.
-If there does not exist such a y, then increment i and repeat. A maximum counter
-value is set to I, and since each iteration succeeds with probability
-approximately 1/2, this process fails with probability 2^-I. (See {{try}} for a
-more detailed description of this algorithm.)
+Schinzel and Skalba {{SS04}} introduce the first method of constructing
+elliptic curve points deterministically, for a restricted class of curves
+and a very small number of points.
+Skalba {{S05}} generalizes this construction to more curves and more points
+on those curves.
+Shallue and van de Woestijne {{SW06}} further generalize and simplify
+Skalba's construction, yielding concretely efficient maps to a constant
+fraction of the points on almost any curve.
+Ulas {{U07}} describes a simpler version of this map, and Brier et
+al. {{BCIMRT10}} give a further simplification, which the authors call the
+"simplified SWU" map.
+The simplified map applies only to fields of characteristic p = 3 mod 4;
+Wahby and Boneh {{WB19}} generalize to fields of any characteristic.
 
-Although MapToGroup describes a method to hash to the curve, it can also be
-adapted to a simple encoding mechanism. For a bitstring of length strictly
-less than log2(p), one can make use of the spare bits in order to encode
-the counter value. Allocating more space for the counter increases the expansion,
-but reduces the failure probability.
-
-Since the running time of the MapToGroup algorithm depends on msg,
-this algorithm is NOT safe for cases sensitive to timing side channel attacks.
-Deterministic algorithms are needed in such cases where failures
-are undesirable.
-
-## Naive Encoding
-
-A naive solution includes computing map2curve(msg) = H(msg) * G, where H is a hash
-function H : {0, 1}^\* -> GF(p), and G is a generator of the curve. Although
-efficient, this solution is unsuitable for constructing a random oracle onto
-E, since the discrete logarithm with respect to G is known. For example,
-given y1 = map2curve(m1) and y2 = map2curve(m2) for any m1 and m2, it must
-be true that y2 = H(m2) / H(m1) * map2curve(m1). This relationship would not
-hold (with overwhelming probability) for truly random values y1 and y2.
-This causes catastrophic failure in many cases. However, one exception is found in
-SPEKE {{J96}}, which constructs a base for a Diffie-Hellman key exchange by
-hashing the password to a curve point. Notably the use of a hash function is
-purely for encoding an arbitrary length string to a curve point, and does not
-need to be a random oracle.
-
-## Deterministic Encoding
-
-Shallue and van de Woestijne {{SW06}} introduced a deterministic algorithm
-based on the work of Skałba {{S05}} that maps elements in F\_{q} to a curve
-in time O(log^4 q), where q = p^n for some prime p, and time O(log^3 q)
-when q = 3 mod 4. Ulas {{U07}} described a simpler version of this map,
-and Brier et al. {{BCIMRT10}} gave a further simplification, which the authors
-call the "simplified SWU" map.
-
-Icart introduced another deterministic algorithm which maps F\_{q} to any curve
-over a field of characteristic q = 2 mod 3 in time O(log^3 q) {{Icart09}}.
-This work resulted in several extensions and generalizations, including
+Icart gives another deterministic algorithm which maps to any curve
+over a field of characteristic p = 2 mod 3 {{Icart09}}.
+Several extensions and generalizations follow this work, including
 {{FSV09}}, {{FT10}}, {{KLR10}}, {{F11}}, and {{CK11}}.
 
 Following the work of Farashahi {{F11}}, Fouque et al. {{FJT13}} describe an
-encoding to curves of characteristic q = 3 (mod 4) having a number of points
+encoding to curves of characteristic p = 3 mod 4 having a number of points
 divisible by 4.  Bernstein et al. {{BHKL13}} optimize this encoding, and
 describe a related encoding that they call "Elligator 2," which applies to
 any curve over a field of odd characteristic having a point of order 2.
@@ -1905,41 +1945,23 @@ functions is that none of them map to the entire curve, but rather to some
 fraction of the points. This means that they cannot be used directly to
 construct a random oracle that outputs points on the curve.
 
-Brier et al. {{BCIMRT10}} proposed two solutions to this problem.  The first
-applies solely to Icart's method described above, by computing F(H0(msg)) +
-F(H1(msg)) for two distinct hash functions H0, H1. The second uses a generator
-G, and computes F(H0(msg)) + H1(msg) * G. Later, Farashahi et al. {{FFSTV13}}
-improved the analysis of the F(H0(msg)) + F(H1(msg)) method, showing that this
-method applies to essentially all deterministic encodings to both elliptic
-and hyperelliptic curves (which are not covered in this document).
+Brier et al. {{BCIMRT10}} give two solutions to this problem.
+The first, which applies only to Icart's method (above), computes F(H0(msg))
++ F(H1(msg)) for two distinct hash functions H0, H1.
+The second, which applies to essentially all deterministic encodings but
+is more costly, computes F(H0(msg)) + H1(msg) * G, for G a generator of the
+elliptic curve group.
+Farashahi et al. {{FFSTV13}} improve the analysis of the first method,
+showing that this method applies to essentially all deterministic encodings.
 Tibouchi and Kim {{TK17}} further refine the analysis and describe additional
-opportunities for optimization.
+optimizations.
 
-# Try-and-Increment Method {#try}
-
-In cases where constant time execution is not required, the
-"try-and-increment" method may be appropriate. As discussion in {{introduction}},
-this variant works by computing x = hash2base(msg) ({{hashtobase}}) and then
-checking to see if x is the x-coordinate of a point on the curve E.
-
-In more detail:
-
-~~~
-1. ctr = 0
-2. h = "INVALID"
-3. While h is "INVALID" or h is EC point at infinity:
-4.1   CTR = I2OSP(ctr, 4)
-4.2   ctr = ctr + 1
-4.3   attempted_hash = Hash(msg || CTR)
-4.4   h = RS2ECP(attempted_hash)
-4.5   If h is not "INVALID" and cofactor > 1, set h = h * cofactor
-5. Output h
-~~~
-
-I2OSP is a function that converts a nonnegative integer to octet string as
-defined in Section 4.1 of {{RFC8017}}, and RS2ECP(h) = OS2ECP(0x02 || h), where
-OS2ECP is specified in Section 2.3.4 of {{SECG1}}, which converts an input
-string into an EC point.
+Complementary to the problem of mapping from bit strings to elliptic curve
+points, Bernstein et al. {{BHKL13}} study the problem of mapping from elliptic
+curve points to uniformly random bitstrings, giving solutions for a class of
+curves including Montgomery and Edwards curves.
+Tibouchi {{T14}} and Aranha et al. {{AFQTZ14}} generalize these results.
+This document does not deal with this complementary problem.
 
 # Sample Code {#samplecode}
 
