@@ -1861,7 +1861,7 @@ This document has no IANA actions.
 
 # Security Considerations
 
-Each encoding function variant accepts arbitrary input anyd maps it to a pseudorandom
+Each encoding function variant accepts arbitrary input and maps it to a pseudorandom
 point on the curve.
 Directly evaluating the encodings of {{encodings}} produces an output that is
 distinguishable from random.
