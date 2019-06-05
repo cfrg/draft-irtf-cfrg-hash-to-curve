@@ -1028,18 +1028,20 @@ a cryptographic hash function that outputs b bits.
 ## Security considerations {#hash2base-sec}
 
 For security, hash2base should be collision resistant, and should map its
-input to a uniformly random element of F. To this end, hash2base requires 
+input to a uniformly random element of F. To this end, hash2base requires
 a cryptographic hash function H which satisfies the following properties:
 
-1. The number of bits output by H should be b >= 2 * k for sufficient collision 
-resistance, where k is the target security level in bits. (This is needed for a 
-birthday bound of approximately 2^(-k).) For example, for 128-bit security, b >= 256 
-bits; in this case, SHA256 would be an appropriate choice for H.
-2. H must output a uniformly random bit string. That is, it must be a random oracle.
+1. The number of bits output by H should be b >= 2 * k for sufficient collision
+resistance, where k is the target security level in bits. (This is needed for a
+birthday bound of approximately 2^(-k).)
+2. H is modeled as a random oracle, so its output must be indistinguishable
+from a uniformly random bit string.
+
+For example, for 128-bit security, b >= 256 bits; in this case, SHA256 would
+be an appropriate choice for H.
 
 Ensuring that the hash2base output is a uniform random element of F requires
-care, even when H outputs a uniformly random string, as is generally assumed
-(in other words, even when modeling H as a random oracle). For example,
+care, even when H outputs a uniformly random string. For example,
 if H=SHA256 and F is a field of characteristic p = 2^255 - 19, then the
 result of reducing H(msg) (a 256-bit integer) modulo p is slightly more likely
 to be in \[0, 38\] than if the value were selected uniformly at random.
@@ -1859,7 +1861,7 @@ This document has no IANA actions.
 
 # Security Considerations
 
-Each encoding function variant accepts arbitrary input and maps it to a pseudorandom
+Each encoding function variant accepts arbitrary input anyd maps it to a pseudorandom
 point on the curve.
 Directly evaluating the encodings of {{encodings}} produces an output that is
 distinguishable from random.
