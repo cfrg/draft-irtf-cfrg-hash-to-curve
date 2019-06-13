@@ -813,18 +813,17 @@ An elliptic curve E is specified by a cubic equation in two variables and a
 finite field F. An elliptic curve equation takes one of several standard forms,
 including (but not limited to) Weierstrass, Montgomery, and Edwards.
 
-The curve E forms an algebraic group, denoted as E(F), whose elements are the
+The curve E forms an algebraic group, whose elements are the
 points (x, y) satisfying the curve equation, where x and y are elements of F.
 This group has order n, meaning that there are n distinct points.
 
-In general, security of cryptographic primitives requires a group G of
-prime order. However, not all elliptic curves induce groups of prime order.
-Because of that, G is usually taken as a subgroup of E(F) in such a way that G
-has prime order r, where n = h * r. In this equation, h is an integer known as
-the cofactor.
-The process of mapping to an elliptic curve point to a point belonging to a
-subgroup of order r is called clearing the cofactor. We discuss this process
-in {{cofactor-clearing}}.
+For security reasons, groups of prime order MUST be used since they lead to the
+more difficult instances of the discrete logarithm problem. Elliptic curves
+induce subgroups of prime order. Let G be a subgroup of the curve of prime
+order r, where n = h * r.
+In this equation, h is an integer called the cofactor.
+The process of mapping to an elliptic curve point to a point in G is
+called clearing the cofactor, this operation is described in {{cofactor-clearing}}.
 
 Certain encoding functions restrict the form of the curve equation, the
 characteristic of the field, and/or the parameters of the curve. For each
@@ -836,11 +835,10 @@ Summary of quantities:
 |:------:|---------|-----------|
 | F,q,p | Finite field F of characteristic p and #F=q=p^m. | For prime fields, q=p; otherwise, q=p^m and m>1. |
 | E | Elliptic curve. | E is specified by an equation and a field F. |
-| E(F) | The group of points induced by E. | A set of points with coordinates (x,y) satisfying the elliptic curve equation. |
-| n | Number of points on E(F), #E(F)=n. | This value could be prime or composite. |
-| G | A group of r points. | A subgroup of E(F). |
-| r | Order of G. | This value is a prime number. |
-| h | Cofactor, h>=1. | This is an integer number satisfying n = h * r.  |
+| n | Number of points on the elliptic curve E. | n = h * r, for h and r defined below. |
+| G | A subgroup of the elliptic curve. | Destination group to which bitstrings are mapped. |
+| r | Order of G. | This number MUST be prime.  |
+| h | Cofactor, h >= 1. | An integer satisfying n = h * r.  |
 
 ## Terminology
 In the following, we categorize the terminology for encoding bitstrings to points
@@ -904,188 +902,198 @@ h(x) is not sufficient to get uniformity and cannot be used as a random oracle.
 Brier et al. {{BCIMRT10}} describe two generic constructions that give a
 hash function approximating a random oracle. Farashahi et al. {{FFSTV13}}
 and Tibouchi and Kim {{TK17}} refine this analysis. In particular, Farashahi
-et al. show that summing two independent evaluations of any of the
-deterministic endings of {{encodings}} suffices to approximate a random
-oracle to an elliptic curve. In other words:
+et al. show that summing two independent evaluations of an injective encoding
+suffices to approximate a random oracle to an elliptic curve. This construction
+is given in {{roadmap}}.
 
-~~~
-   h(x) = f(H0(x)) + f(H1(x))
-~~~
+# Roadmap {#roadmap}
 
-where f: F -> E(F) is a deterministic encoding, H0 and H1 are hash
-functions (modeled as random oracles) mapping strings to elements of F, and the
-addition operation corresponds to point addition on the target elliptic curve.
+A general framework for mapping bit strings into points of an elliptic curve is
+presented. The construction of these mappings relies on three basic functions.
 
+-   The function hash2base, {0, 1}^* -> F, maps arbitrary-length bit strings
+    to elements of a finite field; its implementation is defined in
+    {{hashtobase}}.
 
-# Roadmap on Hash to Curve. {#roadmap}
+-   The function map2curve, F -> E, calculates a point on the elliptic curve E
+    from an element of a finite field. {{encodings}} describes mappings for a
+    range of curve families.
 
-The following functions provide a general framework for mapping bit
-strings into points of a prime group G.
+-   The function clear\_cofactor, E -> G, maps any point on the curve E to a
+    subgroup G of the curve. {{cofactor-clearing}} describes methods to perform
+    this operation.
 
- - Injective encodings. A bit string is mapped to a point in G, however,
-   the distribution of this function is not uniform.
+Each function holds particular properties that are described in the subsequent
+sections.
 
-   ~~~
-   h2cInjective(alpha)
+Two top-level functions taking as input a bit string and returning points on
+the curve are introduced. Although these functions have the same interface, the
+distribution of the points they produce are different. The first function is
+called injective encoding and its probability distribution of the points can be
+easily distinguished from a uniform distribution of points on the curve. On the
+other hand, the second function behaves as a hash function since its output is
+indistinguishable from a uniform distribution of the points on the curve.
 
-   Input: alpha, an arbitrary-length bit string.
-   Output: P, a point in the group G.
+-   Injective encodings. A bit string is mapped to a point in G, however,
+    the distribution of its output is not uniform.
 
-   Steps:
-   1. u = hash2base(alpha, I2OSP(0, 1)) // {0,1}* -> F   
-   2. Q = map2curve(u)                  //   F    -> E(F)
-   3. P = clearCofactor(Q)              //  E(F)  -> G   
-   4. Output P
-   ~~~
+    ~~~
+    encode2curve(alpha)
 
- - Random Oracle. Unlike injective encodings, this function can be used as a
-   random oracle of points.
+    Input: alpha, an arbitrary-length bit string.
+    Output: P, a point in G.
 
-   ~~~
-   h2cRandomOracle(alpha)
+    Steps:
+    1. u = hash2base(alpha, 0)
+    2. Q = map2curve(u)
+    3. P = clear_cofactor(Q)
+    4. return P
+    ~~~
 
-   Input: alpha, an arbitrary-length bit string.
-   Output: P, a point in the group G.
+-   Random Oracle. This function yields a uniform distribution and can be used
+    as a random oracle from strings to points on the curve. Where appropriate,
+    the terms random oracle and hash functions for such mappings are used
+    interchangeably.
 
-   Steps:
-   1. u0 = hash2base(alpha, I2OSP(0, 1))  //    {0,1}*   -> F   
-   2. u1 = hash2base(alpha, I2OSP(1, 1))  //    {0,1}*   -> F   
-   3. Q0 = map2curve(u0)                  //      F      -> E(F)
-   4. Q1 = map2curve(u1)                  //      F      -> E(F)
-   5. R = Q0 + Q1                         // E(F) x E(F) -> E(F)
-   6. P = clearCofactor(R)                //     E(F)    -> G   
-   7. Output P
-   ~~~
+    ~~~
+    hash2curve(alpha)
 
-The pieces used for constructing these functions hold particular properties,
-which are described in the subsequent sections. First, {{utility}} introduces
-some utility functions that are used across the document. {{hashtobase}}
-describes the hash2base function. Due to the diversity of elliptic curve models
-there exist several ways construct points from a field elements. Some
-possible choices are described in {{encodings}}. Similarly, clearing the
-cofactor is particular to the group G, and this is discussed in {{cofactor-clearing}}.
+    Input: alpha, an arbitrary-length bit string.
+    Output: P, a point in G.
 
-{{suites}} of this document provides a list of suites for hashing to curve.
-Each suite can be considered as a full set of parameters and algorithms required
-to instantiate a specific hash2curve mapping for a given group G of interest.
+    Steps:
+    1. u0 = hash2base(alpha, 0)
+    2. u1 = hash2base(alpha, 1)
+    3. Q0 = map2curve(u0)
+    4. Q1 = map2curve(u1)
+    5. R = Q0 + Q1
+    6. P = clear_cofactor(R)
+    7. return P
+    ~~~
+
+Instances of these functions are given in {{suites}}, which defines a list of
+suites that specify a full set of parameters matching elliptic curves and
+algorithms.
 
 # Utility Functions {#utility}
 
 Algorithms in this document make use of utility functions described below.
 
-- CMOV(a, b, c): If c=0, CMOV returns a, otherwise returns b. To prevent against
-  timing attacks, this operation must run in constant time without revealing the
-  value of c. Commonly, implementations assume that the selector is c=1 or c=0.
-  In this case, given a bitstring C, the desired selector c can be computed by OR-ing
-  all bits of C together. The resulting selector will be either 0 if all bits
-  of C are zero, or 1 if at least one bit of C is 1.
+-   CMOV(a, b, c): If c=0, CMOV returns a, otherwise returns b. To prevent
+    against timing attacks, this operation must run in constant time without
+    revealing the value of c. Commonly, implementations assume that the selector
+    is c=1 or c=0. In this case, given a bitstring C, the desired selector c can
+    be computed by OR-ing all bits of C together. The resulting selector will be
+    either 0 if all bits of C are zero, or 1 if at least one bit of C is 1.
 
-- is\_square(x, q): This function returns True whenever the value x is a
-  square in GF(q). Due to Euler's criterion, this function can be calculated
-  in constant time as
+-   is\_square(x, q): This function returns True whenever the value x is a
+    square in GF(q). Due to Euler's criterion, this function can be calculated
+    in constant time as
 
-~~~
-is_square(x, q) := { True,  if x^((q - 1) / 2) is 0 or 1;
-                   { False, otherwise.
-~~~
+    ~~~
+    is_square(x, q) := { True,  if x^((q - 1) / 2) is 0 or 1;
+                       { False, otherwise.
+    ~~~
 
-- sqrt(x, q): The sqrt operation is a multi-valued function, i.e. there exist
-  two roots of x whenever x is square.
-  To maintain compatibility across implementations while allowing implementors
-  leeway for optimizations, this document does not require sqrt() to return a
-  particular value. Instead, as explained in {{point-sign}}, any higher-level
-  function that computes square roots also specifies how to determine the sign
-  of the result.
+-   sqrt(x, q): The sqrt operation is a multi-valued function, i.e. there exist
+    two roots of x whenever x is square.
+    To maintain compatibility across implementations while allowing implementors
+    leeway for optimizations, this document does not require sqrt() to return a
+    particular value. Instead, as explained in {{point-sign}}, any higher-level
+    function that computes square roots also specifies how to determine the sign
+    of the result.
 
-  The preferred way of computing square roots is to fix a deterministic
-  algorithm particular to q. We give algorithms for the three most common
-  cases immediately below; other cases are analogous.
+    The preferred way of computing square roots is to fix a deterministic
+    algorithm particular to q. We give algorithms for the three most common
+    cases immediately below; other cases are analogous.
 
-  Note that Case 3 below applies to GF(p^2) when p = 3 mod 8.
-  {{AR13}} and {{S85}} describe methods that work for other field extensions.
-  Regardless of the method chosen, the sqrt function MUST be performed in constant time.
+    Note that Case 3 below applies to GF(p^2) when p = 3 mod 8.
+    {{AR13}} and {{S85}} describe methods that work for other field extensions.
+    Regardless of the method chosen, the sqrt function MUST be performed in
+    constant time.
 
-~~~
-sqrt(x, q)
+    ~~~
+    s = sqrt(x, q)
 
-Input: x, an element of GF(q).
-Output: a such that a * a == x.
+    Input: x, an element of F.
+    Output: s, an element of F such that s * s = x.
 
-======
+    ======
 
-Case 1: q = 3 (mod 4)
+    Case 1: q = 3 (mod 4)
 
-Procedure:
-1. return x^((q + 1) / 4)
+    Procedure:
+    1. return x^((q + 1) / 4)
 
-======
+    ======
 
-Case 2: q = 5 (mod 8)
+    Case 2: q = 5 (mod 8)
 
-Constants:
-- c1 = sqrt(-1) in GF(q), i.e., c1 * c1 = -1 mod q.
+    Constants:
+    1. c1 = sqrt(-1) in F, i.e., c1 * c1 = -1 mod q.
 
-Procedure:
-1. t1 = x^((q + 3) / 8)
-2. e = t1 * t1 == x
-3. return CMOV(t1 * c1, t1, e)
+    Procedure:
+    1. t1 = x^((q + 3) / 8)
+    2. e  = t1 * t1 == x
+    3. s  = CMOV(t1 * c1, t1, e)
+    3. return s
 
-======
+    ======
 
-Case 3: q = 9 (mod 16)
+    Case 3: q = 9 (mod 16)
 
-Constants:
-- c1 = sqrt(-1) in GF(q), i.e., c1 * c1 = -1 mod q.
-- c2 = sqrt(sqrt(-1)) in GF(q), i.e., c2 * c2 = c1 mod q.
-- c3 = sqrt(-sqrt(-1)) in GF(q), i.e., c3 * c3 = -c1 mod q.
+    Constants:
+    1. c1 = sqrt(-1) in F, i.e., c1 * c1 = -1 mod q.
+    2. c2 = sqrt(sqrt(-1)) in F, i.e., c2 * c2 = c1 mod q.
+    3. c3 = sqrt(-sqrt(-1)) in F, i.e., c3 * c3 = -c1 mod q.
 
-Procedure:
-1.  t1 = x^((q + 7) / 16)
-2.  t2 = c1 * t1
-3.  t3 = c2 * t1
-4.  t4 = c3 * t1
-5.  e1 = t2 * t2 == x
-6.  e2 = t3 * t3 == x
-7.  t1 = CMOV(t1, t2, e1)  // select t2 if t2 * t2 == x
-8.  t2 = CMOV(t4, t3, e2)  // select t3 if t3 * t3 == x
-9.  e3 = t2 * t2 == x
-10. t1 = CMOV(t1, t2, e3)  // select the sqrt from t1 and t2
-11. return t1
-~~~
+    Procedure:
+    1.  t1 = x^((q + 7) / 16)
+    2.  t2 = c1 * t1
+    3.  t3 = c2 * t1
+    4.  t4 = c3 * t1
+    5.  e1 = t2 * t2 == x
+    6.  e2 = t3 * t3 == x
+    7.  t1 = CMOV(t1, t2, e1)  // select t2 if t2 * t2 == x
+    8.  t2 = CMOV(t4, t3, e2)  // select t3 if t3 * t3 == x
+    9.  e3 = t2 * t2 == x
+    10. s  = CMOV(t1, t2, e3)  // select the sqrt from t1 and t2
+    11. return s
+    ~~~
 
-- sgn0(x): This function returns either +1 or -1, indicating the sign of x.
-  This function considers 0 to be positive.
-  The following procedure implements sgn0(x) in constant time.
-  See {{bg-curves}} for a discussion of representing x as a vector.
+-   sgn0(x): This function returns either +1 or -1, indicating the sign of x.
+    This function considers 0 to be positive.
+    The following procedure implements sgn0(x) in constant time.
+    See {{bg-curves}} for a discussion of representing x as a vector.
 
-~~~
-sgn0(x)
+    ~~~
+    sgn0(x)
 
-Parameters:
-  1. F, a finite field of characteristic p and order q = p^m, m >= 1.
-Input: x, an element of F
-Output: -1 or 1.
+    Parameters:
+      1. F, a finite field of characteristic p and order q = p^m, m >= 1.
+    Input: x, an element of F.
+    Output: -1 or 1.
 
-Notation: x_i is the i^th element of the vector representation of x.
+    Notation: x_i is the i^th element of the vector representation of x.
 
-Steps:
-1. sign = 0
-2. for i in (m, m - 1, ..., 1):
-3.   sign_i = CMOV(1, -1, x_i > (p - 1) / 2)
-4.   sign_i = CMOV(sign_i, 0, x_i == 0)
-5.   sign = CMOV(sign, sign_i, sign == 0)
-6. return CMOV(sign, 1, sign == 0)         # regard x = 0 as positive
-~~~
+    Steps:
+    1. sign = 0
+    2. for i in (m, m - 1, ..., 1):
+    3.   sign_i = CMOV(1, -1, x_i > (p - 1) / 2)
+    4.   sign_i = CMOV(sign_i, 0, x_i == 0)
+    5.   sign = CMOV(sign, sign_i, sign == 0)
+    6. return CMOV(sign, 1, sign == 0)    # regard x = 0 as positive
+    ~~~
 
-- inv0(x, q): This function returns the multiplicative inverse of x mod q,
-  extended to all of F by fixing inv0(0) == 0.
-  To implement inv0 in constant time, compute alpha = x^(q - 2) mod q.
-  Notice on input 0, the output is 0 as required.
+-   inv0(x, q): This function returns the multiplicative inverse of x mod q,
+    extended to all of F by fixing inv0(0) == 0.
+    To implement inv0 in constant time, compute alpha = x^(q - 2) mod q.
+    Notice on input 0, the output is 0 as required.
 
-- I2OSP and OS2IP: These functions are used to convert an octet string to
-  and from a non-negative integer {{RFC8017}}.
+-   I2OSP and OS2IP: These functions are used to convert an octet string to
+    and from a non-negative integer {{RFC8017}}.
 
-- a \|\| b: denotes the concatenation of bitstrings a and b.
+-   a \|\| b: denotes the concatenation of bitstrings a and b.
 
 # Hashing to a Finite Field {#hashtobase}
 
@@ -1182,7 +1190,7 @@ Steps:
 4.   for j in (1, ..., W):
 5.     t = t || H( m' || I2OSP(i, 1) || I2OSP(j, 1) )
 6.   e_i = OS2IP(t) mod p
-7. Output u = ( e_1, ..., e_m )
+7. return u = ( e_1, ..., e_m )
 ~~~
 
 # Deterministic Encodings  {#encodings}
@@ -1197,17 +1205,6 @@ The generic interface shared by all encodings in this section is as follows:
 
 The output (x, y) specifies a point on an elliptic curve defined over base field F;
 x and y are elements of F.
-
-The input u is an element of F that MUST be the output of the hash2base
-function ({{hashtobase}}). The value of the ctr argument to hash2base MUST
-be 0 when instantiating an injective encoding. Thus, to map an octet string
-alpha to a point (x, y) using any of the encodings in this section, compute
-
-~~~
-u = hash2base(alpha, 0)
-(x, y) = map2curve(u)
-~~~
-
 Note that the output (x, y) is not a uniformly random point. If uniformity
 is required for security, the random oracle construction of {{roadmap}} MUST be
 used instead.
@@ -1242,8 +1239,9 @@ regarding the sign of y.
 
 To resolve this ambiguity, the encodings in this section specify
 the sign of the y-coordinate in terms of the input to the encoding function.
-We take this approach for two reasons: first, this covers elliptic curves over any field in a uniform way,
-and second, it gives implementors leeway to optimize their square-root implementations.
+Two main reasons support this approach. First, this covers elliptic curves over
+any field in a uniform way, and second, it gives implementors leeway to optimize
+their square-root implementations.
 
 ## Exceptional cases {#map-exceptions}
 
@@ -1284,7 +1282,7 @@ Operations:
 2. v = (3 * A - u^4) / (6 * u)
 3. x = (v^2 - B - (u^6 / 27))^((2 * p - 1) / 3) + (u^2 / 3)
 4. y = u * x + v
-5. Output clear_h(x, y)
+5. return (x, y)
 ~~~
 
 #### Implementation
@@ -1321,7 +1319,7 @@ Steps:
 16.  x = x + t1         // x = (v^2 - B - u^6 / 27)^(1 / 3) + (u^2 / 3)
 17.  y = u * x          // u * x
 18.  y = y + v          // y = u * x + v
-19. Output clear_h(x, y)
+19. return (x, y)
 ~~~
 
 ### Simplified Shallue-van de Woestijne-Ulas Method {#simple-swu}
@@ -1361,7 +1359,7 @@ Operations:
 7.  If gx1 is square, set x = x1 and y = sqrt(gx1)
 8.  If gx2 is square, set x = x2 and y = sqrt(gx2)
 9.  If sgn0(u) != sgn0(y), set y = -y
-10. Output clear_h(x, y)
+10. return (x, y)
 ~~~
 
 #### Implementation
@@ -1406,7 +1404,7 @@ Steps:
 19.   y = CMOV(t4, t3, e3)   // if e2 == True, y = t3, else y = t4
 20.  e4 = sgn0(u) == sgn0(y)
 21.   y = CMOV(-y, y, e4)
-22. Output clear_h(x, y)
+22. return (x, y)
 ~~~
 
 ## Encodings for Montgomery curves
@@ -1444,7 +1442,7 @@ Operations:
 6.  If is_square(gx1), set x = x1 and y = sqrt(gx1)
 7.  If is_square(gx2), set x = x2 and y = sqrt(gx2)
 8.  If sgn0(u) != sgn0(y), set y = -y
-9.  Output clear_h(x, y)
+9.  return (x, y)
 ~~~
 
 #### Implementation, q=3 (mod 4)
@@ -1481,7 +1479,7 @@ Steps:
 18.   y = CMOV(y2, y1, e2)    // If e == True, y=y1, else y=y2
 19.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
 20.   y = CMOV(-y, y, e3)
-21. Output clear_h(x, y)
+21. return (x, y)
 ~~~
 
 #### Implementation, q=5 (mod 8)
@@ -1524,7 +1522,7 @@ Steps:
 23.   y = CMOV(y2, y1, e3)    // if e == True, y=y1, else y=y2
 24.  e4 = sgn0(u) == sgn0(y)  // fix sign of y
 25.   y = CMOV(-y, y, e4)
-26. Output clear_h(x, y)
+26. return (x, y)
 ~~~
 
 ## Encodings for twisted Edwards curves
@@ -1588,7 +1586,7 @@ The following straight-line implementation handles the exceptional cases:
 11.       y = y * y'
 12.       e = y == 0
 13.       y = CMOV(y, 1, e)
-14. Output clear_h(x, y)
+14. return (x, y)
 ~~~
 
 ## Encodings for Supersingular curves
@@ -1612,7 +1610,7 @@ Operations:
 ~~~
 1. x = (u^2 - B)^((2 * q - 1) / 3)
 2. y = u
-3. Output clear_h(x, y)
+3. return (x, y)
 ~~~
 
 #### Implementation
@@ -1633,7 +1631,7 @@ Steps:
 2. t1 = t1 - B
 3.  x = t1^c1             // x = (u^2 - B)^((2 * q - 1) / 3)
 4.  y = u
-5. Output clear_h(x, y)
+5. return (x, y)
 ~~~
 
 ### Elligator 2, A=0 Method
@@ -1660,7 +1658,7 @@ Operations:
 5. If gx1 is square, x = x1 and y = sqrt(gx1)
 6. If gx2 is square, x = x2 and y = sqrt(gx2)
 7. If sgn0(u) != sgn0(y), set y = -y.
-8. Output clear_h(x, y)
+8. return (x, y)
 ~~~
 
 #### Implementation
@@ -1684,7 +1682,7 @@ Steps:
 8.   x = CMOV(x2, x1, e1)
 9.  e2 = sgn0(u) == sgn0(y)
 10.  y = CMOV(-y, y, e2)
-11. Output clear_h(x, y)
+11. return (x, y)
 ~~~
 
 ## Encodings for Pairing-Friendly curves
@@ -1732,7 +1730,7 @@ Operations:
 8.  If g(x2) is square, set x = x2 and y = sqrt(g(x2))
 9.  If g(x3) is square, set x = x3 and y = sqrt(g(x3))
 10. If sgn0(u) != sgn0(y), set y = -y
-11. Output clear_h(x, y)
+11. return (x, y)
 ~~~
 
 #### Implementation
@@ -1786,7 +1784,7 @@ Steps:
 31.   y = sqrt(gx, q)
 32.  e4 = sgn0(u) == sgn0(y)
 33.   y = CMOV(-y, y, e4)   // select correct sign of y
-34. Output clear_h(x, y)
+34. return (x, y)
 ~~~
 
 ### Simplified SWU for Pairing-Friendly Curves {#simple-swu-pairing-friendly}
@@ -1831,7 +1829,7 @@ Operations:
 ~~~
 1. (x', y') = map2curve_simple_swu(u)    // (x', y') is on E'
 8. (x, y)   = iso_map(x', y')            // (x, y) is on E
-8. Output clear_h(x, y)
+8. return (x, y)
 ~~~
 
 We do not repeat the sample implementation of {{simple-swu}} here.
@@ -1839,19 +1837,18 @@ See {{github-repo}} or {{WB19}} for details on implementing the isogeny map.
 
 # Clearing the cofactor {#cofactor-clearing}
 
-The encodings of this section always output a point on the elliptic curve,
-i.e., a point in a group of order h * r ({{bg-curves}}).
-Obtaining a point in the subgroup of prime order r may require
-a final operation, called "clearing the cofactor."
-In the description of each encoding in this section, this operation is represented
-abstractly as clear\_h(x, y), which takes as input a point on the curve and returns
-a point in the subgroup of prime order.
+The encodings of {{encodings}} always output a point on the elliptic curve,
+i.e., a point in a group of order h * r ({{bg-curves}}). Obtaining a point in G
+may require a final operation commonly called "clearing the cofactor," which
+takes as input any point on the curve.
 
-The operation clear\_h(x, y) can always be implemented as a scalar multiplication by h.
-For elliptic curves where h = 1, i.e., curves with a prime number of points (for example,
-the NIST curves P-256, P-384, and P-521 {{FIPS186-4}}), no operation is required.
+This operation can always be implemented as a scalar multiplication by h.
+For elliptic curves where h = 1, i.e., the curves with a prime number of points,
+no operation is required. This applies to, for example, the NIST curves P-256,
+P-384, and P-521 {{FIPS186-4}}.
 
-In some cases, it is possible to clear the cofactor via a faster method than scalar multiplication.
+In some cases, it is possible to clear the cofactor via a faster method than
+scalar multiplication.
 For pairing-friendly curves having subgroup G2 over an extension
 field, Scott et al. {{SBCDBK09}} describe a method for faster cofactor clearing
 that exploits an efficiently-computable endomorphism. Fuentes-Castaneda
