@@ -817,12 +817,11 @@ The curve E forms an algebraic group, whose elements are the
 points (x, y) satisfying the curve equation, where x and y are elements of F.
 This group has order n, meaning that there are n distinct points.
 
-For security reasons, groups of prime order MUST be used since they lead to the
-more difficult instances of the discrete logarithm problem. Elliptic curves
+For security reasons, groups of prime order MUST be used. Elliptic curves
 induce subgroups of prime order. Let G be a subgroup of the curve of prime
 order r, where n = h * r.
 In this equation, h is an integer called the cofactor.
-The process of mapping to an elliptic curve point to a point in G is
+The process of mapping an elliptic curve point to a point in G is
 called clearing the cofactor, this operation is described in {{cofactor-clearing}}.
 
 Certain encoding functions restrict the form of the curve equation, the
@@ -923,15 +922,12 @@ presented. The construction of these mappings relies on three basic functions.
     subgroup G of the curve. {{cofactor-clearing}} describes methods to perform
     this operation.
 
-Each function holds particular properties that are described in the subsequent
-sections.
-
 Two top-level functions taking as input a bit string and returning points on
 the curve are introduced. Although these functions have the same interface, the
 distribution of the points they produce are different. The first function is
 called injective encoding and its probability distribution of the points can be
-easily distinguished from a uniform distribution of points on the curve. On the
-other hand, the second function behaves as a hash function since its output is
+easily distinguished from a uniform distribution of points on the curve. The
+second function behaves as a hash function since its output is
 indistinguishable from a uniform distribution of the points on the curve.
 
 -   Injective encodings. A bit string is mapped to a point in G, however,
