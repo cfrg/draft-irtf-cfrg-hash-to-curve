@@ -1931,11 +1931,11 @@ that underly the recommendations in this document.
 This section is provided for informational purposes only.
 
 A naive but generally insecure method of mapping a string alpha to
-a point on an elliptic curve E having n points is to first fix a point G that
+a point on an elliptic curve E having n points is to first fix a point P that
 generates the elliptic curve group, and a hash function Hn from bitstrings
-to integers less than n; then compute Hn(alpha) * G, where the * operator
+to integers less than n; then compute Hn(alpha) * P, where the * operator
 represents scalar multiplication. The reason this approach is insecure is
-that the resulting point has a known discrete log relationship to G.
+that the resulting point has a known discrete log relationship to P.
 Thus, except in cases where this method is specified by the protocol,
 it must not be used; doing so risks catastrophic security failures.
 
@@ -1987,7 +1987,7 @@ Brier et al. {{BCIMRT10}} give two solutions to this problem.
 The first, which applies only to Icart's method (above), computes F(H0(msg))
 + F(H1(msg)) for two distinct hash functions H0, H1.
 The second, which applies to essentially all deterministic encodings but
-is more costly, computes F(H0(msg)) + H1(msg) * G, for G a generator of the
+is more costly, computes F(H0(msg)) + H1(msg) * P, for P a generator of the
 elliptic curve group.
 Farashahi et al. {{FFSTV13}} improve the analysis of the first method,
 showing that this method applies to essentially all deterministic encodings.
