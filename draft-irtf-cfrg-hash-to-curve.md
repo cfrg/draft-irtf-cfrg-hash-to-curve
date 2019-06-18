@@ -813,7 +813,7 @@ An elliptic curve E is specified by a cubic equation in two variables and a
 finite field F. An elliptic curve equation takes one of several standard forms,
 including (but not limited to) Weierstrass, Montgomery, and Edwards.
 
-The curve E forms an algebraic group, whose elements are the
+The curve E forms an algebraic group whose elements are the
 points (x, y) satisfying the curve equation, where x and y are elements of F.
 This group has order n, meaning that there are n distinct points.
 
@@ -822,7 +822,7 @@ induce subgroups of prime order. Let G be a subgroup of the curve of prime
 order r, where n = h * r.
 In this equation, h is an integer called the cofactor.
 The process of mapping an elliptic curve point to a point in G is
-called clearing the cofactor, this operation is described in {{cofactor-clearing}}.
+called clearing the cofactor. This operation is described in {{cofactor-clearing}}.
 
 Certain encoding functions restrict the form of the curve equation, the
 characteristic of the field, and/or the parameters of the curve. For each
@@ -907,10 +907,11 @@ is given in {{roadmap}}.
 
 # Roadmap {#roadmap}
 
-A general framework for mapping bit strings into points of an elliptic curve is
-presented. The construction of these mappings relies on three basic functions.
+This section presents a general framework for mapping bit strings into points
+on an elliptic curve. To construct these mappings, we rely on three basic
+functions:
 
--   The function hash2base, {0, 1}^* -> F, maps arbitrary-length bit strings
+-   The function hash2base, {0, 1}^\* -> F, maps arbitrary-length bit strings
     to elements of a finite field; its implementation is defined in
     {{hashtobase}}.
 
@@ -925,13 +926,13 @@ presented. The construction of these mappings relies on three basic functions.
 Two top-level functions taking as input a bit string and returning points on
 the curve are introduced. Although these functions have the same interface, the
 distribution of the points they produce are different. The first function is
-called injective encoding and its probability distribution of the points can be
-easily distinguished from a uniform distribution of points on the curve. The
-second function behaves as a hash function since its output is
+called an injective encoding and its probability distribution of the points can
+be easily distinguished from a uniform distribution of points on the curve. The
+second function behaves as a random oracle, since its output is
 indistinguishable from a uniform distribution of the points on the curve.
 
--   Injective encodings. A bit string is mapped to a point in G, however,
-    the distribution of its output is not uniform.
+-   Injective encoding. This function maps bit strings to points in G. Note
+    that the distribution of the output is not uniform.
 
     ~~~
     encode2curve(alpha)
@@ -946,10 +947,8 @@ indistinguishable from a uniform distribution of the points on the curve.
     4. return P
     ~~~
 
--   Random Oracle. This function yields a uniform distribution and can be used
-    as a random oracle from strings to points on the curve. Where appropriate,
-    the terms random oracle and hash functions for such mappings are used
-    interchangeably.
+-   Random Oracle. This function maps bit strings to points in G that are
+    indistinguishable from uniformly random.
 
     ~~~
     hash2curve(alpha)
@@ -1871,23 +1870,23 @@ A suite is a bundle of algorithms that provides concrete recommendations for
 hashing bitstrings into points of specific elliptic curve groups. Each suite is
 a tuple (E, H, f, ROM) such that
 
-* E, is the elliptic curve group.
-* H, is the cryptographic hash function used by hash2base.
-* f, is an encoding function compatible with E.
-* ROM, is a boolean flag indicating whether or not to use the random oracle construction.
+-   E, is the elliptic curve group.
+-   H, is the cryptographic hash function used by hash2base.
+-   f, is an encoding function compatible with E.
+-   ROM, is a boolean flag indicating whether or not to use the random oracle construction.
 
 This document describes the following set of ciphersuites
 
 | Suite ID | E | H | f | ROM |
 |----------|---|---|---|-----|
-| H2C-0001 | P256         |  SHA256 | Simplified SWU           | True |
-| H2C-0002 | P384         |  SHA512 | Icart                    | True |
-| H2C-0003 | curve25519   |  SHA512 | Elligator 2              | True |
-| H2C-0004 | curve448     |  SHA512 | Elligator 2              | True |
-| H2C-0005 | edwards25519 |  SHA512 | Elligator 2              | True |
-| H2C-0006 | edwards448   |  SHA512 | Elligator 2              | True |
-| H2C-0007 | SECP256K1    |  SHA512 | Shallue-van de Woestijne | True |
-| H2C-0008 | BLS12381     |  SHA512 | Simplified SWU           | True |
+| H2C-0001 | P256         | SHA256 | Simplified SWU           | True |
+| H2C-0002 | P384         | SHA512 | Icart                    | True |
+| H2C-0003 | curve25519   | SHA512 | Elligator 2              | True |
+| H2C-0004 | curve448     | SHA512 | Elligator 2              | True |
+| H2C-0005 | edwards25519 | SHA512 | Elligator 2              | True |
+| H2C-0006 | edwards448   | SHA512 | Elligator 2              | True |
+| H2C-0007 | SECP256K1    | SHA512 | Shallue-van de Woestijne | True |
+| H2C-0008 | BLS12381     | SHA512 | Simplified SWU           | True |
 
 
 # IANA Considerations
@@ -1913,12 +1912,12 @@ earlier versions of this document.
 
 # Contributors
 
-* Sharon Goldberg \\
-  Boston University \\
-  goldbe@cs.bu.edu
-* Ela Lee \\
-  Royal Holloway, University of London \\
-  Ela.Lee.2010@live.rhul.ac.uk
+*   Sharon Goldberg \\
+    Boston University \\
+    goldbe@cs.bu.edu
+*   Ela Lee \\
+    Royal Holloway, University of London \\
+    Ela.Lee.2010@live.rhul.ac.uk
 
 --- back
 
