@@ -785,7 +785,7 @@ implementation and performance details for each mechanism, along with references
 to the security rationale behind each recommendation and guidance for
 applications not yet covered.
 
-Each algorithm conforms to a common interface, i.e., it encodes a bitstring
+Each algorithm conforms to a common interface, i.e., it encodes a bit string
 {0, 1}^\* to a point on an elliptic curve E. For each variant, we describe the requirements for
 E to make it work. Sample code for each variant is presented in the
 appendix.  Unless otherwise stated, all elliptic curve points are assumed to be
@@ -840,75 +840,74 @@ Summary of quantities:
 | F,q,p | Finite field F of characteristic p and #F=q=p^m. | For prime fields, q=p; otherwise, q=p^m and m>1. |
 | E | Elliptic curve. | E is specified by an equation and a field F. |
 | n | Number of points on the elliptic curve E. | n = h * r, for h and r defined below. |
-| G | A subgroup of the elliptic curve. | Destination group to which bitstrings are mapped. |
+| G | A subgroup of the elliptic curve. | Destination group to which bit strings are mapped. |
 | r | Order of G. | This number MUST be prime.  |
 | h | Cofactor, h >= 1. | An integer satisfying n = h * r.  |
 
 ## Terminology
-In the following, we categorize the terminology for encoding bitstrings to points
-on elliptic curves.
+
+In this section, we define terms used in the rest of this document.
 
 ### Encoding {#term-encoding}
 
-In practice, the input of a given cryptographic algorithm will be a bitstring of
-arbitrary length, denoted {0, 1}^\*. Hence, a concern for virtually all protocols
-involving elliptic curves is how to convert this input into a point on the curve.
-The general term "encoding" refers to the process of producing an elliptic curve
-point given as input a bitstring. In some protocols, the original message may
-also be recovered through a decoding procedure. An encoding may be deterministic
-or probabilistic, although the latter is a potential source of plaintext
-information leakage in face of side-channel attacks.
+Encoding is the process of computing an elliptic curve
+point given as input a bit string. In some protocols, the original message may
+also be recovered through a decoding procedure; this document does not cover
+such procedures.
 
-Suppose that the input of the encoding function is a bitstring of fixed-length
-L. Comparing sizes of the sets, 2^L and n, an encoding function cannot be both
-deterministic and bijective. Alternatively, an injective encoding from {0, 1}^L
-to E can be used, such that L < log2(n) - 1, which is a bijection over a subset
-of points on E. This ensures that encoded plaintext messages can be recovered.
+An encoding may be deterministic or probabilistic.
+Deterministic procedures are generally preferred for security,
+because probabilistic encodings can leak information through side channels.
 
-In practice, encodings are commonly injective and invertible. Injective
-encodings map inputs to a subset of points on the curve. Invertible encodings
-allow computation of input bitstrings given a point on the curve.
+In general, the set of points output by a deterministic encoding procedure
+may not be the full set of points on an elliptic curve E.
+For example, suppose that the input of an encoding is a bit string of fixed length L.
+If 2^L (the number of possible inputs) is not equal to n (the number of points
+on the curve) then such an encoding cannot be both deterministic and bijective.
+If 2^L < n, however, such an encoding may be bijective over a subset of the points on E.
 
-### Serialization {#term-serialization}
-
-A related task is the conversion of an elliptic curve point to a bitstring,
-hereafter referred as "serialization", which is typically used for compactly
-storing and transporting points. For example, in {{SECG1}} there is a standard
-method for serializing points. Some applications have instantiated encoding
-algorithms using this deserialization method. However, this approach fails
-on bit strings that were not generated using the serialization procedure.
+Encodings may also be invertible, meaning that for any point in the image of the encoding
+(that is, for any point that the encoding can output), there is an efficient
+means of computing an input value whose corresponding output is that point.
 
 ### Random Oracle {#term-rom}
 
-In practice, two types of encodings are common: (1) injective encodings, which
-can be used to construct a PRF as F(k, msg) = k * H(msg), and (2) random oracles,
-which used by PAKE protocols {{BMP00}}, short BLS signatures {{BLS01}}, and
-IBE schemes {{BF01}}. When the required encoding is not clear, applications
+In practice, two types of encodings are possible: injective encodings,
+whose output distribution is not uniformly random, and random oracles,
+whose output distribution is indistinguishable from uniformly random.
+Some protocols require a random oracle for security, while others can
+be securely instantiated with an injective encoding.
+When the required encoding is not clear, applications
 SHOULD use a random oracle.
 
-Cryptographic protocols which are proven secure in the random oracle model (ROM)
-often require a hash function that maps bitstrings to elements of a group and
-that behaves as a random oracle, i.e., its response must be uniformly
-distributed on the set of outputs (uniformity property).
-Instantiating one of these protocols with an elliptic curve group motivates
-the term "hashing to the curve", i.e., encoding bitstrings to points on an
-elliptic curve.
+Care is required when constructing a random oracle from an encoding function.
+A naive approach that is insecure is to use the output of a cryptographically
+secure hash function H as the input to the encoding function.
+Because H is cryptographically secure, such a construction is infeasible to invert.
+But because the encoding function may map only to a subset of points on the
+curve, the output of this construction is easily distinguished from uniformly
+random, i.e., it does not behave like a random oracle.
 
-One can easily construct a hash to curve function h(x) by using the output of a
-cryptographically secure hash function H as the input of an encoding function.
-On the one hand, h(x) is difficult to invert since it is computationally
-intractable to produce an input x that maps to h(x) due to H is pre-image
-resistant.
-On the other hand, the uniformity property is not met as the output of an
-encoding is distinguishable from a random distribution. Hence, using
-h(x) is not sufficient to get uniformity and cannot be used as a random oracle.
-
-Brier et al. {{BCIMRT10}} describe two generic constructions that give a
-hash function approximating a random oracle. Farashahi et al. {{FFSTV13}}
+Brier et al. {{BCIMRT10}} describe two generic constructions whose outputs are
+indistinguishable from a random oracle. Farashahi et al. {{FFSTV13}}
 and Tibouchi and Kim {{TK17}} refine this analysis. In particular, Farashahi
-et al. show that summing two independent evaluations of an injective encoding
+et al. show that summing two independent evaluations of many injective encodings
 suffices to approximate a random oracle to an elliptic curve. This construction
 is given in {{roadmap}}.
+
+### Serialization {#term-serialization}
+
+A related task is the conversion of an elliptic curve point to a bit string,
+called serialization, which is typically used for compactly
+storing and transporting points.
+For example, {{SECG1}} gives a standard
+method for serializing points.
+The reverse operation, deserialization, converts a bit string to an elliptic
+curve point.
+Deserialization is different from encoding in that only certain strings, i.e.,
+those output by the serialization procedure, can be deserialized.
+In contrast, this document is concerned with encodings from arbitrary bit strings
+to elliptic curve points.
 
 # Roadmap {#roadmap}
 
@@ -928,12 +927,12 @@ functions:
     subgroup G of the curve. {{cofactor-clearing}} describes methods to perform
     this operation.
 
-Two top-level functions taking as input a bit string and returning points on
-the curve are introduced. Although these functions have the same interface, the
-distribution of the points they produce are different. The first function is
-called an injective encoding and its probability distribution of the points can
-be easily distinguished from a uniform distribution of points on the curve. The
-second function behaves as a random oracle, since its output is
+We describe two high-level functions that map from bit strings to points on
+an elliptic curve. Although these functions have the same interface, the
+distributions of the points they produce are different. The first function is
+called an injective encoding; the probability distribution of its output is
+easily distinguished from a uniform distribution of points on the curve. The
+second function behaves as a random oracle; its output is
 indistinguishable from a uniform distribution of the points on the curve.
 
 -   Injective encoding (encode\_to\_curve). This function maps bit strings to points
@@ -982,7 +981,7 @@ Algorithms in this document make use of utility functions described below.
 -   CMOV(a, b, c): If c=0, CMOV returns a, otherwise returns b. To prevent
     against timing attacks, this operation must run in constant time without
     revealing the value of c. Commonly, implementations assume that the selector
-    is c=1 or c=0. In this case, given a bitstring C, the desired selector c can
+    is c=1 or c=0. In this case, given a bit string C, the desired selector c can
     be computed by OR-ing all bits of C together. The resulting selector will be
     either 0 if all bits of C are zero, or 1 if at least one bit of C is 1.
 
@@ -1093,7 +1092,7 @@ Steps:
 -   I2OSP and OS2IP: These functions are used to convert an octet string to
     and from a non-negative integer {{RFC8017}}.
 
--   a \|\| b: denotes the concatenation of bitstrings a and b.
+-   a \|\| b: denotes the concatenation of bit strings a and b.
 
 # Hashing to a Finite Field {#hashtobase}
 
@@ -1872,7 +1871,7 @@ random oracle model, applications SHOULD use the Random Oracle construction
 given in {{roadmap}}.
 
 A suite is a bundle of algorithms that provides concrete recommendations for
-hashing bitstrings into points of specific elliptic curve groups. Each suite is
+hashing bit strings into points of specific elliptic curve groups. Each suite is
 a tuple (E, H, f, ROM) such that
 
 -   E, is the elliptic curve group.
@@ -1937,7 +1936,7 @@ This section is provided for informational purposes only.
 
 A naive but generally insecure method of mapping a string alpha to
 a point on an elliptic curve E having n points is to first fix a point P that
-generates the elliptic curve group, and a hash function Hn from bitstrings
+generates the elliptic curve group, and a hash function Hn from bit strings
 to integers less than n; then compute Hn(alpha) * P, where the * operator
 represents scalar multiplication. The reason this approach is insecure is
 that the resulting point has a known discrete log relationship to P.
@@ -2001,7 +2000,7 @@ optimizations.
 
 Complementary to the problem of mapping from bit strings to elliptic curve
 points, Bernstein et al. {{BHKL13}} study the problem of mapping from elliptic
-curve points to uniformly random bitstrings, giving solutions for a class of
+curve points to uniformly random bit strings, giving solutions for a class of
 curves including Montgomery and Edwards curves.
 Tibouchi {{T14}} and Aranha et al. {{AFQTZ14}} generalize these results.
 This document does not deal with this complementary problem.
