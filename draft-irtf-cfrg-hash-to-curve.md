@@ -872,11 +872,11 @@ means of computing an input value whose corresponding output is that point.
 
 ### Random Oracle {#term-rom}
 
-In practice, two types of encodings are possible: injective encodings,
+In practice, two types of encodings are possible: nonuniform encodings,
 whose output distribution is not uniformly random, and random oracles,
 whose output distribution is indistinguishable from uniformly random.
 Some protocols require a random oracle for security, while others can
-be securely instantiated with an injective encoding.
+be securely instantiated with a nonuniform encoding.
 When the required encoding is not clear, applications
 SHOULD use a random oracle.
 
@@ -890,10 +890,8 @@ random, i.e., it does not behave like a random oracle.
 
 Brier et al. {{BCIMRT10}} describe two generic constructions whose outputs are
 indistinguishable from a random oracle. Farashahi et al. {{FFSTV13}}
-and Tibouchi and Kim {{TK17}} refine this analysis. In particular, Farashahi
-et al. show that summing two independent evaluations of many injective encodings
-suffices to approximate a random oracle to an elliptic curve. This construction
-is given in {{roadmap}}.
+and Tibouchi and Kim {{TK17}} refine this analysis.
+This construction is described in {{roadmap}}.
 
 ### Serialization {#term-serialization}
 
@@ -930,13 +928,13 @@ functions:
 We describe two high-level functions that map from bit strings to points on
 an elliptic curve. Although these functions have the same interface, the
 distributions of the points they produce are different. The first function is
-called an injective encoding; the probability distribution of its output is
+called an nonuniform encoding; the probability distribution of its output is
 easily distinguished from a uniform distribution of points on the curve. The
 second function behaves as a random oracle; its output is
 indistinguishable from a uniform distribution of the points on the curve.
 
--   Injective encoding (encode\_to\_curve). This function maps bit strings to points
-    in G. Note that the distribution of the output is not uniform.
+-   Nonuniform encoding (encode\_to\_curve). This function maps bit strings to points in G.
+    The distribution of the output is not uniform.
 
 ~~~
 encode_to_curve(alpha)
