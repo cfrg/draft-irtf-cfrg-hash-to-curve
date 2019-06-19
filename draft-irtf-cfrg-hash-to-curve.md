@@ -939,37 +939,37 @@ indistinguishable from a uniform distribution of the points on the curve.
 -   Injective encoding (encode\_to\_curve). This function maps bit strings to points
     in G. Note that the distribution of the output is not uniform.
 
-    ~~~
-    encode_to_curve(alpha)
+~~~
+encode_to_curve(alpha)
 
-    Input: alpha, an arbitrary-length bit string.
-    Output: P, a point in G.
+Input: alpha, an arbitrary-length bit string.
+Output: P, a point in G.
 
-    Steps:
-    1. u = hash_to_base(alpha, 0)
-    2. Q = map_to_curve(u)
-    3. P = clear_cofactor(Q)
-    4. return P
-    ~~~
+Steps:
+1. u = hash_to_base(alpha, 0)
+2. Q = map_to_curve(u)
+3. P = clear_cofactor(Q)
+4. return P
+~~~
 
 -   Random Oracle (hash\_to\_curve). This function maps bit strings to points in G
     that are indistinguishable from uniformly random.
 
-    ~~~
-    hash_to_curve(alpha)
+~~~
+hash_to_curve(alpha)
 
-    Input: alpha, an arbitrary-length bit string.
-    Output: P, a point in G.
+Input: alpha, an arbitrary-length bit string.
+Output: P, a point in G.
 
-    Steps:
-    1. u0 = hash_to_base(alpha, 0)
-    2. u1 = hash_to_base(alpha, 1)
-    3. Q0 = map_to_curve(u0)
-    4. Q1 = map_to_curve(u1)
-    5. R = Q0 + Q1
-    6. P = clear_cofactor(R)
-    7. return P
-    ~~~
+Steps:
+1. u0 = hash_to_base(alpha, 0)
+2. u1 = hash_to_base(alpha, 1)
+3. Q0 = map_to_curve(u0)
+4. Q1 = map_to_curve(u1)
+5. R = Q0 + Q1
+6. P = clear_cofactor(R)
+7. return P
+~~~
 
 Instances of these functions are given in {{suites}}, which defines a list of
 suites that specify a full set of parameters matching elliptic curves and
@@ -990,10 +990,10 @@ Algorithms in this document make use of utility functions described below.
     square in GF(q). Due to Euler's criterion, this function can be calculated
     in constant time as
 
-    ~~~
-    is_square(x, q) := { True,  if x^((q - 1) / 2) is 0 or 1;
-                       { False, otherwise.
-    ~~~
+~~~
+is_square(x, q) := { True,  if x^((q - 1) / 2) is 0 or 1;
+                   { False, otherwise.
+~~~
 
 -   sqrt(x, q): The sqrt operation is a multi-valued function, i.e. there exist
     two roots of x whenever x is square.
@@ -1012,78 +1012,78 @@ Algorithms in this document make use of utility functions described below.
     Regardless of the method chosen, the sqrt function MUST be performed in
     constant time.
 
-    ~~~
-    s = sqrt(x, q)
+~~~
+s = sqrt(x, q)
 
-    Input: x, an element of F.
-    Output: s, an element of F such that s * s = x.
+Input: x, an element of F.
+Output: s, an element of F such that s * s = x.
 
-    ======
+======
 
-    Case 1: q = 3 (mod 4)
+Case 1: q = 3 (mod 4)
 
-    Procedure:
-    1. return x^((q + 1) / 4)
+Procedure:
+1. return x^((q + 1) / 4)
 
-    ======
+======
 
-    Case 2: q = 5 (mod 8)
+Case 2: q = 5 (mod 8)
 
-    Constants:
-    1. c1 = sqrt(-1) in F, i.e., c1 * c1 = -1 mod q.
+Constants:
+1. c1 = sqrt(-1) in F, i.e., c1 * c1 = -1 mod q.
 
-    Procedure:
-    1. t1 = x^((q + 3) / 8)
-    2. e  = t1 * t1 == x
-    3. s  = CMOV(t1 * c1, t1, e)
-    3. return s
+Procedure:
+1. t1 = x^((q + 3) / 8)
+2. e  = t1 * t1 == x
+3. s  = CMOV(t1 * c1, t1, e)
+3. return s
 
-    ======
+======
 
-    Case 3: q = 9 (mod 16)
+Case 3: q = 9 (mod 16)
 
-    Constants:
-    1. c1 = sqrt(-1) in F, i.e., c1 * c1 = -1 mod q.
-    2. c2 = sqrt(sqrt(-1)) in F, i.e., c2 * c2 = c1 mod q.
-    3. c3 = sqrt(-sqrt(-1)) in F, i.e., c3 * c3 = -c1 mod q.
+Constants:
+1. c1 = sqrt(-1) in F, i.e., c1 * c1 = -1 mod q.
+2. c2 = sqrt(sqrt(-1)) in F, i.e., c2 * c2 = c1 mod q.
+3. c3 = sqrt(-sqrt(-1)) in F, i.e., c3 * c3 = -c1 mod q.
 
-    Procedure:
-    1.  t1 = x^((q + 7) / 16)
-    2.  t2 = c1 * t1
-    3.  t3 = c2 * t1
-    4.  t4 = c3 * t1
-    5.  e1 = t2 * t2 == x
-    6.  e2 = t3 * t3 == x
-    7.  t1 = CMOV(t1, t2, e1)  // select t2 if t2 * t2 == x
-    8.  t2 = CMOV(t4, t3, e2)  // select t3 if t3 * t3 == x
-    9.  e3 = t2 * t2 == x
-    10. s  = CMOV(t1, t2, e3)  // select the sqrt from t1 and t2
-    11. return s
-    ~~~
+Procedure:
+1.  t1 = x^((q + 7) / 16)
+2.  t2 = c1 * t1
+3.  t3 = c2 * t1
+4.  t4 = c3 * t1
+5.  e1 = t2 * t2 == x
+6.  e2 = t3 * t3 == x
+7.  t1 = CMOV(t1, t2, e1)  // select t2 if t2 * t2 == x
+8.  t2 = CMOV(t4, t3, e2)  // select t3 if t3 * t3 == x
+9.  e3 = t2 * t2 == x
+10. s  = CMOV(t1, t2, e3)  // select the sqrt from t1 and t2
+11. return s
+~~~
 
 -   sgn0(x): This function returns either +1 or -1, indicating the sign of x.
     This function considers 0 to be positive.
     The following procedure implements sgn0(x) in constant time.
     See {{bg-curves}} for a discussion of representing x as a vector.
 
-    ~~~
-    sgn0(x)
+~~~
+sgn0(x)
 
-    Parameters:
-      1. F, a finite field of characteristic p and order q = p^m, m >= 1.
-    Input: x, an element of F.
-    Output: -1 or 1.
+Parameters:
+  1. F, a finite field of characteristic p and order q = p^m, m >= 1.
+Input: x, an element of F.
+Output: -1 or 1.
 
-    Notation: x_i is the i^th element of the vector representation of x.
+Notation: x_i is the i^th element of the vector representation of x.
 
-    Steps:
-    1. sign = 0
-    2. for i in (m, m - 1, ..., 1):
-    3.   sign_i = CMOV(1, -1, x_i > (p - 1) / 2)
-    4.   sign_i = CMOV(sign_i, 0, x_i == 0)
-    5.   sign = CMOV(sign, sign_i, sign == 0)
-    6. return CMOV(sign, 1, sign == 0)    # regard x = 0 as positive
-    ~~~
+Steps:
+1. sign = 0
+2. for i in (m, m - 1, ..., 1):
+3.   sign_i = CMOV(1, -1, x_i > (p - 1) / 2)
+4.   sign_i = CMOV(sign_i, 0, x_i == 0)
+5.   sign = CMOV(sign, sign_i, sign == 0)
+6. return CMOV(sign, 1, sign == 0)    # regard x = 0 as positive
+~~~
 
 -   inv0(x, q): This function returns the multiplicative inverse of x mod q,
     extended to all of F by fixing inv0(0) == 0.
