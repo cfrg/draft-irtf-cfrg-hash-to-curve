@@ -52,8 +52,9 @@ author:
 
 normative:
   RFC2119:
-  RFC7748:
   RFC8017:
+informative:
+  RFC7748:
   SECG1:
     title: "SEC 1: Elliptic Curve Cryptography"
     target: http://www.secg.org/sec1-v2.pdf
@@ -274,7 +275,6 @@ normative:
         ins: F. Rodriguez-Henriquez
         name: Francisco Rodriguez-Henriquez
         org: CINVESTAV-IPN, San Pedro Zacatenco, Mexico City, Mexico.
-
   BN05:
     title: Pairing-Friendly Elliptic Curves of Prime Order
     seriesinfo:
@@ -410,7 +410,7 @@ normative:
         ins: H. Shacham
         name: Hovav Shacham
         org: Stanford University
-  BLS02:
+  BLS03:
     title: Constructing Elliptic Curves with Prescribed Embedding Degrees
     seriesinfo:
         "In": Security in Communication Networks
@@ -468,6 +468,7 @@ normative:
   hash2curve-repo:
     title: Hashing to Elliptic Curves - GitHub repository
     target: https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve
+    date: 2019
   L13:
     title: Implementing Elligator for Curve25519
     target: https://www.imperialviolet.org/2013/12/25/elligator.html
@@ -548,7 +549,7 @@ normative:
         name: Federico Pintore
         org: University of Trento, Italy
   BHKL13:
-    title: Elligator - elliptic-curve points indistinguishable from uniform random strings
+    title: "Elligator: elliptic-curve points indistinguishable from uniform random strings"
     seriesinfo:
         "In": Proceedings of the 2013 ACM SIGSAC conference on computer and communications security.
         "pages": 967-980
@@ -689,6 +690,47 @@ normative:
         ins: M. Tibouchi
         name: Mehdi Tibouchi
         org: Universite du Luxembourg, Ecole normale superieure
+  W08:
+    title: "Elliptic curves: Number theory and cryptography"
+    seriesinfo:
+        edition: 2nd
+        publisher: Chapman and Hall / CRC
+        ISBN: 9781420071467
+    target: https://www.crcpress.com/9781420071467
+    date: 2008
+    author:
+      -
+        ins: L. C. Washington
+        name: Lawrence C. Washington
+  CFADLNV05:
+    title: Handbook of Elliptic and Hyperelliptic Curve Cryptography
+    seriesinfo:
+        publisher: Chapman and Hall / CRC
+        ISBN: 9781584885184
+    target: https://www.crcpress.com/9781584885184
+    date: 2005
+    author:
+      -
+        ins: H. Cohen
+        name: Henri Cohen
+      -
+        ins: G. Frey
+        name: Gerhard Frey
+      -
+        ins: R. Avanzi
+        name: Roberto Avanzi
+      -
+        ins: C. Doche
+        name: Christophe Doche
+      -
+        ins: T. Lange
+        name: Tanja Lange
+      -
+        ins: K. Nguyen
+        name: Kim Nguyen
+      -
+        ins: F. Vercauteren
+        name: Frederik Vercauteren
   WB19:
     title: Fast and simple constant-time hashing to the BLS12-381 elliptic curve
     seriesinfo:
@@ -745,10 +787,6 @@ normative:
       -
         ins: R. Schoof
         name: Rene Schoof
-  github-repo:
-    title: draft-irtf-cfrg-hash-to-curve | github.com
-    target: https://github.com/chris-wood/draft-irtf-cfrg-hash-to-curve
-    date: 2019
   SAGE:
     title: SageMath, the Sage Mathematics Software System
     author:
@@ -756,7 +794,6 @@ normative:
         org: The Sage Developers
     target: https://www.sagemath.org
     date: 2019
-
 
 --- abstract
 
@@ -768,7 +805,7 @@ arbitrary string to a point on an Elliptic Curve.
 # Introduction {#introduction}
 
 Many cryptographic protocols require a procedure which encodes arbitrary input,
-e.g., a password, to a point on an elliptic curve (EC). This procedure is known
+e.g., a password, to a point on an elliptic curve. This procedure is known
 as hashing to an elliptic curve. Prominent examples of cryptosystems that
 hash to elliptic curves include Simple Password Exponential Key Exchange
 {{J96}}, Password Authenticated Key Exchange {{BMP00}}, Identity-Based
@@ -780,17 +817,14 @@ Compounding this problem is the need to pick a suitable curve for the specific
 protocol.
 
 This document aims to bridge this gap by providing a thorough set of
-recommendations across a range of implementations and curve types. We provide
-implementation and performance details for each mechanism, along with references
-to the security rationale behind each recommendation and guidance for
-applications not yet covered.
+recommended algorithms for a range of curve types. We provide
+implementation and performance details for each algorithm, describe
+the security rationale behind each recommendation, and give guidance for
+elliptic curves that are not explicitly covered.
 
-Each algorithm conforms to a common interface, i.e., it encodes a bit string
-{0, 1}^\* to a point on an elliptic curve E. For each variant, we describe the requirements for
-E to make it work. Sample code for each variant is presented in the
-appendix.  Unless otherwise stated, all elliptic curve points are assumed to be
-represented as affine coordinates, i.e., the pair (x, y) denotes a point on an
-elliptic curve (see {{bg-curves}}).
+Each algorithm conforms to a common interface: it encodes an arbitrary-length bit string
+to a point on an elliptic curve.
+Sample code for each algorithm is presented in {{samplecode}}.
 
 ## Requirements
 
@@ -798,13 +832,13 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
 document are to be interpreted as described in {{RFC2119}}.
 
-
 # Background {#background}
 
 ## Elliptic curves {#bg-curves}
 
 The following is a brief definition of elliptic curves, with an emphasis on
 important parameters and their relation to hashing to curves.
+For further reference, consult {{CFADLNV05}} or {{W08}}.
 
 Let F be the finite field GF(q) of prime characteristic p. In most cases F
 is a prime field, so q=p. Otherwise, F is a field extension, so q=p^m for
@@ -829,9 +863,9 @@ In this equation, h is an integer called the cofactor.
 The process of mapping an elliptic curve point to a point in G is
 called clearing the cofactor. This operation is described in {{cofactor-clearing}}.
 
-Certain encoding functions restrict the form of the curve equation, the
+Certain hash-to-curve algorithms restrict the form of the curve equation, the
 characteristic of the field, and/or the parameters of the curve. For each
-encoding, this document lists the relevant restrictions.
+algorithm presented, this document lists the relevant restrictions.
 
 Summary of quantities:
 
@@ -1088,7 +1122,7 @@ Steps:
     Notice on input 0, the output is 0 as required.
 
 -   I2OSP and OS2IP: These functions are used to convert an octet string to
-    and from a non-negative integer {{RFC8017}}.
+    and from a non-negative integer as described in {{RFC8017}}.
 
 -   a \|\| b: denotes the concatenation of bit strings a and b.
 
@@ -1365,7 +1399,7 @@ The following procedure implements the simplified SWU algorithm in a
 straight-line fashion. This implementation is optimized for the case
 that q = 3 (mod 4), which applies to P-256.
 For discussion of how to generalize to q = 1 (mod 4), see
-{{WB19}} (Section 4) or the example code found at {{github-repo}}.
+{{WB19}} (Section 4) or the example code found at {{hash2curve-repo}}.
 
 ~~~
 map_to_curve_simple_swu(u)
@@ -1695,7 +1729,7 @@ parameters that results in a uniform method for handling exceptional cases.
 
 This encoding method covers curves not handled by other methods, e.g.,
 SECP256K1 {{SEC2}}. It also covers pairing-friendly curves in the BN {{BN05}},
-KSS {{KSS08}}, and BLS {{BLS02}} families. (Note that the encoding
+KSS {{KSS08}}, and BLS {{BLS03}} families. (Note that the encoding
 described in {{simple-swu-pairing-friendly}} is faster, when it applies.)
 
 Preconditions: An elliptic curve y^2 = g(x) = x^3 + B over F such that q=1 (mod 3) and B != 0.
@@ -1830,7 +1864,7 @@ Operations:
 ~~~
 
 We do not repeat the sample implementation of {{simple-swu}} here.
-See {{github-repo}} or {{WB19}} for details on implementing the isogeny map.
+See {{hash2curve-repo}} or {{WB19}} for details on implementing the isogeny map.
 
 # Clearing the cofactor {#cofactor-clearing}
 
@@ -1851,7 +1885,7 @@ field, Scott et al. {{SBCDBK09}} describe a method for faster cofactor clearing
 that exploits an efficiently-computable endomorphism. Fuentes-Castaneda
 et al. {{FKR11}} propose an alternative method that is sometimes more efficient.
 Budroni and Pintore {{BP18}} give concrete instantiations of these methods
-for Barreto-Lynn-Scott pairing-friendly curves {{BLS02}}.
+for Barreto-Lynn-Scott pairing-friendly curves {{BLS03}}.
 
 Wahby and Boneh ({{WB19}}, Section 5) describe a trick due to Scott for
 faster cofactor clearing on any elliptic curve for which the prime
