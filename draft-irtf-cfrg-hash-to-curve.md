@@ -884,38 +884,37 @@ In this section, we define terms used in the rest of this document.
 
 ### Encoding {#term-encoding}
 
-Encoding is the process of computing an elliptic curve
-point given as input a bit string. In some protocols, the original message may
-also be recovered through a decoding procedure; this document does not cover
-such procedures.
-
+Encoding is the process of computing an elliptic curve point from an input bit string.
 An encoding may be deterministic or probabilistic.
 Deterministic procedures are generally preferred for security,
 because probabilistic encodings can leak information through side channels.
 
 In general, the set of points output by a deterministic encoding procedure
-may not be the full set of points on an elliptic curve E.
+may not be the full set of points on an elliptic curve E
+(i.e., it may not be surjective).
+Moreover, an encoding procedure may map distinct inputs to the same output
+(i.e., it may not be injective).
 For example, suppose that the input of an encoding is a bit string of fixed length L.
 If 2^L (the number of possible inputs) is not equal to n (the number of points
-on the curve) then such an encoding cannot be both deterministic and bijective.
-If 2^L < n, however, such an encoding may be bijective over a subset of the points on E.
+on the curve) then such an encoding cannot be deterministic, injective, and surjective.
+If 2^L < n, however, such an encoding may be bijective (i.e., both injective and surjective)
+over a subset of the points on E.
 
-Encodings may also be invertible, meaning that for any point in the image of the encoding
-(that is, for any point that the encoding can output), there is an efficient
-means of computing an input value whose corresponding output is that point.
+Encodings may be invertible, meaning that for any point that the encoding can output,
+there is an efficient means of computing an input value whose corresponding output is that point.
+This document does not cover inversion algorithms.
 
 ### Random Oracle {#term-rom}
 
 In practice, two types of encodings are possible: nonuniform encodings,
-whose output distribution is not uniformly random, and random oracles,
+whose output distribution is not uniformly random, and random-oracle encodings,
 whose output distribution is indistinguishable from uniformly random.
 Some protocols require a random oracle for security, while others can
 be securely instantiated with a nonuniform encoding.
-When the required encoding is not clear, applications
-SHOULD use a random oracle.
+When the required encoding is not clear, applications SHOULD use a random oracle.
 
 Care is required when constructing a random oracle from an encoding function.
-A naive approach that is insecure is to use the output of a cryptographically
+A simple but insecure approach is to use the output of a cryptographically
 secure hash function H as the input to the encoding function.
 Because H is cryptographically secure, such a construction is infeasible to invert.
 But because the encoding function may map only to a subset of points on the
@@ -932,14 +931,15 @@ This construction is described in {{roadmap}}.
 A related task is the conversion of an elliptic curve point to a bit string,
 called serialization, which is typically used for compactly
 storing and transporting points.
-For example, {{SECG1}} gives a standard
-method for serializing points.
+For example, {{SECG1}} gives a standard method for serializing points.
 The reverse operation, deserialization, converts a bit string to an elliptic
 curve point.
+
 Deserialization is different from encoding in that only certain strings, i.e.,
 those output by the serialization procedure, can be deserialized.
 In contrast, this document is concerned with encodings from arbitrary bit strings
 to elliptic curve points.
+This document does not cover serialization or deserialization.
 
 # Roadmap {#roadmap}
 
@@ -952,23 +952,19 @@ functions:
     {{hashtobase}}.
 
 -   The function map\_to\_curve, F -> E, calculates a point on the elliptic curve E
-    from an element of a finite field. {{encodings}} describes mappings for a
-    range of curve families.
+    from an element of the finite field F over which E is defined.
+    {{encodings}} describes mappings for a range of curve families.
 
 -   The function clear\_cofactor, E -> G, maps any point on the curve E to a
     subgroup G of the curve. {{cofactor-clearing}} describes methods to perform
     this operation.
 
-We describe two high-level functions that map from bit strings to points on
+We describe two high-level encoding functions that map from bit strings to points on
 an elliptic curve. Although these functions have the same interface, the
-distributions of the points they produce are different. The first function is
-called an nonuniform encoding; the probability distribution of its output is
-easily distinguished from a uniform distribution of points on the curve. The
-second function behaves as a random oracle; its output is
-indistinguishable from a uniform distribution of the points on the curve.
+distributions of the points they produce are different.
 
 -   Nonuniform encoding (encode\_to\_curve). This function maps bit strings to points in G.
-    The distribution of the output is not uniform.
+    The distribution of the output is not uniformly random in G.
 
 ~~~
 encode_to_curve(alpha)
@@ -983,8 +979,8 @@ Steps:
 4. return P
 ~~~
 
--   Random Oracle (hash\_to\_curve). This function maps bit strings to points in G
-    that are indistinguishable from uniformly random.
+-   Random oracle (hash\_to\_curve). This function maps bit strings to points in G.
+    The distribution of the output is indistinguishable from uniformly random in G.
 
 ~~~
 hash_to_curve(alpha)
