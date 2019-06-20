@@ -900,9 +900,12 @@ on the curve) then such an encoding cannot be deterministic, injective, and surj
 If 2^L < n, however, such an encoding may be bijective (i.e., both injective and surjective)
 over a subset of the points on E.
 
-Encodings may be invertible, meaning that for any point that the encoding can output,
-there is an efficient means of computing an input value whose corresponding output is that point.
-This document does not cover inversion algorithms.
+Encodings may be invertible, meaning that there is an efficient method of recovering
+a bit string msg from any point P produced by the encoding, such that applying the
+encoding to x yields P.
+This document does not discuss inversion algorithms; the encodings herein
+are designed to be difficult to invert, since this is a standard security
+requirement for cryptographic hash functions.
 
 ### Random Oracle {#term-rom}
 
@@ -917,14 +920,14 @@ Care is required when constructing a random oracle from an encoding function.
 A simple but insecure approach is to use the output of a cryptographically
 secure hash function H as the input to the encoding function.
 Because H is cryptographically secure, such a construction is infeasible to invert.
-But because the encoding function may map only to a subset of points on the
+But because in general the encoding function maps only to a subset of points on the
 curve, the output of this construction is easily distinguished from uniformly
 random, i.e., it does not behave like a random oracle.
 
 Brier et al. {{BCIMRT10}} describe two generic constructions whose outputs are
 indistinguishable from a random oracle. Farashahi et al. {{FFSTV13}}
-and Tibouchi and Kim {{TK17}} refine this analysis.
-This construction is described in {{roadmap}}.
+and Tibouchi and Kim {{TK17}} refine the analysis of one of these constructions.
+That construction is described in {{roadmap}}.
 
 ### Serialization {#term-serialization}
 
