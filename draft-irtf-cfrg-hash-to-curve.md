@@ -897,8 +897,8 @@ if the number of elements of F is not equal to n,
 then this mapping cannot be bijective (i.e., both injective and surjective)
 since it is defined to be deterministic.
 
-Mappings may also be invertible, meaning that for any point P output by the
-mapping, there is an efficient algorithm to recover an x in F such that
+Mappings may also be invertible, meaning that there is an efficient algorithm
+that, for any point P output by the mapping, outputs an x in F such that
 applying the mapping to x outputs P.
 This document does not discuss inversion algorithms for mappings.
 
@@ -917,15 +917,20 @@ In particular, H takes as input an arbitrary bit string and outputs an element o
 The deterministic mapping takes that element as input and outputs a point on an
 elliptic curve E defined over F.
 Since the hash function H takes arbitrary bit strings as inputs, it cannot be
-injective, and thus neither is any encoding built from H.
+injective: the set of inputs is larger than the set of outputs, so there must
+be distinct inputs that give the same output (i.e., there must be collisions).
+Thus, any encoding built from H is also not injective.
 
-The hash function H used by the encodings in this document ({{hashtobase}})
-is not invertible, meaning that any encoding built from H is also not invertible.
+Like mappings, encodings may be invertible, meaning that there is an efficient
+algorithm that, for any point P output by the encoding, outputs a bit string s
+such that applying the encoding to s outputs P.
+The hash function used by all encodings specified in this document ({{hashtobase}})
+is not invertible; thus, the encodings are also not invertible.
 
-### Random-oracle encodings {#term-rom}
+### Random oracle encodings {#term-rom}
 
 Two different types of encodings are possible: nonuniform encodings,
-whose output distribution is not uniformly random, and random-oracle encodings,
+whose output distribution is not uniformly random, and random oracle encodings,
 whose output distribution is indistinguishable from uniformly random.
 Some protocols require a random oracle for security, while others can
 be securely instantiated with a nonuniform encoding.
@@ -995,7 +1000,7 @@ Steps:
 4. return P
 ~~~
 
--   Random-oracle encoding (hash\_to\_curve). This function encodes bit strings to points in G.
+-   Random oracle encoding (hash\_to\_curve). This function encodes bit strings to points in G.
     The distribution of the output is indistinguishable from uniformly random
     in G provided that map\_to\_curve is "well distributed" ({{FFSTV13}}, Def. 1).
     All of the map\_to\_curve functions defined in {{mappings}} meet this requirement.
@@ -1241,7 +1246,7 @@ Steps:
 # Deterministic Mappings  {#mappings}
 
 The mappings in this section are suitable for constructing either nonuniform
-or random-oracle encodings using the constructions of {{roadmap}}.
+or random oracle encodings using the constructions of {{roadmap}}.
 
 ## Interface
 
