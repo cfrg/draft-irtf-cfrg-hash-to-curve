@@ -37,6 +37,11 @@ author:
     country: United States of America
     email: nick@cloudflare.com
  -
+    ins: R. S. Wahby
+    name: Riad S. Wahby
+    org: Stanford University
+    email: rsw@cs.stanford.edu
+ -
     ins: C. A. Wood
     name: Christopher A. Wood
     org: Apple Inc.
@@ -911,11 +916,11 @@ This section presents a general framework for mapping bit strings into points
 on an elliptic curve. To construct these mappings, we rely on three basic
 functions:
 
--   The function hash2base, {0, 1}^\* -> F, maps arbitrary-length bit strings
+-   The function hash\_to\_base, {0, 1}^\* -> F, maps arbitrary-length bit strings
     to elements of a finite field; its implementation is defined in
     {{hashtobase}}.
 
--   The function map2curve, F -> E, calculates a point on the elliptic curve E
+-   The function map\_to\_curve, F -> E, calculates a point on the elliptic curve E
     from an element of a finite field. {{encodings}} describes mappings for a
     range of curve families.
 
@@ -931,36 +936,36 @@ be easily distinguished from a uniform distribution of points on the curve. The
 second function behaves as a random oracle, since its output is
 indistinguishable from a uniform distribution of the points on the curve.
 
--   Injective encoding. This function maps bit strings to points in G. Note
-    that the distribution of the output is not uniform.
+-   Injective encoding (encode\_to\_curve). This function maps bit strings to points
+    in G. Note that the distribution of the output is not uniform.
 
     ~~~
-    encode2curve(alpha)
+    encode_to_curve(alpha)
 
     Input: alpha, an arbitrary-length bit string.
     Output: P, a point in G.
 
     Steps:
-    1. u = hash2base(alpha, 0)
-    2. Q = map2curve(u)
+    1. u = hash_to_base(alpha, 0)
+    2. Q = map_to_curve(u)
     3. P = clear_cofactor(Q)
     4. return P
     ~~~
 
--   Random Oracle. This function maps bit strings to points in G that are
-    indistinguishable from uniformly random.
+-   Random Oracle (hash\_to\_curve). This function maps bit strings to points in G
+    that are indistinguishable from uniformly random.
 
     ~~~
-    hash2curve(alpha)
+    hash_to_curve(alpha)
 
     Input: alpha, an arbitrary-length bit string.
     Output: P, a point in G.
 
     Steps:
-    1. u0 = hash2base(alpha, 0)
-    2. u1 = hash2base(alpha, 1)
-    3. Q0 = map2curve(u0)
-    4. Q1 = map2curve(u1)
+    1. u0 = hash_to_base(alpha, 0)
+    2. u1 = hash_to_base(alpha, 1)
+    3. Q0 = map_to_curve(u0)
+    4. Q1 = map_to_curve(u1)
     5. R = Q0 + Q1
     6. P = clear_cofactor(R)
     7. return P
@@ -1092,14 +1097,14 @@ Algorithms in this document make use of utility functions described below.
 
 # Hashing to a Finite Field {#hashtobase}
 
-The hash2base(msg) function maps a string msg of any length into an element of a
+The hash\_to\_base(msg) function maps a string msg of any length into an element of a
 field F. This function is parametrized by the field F ({{bg-curves}}) and by H,
 a cryptographic hash function that outputs b bits.
 
 ## Security considerations {#hash2base-sec}
 
-For security, hash2base should be collision resistant, and should map its
-input to a uniformly random element of F. To this end, hash2base requires
+For security, hash\_to\_base should be collision resistant, and should map its
+input to a uniformly random element of F. To this end, hash\_to\_base requires
 a cryptographic hash function H which satisfies the following properties:
 
 1. The number of bits output by H should be b >= 2 * k for sufficient collision
@@ -1111,7 +1116,7 @@ from a uniformly random bit string.
 For example, for 128-bit security, b >= 256 bits; in this case, SHA256 would
 be an appropriate choice for H.
 
-Ensuring that the hash2base output is a uniform random element of F requires
+Ensuring that the hash\_to\_base output is a uniform random element of F requires
 care, even when H outputs a uniformly random string. For example,
 if H=SHA256 and F is a field of characteristic p = 2^255 - 19, then the
 result of reducing H(msg) (a 256-bit integer) modulo p is slightly more likely
@@ -1126,7 +1131,7 @@ ceil((ceil(log2(p)) + k) / b) times and the results concatenated to produce a
 (W * b)-bit integer. For example, for H=SHA256, k=128-bit security, and p
 a 256-bit prime, W = ceil((256 + 128) / 256) = 2.
 
-{{hash2base-impl}} details the hash2base procedure.
+{{hash2base-impl}} details the hash\_to\_base procedure.
 
 Note that implementors SHOULD NOT use rejection sampling to generate a uniformly
 random element of F.
@@ -1136,9 +1141,9 @@ non-constant-time.
 
 ## Performance considerations {#hash2base-perf}
 
-Since hash2base may invoke H multiple times ({{hash2base-sec}}), its
+Since hash\_to\_base may invoke H multiple times ({{hash2base-sec}}), its
 performance may be limited by the length of the input msg.
-To address this, hash2base first computes H(msg) and then derives the
+To address this, hash\_to\_base first computes H(msg) and then derives the
 required bits from this value via further invocations of H.
 For short messages this entails one extra invocation of H, which is a
 negligible overhead in the context of hashing to elliptic curves.
@@ -1150,19 +1155,19 @@ the value being hashed, e.g., H(msg || 0) and H(msg || 1).
 If msg is long, however, this is either inefficient (because it entails hashing
 msg twice) or requires non-black-box use of H (e.g., partial evaluation).
 
-To sidestep both of these issues, hash2base takes a second argument, ctr,
+To sidestep both of these issues, hash\_to\_base takes a second argument, ctr,
 which it appends to H(msg) rather than to msg.
-This means that two invocations of hash2base on the same msg with different
+This means that two invocations of hash\_to\_base on the same msg with different
 ctr values both start by computing the value H(msg).
 This is an improvement because it allows sharing one evaluation of H(msg) among
-multiple invocations of hash2base, by factoring out the common computation.
+multiple invocations of hash\_to\_base, by factoring out the common computation.
 
 ## Implementation {#hash2base-impl}
 
-The following procedure implements hash2base.
+The following procedure implements hash\_to\_base.
 
 ~~~
-hash2base(msg, ctr)
+hash_to_base(msg, ctr)
 
 Parameters:
 - H, a cryptographic hash function producing b bits.
@@ -1174,7 +1179,7 @@ Inputs:
 - msg is the message to hash.
 - ctr is either 0 or 1.
   This is used to efficiently create independent
-  instances of hash2base (see discussion above).
+  instances of hash_to_base (see discussion above).
 
 Output: u, an element in F.
 
@@ -1195,7 +1200,7 @@ Steps:
 The generic interface shared by all encodings in this section is as follows:
 
 ~~~
-(x, y) = map2curve(u)
+(x, y) = map_to_curve(u)
 ~~~
 
 The output (x, y) specifies a point on an elliptic curve defined over base field F;
@@ -1212,7 +1217,7 @@ As a rough style guide the following convention is used:
   explicitly stated otherwise.
 
 - u: the input to the encoding function.
-  This is an element of F produced by the hash2base function.
+  This is an element of F produced by the hash\_to\_base function.
 
 - (x, y): are the affine coordinates of a point obtained by the encoding method.
   Indexed values are used when the algorithm calculates some candidate values.
@@ -1256,7 +1261,7 @@ E: y^2 = g(x) = x^3 + A * x + B, where 4 * A^3 + 27 * B^2 != 0.
 
 ### Icart Method {#icart}
 
-The function map2curve\_icart(alpha) implements the Icart encoding method from {{Icart09}}.
+The function map\_to\_curve\_icart(alpha) implements the Icart encoding method from {{Icart09}}.
 
 Preconditions: An elliptic curve over F, such that p>3 and q=p^m=2 (mod 3), or
 p=2 (mod 3) and odd m.
@@ -1285,7 +1290,7 @@ Operations:
 The following procedure implements Icart's algorithm in a straight-line fashion.
 
 ~~~
-map2curve_icart(u)
+map_to_curve_icart(u)
 Input: u, an element of F.
 Output: (x, y), a point on E.
 
@@ -1319,7 +1324,7 @@ Steps:
 
 ### Simplified Shallue-van de Woestijne-Ulas Method {#simple-swu}
 
-The function map2curve\_simple\_swu(alpha) implements a simplification
+The function map\_to\_curve\_simple\_swu(alpha) implements a simplification
 of the Shallue-van de Woestijne-Ulas encoding {{U07}} described by Brier et
 al. {{BCIMRT10}}, which they call the "simplified SWU" map. Wahby and Boneh
 {{WB19}} generalize this encoding to curves over fields of odd characteristic p > 3.
@@ -1366,7 +1371,7 @@ For discussion of how to generalize to q = 1 (mod 4), see
 {{WB19}} (Section 4) or the example code found at {{github-repo}}.
 
 ~~~
-map2curve_simple_swu(u)
+map_to_curve_simple_swu(u)
 Input: u, an element of F.
 Output: (x, y), a point on E.
 
@@ -1406,7 +1411,7 @@ Steps:
 
 ### Elligator 2 Method {#elligator2}
 
-The function map2curve\_elligator2(alpha) implements Elligator 2 {{BHKL13}} for
+The function map\_to\_curve\_elligator2(alpha) implements Elligator 2 {{BHKL13}} for
 curves defined by y^2 = x^3 + A * x^2 + B * x such that A * B * (A^2 - 4 * B) != 0
 and A^2 - 4 * B is non-square in F.
 
@@ -1446,7 +1451,7 @@ The following procedure implements Elligator 2 in a straight-line
 fashion for curves where q=3 (mod 4), including Curve448.
 
 ~~~
-map2curve_elligator2_3mod4(u)
+map_to_curve_elligator2_3mod4(u)
 Input: u, an element of F.
 Output: (x, y), a point on E.
 
@@ -1483,7 +1488,7 @@ The following is a straight-line implementation of Elligator 2
 for curves where q=5 (mod 8), including Curve25519.
 
 ~~~
-map2curve_elligator2_5mod8(u)
+map_to_curve_elligator2_5mod8(u)
 Input: u, an element of F.
 Output: (x, y), a point on E.
 
@@ -1558,7 +1563,7 @@ Constants:
 - Z, the smallest (in absolute value) non-square in F, breaking ties by choosing
   the positive value.
 
-Sign of y: for this map, the sign is determined by map2curve_elligator2.
+Sign of y: for this map, the sign is determined by map\_to\_curve_elligator2.
 No further sign adjustments are required.
 
 Exceptions: The exceptions for the Elligator 2 encoding are as given in
@@ -1568,7 +1573,7 @@ are y' == 0 or B' * x' == -1. Implementors must detect these cases and return (x
 The following straight-line implementation handles the exceptional cases:
 
 ~~~
-1. (x', y') = map2curve_elligator2(u)   // a Montgomery point
+1. (x', y') = map_to_curve_elligator2(u)   // a Montgomery point
 2.       x' = x' * B'
 3.       y' = y' * B'
 4.       t1 = x' + 1
@@ -1588,7 +1593,7 @@ The following straight-line implementation handles the exceptional cases:
 
 ### Boneh-Franklin Method {#supersingular}
 
-The function map2curve\_bf(alpha) implements the Boneh-Franklin method {{BF01}} which
+The function map\_to\_curve\_bf(alpha) implements the Boneh-Franklin method {{BF01}} which
 covers the supersingular curves defined by y^2 = x^3 + B over a field F such
 that q=2 (mod 3).
 
@@ -1614,7 +1619,7 @@ The following procedure implements the Boneh-Franklin's algorithm in a
 straight-line fashion.
 
 ~~~
-map2curve_bf(u)
+map_to_curve_bf(u)
 Input: u, an element of F.
 Output: (x, y), a point on E.
 
@@ -1631,7 +1636,7 @@ Steps:
 
 ### Elligator 2, A=0 Method
 
-The function map2curve\_ell2A0(alpha) implements an adaptation of Elligator 2
+The function map\_to\_curve\_ell2A0(alpha) implements an adaptation of Elligator 2
 {{BLMP19}} targeting curves given by y^2 = x^3 + B * x over F such that q=3 (mod 4).
 
 Preconditions: A supersingular curve over F such that q=3 (mod 4).
@@ -1662,7 +1667,7 @@ The following procedure implements the Elligator 2 algorithm for supersingular
 curves in a straight-line fashion.
 
 ~~~
-map2curve_ell2A0(u)
+map_to_curve_ell2A0(u)
 Input: u, an element of F.
 Output: (x, y), a point on E.
 
@@ -1734,7 +1739,7 @@ The following procedure implements the Shallue and van de Woestijne method in a
 straight-line fashion.
 
 ~~~
-map2curve_svdw(u)
+map_to_curve_svdw(u)
 Input: u, an element of F.
 Output: (x, y), a point on E.
 
@@ -1810,19 +1815,19 @@ E' to E.
 
 Helper functions:
 
-- map2curve\_simple\_swu is the encoding of {{simple-swu}} to E'
+- map\_to\_curve\_simple\_swu is the encoding of {{simple-swu}} to E'
 - iso\_map is the isogeny map from E' to E
 
-Sign of y: for this map, the sign is determined by map2curve_elligator2.
+Sign of y: for this map, the sign is determined by map\_to\_curve_elligator2.
 No further sign adjustments are necessary.
 
-Exceptions: map2curve\_simple\_swu handles its exceptional cases.
+Exceptions: map\_to\_curve\_simple\_swu handles its exceptional cases.
 Exceptional cases of iso\_map should return the identity point on E.
 
 Operations:
 
 ~~~
-1. (x', y') = map2curve_simple_swu(u)    // (x', y') is on E'
+1. (x', y') = map_to_curve_simple_swu(u)    // (x', y') is on E'
 8. (x, y)   = iso_map(x', y')            // (x, y) is on E
 8. return (x, y)
 ~~~
@@ -1871,7 +1876,7 @@ hashing bitstrings into points of specific elliptic curve groups. Each suite is
 a tuple (E, H, f, ROM) such that
 
 -   E, is the elliptic curve group.
--   H, is the cryptographic hash function used by hash2base.
+-   H, is the cryptographic hash function used by hash\_to\_base.
 -   f, is an encoding function compatible with E.
 -   ROM, is a boolean flag indicating whether or not to use the random oracle construction.
 
@@ -1906,7 +1911,7 @@ random oracle.
 
 # Acknowledgements
 
-The authors would like to thank Adam Langley for this detailed writeup up Elligator 2 with
+The authors would like to thank Adam Langley for his detailed writeup up Elligator 2 with
 Curve25519 {{L13}}. We also thank Sean Devlin and Thomas Icart for feedback on
 earlier versions of this document.
 
@@ -2009,7 +2014,7 @@ repository {{hash2curve-repo}}.
 # Test Vectors
 
 This section contains test vectors, generated from reference Sage code, for
-each map2curve variant and the hash2base function described in {{hashtobase}}.
+each map\_to\_curve variant and the hash\_to\_base function described in {{hashtobase}}.
 
 ## Elligator 2 to Curve25519
 
@@ -2767,15 +2772,15 @@ Output:
 
 
 
-## Sample hash2base
+## Sample hash\_to\_base
 
 ~~~
-hash2base("H2C-Curve25519-SHA256-Elligator-Clear", 1234)
+hash_to_base("H2C-Curve25519-SHA256-Elligator-Clear", 1234)
   = 1e10b542835e7b227c727bd0a7b2790f39ca1e09fc8538b3c70ef736cb1c298f
 
-hash2base("H2C-P256-SHA512-SWU-", 1234)
+hash_to_base("H2C-P256-SHA512-SWU-", 1234)
   = 4fabef095423c97566bd28b70ee70fb4dd95acfeec076862f4e40981a6c9dd85
 
-hash2base("H2C-P256-SHA512-SSWU-", 1234)
+hash_to_base("H2C-P256-SHA512-SSWU-", 1234)
   = d6f685079d692e24ae13ab154684ae46c5311b78a704c6e11b2f44f4db4c6e47
 ~~~
