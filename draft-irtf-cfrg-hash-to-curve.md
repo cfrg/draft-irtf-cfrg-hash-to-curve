@@ -1301,7 +1301,7 @@ their square-root implementations.
 
 ## Exceptional cases {#map-exceptions}
 
-Encodings may have have exceptional cases, i.e., inputs u
+Mappings may have have exceptional cases, i.e., inputs u
 on which the mapping is undefined. These cases must be handled
 carefully, especially for constant-time implementations.
 
@@ -1310,7 +1310,7 @@ how to handle them in constant time. Note that all implementations SHOULD use
 inv0 ({{utility}}) to compute multiplicative inverses, to avoid exceptional
 cases that result from attempting to compute the inverse of 0.
 
-## Encodings for Weierstrass curves
+## Mappings for Weierstrass curves
 
 The following mappings apply to elliptic curves defined by the equation
 E: y^2 = g(x) = x^3 + A * x + B, where 4 * A^3 + 27 * B^2 != 0.
@@ -1463,7 +1463,7 @@ Steps:
 22. return (x, y)
 ~~~
 
-## Encodings for Montgomery curves
+## Mappings for Montgomery curves
 
 ### Elligator 2 Method {#elligator2}
 
@@ -1581,7 +1581,7 @@ Steps:
 26. return (x, y)
 ~~~
 
-## Encodings for twisted Edwards curves
+## Mappings for twisted Edwards curves
 
 ### Elligator 2 Method {#ell2edwards}
 
@@ -1645,7 +1645,7 @@ The following straight-line implementation handles the exceptional cases:
 14. return (x, y)
 ~~~
 
-## Encodings for Supersingular curves
+## Mappings for Supersingular curves
 
 ### Boneh-Franklin Method {#supersingular}
 
@@ -1741,7 +1741,7 @@ Steps:
 11. return (x, y)
 ~~~
 
-## Encodings for Pairing-Friendly curves
+## Mappings for Pairing-Friendly curves
 
 ### Shallue-van de Woestijne Method {#swpairing}
 
