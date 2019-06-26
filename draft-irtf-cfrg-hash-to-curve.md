@@ -1141,7 +1141,7 @@ non-constant-time.
 
 ## Performance considerations {#hashtobase-perf}
 
-Since hash\_to\_base may invoke H multiple times ({{hash2base-sec}}), its
+Since hash\_to\_base may invoke H multiple times ({{hashtobase-sec}}), its
 performance may be limited by the length of the input msg.
 To address this, hash\_to\_base first computes H(msg) and then derives the
 required bits from this value via further invocations of H.
