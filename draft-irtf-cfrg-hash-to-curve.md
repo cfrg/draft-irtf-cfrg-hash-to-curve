@@ -1101,7 +1101,7 @@ The hash\_to\_base(msg) function maps a string msg of any length into an element
 field F. This function is parametrized by the field F ({{bg-curves}}) and by H,
 a cryptographic hash function that outputs b bits.
 
-## Security considerations {#hash2base-sec}
+## Security considerations {#hashtobase-sec}
 
 For security, hash\_to\_base should be collision resistant, and should map its
 input to a uniformly random element of F. To this end, hash\_to\_base requires
