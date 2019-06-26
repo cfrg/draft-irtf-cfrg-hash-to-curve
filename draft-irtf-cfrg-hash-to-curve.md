@@ -1139,7 +1139,7 @@ The reason is that these procedures are difficult to implement in constant time,
 and later well-meaning "optimizations" may silently render an implementation
 non-constant-time.
 
-## Performance considerations {#hash2base-perf}
+## Performance considerations {#hashtobase-perf}
 
 Since hash\_to\_base may invoke H multiple times ({{hash2base-sec}}), its
 performance may be limited by the length of the input msg.
