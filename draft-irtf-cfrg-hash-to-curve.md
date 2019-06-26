@@ -1131,7 +1131,7 @@ ceil((ceil(log2(p)) + k) / b) times and the results concatenated to produce a
 (W * b)-bit integer. For example, for H=SHA256, k=128-bit security, and p
 a 256-bit prime, W = ceil((256 + 128) / 256) = 2.
 
-{{hash2base-impl}} details the hash\_to\_base procedure.
+{{hashtobase-impl}} details the hash\_to\_base procedure.
 
 Note that implementors SHOULD NOT use rejection sampling to generate a uniformly
 random element of F.
