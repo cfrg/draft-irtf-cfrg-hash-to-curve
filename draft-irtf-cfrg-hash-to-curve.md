@@ -52,8 +52,9 @@ author:
 
 normative:
   RFC2119:
-  RFC7748:
   RFC8017:
+informative:
+  RFC7748:
   SECG1:
     title: "SEC 1: Elliptic Curve Cryptography"
     target: http://www.secg.org/sec1-v2.pdf
@@ -274,7 +275,6 @@ normative:
         ins: F. Rodriguez-Henriquez
         name: Francisco Rodriguez-Henriquez
         org: CINVESTAV-IPN, San Pedro Zacatenco, Mexico City, Mexico.
-
   BN05:
     title: Pairing-Friendly Elliptic Curves of Prime Order
     seriesinfo:
@@ -410,7 +410,7 @@ normative:
         ins: H. Shacham
         name: Hovav Shacham
         org: Stanford University
-  BLS02:
+  BLS03:
     title: Constructing Elliptic Curves with Prescribed Embedding Degrees
     seriesinfo:
         "In": Security in Communication Networks
@@ -468,6 +468,7 @@ normative:
   hash2curve-repo:
     title: Hashing to Elliptic Curves - GitHub repository
     target: https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve
+    date: 2019
   L13:
     title: Implementing Elligator for Curve25519
     target: https://www.imperialviolet.org/2013/12/25/elligator.html
@@ -548,7 +549,7 @@ normative:
         name: Federico Pintore
         org: University of Trento, Italy
   BHKL13:
-    title: Elligator - elliptic-curve points indistinguishable from uniform random strings
+    title: "Elligator: elliptic-curve points indistinguishable from uniform random strings"
     seriesinfo:
         "In": Proceedings of the 2013 ACM SIGSAC conference on computer and communications security.
         "pages": 967-980
@@ -689,6 +690,47 @@ normative:
         ins: M. Tibouchi
         name: Mehdi Tibouchi
         org: Universite du Luxembourg, Ecole normale superieure
+  W08:
+    title: "Elliptic curves: Number theory and cryptography"
+    seriesinfo:
+        edition: 2nd
+        publisher: Chapman and Hall / CRC
+        ISBN: 9781420071467
+    target: https://www.crcpress.com/9781420071467
+    date: 2008
+    author:
+      -
+        ins: L. C. Washington
+        name: Lawrence C. Washington
+  CFADLNV05:
+    title: Handbook of Elliptic and Hyperelliptic Curve Cryptography
+    seriesinfo:
+        publisher: Chapman and Hall / CRC
+        ISBN: 9781584885184
+    target: https://www.crcpress.com/9781584885184
+    date: 2005
+    author:
+      -
+        ins: H. Cohen
+        name: Henri Cohen
+      -
+        ins: G. Frey
+        name: Gerhard Frey
+      -
+        ins: R. Avanzi
+        name: Roberto Avanzi
+      -
+        ins: C. Doche
+        name: Christophe Doche
+      -
+        ins: T. Lange
+        name: Tanja Lange
+      -
+        ins: K. Nguyen
+        name: Kim Nguyen
+      -
+        ins: F. Vercauteren
+        name: Frederik Vercauteren
   WB19:
     title: Fast and simple constant-time hashing to the BLS12-381 elliptic curve
     seriesinfo:
@@ -745,10 +787,6 @@ normative:
       -
         ins: R. Schoof
         name: Rene Schoof
-  github-repo:
-    title: draft-irtf-cfrg-hash-to-curve | github.com
-    target: https://github.com/chris-wood/draft-irtf-cfrg-hash-to-curve
-    date: 2019
   SAGE:
     title: SageMath, the Sage Mathematics Software System
     author:
@@ -757,40 +795,34 @@ normative:
     target: https://www.sagemath.org
     date: 2019
 
-
 --- abstract
 
 This document specifies a number of algorithms that may be used to encode or hash an
-arbitrary string to a point on an Elliptic Curve.
+arbitrary string to a point on an elliptic curve.
 
 --- middle
 
 # Introduction {#introduction}
 
-Many cryptographic protocols require a procedure which encodes arbitrary input,
-e.g., a password, to a point on an elliptic curve (EC). This procedure is known
+Many cryptographic protocols require a procedure that encodes an arbitrary input,
+e.g., a password, to a point on an elliptic curve. This procedure is known
 as hashing to an elliptic curve. Prominent examples of cryptosystems that
 hash to elliptic curves include Simple Password Exponential Key Exchange
 {{J96}}, Password Authenticated Key Exchange {{BMP00}}, Identity-Based
 Encryption {{BF01}} and Boneh-Lynn-Shacham signatures {{BLS01}}.
 
-Unfortunately for implementors, the precise encoding which is suitable for a
+Unfortunately for implementors, the precise hash function that is suitable for a
 given scheme is not necessarily included in the description of the protocol.
 Compounding this problem is the need to pick a suitable curve for the specific
 protocol.
 
 This document aims to bridge this gap by providing a thorough set of
-recommendations across a range of implementations and curve types. We provide
-implementation and performance details for each mechanism, along with references
-to the security rationale behind each recommendation and guidance for
-applications not yet covered.
-
-Each algorithm conforms to a common interface, i.e., it encodes a bitstring
-{0, 1}^\* to a point on an elliptic curve E. For each variant, we describe the requirements for
-E to make it work. Sample code for each variant is presented in the
-appendix.  Unless otherwise stated, all elliptic curve points are assumed to be
-represented as affine coordinates, i.e., the pair (x, y) denotes a point on an
-elliptic curve (see {{bg-curves}}).
+recommended algorithms for a range of curve types.
+Each algorithm conforms to a common interface: it takes as input an arbitrary-length
+bit string and produces as output a point on an elliptic curve.
+We provide implementation details for each algorithm, describe
+the security rationale behind each recommendation, and give guidance for
+elliptic curves that are not explicitly covered.
 
 ## Requirements
 
@@ -798,13 +830,13 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
 document are to be interpreted as described in {{RFC2119}}.
 
-
 # Background {#background}
 
 ## Elliptic curves {#bg-curves}
 
 The following is a brief definition of elliptic curves, with an emphasis on
 important parameters and their relation to hashing to curves.
+For further reference on elliptic curves, consult {{CFADLNV05}} or {{W08}}.
 
 Let F be the finite field GF(q) of prime characteristic p. In most cases F
 is a prime field, so q=p. Otherwise, F is a field extension, so q=p^m for
@@ -814,24 +846,28 @@ of m elements of GF(p) written in ascending order
 by degree. For example, if q=p^2 and the primitive element basis is {1, i},
 then the vector (a, b) corresponds to the element a + b * i.
 
-An elliptic curve E is specified by a cubic equation in two variables and a
+An elliptic curve E is specified by an equation in two variables and a
 finite field F. An elliptic curve equation takes one of several standard forms,
 including (but not limited to) Weierstrass, Montgomery, and Edwards.
 
-The curve E forms an algebraic group whose elements are the
-points (x, y) satisfying the curve equation, where x and y are elements of F.
+The curve E induces an algebraic group whose elements are those points
+with coordinates (x, y) satisfying the curve equation, and where x and y
+are elements of F.
 This group has order n, meaning that there are n distinct points.
+This document uses additive notation for the elliptic curve group operation.
 
 For security reasons, groups of prime order MUST be used. Elliptic curves
 induce subgroups of prime order. Let G be a subgroup of the curve of prime
 order r, where n = h * r.
 In this equation, h is an integer called the cofactor.
-The process of mapping an elliptic curve point to a point in G is
-called clearing the cofactor. This operation is described in {{cofactor-clearing}}.
+An algorithm that takes as input an arbitrary point on the curve E and
+produces as output a point in the subgroup G of E is said to "clear
+the cofactor."
+Such algorithms are discussed in {{cofactor-clearing}}.
 
-Certain encoding functions restrict the form of the curve equation, the
+Certain hash-to-curve algorithms restrict the form of the curve equation, the
 characteristic of the field, and/or the parameters of the curve. For each
-encoding, this document lists the relevant restrictions.
+algorithm presented, this document lists the relevant restrictions.
 
 Summary of quantities:
 
@@ -840,136 +876,153 @@ Summary of quantities:
 | F,q,p | Finite field F of characteristic p and #F=q=p^m. | For prime fields, q=p; otherwise, q=p^m and m>1. |
 | E | Elliptic curve. | E is specified by an equation and a field F. |
 | n | Number of points on the elliptic curve E. | n = h * r, for h and r defined below. |
-| G | A subgroup of the elliptic curve. | Destination group to which bitstrings are mapped. |
+| G | A subgroup of the elliptic curve. | Destination group to which bit strings are encoded. |
 | r | Order of G. | This number MUST be prime.  |
 | h | Cofactor, h >= 1. | An integer satisfying n = h * r.  |
 
 ## Terminology
-In the following, we categorize the terminology for encoding bitstrings to points
-on elliptic curves.
 
-### Encoding {#term-encoding}
+In this section, we define important terms used in the rest of this document.
 
-In practice, the input of a given cryptographic algorithm will be a bitstring of
-arbitrary length, denoted {0, 1}^\*. Hence, a concern for virtually all protocols
-involving elliptic curves is how to convert this input into a point on the curve.
-The general term "encoding" refers to the process of producing an elliptic curve
-point given as input a bitstring. In some protocols, the original message may
-also be recovered through a decoding procedure. An encoding may be deterministic
-or probabilistic, although the latter is a potential source of plaintext
-information leakage in face of side-channel attacks.
+### Mappings {#term-mapping}
 
-Suppose that the input of the encoding function is a bitstring of fixed-length
-L. Comparing sizes of the sets, 2^L and n, an encoding function cannot be both
-deterministic and bijective. Alternatively, an injective encoding from {0, 1}^L
-to E can be used, such that L < log2(n) - 1, which is a bijection over a subset
-of points on E. This ensures that encoded plaintext messages can be recovered.
+A mapping is a deterministic function from an element of the field F to a point
+on an elliptic curve E defined over F.
 
-In practice, encodings are commonly injective and invertible. Injective
-encodings map inputs to a subset of points on the curve. Invertible encodings
-allow computation of input bitstrings given a point on the curve.
+In general, the set of all points that a mapping can produce over all
+possible inputs may be only a subset of the points on an elliptic curve
+(i.e., the mapping may not be surjective).
+In addition, a mapping may output the same point for two or more distinct inputs
+(i.e., the mapping may not be injective).
+For example, consider a mapping from F to an elliptic curve having n points:
+if the number of elements of F is not equal to n,
+then this mapping cannot be bijective (i.e., both injective and surjective)
+since it is defined to be deterministic.
+
+Mappings may also be invertible, meaning that there is an efficient algorithm
+that, for any point P output by the mapping, outputs an x in F such that
+applying the mapping to x outputs P.
+Some of the mappings given in {{mappings}} are invertible, but this
+document does not discuss inversion algorithms.
+
+### Encodings {#term-encoding}
+
+Encodings are closely related to mappings.
+Like a mapping, an encoding is a function that outputs a point on an elliptic curve.
+In contrast to a mapping, however, the input to an encoding is an arbitrary bit string.
+Encodings can be deterministic or probabilistic.
+Deterministic encodings are preferred for security, because probabilistic
+ones can leak information through side channels.
+
+This document constructs deterministic encodings by composing a hash function H
+with a deterministic mapping.
+In particular, H takes as input an arbitrary bit string and outputs an element of F.
+The deterministic mapping takes that element as input and outputs a point on an
+elliptic curve E defined over F.
+Since the hash function H takes arbitrary bit strings as inputs, it cannot be
+injective: the set of inputs is larger than the set of outputs, so there must
+be distinct inputs that give the same output (i.e., there must be collisions).
+Thus, any encoding built from H is also not injective.
+
+Like mappings, encodings may be invertible, meaning that there is an efficient
+algorithm that, for any point P output by the encoding, outputs a bit string s
+such that applying the encoding to s outputs P.
+The hash function used by all encodings specified in this document ({{hashtobase}})
+is not invertible; thus, the encodings are also not invertible.
+
+### Random oracle encodings {#term-rom}
+
+Two different types of encodings are possible: nonuniform encodings,
+whose output distribution is not uniformly random, and random oracle encodings,
+whose output distribution is indistinguishable from uniformly random.
+Some protocols require a random oracle for security, while others can
+be securely instantiated with a nonuniform encoding.
+When the required encoding is not clear, applications SHOULD use a random oracle.
+
+Care is required when constructing a random oracle from a mapping function.
+A simple but insecure approach is to use the output of a cryptographically
+secure hash function H as the input to the mapping.
+Because in general the mapping is not surjective, the output of this
+construction is distinguishable from uniformly random, i.e., it does
+not behave like a random oracle.
+
+Brier et al. {{BCIMRT10}} describe two generic constructions whose outputs are
+indistinguishable from a random oracle. Farashahi et al. {{FFSTV13}} and
+Tibouchi and Kim {{TK17}} refine the analysis of one of these constructions.
+That construction is described in {{roadmap}}.
 
 ### Serialization {#term-serialization}
 
-A related task is the conversion of an elliptic curve point to a bitstring,
-hereafter referred as "serialization", which is typically used for compactly
-storing and transporting points. For example, in {{SECG1}} there is a standard
-method for serializing points. Some applications have instantiated encoding
-algorithms using this deserialization method. However, this approach fails
-on bit strings that were not generated using the serialization procedure.
+A procedure related to encoding is the conversion of an elliptic curve point to a bit string.
+This is called serialization, and is typically used for compactly storing or transmitting points.
+For example, {{SECG1}} gives a standard method for serializing points.
+The reverse operation, deserialization, converts a bit string to an elliptic
+curve point.
 
-### Random Oracle {#term-rom}
-
-In practice, two types of encodings are common: (1) injective encodings, which
-can be used to construct a PRF as F(k, msg) = k * H(msg), and (2) random oracles,
-which used by PAKE protocols {{BMP00}}, short BLS signatures {{BLS01}}, and
-IBE schemes {{BF01}}. When the required encoding is not clear, applications
-SHOULD use a random oracle.
-
-Cryptographic protocols which are proven secure in the random oracle model (ROM)
-often require a hash function that maps bitstrings to elements of a group and
-that behaves as a random oracle, i.e., its response must be uniformly
-distributed on the set of outputs (uniformity property).
-Instantiating one of these protocols with an elliptic curve group motivates
-the term "hashing to the curve", i.e., encoding bitstrings to points on an
-elliptic curve.
-
-One can easily construct a hash to curve function h(x) by using the output of a
-cryptographically secure hash function H as the input of an encoding function.
-On the one hand, h(x) is difficult to invert since it is computationally
-intractable to produce an input x that maps to h(x) due to H is pre-image
-resistant.
-On the other hand, the uniformity property is not met as the output of an
-encoding is distinguishable from a random distribution. Hence, using
-h(x) is not sufficient to get uniformity and cannot be used as a random oracle.
-
-Brier et al. {{BCIMRT10}} describe two generic constructions that give a
-hash function approximating a random oracle. Farashahi et al. {{FFSTV13}}
-and Tibouchi and Kim {{TK17}} refine this analysis. In particular, Farashahi
-et al. show that summing two independent evaluations of an injective encoding
-suffices to approximate a random oracle to an elliptic curve. This construction
-is given in {{roadmap}}.
+Deserialization is different from encoding in that only certain strings
+(namely, those output by the serialization procedure) can be deserialized.
+In contrast, this document is concerned with encodings from arbitrary bit strings
+to elliptic curve points.
+This document does not cover serialization or deserialization.
 
 # Roadmap {#roadmap}
 
-This section presents a general framework for mapping bit strings into points
-on an elliptic curve. To construct these mappings, we rely on three basic
+This section presents a general framework for encoding bit strings to points
+on an elliptic curve. To construct these encodings, we rely on three basic
 functions:
 
--   The function hash\_to\_base, {0, 1}^\* -> F, maps arbitrary-length bit strings
+-   The function hash\_to\_base, {0, 1}^\* -> F, hashes arbitrary-length bit strings
     to elements of a finite field; its implementation is defined in
     {{hashtobase}}.
 
 -   The function map\_to\_curve, F -> E, calculates a point on the elliptic curve E
-    from an element of a finite field. {{encodings}} describes mappings for a
-    range of curve families.
+    from an element of the finite field F over which E is defined.
+    {{mappings}} describes mappings for a range of curve families.
 
--   The function clear\_cofactor, E -> G, maps any point on the curve E to a
-    subgroup G of the curve. {{cofactor-clearing}} describes methods to perform
+-   The function clear\_cofactor, E -> G, sends any point on the curve E to
+    the subgroup G of E. {{cofactor-clearing}} describes methods to perform
     this operation.
 
-Two top-level functions taking as input a bit string and returning points on
-the curve are introduced. Although these functions have the same interface, the
-distribution of the points they produce are different. The first function is
-called an injective encoding and its probability distribution of the points can
-be easily distinguished from a uniform distribution of points on the curve. The
-second function behaves as a random oracle, since its output is
-indistinguishable from a uniform distribution of the points on the curve.
+We describe two high-level encoding functions ({{term-encoding}}).
+Although these functions have the same interface, the
+distributions of their outputs are different.
 
--   Injective encoding (encode\_to\_curve). This function maps bit strings to points
-    in G. Note that the distribution of the output is not uniform.
+-   Nonuniform encoding (encode\_to\_curve). This function encodes bit strings to points in G.
+    The distribution of the output is not uniformly random in G.
 
-    ~~~
-    encode_to_curve(alpha)
+~~~
+encode_to_curve(alpha)
 
-    Input: alpha, an arbitrary-length bit string.
-    Output: P, a point in G.
+Input: alpha, an arbitrary-length bit string.
+Output: P, a point in G.
 
-    Steps:
-    1. u = hash_to_base(alpha, 0)
-    2. Q = map_to_curve(u)
-    3. P = clear_cofactor(Q)
-    4. return P
-    ~~~
+Steps:
+1. u = hash_to_base(alpha, 0)
+2. Q = map_to_curve(u)
+3. P = clear_cofactor(Q)
+4. return P
+~~~
 
--   Random Oracle (hash\_to\_curve). This function maps bit strings to points in G
-    that are indistinguishable from uniformly random.
+-   Random oracle encoding (hash\_to\_curve). This function encodes bit strings to points in G.
+    The distribution of the output is indistinguishable from uniformly random
+    in G provided that map\_to\_curve is "well distributed" ({{FFSTV13}}, Def. 1).
+    All of the map\_to\_curve functions defined in {{mappings}} meet this requirement.
 
-    ~~~
-    hash_to_curve(alpha)
+~~~
+hash_to_curve(alpha)
 
-    Input: alpha, an arbitrary-length bit string.
-    Output: P, a point in G.
+Input: alpha, an arbitrary-length bit string.
+Output: P, a point in G.
 
-    Steps:
-    1. u0 = hash_to_base(alpha, 0)
-    2. u1 = hash_to_base(alpha, 1)
-    3. Q0 = map_to_curve(u0)
-    4. Q1 = map_to_curve(u1)
-    5. R = Q0 + Q1
-    6. P = clear_cofactor(R)
-    7. return P
-    ~~~
+Steps:
+1. u0 = hash_to_base(alpha, 0)
+2. u1 = hash_to_base(alpha, 1)
+3. Q0 = map_to_curve(u0)
+4. Q1 = map_to_curve(u1)
+5. R = Q0 + Q1
+6. P = clear_cofactor(R)
+7. return P
+~~~
 
 Instances of these functions are given in {{suites}}, which defines a list of
 suites that specify a full set of parameters matching elliptic curves and
@@ -982,7 +1035,7 @@ Algorithms in this document make use of utility functions described below.
 -   CMOV(a, b, c): If c=0, CMOV returns a, otherwise returns b. To prevent
     against timing attacks, this operation must run in constant time without
     revealing the value of c. Commonly, implementations assume that the selector
-    is c=1 or c=0. In this case, given a bitstring C, the desired selector c can
+    is c=1 or c=0. In this case, given a bit string C, the desired selector c can
     be computed by OR-ing all bits of C together. The resulting selector will be
     either 0 if all bits of C are zero, or 1 if at least one bit of C is 1.
 
@@ -990,10 +1043,10 @@ Algorithms in this document make use of utility functions described below.
     square in GF(q). Due to Euler's criterion, this function can be calculated
     in constant time as
 
-    ~~~
-    is_square(x, q) := { True,  if x^((q - 1) / 2) is 0 or 1;
-                       { False, otherwise.
-    ~~~
+~~~
+is_square(x, q) := { True,  if x^((q - 1) / 2) is 0 or 1;
+                   { False, otherwise.
+~~~
 
 -   sqrt(x, q): The sqrt operation is a multi-valued function, i.e. there exist
     two roots of x whenever x is square.
@@ -1012,78 +1065,78 @@ Algorithms in this document make use of utility functions described below.
     Regardless of the method chosen, the sqrt function MUST be performed in
     constant time.
 
-    ~~~
-    s = sqrt(x, q)
+~~~
+s = sqrt(x, q)
 
-    Input: x, an element of F.
-    Output: s, an element of F such that s * s = x.
+Input: x, an element of F.
+Output: s, an element of F such that s * s = x.
 
-    ======
+======
 
-    Case 1: q = 3 (mod 4)
+Case 1: q = 3 (mod 4)
 
-    Procedure:
-    1. return x^((q + 1) / 4)
+Procedure:
+1. return x^((q + 1) / 4)
 
-    ======
+======
 
-    Case 2: q = 5 (mod 8)
+Case 2: q = 5 (mod 8)
 
-    Constants:
-    1. c1 = sqrt(-1) in F, i.e., c1 * c1 = -1 mod q.
+Constants:
+1. c1 = sqrt(-1) in F, i.e., c1 * c1 = -1 mod q.
 
-    Procedure:
-    1. t1 = x^((q + 3) / 8)
-    2. e  = t1 * t1 == x
-    3. s  = CMOV(t1 * c1, t1, e)
-    3. return s
+Procedure:
+1. t1 = x^((q + 3) / 8)
+2. e  = t1 * t1 == x
+3. s  = CMOV(t1 * c1, t1, e)
+3. return s
 
-    ======
+======
 
-    Case 3: q = 9 (mod 16)
+Case 3: q = 9 (mod 16)
 
-    Constants:
-    1. c1 = sqrt(-1) in F, i.e., c1 * c1 = -1 mod q.
-    2. c2 = sqrt(sqrt(-1)) in F, i.e., c2 * c2 = c1 mod q.
-    3. c3 = sqrt(-sqrt(-1)) in F, i.e., c3 * c3 = -c1 mod q.
+Constants:
+1. c1 = sqrt(-1) in F, i.e., c1 * c1 = -1 mod q.
+2. c2 = sqrt(sqrt(-1)) in F, i.e., c2 * c2 = c1 mod q.
+3. c3 = sqrt(-sqrt(-1)) in F, i.e., c3 * c3 = -c1 mod q.
 
-    Procedure:
-    1.  t1 = x^((q + 7) / 16)
-    2.  t2 = c1 * t1
-    3.  t3 = c2 * t1
-    4.  t4 = c3 * t1
-    5.  e1 = t2 * t2 == x
-    6.  e2 = t3 * t3 == x
-    7.  t1 = CMOV(t1, t2, e1)  // select t2 if t2 * t2 == x
-    8.  t2 = CMOV(t4, t3, e2)  // select t3 if t3 * t3 == x
-    9.  e3 = t2 * t2 == x
-    10. s  = CMOV(t1, t2, e3)  // select the sqrt from t1 and t2
-    11. return s
-    ~~~
+Procedure:
+1.  t1 = x^((q + 7) / 16)
+2.  t2 = c1 * t1
+3.  t3 = c2 * t1
+4.  t4 = c3 * t1
+5.  e1 = t2 * t2 == x
+6.  e2 = t3 * t3 == x
+7.  t1 = CMOV(t1, t2, e1)  // select t2 if t2 * t2 == x
+8.  t2 = CMOV(t4, t3, e2)  // select t3 if t3 * t3 == x
+9.  e3 = t2 * t2 == x
+10. s  = CMOV(t1, t2, e3)  // select the sqrt from t1 and t2
+11. return s
+~~~
 
 -   sgn0(x): This function returns either +1 or -1, indicating the sign of x.
     This function considers 0 to be positive.
     The following procedure implements sgn0(x) in constant time.
     See {{bg-curves}} for a discussion of representing x as a vector.
 
-    ~~~
-    sgn0(x)
+~~~
+sgn0(x)
 
-    Parameters:
-      1. F, a finite field of characteristic p and order q = p^m, m >= 1.
-    Input: x, an element of F.
-    Output: -1 or 1.
+Parameters:
+  1. F, a finite field of characteristic p and order q = p^m, m >= 1.
+Input: x, an element of F.
+Output: -1 or 1.
 
-    Notation: x_i is the i^th element of the vector representation of x.
+Notation: x_i is the i^th element of the vector representation of x.
 
-    Steps:
-    1. sign = 0
-    2. for i in (m, m - 1, ..., 1):
-    3.   sign_i = CMOV(1, -1, x_i > (p - 1) / 2)
-    4.   sign_i = CMOV(sign_i, 0, x_i == 0)
-    5.   sign = CMOV(sign, sign_i, sign == 0)
-    6. return CMOV(sign, 1, sign == 0)    # regard x = 0 as positive
-    ~~~
+Steps:
+1. sign = 0
+2. for i in (m, m - 1, ..., 1):
+3.   sign_i = CMOV(1, -1, x_i > (p - 1) / 2)
+4.   sign_i = CMOV(sign_i, 0, x_i == 0)
+5.   sign = CMOV(sign, sign_i, sign == 0)
+6. return CMOV(sign, 1, sign == 0)    # regard x = 0 as positive
+~~~
 
 -   inv0(x, q): This function returns the multiplicative inverse of x mod q,
     extended to all of F by fixing inv0(0) == 0.
@@ -1091,20 +1144,20 @@ Algorithms in this document make use of utility functions described below.
     Notice on input 0, the output is 0 as required.
 
 -   I2OSP and OS2IP: These functions are used to convert an octet string to
-    and from a non-negative integer {{RFC8017}}.
+    and from a non-negative integer as described in {{RFC8017}}.
 
--   a \|\| b: denotes the concatenation of bitstrings a and b.
+-   a \|\| b: denotes the concatenation of bit strings a and b.
 
 # Hashing to a Finite Field {#hashtobase}
 
-The hash\_to\_base(msg) function maps a string msg of any length into an element of a
+The hash\_to\_base(msg) function hashes a string msg of any length into an element of a
 field F. This function is parametrized by the field F ({{bg-curves}}) and by H,
 a cryptographic hash function that outputs b bits.
 
 ## Security considerations {#hashtobase-sec}
 
-For security, hash\_to\_base should be collision resistant, and should map its
-input to a uniformly random element of F. To this end, hash\_to\_base requires
+For security, hash\_to\_base should be collision resistant and its output distribution
+should be uniform over F. To this end, hash\_to\_base requires
 a cryptographic hash function H which satisfies the following properties:
 
 1. The number of bits output by H should be b >= 2 * k for sufficient collision
@@ -1193,11 +1246,14 @@ Steps:
 7. return u = ( e_1, ..., e_m )
 ~~~
 
-# Deterministic Encodings  {#encodings}
+# Deterministic Mappings  {#mappings}
+
+The mappings in this section are suitable for constructing either nonuniform
+or random oracle encodings using the constructions of {{roadmap}}.
 
 ## Interface
 
-The generic interface shared by all encodings in this section is as follows:
+The generic interface shared by all mappings in this section is as follows:
 
 ~~~
 (x, y) = map_to_curve(u)
@@ -1216,10 +1272,10 @@ As a rough style guide the following convention is used:
 - All arithmetic operations are performed over a field F, unless
   explicitly stated otherwise.
 
-- u: the input to the encoding function.
+- u: the input to the mapping function.
   This is an element of F produced by the hash\_to\_base function.
 
-- (x, y): are the affine coordinates of a point obtained by the encoding method.
+- (x, y): are the affine coordinates of the point output by the mapping.
   Indexed values are used when the algorithm calculates some candidate values.
 
 - t1, t2, ...: are reusable temporary variables. For notable variables,
@@ -1232,13 +1288,13 @@ As a rough style guide the following convention is used:
 ## Sign of the resulting point {#point-sign}
 
 In general, elliptic curves have equations of the form y^2 = g(x).
-Most of the encodings in this section first identify an x such that
+Most of the mappings in this section first identify an x such that
 g(x) is square, then take a square root to find y. Since there
 are two square roots when g(x) != 0, this results in an ambiguity
 regarding the sign of y.
 
-To resolve this ambiguity, the encodings in this section specify
-the sign of the y-coordinate in terms of the input to the encoding function.
+To resolve this ambiguity, the mappings in this section specify
+the sign of the y-coordinate in terms of the input to the mapping function.
 Two main reasons support this approach. First, this covers elliptic curves over
 any field in a uniform way, and second, it gives implementors leeway to optimize
 their square-root implementations.
@@ -1246,29 +1302,29 @@ their square-root implementations.
 ## Exceptional cases {#map-exceptions}
 
 Encodings may have have exceptional cases, i.e., inputs u
-on which the encoding is undefined. These cases must be handled
+on which the mapping is undefined. These cases must be handled
 carefully, especially for constant-time implementations.
 
-For each encoding in this section, we discuss the exceptional cases and show
+For each mapping in this section, we discuss the exceptional cases and show
 how to handle them in constant time. Note that all implementations SHOULD use
 inv0 ({{utility}}) to compute multiplicative inverses, to avoid exceptional
 cases that result from attempting to compute the inverse of 0.
 
 ## Encodings for Weierstrass curves
 
-The following encodings apply to elliptic curves defined by the equation
+The following mappings apply to elliptic curves defined by the equation
 E: y^2 = g(x) = x^3 + A * x + B, where 4 * A^3 + 27 * B^2 != 0.
 
 ### Icart Method {#icart}
 
-The function map\_to\_curve\_icart(alpha) implements the Icart encoding method from {{Icart09}}.
+The function map\_to\_curve\_icart(alpha) implements the Icart method from {{Icart09}}.
 
 Preconditions: An elliptic curve over F, such that p>3 and q=p^m=2 (mod 3), or
 p=2 (mod 3) and odd m.
 
 Constants: A and B, the parameters of the Weierstrass curve.
 
-Sign of y: this encoding does not compute a square root, so there
+Sign of y: this mapping does not compute a square root, so there
 is no ambiguity regarding the sign of y.
 
 Exceptions: The only exceptional case is u == 0.
@@ -1325,9 +1381,9 @@ Steps:
 ### Simplified Shallue-van de Woestijne-Ulas Method {#simple-swu}
 
 The function map\_to\_curve\_simple\_swu(alpha) implements a simplification
-of the Shallue-van de Woestijne-Ulas encoding {{U07}} described by Brier et
+of the Shallue-van de Woestijne-Ulas mapping {{U07}} described by Brier et
 al. {{BCIMRT10}}, which they call the "simplified SWU" map. Wahby and Boneh
-{{WB19}} generalize this encoding to curves over fields of odd characteristic p > 3.
+{{WB19}} generalize this mapping to curves over fields of odd characteristic p > 3.
 
 Preconditions: A Weierstrass curve over F such that A!=0 and B!=0.
 
@@ -1368,7 +1424,7 @@ The following procedure implements the simplified SWU algorithm in a
 straight-line fashion. This implementation is optimized for the case
 that q = 3 (mod 4), which applies to P-256.
 For discussion of how to generalize to q = 1 (mod 4), see
-{{WB19}} (Section 4) or the example code found at {{github-repo}}.
+{{WB19}} (Section 4) or the example code found at {{hash2curve-repo}}.
 
 ~~~
 map_to_curve_simple_swu(u)
@@ -1566,7 +1622,7 @@ Constants:
 Sign of y: for this map, the sign is determined by map\_to\_curve_elligator2.
 No further sign adjustments are required.
 
-Exceptions: The exceptions for the Elligator 2 encoding are as given in
+Exceptions: The exceptions for the Elligator 2 mapping are as given in
 {{elligator2}}. When converting to a point on the twisted Edwards curve, the remaining exceptions
 are y' == 0 or B' * x' == -1. Implementors must detect these cases and return (x, y) = (0, 1).
 
@@ -1689,16 +1745,16 @@ Steps:
 
 ### Shallue-van de Woestijne Method {#swpairing}
 
-Shallue and van de Woestijne {{SW06}} describe an encoding that applies to
+Shallue and van de Woestijne {{SW06}} describe a mapping that applies to
 essentially any elliptic curve. Fouque and Tibouchi {{FT12}} give a concrete
-set of parameters for this encoding geared toward Barreto-Naehrig pairing-friendly curves
+set of parameters for this mapping geared toward Barreto-Naehrig pairing-friendly curves
 {{BN05}}, i.e., curves y^2 = x^3 + B over fields of characteristic q=1 (mod 3).
 Wahby and Boneh {{WB19}} suggest a small generalization of the Fouque-Tibouchi
 parameters that results in a uniform method for handling exceptional cases.
 
-This encoding method covers curves not handled by other methods, e.g.,
+The Shallue-van de Woestijne mapping method covers curves not handled by other methods, e.g.,
 SECP256K1 {{SEC2}}. It also covers pairing-friendly curves in the BN {{BN05}},
-KSS {{KSS08}}, and BLS {{BLS02}} families. (Note that the encoding
+KSS {{KSS08}}, and BLS {{BLS03}} families. (Note, however, that the mapping
 described in {{simple-swu-pairing-friendly}} is faster, when it applies.)
 
 Preconditions: An elliptic curve y^2 = g(x) = x^3 + B over F such that q=1 (mod 3) and B != 0.
@@ -1789,10 +1845,10 @@ Steps:
 
 ### Simplified SWU for Pairing-Friendly Curves {#simple-swu-pairing-friendly}
 
-Wahby and Boneh {{WB19}} show how to adapt the simplified SWU encoding to
+Wahby and Boneh {{WB19}} show how to adapt the simplified SWU mapping to
 certain Weierstrass curves having either A = 0 or B = 0, one of which is
 almost always true for pairing-friendly curves. Note that neither case is
-supported by the encoding of {{simple-swu}}.
+supported by the mapping of {{simple-swu}}.
 
 This method requires finding another elliptic curve
 
@@ -1805,8 +1861,8 @@ that is isogenous to E and has A' != 0 and B' != 0.
 This isogeny defines a map iso\_map(x', y') that takes as input a point
 on E' and produces as output a point on E.
 
-Once E' and iso\_map are identified, this encoding is straightforward: on input
-alpha, first apply the simplified SWU encoding to get a point on E', then apply
+Once E' and iso\_map are identified, this mapping is straightforward: on input
+alpha, first apply the simplified SWU mapping to get a point on E', then apply
 the isogeny map to that point to get a point on E.
 
 Preconditions: An elliptic curve E' with A' != 0 and B' != 0 that is
@@ -1815,7 +1871,7 @@ E' to E.
 
 Helper functions:
 
-- map\_to\_curve\_simple\_swu is the encoding of {{simple-swu}} to E'
+- map\_to\_curve\_simple\_swu is the mapping of {{simple-swu}} to E'
 - iso\_map is the isogeny map from E' to E
 
 Sign of y: for this map, the sign is determined by map\_to\_curve_elligator2.
@@ -1833,18 +1889,18 @@ Operations:
 ~~~
 
 We do not repeat the sample implementation of {{simple-swu}} here.
-See {{github-repo}} or {{WB19}} for details on implementing the isogeny map.
+See {{hash2curve-repo}} or {{WB19}} for details on implementing the isogeny map.
 
 # Clearing the cofactor {#cofactor-clearing}
 
-The encodings of {{encodings}} always output a point on the elliptic curve,
+The mappings of {{mappings}} always output a point on the elliptic curve,
 i.e., a point in a group of order h * r ({{bg-curves}}). Obtaining a point in G
 may require a final operation commonly called "clearing the cofactor," which
 takes as input any point on the curve.
 
 This operation can always be implemented as a scalar multiplication by h.
 For elliptic curves where h = 1, i.e., the curves with a prime number of points,
-no operation is required. This applies to, for example, the NIST curves P-256,
+no operation is required. This applies, for example, to the NIST curves P-256,
 P-384, and P-521 {{FIPS186-4}}.
 
 In some cases, it is possible to clear the cofactor via a faster method than
@@ -1854,7 +1910,7 @@ field, Scott et al. {{SBCDBK09}} describe a method for faster cofactor clearing
 that exploits an efficiently-computable endomorphism. Fuentes-Castaneda
 et al. {{FKR11}} propose an alternative method that is sometimes more efficient.
 Budroni and Pintore {{BP18}} give concrete instantiations of these methods
-for Barreto-Lynn-Scott pairing-friendly curves {{BLS02}}.
+for Barreto-Lynn-Scott pairing-friendly curves {{BLS03}}.
 
 Wahby and Boneh ({{WB19}}, Section 5) describe a trick due to Scott for
 faster cofactor clearing on any elliptic curve for which the prime
@@ -1872,7 +1928,7 @@ random oracle model, applications SHOULD use the Random Oracle construction
 given in {{roadmap}}.
 
 A suite is a bundle of algorithms that provides concrete recommendations for
-hashing bitstrings into points of specific elliptic curve groups. Each suite is
+hashing bit strings into points of specific elliptic curve groups. Each suite is
 a tuple (E, H, f, ROM) such that
 
 -   E, is the elliptic curve group.
@@ -1902,9 +1958,9 @@ This document has no IANA actions.
 
 Each encoding function variant accepts arbitrary input and maps it to a pseudorandom
 point on the curve.
-Directly evaluating the encodings of {{encodings}} produces an output that is
+Directly evaluating the mappings of {{mappings}} produces an output that is
 distinguishable from random.
-{{roadmap}} shows how to use these encodings to construct a function approximating a
+{{roadmap}} shows how to use these mappings to construct a function approximating a
 random oracle.
 
 {{hashtobase}} describes considerations for uniformly hashing to field elements.
@@ -1937,7 +1993,7 @@ This section is provided for informational purposes only.
 
 A naive but generally insecure method of mapping a string alpha to
 a point on an elliptic curve E having n points is to first fix a point P that
-generates the elliptic curve group, and a hash function Hn from bitstrings
+generates the elliptic curve group, and a hash function Hn from bit strings
 to integers less than n; then compute Hn(alpha) * P, where the * operator
 represents scalar multiplication. The reason this approach is insecure is
 that the resulting point has a known discrete log relationship to P.
@@ -1975,33 +2031,35 @@ over a field of characteristic p = 2 mod 3 {{Icart09}}.
 Several extensions and generalizations follow this work, including
 {{FSV09}}, {{FT10}}, {{KLR10}}, {{F11}}, and {{CK11}}.
 
-Following the work of Farashahi {{F11}}, Fouque et al. {{FJT13}} describe an
-encoding to curves of characteristic p = 3 mod 4 having a number of points
-divisible by 4.  Bernstein et al. {{BHKL13}} optimize this encoding, and
-describe a related encoding that they call "Elligator 2," which applies to
+Following the work of Farashahi {{F11}}, Fouque et al. {{FJT13}} describe a
+mapping to curves of characteristic p = 3 mod 4 having a number of points
+divisible by 4.  Bernstein et al. {{BHKL13}} optimize this mapping and
+describe a related mapping that they call "Elligator 2," which applies to
 any curve over a field of odd characteristic having a point of order 2.
 This includes Curve25519 and Curve448, both of which are CFRG-recommended
 curves {{RFC7748}}.
 
-An important caveat regarding all of the above deterministic encoding
+An important caveat regarding all of the above deterministic mapping
 functions is that none of them map to the entire curve, but rather to some
 fraction of the points. This means that they cannot be used directly to
 construct a random oracle that outputs points on the curve.
 
 Brier et al. {{BCIMRT10}} give two solutions to this problem.
-The first, which applies only to Icart's method (above), computes F(H0(msg))
-+ F(H1(msg)) for two distinct hash functions H0, H1.
-The second, which applies to essentially all deterministic encodings but
-is more costly, computes F(H0(msg)) + H1(msg) * P, for P a generator of the
-elliptic curve group.
+The first, which Brier et al. prove applies to Icart's method,
+computes f(H0(msg)) + f(H1(msg)) for two distinct hash functions
+H0 and H1 from bit strings to F and a mapping f from F to the elliptic curve E.
+The second, which applies to essentially all deterministic mappings but
+is more costly, computes f(H0(msg)) + H2(msg) * P, for P a generator of the
+elliptic curve group and H2 a hash from bit strings to integers modulo n,
+the order of the elliptic curve group.
 Farashahi et al. {{FFSTV13}} improve the analysis of the first method,
-showing that this method applies to essentially all deterministic encodings.
+showing that it applies to essentially all deterministic mappings.
 Tibouchi and Kim {{TK17}} further refine the analysis and describe additional
 optimizations.
 
 Complementary to the problem of mapping from bit strings to elliptic curve
 points, Bernstein et al. {{BHKL13}} study the problem of mapping from elliptic
-curve points to uniformly random bitstrings, giving solutions for a class of
+curve points to uniformly random bit strings, giving solutions for a class of
 curves including Montgomery and Edwards curves.
 Tibouchi {{T14}} and Aranha et al. {{AFQTZ14}} generalize these results.
 This document does not deal with this complementary problem.
