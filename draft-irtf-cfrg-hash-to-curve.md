@@ -53,8 +53,8 @@ author:
 normative:
   RFC2119:
   RFC8017:
-informative:
   RFC7748:
+informative:
   SECG1:
     title: "SEC 1: Elliptic Curve Cryptography"
     target: http://www.secg.org/sec1-v2.pdf
@@ -1259,9 +1259,9 @@ The generic interface shared by all mappings in this section is as follows:
 (x, y) = map_to_curve(u)
 ~~~
 
-The output (x, y) specifies a point on an elliptic curve defined over base field F;
-x and y are elements of F.
-Note that the output (x, y) is not a uniformly random point. If uniformity
+The input u and outputs x and y are elements of the field F.
+The coordinates (x, y) specifiy a point on an elliptic curve defined over F.
+Note that the point (x, y) is not a uniformly random point. If uniformity
 is required for security, the random oracle construction of {{roadmap}} MUST be
 used instead.
 
@@ -1317,7 +1317,7 @@ E: y^2 = g(x) = x^3 + A * x + B, where 4 * A^3 + 27 * B^2 != 0.
 
 ### Icart Method {#icart}
 
-The function map\_to\_curve\_icart(alpha) implements the Icart method from {{Icart09}}.
+The function map\_to\_curve\_icart(u) implements the Icart method from {{Icart09}}.
 
 Preconditions: An elliptic curve over F, such that p>3 and q=p^m=2 (mod 3), or
 p=2 (mod 3) and odd m.
@@ -1380,7 +1380,7 @@ Steps:
 
 ### Simplified Shallue-van de Woestijne-Ulas Method {#simple-swu}
 
-The function map\_to\_curve\_simple\_swu(alpha) implements a simplification
+The function map\_to\_curve\_simple\_swu(u) implements a simplification
 of the Shallue-van de Woestijne-Ulas mapping {{U07}} described by Brier et
 al. {{BCIMRT10}}, which they call the "simplified SWU" map. Wahby and Boneh
 {{WB19}} generalize this mapping to curves over fields of odd characteristic p > 3.
@@ -1463,11 +1463,11 @@ Steps:
 22. return (x, y)
 ~~~
 
-## Mappings for Montgomery curves
+## Mappings for Montgomery curves {#montgomery}
 
 ### Elligator 2 Method {#elligator2}
 
-The function map\_to\_curve\_elligator2(alpha) implements Elligator 2 {{BHKL13}} for
+The function map\_to\_curve\_elligator2(u) implements Elligator 2 {{BHKL13}} for
 curves defined by y^2 = x^3 + A * x^2 + B * x such that A * B * (A^2 - 4 * B) != 0
 and A^2 - 4 * B is non-square in F.
 
@@ -1581,75 +1581,121 @@ Steps:
 26. return (x, y)
 ~~~
 
-## Mappings for twisted Edwards curves
+## Mappings for Edwards curves
 
-### Elligator 2 Method {#ell2edwards}
+Edwards curves are closely related to Montgomery
+curves ({{montgomery}}): every Edwards curve is birationally equivalent
+to a Montgomery curve ({{BBJLP08}}, Theorem 3.2).
+This equivalence yields an efficient way of hashing to an Edwards curve:
+first, hash to the equivalent Montgomery curve, then transform the
+result into a point on the Edwards curve by evaluating a pair of rational
+functions called a birational map.
+Thus, hashing to an Edwards curve requires first identifying a
+corresponding Montgomery curve and birational map.
 
-Twisted Edwards curves and Montgomery curves are closely related: every
-twisted Edwards curve is birationally equivalent to a Montgomery curve
-({{BBJLP08}}, Theorem 3.2). To hash to a twisted Edwards curve, hash
-to the equivalent Montgomery curve and evaluate the rational map to
-obtain a point on the twisted Edwards curve.
+### Birational maps from Montgomery to Edwards curves {#birational-map}
 
-For a twisted Edwards curve given by a * x^2 + y^2 = 1 + d * x^2 * y^2,
-first compute A and B, the parameters of the equivalent Montgomery curve,
-as follows:
+There are two ways to identify the Montgomery curve and birational map
+for use with a given Edwards curve.
+
+When hashing to a standard Edwards curves for which a corresponding
+Montgomery form and birational map are also standardized, the standard
+Montgomery form and birational map MUST be used to ensure compatibility
+with existing software.
+Two examples of this are the edwards25519 and edwards448 curves,
+which correspond to the Montgomery curves curve25519 and curve448, respectively.
+For both of these curves, {{RFC7748}} lists both the Montgomery and Edwards
+forms and gives the corresponding rational maps.
+
+Some Edwards curves do not have a standardized Montgomery form.
+In this case, the following procedure MUST be used to derive a birational map.
+For an Edwards curve given by a * x^2 + y^2 = 1 + d * x^2 * y^2,
+first compute A and B, the parameters of the equivalent Montgomery curve
+y'^2 = x'^3 + A * x'^2 + B * x', as follows:
 
 - A = (a + 2) / 2
 - B = (a - d)^2 / 16
 
-Next, use A and B as the curve parameters in the Elligator 2 method of
-{{elligator2}} to obtain a point (x', y') on the Montgomery curve.
-Finally, convert (x', y') to a point (x, y) on the target curve.
-Letting B' = 4 / (a - d), compute
+Next, let B' = 4 / (a - d). Then the birational map from the point (x', y')
+on the Montgomery curve to the point (x, y) on the Edwards curve is given by
 
 - x = x' / y'
 - y = (B' * x' - 1) / (B' * x' + 1)
 
-This can be done in one inversion using Montgomery's trick {{M87}}:
-invert the product y' * (B' * x' + 1), then multiply by y' to obtain
-1 / (B' * x' + 1), and likewise for 1 / y'.
+Note that this map can be evaluated with just one inversion using
+Montgomery's trick {{M87}}.
+First, compute t = y' * (B' * x' + 1).
+Then t * y' == 1 / (B' * x' + 1) and t * (B' * x' + 1) == 1 / y'.
 
-Preconditions: A twisted Edwards curve.
+Birational maps are undefined when the denominator of either
+rational function is zero.
+For example, in the map described above, the exceptional cases are
+y' == 0 or B' * x' == -1.
+Implementations MUST detect exceptional cases and return the value
+(x, y) = (0, 1), which is a valid point on all Edwards curves
+given by the equation above.
 
-Constants:
+The following straight-line implementation of the above rational map
+handles the exceptional cases.
+Implementations of other rational maps (e.g., the ones give in {{RFC7748}})
+are analogous.
 
-- A and B, the parameters of the equivalent Montgomery curve, and B' = 1 / sqrt(B).
+~~~
+birational_map(x', y')
+Input: (x', y'), a point on a Montgomery curve.
+Output: (x, y), a point on the equivalent Edwards curve.
 
-- Z, the smallest (in absolute value) non-square in F, breaking ties by choosing
-  the positive value.
+1. t1 = y' * B'
+2. t2 = x' + 1
+3. t3 = t1 * t2
+4. t3 = inv0(t3)
+5.  x = t2 * t3
+6.  x = x * x'
+7.  y = x' - 1
+8.  y = y * t3
+9.  y = y * t1
+10. e = y == 0
+11. y = CMOV(y, 1, e)
+12. return (x, y)
+~~~
 
-Sign of y: for this map, the sign is determined by map\_to\_curve_elligator2.
+### Elligator 2 Method {#ell2edwards}
+
+Preconditions: A twisted Edwards curve E and a birationally equivalent
+Montgomery curve M.
+
+Helper functions:
+
+- map\_to\_curve\_elligator2 is the mapping of {{elligator2}} to the curve M.
+- birational\_map is a function that takes a point (x', y') on M and
+  returns a point (x, y) on E, as defined in {{birational-map}}.
+
+Sign of y: for this map, the sign is determined by map\_to\_curve\_elligator2.
 No further sign adjustments are required.
 
 Exceptions: The exceptions for the Elligator 2 mapping are as given in
-{{elligator2}}. When converting to a point on the twisted Edwards curve, the remaining exceptions
-are y' == 0 or B' * x' == -1. Implementors must detect these cases and return (x, y) = (0, 1).
+{{elligator2}}.
+The exceptions for the birational map are as given in {{birational-map}}.
+No other exceptions are possible.
 
-The following straight-line implementation handles the exceptional cases:
+The following procedure implements the Elligator 2 mapping for an Edwards
+curve.
 
 ~~~
-1. (x', y') = map_to_curve_elligator2(u)   // a Montgomery point
-2.       x' = x' * B'
-3.       y' = y' * B'
-4.       t1 = x' + 1
-5.       t2 = y' * t1
-6.       t2 = inv0(t2)
-7.        x = t1 * t2
-8.        x = x * x'
-9.        y = x' - 1
-10.       y = y * t2
-11.       y = y * y'
-12.       e = y == 0
-13.       y = CMOV(y, 1, e)
-14. return (x, y)
+map_to_curve_ell2edwards(u)
+Input: u, an element of F.
+Output: (x, y), a point on E.
+
+1. (x', y') = map_to_curve_elligator2(u)    // (x', y') is on M
+2.   (x, y) = birational_map(x', y')        // (x, y) is on E
+3. return (x, y)
 ~~~
 
 ## Mappings for Supersingular curves
 
 ### Boneh-Franklin Method {#supersingular}
 
-The function map\_to\_curve\_bf(alpha) implements the Boneh-Franklin method {{BF01}} which
+The function map\_to\_curve\_bf(u) implements the Boneh-Franklin method {{BF01}} which
 covers the supersingular curves defined by y^2 = x^3 + B over a field F such
 that q=2 (mod 3).
 
@@ -1692,7 +1738,7 @@ Steps:
 
 ### Elligator 2, A=0 Method
 
-The function map\_to\_curve\_ell2A0(alpha) implements an adaptation of Elligator 2
+The function map\_to\_curve\_ell2A0(u) implements an adaptation of Elligator 2
 {{BLMP19}} targeting curves given by y^2 = x^3 + B * x over F such that q=3 (mod 4).
 
 Preconditions: A supersingular curve over F such that q=3 (mod 4).
@@ -1884,8 +1930,8 @@ Operations:
 
 ~~~
 1. (x', y') = map_to_curve_simple_swu(u)    // (x', y') is on E'
-8. (x, y)   = iso_map(x', y')            // (x, y) is on E
-8. return (x, y)
+2.   (x, y) = iso_map(x', y')               // (x, y) is on E
+3. return (x, y)
 ~~~
 
 We do not repeat the sample implementation of {{simple-swu}} here.
