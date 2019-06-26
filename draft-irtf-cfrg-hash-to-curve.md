@@ -817,14 +817,12 @@ Compounding this problem is the need to pick a suitable curve for the specific
 protocol.
 
 This document aims to bridge this gap by providing a thorough set of
-recommended algorithms for a range of curve types. We provide
-implementation and performance details for each algorithm, describe
+recommended algorithms for a range of curve types.
+Each algorithm conforms to a common interface: it takes as input an arbitrary-length
+bit string and produces as output a point on an elliptic curve.
+We provide implementation details for each algorithm, describe
 the security rationale behind each recommendation, and give guidance for
 elliptic curves that are not explicitly covered.
-
-Each algorithm conforms to a common interface: it takes as input an arbitrary-length bit string
-and produces as output a point on an elliptic curve.
-Sample code for each algorithm is presented in {{samplecode}}.
 
 ## Requirements
 
@@ -838,7 +836,7 @@ document are to be interpreted as described in {{RFC2119}}.
 
 The following is a brief definition of elliptic curves, with an emphasis on
 important parameters and their relation to hashing to curves.
-For further reference, consult {{CFADLNV05}} or {{W08}}.
+For further reference on elliptic curves, consult {{CFADLNV05}} or {{W08}}.
 
 Let F be the finite field GF(q) of prime characteristic p. In most cases F
 is a prime field, so q=p. Otherwise, F is a field extension, so q=p^m for
@@ -848,20 +846,24 @@ of m elements of GF(p) written in ascending order
 by degree. For example, if q=p^2 and the primitive element basis is {1, i},
 then the vector (a, b) corresponds to the element a + b * i.
 
-An elliptic curve E is specified by a cubic equation in two variables and a
+An elliptic curve E is specified by an equation in two variables and a
 finite field F. An elliptic curve equation takes one of several standard forms,
 including (but not limited to) Weierstrass, Montgomery, and Edwards.
 
-The curve E forms an algebraic group whose elements are the
-points (x, y) satisfying the curve equation, where x and y are elements of F.
+The curve E induces an algebraic group whose elements are those points
+with coordinates (x, y) satisfying the curve equation, and where x and y
+are elements of F.
 This group has order n, meaning that there are n distinct points.
+This document uses additive notation for the elliptic curve group operation.
 
 For security reasons, groups of prime order MUST be used. Elliptic curves
 induce subgroups of prime order. Let G be a subgroup of the curve of prime
 order r, where n = h * r.
 In this equation, h is an integer called the cofactor.
-The process of sending an arbitrary elliptic curve point to a point in G is
-called clearing the cofactor. This operation is described in {{cofactor-clearing}}.
+An algorithm that takes as input an arbitrary point on the curve E and
+produces as output a point in the subgroup G of E is said to "clear
+the cofactor."
+Such algorithms are discussed in {{cofactor-clearing}}.
 
 Certain hash-to-curve algorithms restrict the form of the curve equation, the
 characteristic of the field, and/or the parameters of the curve. For each
@@ -884,13 +886,13 @@ In this section, we define important terms used in the rest of this document.
 
 ### Mappings {#term-mapping}
 
-A mapping is a deterministic function from a field F to a point
+A mapping is a deterministic function from an element of the field F to a point
 on an elliptic curve E defined over F.
 
-In general, the set of points output by a mapping
-may be only a subset of the points on an elliptic curve
+In general, the set of all points that a mapping can produce over all
+possible inputs may be only a subset of the points on an elliptic curve
 (i.e., the mapping may not be surjective).
-In addition, a mapping may produce the same output for distinct inputs
+In addition, a mapping may output the same point for two or more distinct inputs
 (i.e., the mapping may not be injective).
 For example, consider a mapping from F to an elliptic curve having n points:
 if the number of elements of F is not equal to n,
@@ -900,7 +902,8 @@ since it is defined to be deterministic.
 Mappings may also be invertible, meaning that there is an efficient algorithm
 that, for any point P output by the mapping, outputs an x in F such that
 applying the mapping to x outputs P.
-This document does not discuss inversion algorithms for mappings.
+Some of the mappings given in {{mappings}} are invertible, but this
+document does not discuss inversion algorithms.
 
 ### Encodings {#term-encoding}
 
@@ -951,13 +954,13 @@ That construction is described in {{roadmap}}.
 ### Serialization {#term-serialization}
 
 A procedure related to encoding is the conversion of an elliptic curve point to a bit string.
-This is called serialization, and is typically used for compactly storing and transporting points.
+This is called serialization, and is typically used for compactly storing or transmitting points.
 For example, {{SECG1}} gives a standard method for serializing points.
 The reverse operation, deserialization, converts a bit string to an elliptic
 curve point.
 
-Deserialization is different from encoding in that only certain strings, i.e.,
-those output by the serialization procedure, can be deserialized.
+Deserialization is different from encoding in that only certain strings
+(namely, those output by the serialization procedure) can be deserialized.
 In contrast, this document is concerned with encodings from arbitrary bit strings
 to elliptic curve points.
 This document does not cover serialization or deserialization.
@@ -976,13 +979,13 @@ functions:
     from an element of the finite field F over which E is defined.
     {{mappings}} describes mappings for a range of curve families.
 
--   The function clear\_cofactor, E -> G, sends any point on the curve E to a
-    subgroup G of the curve. {{cofactor-clearing}} describes methods to perform
+-   The function clear\_cofactor, E -> G, sends any point on the curve E to
+    the subgroup G of E. {{cofactor-clearing}} describes methods to perform
     this operation.
 
-We describe two high-level encoding functions that send bit strings to points on
-an elliptic curve. Although these functions have the same interface, the
-distributions of the points they produce are different.
+We describe two high-level encoding functions ({{term-encoding}}).
+Although these functions have the same interface, the
+distributions of their outputs are different.
 
 -   Nonuniform encoding (encode\_to\_curve). This function encodes bit strings to points in G.
     The distribution of the output is not uniformly random in G.
@@ -1749,9 +1752,9 @@ set of parameters for this mapping geared toward Barreto-Naehrig pairing-friendl
 Wahby and Boneh {{WB19}} suggest a small generalization of the Fouque-Tibouchi
 parameters that results in a uniform method for handling exceptional cases.
 
-This mapping method covers curves not handled by other methods, e.g.,
+The Shallue-van de Woestijne mapping method covers curves not handled by other methods, e.g.,
 SECP256K1 {{SEC2}}. It also covers pairing-friendly curves in the BN {{BN05}},
-KSS {{KSS08}}, and BLS {{BLS03}} families. (Note that the mapping
+KSS {{KSS08}}, and BLS {{BLS03}} families. (Note, however, that the mapping
 described in {{simple-swu-pairing-friendly}} is faster, when it applies.)
 
 Preconditions: An elliptic curve y^2 = g(x) = x^3 + B over F such that q=1 (mod 3) and B != 0.
@@ -1897,7 +1900,7 @@ takes as input any point on the curve.
 
 This operation can always be implemented as a scalar multiplication by h.
 For elliptic curves where h = 1, i.e., the curves with a prime number of points,
-no operation is required. This applies to, for example, the NIST curves P-256,
+no operation is required. This applies, for example, to the NIST curves P-256,
 P-384, and P-521 {{FIPS186-4}}.
 
 In some cases, it is possible to clear the cofactor via a faster method than
