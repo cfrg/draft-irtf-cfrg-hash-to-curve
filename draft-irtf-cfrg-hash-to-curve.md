@@ -1162,7 +1162,7 @@ ctr values both start by computing the value H(msg).
 This is an improvement because it allows sharing one evaluation of H(msg) among
 multiple invocations of hash\_to\_base, by factoring out the common computation.
 
-## Implementation {#hash2base-impl}
+## Implementation {#hashtobase-impl}
 
 The following procedure implements hash\_to\_base.
 
