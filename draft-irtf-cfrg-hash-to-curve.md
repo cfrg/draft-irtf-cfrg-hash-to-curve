@@ -1608,6 +1608,9 @@ For both of these curves, {{RFC7748}} lists both the Montgomery and Edwards
 forms and gives the corresponding rational maps
 (for curve25519/edwards25519, Section 4.1; for curve448/edwards448, Section 4.2).
 
+When standardizing new Edwards curves, a Montgomery equivalent and birational
+map SHOULD be specified.
+
 Some Edwards curves lack a standardized Montgomery form or birational map.
 In this case, the following procedure MUST be used to derive a birational map.
 For an Edwards curve given by a * x^2 + y^2 = 1 + d * x^2 * y^2,
