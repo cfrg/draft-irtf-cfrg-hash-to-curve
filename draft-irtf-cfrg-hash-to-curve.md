@@ -1626,6 +1626,9 @@ on the Montgomery curve to the point (x, y) on the Edwards curve is given by
 - x = x' / y'
 - y = (B' * x' - 1) / (B' * x' + 1)
 
+For completeness, we give the inverse map in {{birational-map-inverse}}.
+Note that the inverse map is not used when hashing to an Edwards curve.
+
 Note that this map can be evaluated with just one inversion using
 Montgomery's trick {{M87}}.
 First, compute t = y' * (B' * x' + 1).
@@ -2113,6 +2116,33 @@ curve points to uniformly random bit strings, giving solutions for a class of
 curves including Montgomery and Edwards curves.
 Tibouchi {{T14}} and Aranha et al. {{AFQTZ14}} generalize these results.
 This document does not deal with this complementary problem.
+
+# Birational maps from Edwards to Montgomery curves {#birational-map-inverse}
+
+The inverse of the birational map specified in {{birational-map}}, i.e.,
+the map from the point (x', y') on the Montgomery curve
+y'^2 = x'^3 + A * x'^2 + B * x'
+to the point (x, y) on the Edwards curve
+a * x^2 + y^2 = 1 + d * x^2 * y^2
+is given by:
+
+- x' = (1 + y) / (B' * (1 - y))
+- y' = (1 + y) / (B' * x * (1 - y))
+
+where B' = 4 / (a - d).
+
+This map is undefined when y == 1 or x == 0.
+In this case, return the point (0, 0).
+
+It is sometimes convenient to instead deal with a Montgomery curve
+of the form B' * y''^2 = x''^3 + A' * x''^2 + x''.
+This curve is equivalent to the Montgomery curve above via the
+following change of variables:
+
+- A' = 2 * (a + d) / (a - d)
+- B' = 4 / (a - d)
+- x'' = x' * B'
+- y'' = y' * B'
 
 # Sample Code {#samplecode}
 
