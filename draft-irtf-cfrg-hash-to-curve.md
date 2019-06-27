@@ -1590,11 +1590,10 @@ curves ({{montgomery}}): every Edwards curve is birationally equivalent
 to a Montgomery curve ({{BBJLP08}}, Theorem 3.2).
 This equivalence yields an efficient way of hashing to an Edwards curve:
 first, hash to the equivalent Montgomery curve, then transform the
-result into a point on the Edwards curve by evaluating a pair of rational
-functions called a birational map.
-This method of hashing to an Edwards curve requires first identifying a
+result into a point on the Edwards curve via a birational map.
+This method of hashing to an Edwards curve thus requires identifying a
 corresponding Montgomery curve and birational map.
-We describe how to identify this curve and map immediately below.
+We describe how to identify such a curve and map immediately below.
 
 ### Birational maps from Montgomery to Twisted Edwards curves {#birational-map}
 
