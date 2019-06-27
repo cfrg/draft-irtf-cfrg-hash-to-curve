@@ -1291,10 +1291,10 @@ In general, elliptic curves have equations of the form y^2 = g(x).
 Most of the mappings in this section first identify an x such that
 g(x) is square, then take a square root to find y. Since there
 are two square roots when g(x) != 0, this results in an ambiguity
-regarding the sign of the resulting point.
+regarding the sign of y.
 
 To resolve this ambiguity, the mappings in this section specify
-the sign of the resulting point in terms of the input to the mapping function.
+the sign of the y-coordinate in terms of the input to the mapping function.
 Two main reasons support this approach. First, this covers elliptic curves over
 any field in a uniform way, and second, it gives implementors leeway to optimize
 their square-root implementations.
@@ -1324,8 +1324,8 @@ p=2 (mod 3) and odd m.
 
 Constants: A and B, the parameters of the Weierstrass curve.
 
-Sign of the result: this mapping does not compute a square root, so there
-is no ambiguity regarding sign.
+Sign of y: this mapping does not compute a square root, so there
+is no ambiguity regarding the sign of y.
 
 Exceptions: The only exceptional case is u == 0.
 Implementations must detect this case by testing whether u == 0
@@ -1394,7 +1394,7 @@ Constants:
 - Z, the smallest (in absolute value) non-square in F such that g(B / (Z *
   A)) is square in F, breaking ties by choosing the positive value.
 
-Sign of the result: Inputs u and -u give the same x-coordinate.
+Sign of y: Inputs u and -u give the same x-coordinate.
 Thus, we set sgn0(y) == sgn0(u).
 
 Exceptions: The exceptional cases are values of u such that
@@ -1480,7 +1480,7 @@ Constants:
 - Z, the smallest (in absolute value) non-square in F, breaking ties by choosing
   the positive value.
 
-Sign of the result: Inputs u and -u give the same x-coordinate.
+Sign of y: Inputs u and -u give the same x-coordinate.
 Thus, we set sgn0(y) == sgn0(u).
 
 Exceptions: The exceptional case is Z * u^2 == -1, i.e., 1 + Z * u^2 == 0.
@@ -1677,10 +1677,8 @@ Helper functions:
 - birational\_map is a function that takes a point (x', y') on M and
   returns a point (x, y) on E, as defined in {{birational-map}}.
 
-Sign of the result: existing standards may be ambiguous as to the sign
-of the birational map from M to E.
-To ensure consistency across implementations, we fix the sign of the
-result by setting sgn0(x) == sgn0(u) after applying the birational map.
+Sign of y: for this map, the sign is determined by map\_to\_curve\_elligator2.
+No further sign adjustments are required.
 
 Exceptions: The exceptions for the Elligator 2 mapping are as given in
 {{elligator2}}.
@@ -1697,8 +1695,7 @@ Output: (x, y), a point on E.
 
 1. (x', y') = map_to_curve_elligator2(u)    // (x', y') is on M
 2.   (x, y) = birational_map(x', y')        // (x, y) is on E
-3. If sgn0(u) != sgn0(x), set x = -x        // fix the sign of the result
-4. return (x, y)
+3. return (x, y)
 ~~~
 
 ## Mappings for Supersingular curves
@@ -1713,7 +1710,7 @@ Preconditions: A supersingular curve over F such that q=2 (mod 3).
 
 Constants: B, the parameter of the supersingular curve.
 
-Sign of the result: determined by sign of u. No adjustments are necessary.
+Sign of y: determined by sign of u. No adjustments are necessary.
 
 Exceptions: none.
 
@@ -1755,7 +1752,7 @@ Preconditions: A supersingular curve over F such that q=3 (mod 4).
 
 Constants: B, the parameter of the supersingular curve.
 
-Sign of the result: Inputs u and -u give the same x-coordinate.
+Sign of y: Inputs u and -u give the same x-coordinate.
 Thus, we set sgn0(y) == sgn0(u).
 
 Exceptions: none.
@@ -1822,7 +1819,7 @@ Constants:
   g((sqrt(-3 * Z^2) - Z) / 2) is square, breaking ties by choosing
   the positive value.
 
-Sign of the result: Inputs u and -u give the same x-coordinate.
+Sign of y: Inputs u and -u give the same x-coordinate.
 Thus, we set sgn0(y) == sgn0(u).
 
 Exceptions: The exceptional cases for u occur when
@@ -1930,8 +1927,7 @@ Helper functions:
 - map\_to\_curve\_simple\_swu is the mapping of {{simple-swu}} to E'
 - iso\_map is the isogeny map from E' to E
 
-Sign of the result: for this map, the sign is determined by
-map\_to\_curve\_simple\_swu and iso\_map.
+Sign of y: for this map, the sign is determined by map\_to\_curve_elligator2.
 No further sign adjustments are necessary.
 
 Exceptions: map\_to\_curve\_simple\_swu handles its exceptional cases.
