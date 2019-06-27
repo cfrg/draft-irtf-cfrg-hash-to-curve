@@ -1260,7 +1260,7 @@ The generic interface shared by all mappings in this section is as follows:
 ~~~
 
 The input u and outputs x and y are elements of the field F.
-The coordinates (x, y) specifiy a point on an elliptic curve defined over F.
+The coordinates (x, y) specify a point on an elliptic curve defined over F.
 Note that the point (x, y) is not a uniformly random point. If uniformity
 is required for security, the random oracle construction of {{roadmap}} MUST be
 used instead.
