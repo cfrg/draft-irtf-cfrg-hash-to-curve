@@ -1581,9 +1581,11 @@ Steps:
 26. return (x, y)
 ~~~
 
-## Mappings for Edwards curves
+## Mappings for Twisted Edwards curves
 
-Edwards curves are closely related to Montgomery
+Twisted and untwisted Edwards curves
+(which this document refers to generically as Edwards curves)
+are closely related to Montgomery
 curves ({{montgomery}}): every Edwards curve is birationally equivalent
 to a Montgomery curve ({{BBJLP08}}, Theorem 3.2).
 This equivalence yields an efficient way of hashing to an Edwards curve:
@@ -1594,12 +1596,12 @@ This method of hashing to an Edwards curve requires first identifying a
 corresponding Montgomery curve and birational map.
 We describe how to identify this curve and map immediately below.
 
-### Birational maps from Montgomery to Edwards curves {#birational-map}
+### Birational maps from Montgomery to Twisted Edwards curves {#birational-map}
 
 There are two ways to identify the correct Montgomery curve and
 birational map for use when hashing to a given Edwards curve.
 
-When hashing to a standard Edwards curve for which a corresponding
+When hashing to a standardized Edwards curve for which a corresponding
 Montgomery form and birational map are also standardized, the standard
 Montgomery form and birational map MUST be used to ensure compatibility
 with existing software.
@@ -2130,7 +2132,7 @@ curves including Montgomery and Edwards curves.
 Tibouchi {{T14}} and Aranha et al. {{AFQTZ14}} generalize these results.
 This document does not deal with this complementary problem.
 
-# Birational maps from Edwards to Montgomery curves {#birational-map-inverse}
+# Birational maps from Twisted Edwards to Montgomery curves {#birational-map-inverse}
 
 The inverse of the birational map specified in {{birational-map}}, i.e.,
 the map from the point (x', y') on the Montgomery curve
