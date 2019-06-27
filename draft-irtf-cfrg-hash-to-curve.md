@@ -118,19 +118,6 @@ informative:
         ins: C. Peters
         name: Christiane Peters
         org: Department of Mathematics and Computer Science, Technische Universiteit Eindhoven, The Netherlands
-  M87:
-    title: Speeding the Pollard and clliptic curve methods of factorization
-    seriesinfo:
-        "In": Mathematics of Computation, vol 48
-        "pages": 243-264
-        DOI: 10.1090/S0025-5718-1987-0866113-7
-    target: https://doi.org/10.1090/S0025-5718-1987-0866113-7
-    date: 1987
-    author:
-      -
-        ins: P. L. Montgomery
-        name: Peter L. Montgomery
-        org: System Development Corporation, Santa Monica, CA
   CK11:
     title: The geometry of flex tangents to a cubic curve and its parameterizations
     seriesinfo:
@@ -1643,11 +1630,6 @@ given by
 
 For completeness, we give the inverse map in {{birational-map-inverse}}.
 Note that the inverse map is not used when hashing to a twisted Edwards curve.
-
-Note that the above map can be evaluated with just one inversion using
-Montgomery's trick {{M87}}.
-First, compute t = y' * (B' * x' + 1).
-Then t * y' == 1 / (B' * x' + 1) and t * (B' * x' + 1) == 1 / y'.
 
 Birational maps are undefined when the denominator of either
 rational function is zero.
