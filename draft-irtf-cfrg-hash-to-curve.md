@@ -1583,30 +1583,30 @@ Steps:
 
 ## Mappings for Twisted Edwards curves
 
-Twisted and untwisted Edwards curves
-(which this document refers to generically as Edwards curves)
+Twisted Edwards curves
+(a class of curves that includes "untwisted" Edwards curves)
 are closely related to Montgomery
-curves ({{montgomery}}): every Edwards curve is birationally equivalent
+curves ({{montgomery}}): every twisted Edwards curve is birationally equivalent
 to a Montgomery curve ({{BBJLP08}}, Theorem 3.2).
-This equivalence yields an efficient way of hashing to an Edwards curve:
+This equivalence yields an efficient way of hashing to a twisted Edwards curve:
 first, hash to the equivalent Montgomery curve, then transform the
-result into a point on the Edwards curve via a birational map.
-This method of hashing to an Edwards curve thus requires identifying a
+result into a point on the twisted Edwards curve via a birational map.
+This method of hashing to a twisted Edwards curve thus requires identifying a
 corresponding Montgomery curve and birational map.
 We describe how to identify such a curve and map immediately below.
 
 ### Birational maps from Montgomery to Twisted Edwards curves {#birational-map}
 
 There are two ways to identify the correct Montgomery curve and
-birational map for use when hashing to a given Edwards curve.
+birational map for use when hashing to a given twisted Edwards curve.
 
-When hashing to a standardized Edwards curve for which a corresponding
+When hashing to a standardized twisted Edwards curve for which a corresponding
 Montgomery form and birational map are also standardized, the standard
 Montgomery form and birational map MUST be used to ensure compatibility
 with existing software.
 Two such standardized curves are the edwards25519 and edwards448 curves,
 which correspond to the Montgomery curves curve25519 and curve448, respectively.
-For both of these curves, {{RFC7748}} lists both the Montgomery and Edwards
+For both of these curves, {{RFC7748}} lists both the Montgomery and twisted Edwards
 forms and gives the corresponding rational maps.
 
 The birational map for edwards25519 ({{RFC7748}}, Section 4.1)
@@ -1620,14 +1620,14 @@ k MUST be chosen such that sgn0(k) == 1.
 The 4-isogeny map from curve448 to edwards448 ({{RFC7748}}, Section 4.2)
 is unambiguous with respect to sign.
 
-When defining new Edwards curves, a Montgomery equivalent and birational
+When defining new twisted Edwards curves, a Montgomery equivalent and birational
 map SHOULD be specified, and the sign of the birational map SHOULD be stated
 unambiguously.
 
-When hashing to an Edwards curve that does not have a standardized
+When hashing to a twisted Edwards curve that does not have a standardized
 Montgomery form or birational map, the following procedure MUST be
 used to derive them.
-For an Edwards curve given by a * x^2 + y^2 = 1 + d * x^2 * y^2,
+For a twisted Edwards curve given by a * x^2 + y^2 = 1 + d * x^2 * y^2,
 first compute A and B, the parameters of the equivalent Montgomery curve
 y'^2 = x'^3 + A * x'^2 + B * x', as follows:
 
@@ -1635,13 +1635,14 @@ y'^2 = x'^3 + A * x'^2 + B * x', as follows:
 - B = (a - d)^2 / 16
 
 Next, let B' = 4 / (a - d). Then the birational map from the point (x', y')
-on the Montgomery curve to the point (x, y) on the Edwards curve is given by
+on the Montgomery curve to the point (x, y) on the twisted Edwards curve is
+given by
 
 - x = x' / y'
 - y = (B' * x' - 1) / (B' * x' + 1)
 
 For completeness, we give the inverse map in {{birational-map-inverse}}.
-Note that the inverse map is not used when hashing to an Edwards curve.
+Note that the inverse map is not used when hashing to a twisted Edwards curve.
 
 Note that the above map can be evaluated with just one inversion using
 Montgomery's trick {{M87}}.
@@ -1653,7 +1654,7 @@ rational function is zero.
 For example, in the map described above, the exceptional cases are
 y' == 0 or B' * x' == -1.
 Implementations MUST detect exceptional cases and return the value
-(x, y) = (0, 1), which is a valid point on all Edwards curves
+(x, y) = (0, 1), which is a valid point on all twisted Edwards curves
 given by the equation above.
 
 The following straight-line implementation of the above rational map
@@ -1664,7 +1665,7 @@ are analogous.
 ~~~
 birational_map(x', y')
 Input: (x', y'), a point on a Montgomery curve.
-Output: (x, y), a point on the equivalent Edwards curve.
+Output: (x, y), a point on the equivalent twisted Edwards curve.
 
 1. t1 = y' * B'
 2. t2 = x' + 1
@@ -1699,8 +1700,8 @@ Exceptions: The exceptions for the Elligator 2 mapping are as given in
 The exceptions for the birational map are as given in {{birational-map}}.
 No other exceptions are possible.
 
-The following procedure implements the Elligator 2 mapping for an Edwards
-curve.
+The following procedure implements the Elligator 2 mapping for a twisted
+Edwards curve.
 
 ~~~
 map_to_curve_elligator2_edwards(u)
@@ -2127,7 +2128,7 @@ optimizations.
 Complementary to the problem of mapping from bit strings to elliptic curve
 points, Bernstein et al. {{BHKL13}} study the problem of mapping from elliptic
 curve points to uniformly random bit strings, giving solutions for a class of
-curves including Montgomery and Edwards curves.
+curves including Montgomery and twisted Edwards curves.
 Tibouchi {{T14}} and Aranha et al. {{AFQTZ14}} generalize these results.
 This document does not deal with this complementary problem.
 
@@ -2136,7 +2137,7 @@ This document does not deal with this complementary problem.
 The inverse of the birational map specified in {{birational-map}}, i.e.,
 the map from the point (x', y') on the Montgomery curve
 y'^2 = x'^3 + A * x'^2 + B * x'
-to the point (x, y) on the Edwards curve
+to the point (x, y) on the twisted Edwards curve
 a * x^2 + y^2 = 1 + d * x^2 * y^2
 is given by:
 
