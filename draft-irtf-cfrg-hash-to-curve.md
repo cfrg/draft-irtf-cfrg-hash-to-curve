@@ -1602,12 +1602,13 @@ When hashing to a standard Edwards curves for which a corresponding
 Montgomery form and birational map are also standardized, the standard
 Montgomery form and birational map MUST be used to ensure compatibility
 with existing software.
-Two examples of this are the edwards25519 and edwards448 curves,
+Two examples of standardized curves are the edwards25519 and edwards448 curves,
 which correspond to the Montgomery curves curve25519 and curve448, respectively.
 For both of these curves, {{RFC7748}} lists both the Montgomery and Edwards
-forms and gives the corresponding rational maps.
+forms and gives the corresponding rational maps
+(for curve25519/edwards25519, Section 4.1; for curve448/edwards448, Section 4.2).
 
-Some Edwards curves do not have a standardized Montgomery form.
+Some Edwards curves lack a standardized Montgomery form or birational map.
 In this case, the following procedure MUST be used to derive a birational map.
 For an Edwards curve given by a * x^2 + y^2 = 1 + d * x^2 * y^2,
 first compute A and B, the parameters of the equivalent Montgomery curve
@@ -1682,7 +1683,7 @@ The following procedure implements the Elligator 2 mapping for an Edwards
 curve.
 
 ~~~
-map_to_curve_ell2edwards(u)
+map_to_curve_elligator2_edwards(u)
 Input: u, an element of F.
 Output: (x, y), a point on E.
 
