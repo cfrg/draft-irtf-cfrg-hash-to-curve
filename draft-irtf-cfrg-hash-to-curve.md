@@ -1590,29 +1590,42 @@ This equivalence yields an efficient way of hashing to an Edwards curve:
 first, hash to the equivalent Montgomery curve, then transform the
 result into a point on the Edwards curve by evaluating a pair of rational
 functions called a birational map.
-Thus, hashing to an Edwards curve requires first identifying a
+This method of hashing to an Edwards curve requires first identifying a
 corresponding Montgomery curve and birational map.
+We describe how to identify this curve and map immediately below.
 
 ### Birational maps from Montgomery to Edwards curves {#birational-map}
 
-There are two ways to identify the Montgomery curve and birational map
-for use with a given Edwards curve.
+There are two ways to identify the correct Montgomery curve and
+birational map for use when hashing to a given Edwards curve.
 
-When hashing to a standard Edwards curves for which a corresponding
+When hashing to a standard Edwards curve for which a corresponding
 Montgomery form and birational map are also standardized, the standard
 Montgomery form and birational map MUST be used to ensure compatibility
 with existing software.
-Two examples of standardized curves are the edwards25519 and edwards448 curves,
+Two such standardized curves are the edwards25519 and edwards448 curves,
 which correspond to the Montgomery curves curve25519 and curve448, respectively.
 For both of these curves, {{RFC7748}} lists both the Montgomery and Edwards
-forms and gives the corresponding rational maps
-(for curve25519/edwards25519, Section 4.1; for curve448/edwards448, Section 4.2).
+forms and gives the corresponding rational maps.
 
-When standardizing new Edwards curves, a Montgomery equivalent and birational
-map SHOULD be specified.
+The birational map for edwards25519 ({{RFC7748}}, Section 4.1)
+uses the constant sqrt\_neg\_486664 = sqrt(-486664) mod 2^255 - 19.
+To ensure compatibility, this constant MUST be chosen such that
+sgn0(sqrt\_neg\_486664) == 1.
+Analogous ambiguities in other standardized birational maps MUST be
+resolved in the same way: for any constant k whose sign is ambiguous,
+k MUST be chosen such that sgn0(k) == 1.
 
-Some Edwards curves lack a standardized Montgomery form or birational map.
-In this case, the following procedure MUST be used to derive a birational map.
+The 4-isogeny map from curve448 to edwards448 ({{RFC7748}}, Section 4.2)
+is unambiguous with respect to sign.
+
+When defining new Edwards curves, a Montgomery equivalent and birational
+map SHOULD be specified, and the sign of the birational map SHOULD be stated
+unambiguously.
+
+When hashing to an Edwards curve that does not have a standardized
+Montgomery form or birational map, the following procedure MUST be
+used to derive them.
 For an Edwards curve given by a * x^2 + y^2 = 1 + d * x^2 * y^2,
 first compute A and B, the parameters of the equivalent Montgomery curve
 y'^2 = x'^3 + A * x'^2 + B * x', as follows:
@@ -1629,7 +1642,7 @@ on the Montgomery curve to the point (x, y) on the Edwards curve is given by
 For completeness, we give the inverse map in {{birational-map-inverse}}.
 Note that the inverse map is not used when hashing to an Edwards curve.
 
-Note that this map can be evaluated with just one inversion using
+Note that the above map can be evaluated with just one inversion using
 Montgomery's trick {{M87}}.
 First, compute t = y' * (B' * x' + 1).
 Then t * y' == 1 / (B' * x' + 1) and t * (B' * x' + 1) == 1 / y'.
