@@ -1617,7 +1617,7 @@ For an Edwards curve given by a * x^2 + y^2 = 1 + d * x^2 * y^2,
 first compute A and B, the parameters of the equivalent Montgomery curve
 y'^2 = x'^3 + A * x'^2 + B * x', as follows:
 
-- A = (a + 2) / 2
+- A = (a + d) / 2
 - B = (a - d)^2 / 16
 
 Next, let B' = 4 / (a - d). Then the birational map from the point (x', y')
