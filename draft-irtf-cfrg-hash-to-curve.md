@@ -1577,42 +1577,42 @@ curves ({{montgomery}}): every twisted Edwards curve is birationally equivalent
 to a Montgomery curve ({{BBJLP08}}, Theorem 3.2).
 This equivalence yields an efficient way of hashing to a twisted Edwards curve:
 first, hash to the equivalent Montgomery curve, then transform the
-result into a point on the twisted Edwards curve via a birational map.
+result into a point on the twisted Edwards curve via a rational map.
 This method of hashing to a twisted Edwards curve thus requires identifying a
-corresponding Montgomery curve and birational map.
+corresponding Montgomery curve and rational map.
 We describe how to identify such a curve and map immediately below.
 
-### Birational maps from Montgomery to Twisted Edwards curves {#birational-map}
+### Rational maps from Montgomery to Twisted Edwards curves {#rational-map}
 
 There are two ways to identify the correct Montgomery curve and
-birational map for use when hashing to a given twisted Edwards curve.
+rational map for use when hashing to a given twisted Edwards curve.
 
 When hashing to a standardized twisted Edwards curve for which a corresponding
-Montgomery form and birational map are also standardized, the standard
-Montgomery form and birational map MUST be used to ensure compatibility
+Montgomery form and rational map are also standardized, the standard
+Montgomery form and rational map MUST be used to ensure compatibility
 with existing software.
 Two such standardized curves are the edwards25519 and edwards448 curves,
 which correspond to the Montgomery curves curve25519 and curve448, respectively.
 For both of these curves, {{RFC7748}} lists both the Montgomery and twisted Edwards
 forms and gives the corresponding rational maps.
 
-The birational map for edwards25519 ({{RFC7748}}, Section 4.1)
+The rational map for edwards25519 ({{RFC7748}}, Section 4.1)
 uses the constant sqrt\_neg\_486664 = sqrt(-486664) mod 2^255 - 19.
 To ensure compatibility, this constant MUST be chosen such that
 sgn0(sqrt\_neg\_486664) == 1.
-Analogous ambiguities in other standardized birational maps MUST be
+Analogous ambiguities in other standardized rational maps MUST be
 resolved in the same way: for any constant k whose sign is ambiguous,
 k MUST be chosen such that sgn0(k) == 1.
 
 The 4-isogeny map from curve448 to edwards448 ({{RFC7748}}, Section 4.2)
 is unambiguous with respect to sign.
 
-When defining new twisted Edwards curves, a Montgomery equivalent and birational
-map SHOULD be specified, and the sign of the birational map SHOULD be stated
+When defining new twisted Edwards curves, a Montgomery equivalent and rational
+map SHOULD be specified, and the sign of the rational map SHOULD be stated
 unambiguously.
 
 When hashing to a twisted Edwards curve that does not have a standardized
-Montgomery form or birational map, the following procedure MUST be
+Montgomery form or rational map, the following procedure MUST be
 used to derive them.
 For a twisted Edwards curve given by a * x^2 + y^2 = 1 + d * x^2 * y^2,
 first compute A and B, the parameters of the equivalent Montgomery curve
@@ -1621,18 +1621,18 @@ y'^2 = x'^3 + A * x'^2 + B * x', as follows:
 - A = (a + d) / 2
 - B = (a - d)^2 / 16
 
-Next, let B' = 4 / (a - d). Then the birational map from the point (x', y')
+Next, let B' = 4 / (a - d). Then the rational map from the point (x', y')
 on the Montgomery curve to the point (x, y) on the twisted Edwards curve is
 given by
 
 - x = x' / y'
 - y = (B' * x' - 1) / (B' * x' + 1)
 
-For completeness, we give the inverse map in {{birational-map-inverse}}.
+For completeness, we give the inverse map in {{rational-map-inverse}}.
 Note that the inverse map is not used when hashing to a twisted Edwards curve.
 
-Birational maps are undefined when the denominator of either
-rational function is zero.
+Rational maps may be undefined, for example, when the denominator of one
+of the rational functions is zero.
 For example, in the map described above, the exceptional cases are
 y' == 0 or B' * x' == -1.
 Implementations MUST detect exceptional cases and return the value
@@ -1645,7 +1645,7 @@ Implementations of other rational maps (e.g., the ones give in {{RFC7748}})
 are analogous.
 
 ~~~
-birational_map(x', y')
+rational_map(x', y')
 Input: (x', y'), a point on a Montgomery curve.
 Output: (x, y), a point on the equivalent twisted Edwards curve.
 
@@ -1665,21 +1665,20 @@ Output: (x, y), a point on the equivalent twisted Edwards curve.
 
 ### Elligator 2 Method {#ell2edwards}
 
-Preconditions: A twisted Edwards curve E and a birationally equivalent
-Montgomery curve M.
+Preconditions: A twisted Edwards curve E and an equivalent Montgomery curve M.
 
 Helper functions:
 
 - map\_to\_curve\_elligator2 is the mapping of {{elligator2}} to the curve M.
-- birational\_map is a function that takes a point (x', y') on M and
-  returns a point (x, y) on E, as defined in {{birational-map}}.
+- rational\_map is a function that takes a point (x', y') on M and
+  returns a point (x, y) on E, as defined in {{rational-map}}.
 
 Sign of y: for this map, the sign is determined by map\_to\_curve\_elligator2.
 No further sign adjustments are required.
 
 Exceptions: The exceptions for the Elligator 2 mapping are as given in
 {{elligator2}}.
-The exceptions for the birational map are as given in {{birational-map}}.
+The exceptions for the rational map are as given in {{rational-map}}.
 No other exceptions are possible.
 
 The following procedure implements the Elligator 2 mapping for a twisted
@@ -1691,7 +1690,7 @@ Input: u, an element of F.
 Output: (x, y), a point on E.
 
 1. (x', y') = map_to_curve_elligator2(u)    // (x', y') is on M
-2.   (x, y) = birational_map(x', y')        // (x, y) is on E
+2.   (x, y) = rational_map(x', y')        // (x, y) is on E
 3. return (x, y)
 ~~~
 
@@ -2114,9 +2113,9 @@ curves including Montgomery and twisted Edwards curves.
 Tibouchi {{T14}} and Aranha et al. {{AFQTZ14}} generalize these results.
 This document does not deal with this complementary problem.
 
-# Birational maps from Twisted Edwards to Montgomery curves {#birational-map-inverse}
+# Rational maps from Twisted Edwards to Montgomery curves {#rational-map-inverse}
 
-The inverse of the birational map specified in {{birational-map}}, i.e.,
+The inverse of the rational map specified in {{rational-map}}, i.e.,
 the map from the point (x', y') on the Montgomery curve
 y'^2 = x'^3 + A * x'^2 + B * x'
 to the point (x, y) on the twisted Edwards curve
