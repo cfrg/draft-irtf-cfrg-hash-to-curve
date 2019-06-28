@@ -1690,7 +1690,7 @@ Input: u, an element of F.
 Output: (x, y), a point on E.
 
 1. (x', y') = map_to_curve_elligator2(u)    // (x', y') is on M
-2.   (x, y) = rational_map(x', y')        // (x, y) is on E
+2.   (x, y) = rational_map(x', y')          // (x, y) is on E
 3. return (x, y)
 ~~~
 
