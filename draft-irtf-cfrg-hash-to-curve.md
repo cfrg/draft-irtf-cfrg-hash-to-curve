@@ -1452,13 +1452,11 @@ Steps:
 
 ## Mappings for Montgomery curves {#montgomery}
 
-### Elligator 2 Method {#elligator2}
-
-The function map\_to\_curve\_elligator2(u) implements Elligator 2 {{BHKL13}} for
+The mapping defined in {{elligator2}} implements Elligator 2 {{BHKL13}} for
 curves defined by the Weierstrass equation y^2 = x^3 + A * x^2 + B * x,
 where A * B * (A^2 - 4 * B) != 0 and A^2 - 4 * B is non-square in F.
 
-The above Weierstrass curve is related to the Montgomery curve
+Such a Weierstrass curve is related to the Montgomery curve
 B' * y'^2 = x'^3 + A' * x'^2 + x' by the following change of variables:
 
 - A = A' / B'
@@ -1474,8 +1472,11 @@ Montgomery curve by computing
 - x' = B' * x
 - y' = B' * y
 
-Note that when B = 1, the above two curve equations are identical;
-this is the case, for example, for Curve25519 and Curve448 {{RFC7748}}.
+Note that when B = 1, the above two curve equations are identical,
+and no conversion is necessary.
+This is the case, for example, for Curve25519 and Curve448 {{RFC7748}}.
+
+### Elligator 2 Method {#elligator2}
 
 Preconditions: A Weierstrass curve y^2 = x^3 + A * x^2 + B * x
 where A != 0, B != 0, and A^2 - 4 * B is non-zero and non-square in F.
@@ -1687,7 +1688,7 @@ Output: (x, y), a point on the equivalent twisted Edwards curve.
 ### Elligator 2 Method {#ell2edwards}
 
 Preconditions: A twisted Edwards curve E and an equivalent curve M, either
-in Montgomery form or in the Weierstrass form given in {{rational-map}}.
+in Montgomery form ({{montgomery}}) or in the Weierstrass form given in {{rational-map}}.
 
 Helper functions:
 
