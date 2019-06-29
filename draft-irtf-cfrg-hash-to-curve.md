@@ -1455,10 +1455,30 @@ Steps:
 ### Elligator 2 Method {#elligator2}
 
 The function map\_to\_curve\_elligator2(u) implements Elligator 2 {{BHKL13}} for
-curves defined by y^2 = x^3 + A * x^2 + B * x such that A * B * (A^2 - 4 * B) != 0
-and A^2 - 4 * B is non-square in F.
+curves defined by the Weierstrass equation y^2 = x^3 + A * x^2 + B * x,
+where A * B * (A^2 - 4 * B) != 0 and A^2 - 4 * B is non-square in F.
 
-Preconditions: A Montgomery curve where A != 0, B != 0, and A^2 - 4 is non-square in F.
+The above Weierstrass curve is related to the Montgomery curve
+B' * y'^2 = x'^3 + A' * x'^2 + x' by the following change of variables:
+
+- A = A' / B'
+- B = 1 / B'^2
+- x = x' / B'
+- y = y' / B'
+
+The Elligator 2 mapping given below returns a point (x, y) on the
+Weierstrass curve defined above.
+This point can be converted to a point (x', y') on the original
+Montgomery curve by computing
+
+- x' = B' * x
+- y' = B' * y
+
+Note that when B = 1, the above two curve equations are identical;
+this is the case, for example, for Curve25519 and Curve448 {{RFC7748}}.
+
+Preconditions: A Weierstrass curve y^2 = x^3 + A * x^2 + B * x
+where A != 0, B != 0, and A^2 - 4 * B is non-zero and non-square in F.
 
 Constants:
 
@@ -1582,7 +1602,7 @@ This method of hashing to a twisted Edwards curve thus requires identifying a
 corresponding Montgomery curve and rational map.
 We describe how to identify such a curve and map immediately below.
 
-### Rational maps from Montgomery to Twisted Edwards curves {#rational-map}
+### Rational maps from Montgomery to twisted Edwards curves {#rational-map}
 
 There are two ways to identify the correct Montgomery curve and
 rational map for use when hashing to a given twisted Edwards curve.
@@ -1615,18 +1635,19 @@ When hashing to a twisted Edwards curve that does not have a standardized
 Montgomery form or rational map, the following procedure MUST be
 used to derive them.
 For a twisted Edwards curve given by a * x^2 + y^2 = 1 + d * x^2 * y^2,
-first compute A and B, the parameters of the equivalent Montgomery curve
+first compute A and B, the parameters of the equivalent curve given by
 y'^2 = x'^3 + A * x'^2 + B * x', as follows:
 
 - A = (a + d) / 2
 - B = (a - d)^2 / 16
 
-Next, let B' = 4 / (a - d). Then the rational map from the point (x', y')
-on the Montgomery curve to the point (x, y) on the twisted Edwards curve is
-given by
+Note that the above curve is given in the Weierstrass form required
+by the Elligator 2 mapping.
+The rational map from the point (x', y') on this Weierstrass curve
+to the point (x, y) on the twisted Edwards curve is given by
 
 - x = x' / y'
-- y = (B' * x' - 1) / (B' * x' + 1)
+- y = (B' * x' - 1) / (B' * x' + 1), where B' = 1 / sqrt(B) = 4 / (a - d)
 
 For completeness, we give the inverse map in {{rational-map-inverse}}.
 Note that the inverse map is not used when hashing to a twisted Edwards curve.
@@ -1646,7 +1667,7 @@ are analogous.
 
 ~~~
 rational_map(x', y')
-Input: (x', y'), a point on a Montgomery curve.
+Input: (x', y'), a point on the curve y'^2 = x'^3 + A * x'^2 + B * x'.
 Output: (x, y), a point on the equivalent twisted Edwards curve.
 
 1. t1 = y' * B'
@@ -1665,7 +1686,8 @@ Output: (x, y), a point on the equivalent twisted Edwards curve.
 
 ### Elligator 2 Method {#ell2edwards}
 
-Preconditions: A twisted Edwards curve E and an equivalent Montgomery curve M.
+Preconditions: A twisted Edwards curve E and an equivalent curve M, either
+in Montgomery form or in the Weierstrass form given in {{rational-map}}.
 
 Helper functions:
 
@@ -2113,10 +2135,10 @@ curves including Montgomery and twisted Edwards curves.
 Tibouchi {{T14}} and Aranha et al. {{AFQTZ14}} generalize these results.
 This document does not deal with this complementary problem.
 
-# Rational maps from Twisted Edwards to Montgomery curves {#rational-map-inverse}
+# Rational maps from twisted Edwards to Weierstrass and Montgomery curves {#rational-map-inverse}
 
 The inverse of the rational map specified in {{rational-map}}, i.e.,
-the map from the point (x', y') on the Montgomery curve
+the map from the point (x', y') on the Weierstrass curve
 y'^2 = x'^3 + A * x'^2 + B * x'
 to the point (x, y) on the twisted Edwards curve
 a * x^2 + y^2 = 1 + d * x^2 * y^2
@@ -2125,20 +2147,24 @@ is given by:
 - x' = (1 + y) / (B' * (1 - y))
 - y' = (1 + y) / (B' * x * (1 - y))
 
-where B' = 4 / (a - d).
+where
+
+- A = (a + d) / 2
+- B = (a - d)^2 / 16
+- B' = 1 / sqrt(B) = 4 / (a - d)
 
 This map is undefined when y == 1 or x == 0.
 In this case, return the point (0, 0).
 
-It is sometimes convenient to instead deal with a Montgomery curve
+It may also be useful to map to a Montgomery curve
 of the form B' * y''^2 = x''^3 + A' * x''^2 + x''.
-This curve is equivalent to the Montgomery curve above via the
-following change of variables:
+This curve is equivalent to the twisted Edwards curve above via the
+following rational map ({{BBJLP08}}, Theorem 3.2):
 
 - A' = 2 * (a + d) / (a - d)
 - B' = 4 / (a - d)
-- x'' = x' * B'
-- y'' = y' * B'
+- x'' = (1 + y) / (1 - y)
+- y'' = (1 + y) / (x * (1 - y))
 
 # Sample Code {#samplecode}
 
