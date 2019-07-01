@@ -1472,8 +1472,8 @@ Montgomery curve by computing
 - x' = B' * x
 - y' = B' * y
 
-Note that when B = 1, the above two curve equations are identical,
-and no conversion is necessary.
+Note that when B and B' are equal to 1, the above two curve equations
+are identical and no conversion is necessary.
 This is the case, for example, for Curve25519 and Curve448 {{RFC7748}}.
 
 ### Elligator 2 Method {#elligator2}
@@ -1687,8 +1687,8 @@ Output: (x, y), a point on the equivalent twisted Edwards curve.
 
 ### Elligator 2 Method {#ell2edwards}
 
-Preconditions: A twisted Edwards curve E and an equivalent curve M, either
-in Montgomery form ({{montgomery}}) or in the Weierstrass form given in {{rational-map}}.
+Preconditions: A twisted Edwards curve E and an equivalent curve M
+meeting the requirements in {{rational-map}}.
 
 Helper functions:
 
