@@ -1592,7 +1592,7 @@ Steps:
 ## Mappings for Twisted Edwards curves
 
 Twisted Edwards curves
-(a class of curves that includes "untwisted" Edwards curves)
+(a class of curves that includes Edwards curves)
 are closely related to Montgomery
 curves ({{montgomery}}): every twisted Edwards curve is birationally equivalent
 to a Montgomery curve ({{BBJLP08}}, Theorem 3.2).
