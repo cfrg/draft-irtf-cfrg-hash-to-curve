@@ -826,11 +826,11 @@ important parameters and their relation to hashing to curves.
 For further reference on elliptic curves, consult {{CFADLNV05}} or {{W08}}.
 
 Let F be the finite field GF(q) of prime characteristic p. In most cases F
-is a prime field, so q=p. Otherwise, F is a field extension, so q=p^m for
+is a prime field, so q = p. Otherwise, F is a field extension, so q = p^m for
 an integer m > 1. This document assumes that elements of field extensions
 are written in a primitive element or polynomial basis, i.e., as
 of m elements of GF(p) written in ascending order
-by degree. For example, if q=p^2 and the primitive element basis is {1, i},
+by degree. For example, if q = p^2 and the primitive element basis is {1, i},
 then the vector (a, b) corresponds to the element a + b * i.
 
 An elliptic curve E is specified by an equation in two variables and a
@@ -860,7 +860,7 @@ Summary of quantities:
 
 | Symbol | Meaning | Relevance |
 |:------:|---------|-----------|
-| F,q,p | Finite field F of characteristic p and #F=q=p^m. | For prime fields, q=p; otherwise, q=p^m and m>1. |
+| F,q,p | Finite field F of characteristic p and #F = q = p^m. | For prime fields, q = p; otherwise, q = p^m and m>1. |
 | E | Elliptic curve. | E is specified by an equation and a field F. |
 | n | Number of points on the elliptic curve E. | n = h * r, for h and r defined below. |
 | G | A subgroup of the elliptic curve. | Destination group to which bit strings are encoded. |
@@ -1019,10 +1019,10 @@ algorithms.
 
 Algorithms in this document make use of utility functions described below.
 
--   CMOV(a, b, c): If c=0, CMOV returns a, otherwise returns b. To prevent
+-   CMOV(a, b, c): If c == 0, CMOV returns a, otherwise returns b. To prevent
     against timing attacks, this operation must run in constant time without
     revealing the value of c. Commonly, implementations assume that the selector
-    is c=1 or c=0. In this case, given a bit string C, the desired selector c can
+    is c == 1 or c == 0. In this case, given a bit string C, the desired selector c can
     be computed by OR-ing all bits of C together. The resulting selector will be
     either 0 if all bits of C are zero, or 1 if at least one bit of C is 1.
 
@@ -1158,7 +1158,7 @@ be an appropriate choice for H.
 
 Ensuring that the hash\_to\_base output is a uniform random element of F requires
 care, even when H outputs a uniformly random string. For example,
-if H=SHA256 and F is a field of characteristic p = 2^255 - 19, then the
+if H is SHA256 and F is a field of characteristic p = 2^255 - 19, then the
 result of reducing H(msg) (a 256-bit integer) modulo p is slightly more likely
 to be in \[0, 38\] than if the value were selected uniformly at random.
 In this example the bias is negligible, but in general it can be significant.
@@ -1168,7 +1168,7 @@ least ceil(log2(p)) + k bits; reducing this integer modulo p gives bias at
 most 2^-k, which is a safe choice for a cryptosystem with k-bit security.
 To obtain such an integer, hash H with b-bit output should be evaluated W =
 ceil((ceil(log2(p)) + k) / b) times and the results concatenated to produce a
-(W * b)-bit integer. For example, for H=SHA256, k=128-bit security, and p
+(W * b)-bit integer. For example, for H = SHA256, k = 128-bit security, and p
 a 256-bit prime, W = ceil((256 + 128) / 256) = 2.
 
 {{hashtobase-impl}} details the hash\_to\_base procedure.
@@ -1211,7 +1211,7 @@ hash_to_base(msg, ctr)
 
 Parameters:
 - H, a cryptographic hash function producing b bits.
-- F, a finite field of characteristic p and order q=p^m.
+- F, a finite field of characteristic p and order q = p^m.
 - W = ceil((ceil(log2(p)) + k) / b), where k is the security
   parameter of the cryptosystem (e.g., k = 128).
 
@@ -1306,8 +1306,8 @@ E: y^2 = g(x) = x^3 + A * x + B, where 4 * A^3 + 27 * B^2 != 0.
 
 The function map\_to\_curve\_icart(u) implements the Icart method from {{Icart09}}.
 
-Preconditions: An elliptic curve over F, such that p>3 and q=p^m=2 (mod 3), or
-p=2 (mod 3) and odd m.
+Preconditions: An elliptic curve over F, such that p>3 and q = p^m = 2 (mod 3), or
+p = 2 (mod 3) and odd m.
 
 Constants: A and B, the parameters of the Weierstrass curve.
 
@@ -1372,7 +1372,7 @@ of the Shallue-van de Woestijne-Ulas mapping {{U07}} described by Brier et
 al. {{BCIMRT10}}, which they call the "simplified SWU" map. Wahby and Boneh
 {{WB19}} generalize this mapping to curves over fields of odd characteristic p > 3.
 
-Preconditions: A Weierstrass curve over F such that A!=0 and B!=0.
+Preconditions: A Weierstrass curve over F such that A != 0 and B != 0.
 
 Constants:
 
@@ -1509,10 +1509,10 @@ Operations:
 9.  return (x, y)
 ~~~
 
-#### Implementation, q=3 (mod 4)
+#### Implementation, q = 3 (mod 4)
 
 The following procedure implements Elligator 2 in a straight-line
-fashion for curves where q=3 (mod 4), including Curve448.
+fashion for curves where q = 3 (mod 4), including Curve448.
 
 ~~~
 map_to_curve_elligator2_3mod4(u)
@@ -1539,17 +1539,17 @@ Steps:
 14.  y2 = y1 * u
 15.  y2 = y2 * c1
 16.  e2 = y1^2 == gx1
-17.   x = CMOV(x2, x1, e2)    // If e == True, x=x1, else x=x2
-18.   y = CMOV(y2, y1, e2)    // If e == True, y=y1, else y=y2
+17.   x = CMOV(x2, x1, e2)    // If e == True, x = x1, else x = x2
+18.   y = CMOV(y2, y1, e2)    // If e == True, y = y1, else y = y2
 19.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
 20.   y = CMOV(-y, y, e3)
 21. return (x, y)
 ~~~
 
-#### Implementation, q=5 (mod 8)
+#### Implementation, q = 5 (mod 8)
 
 The following is a straight-line implementation of Elligator 2
-for curves where q=5 (mod 8), including Curve25519.
+for curves where q = 5 (mod 8), including Curve25519.
 
 ~~~
 map_to_curve_elligator2_5mod8(u)
@@ -1564,7 +1564,7 @@ Steps:
 1.   t1 = u^2
 2.   t1 = Z * t1
 3.   x1 = t1 + 1
-4.   x1 = inv0(x1)            // cannot be 0 because q=5 mod 8
+4.   x1 = inv0(x1)            // cannot be 0 because q = 5 mod 8
 5.   x1 = -A * x1             // x1 = -A / (1 + Z * u^2)
 6.  gx1 = x1 + A
 7.  gx1 = gx1 * x1
@@ -1582,8 +1582,8 @@ Steps:
 19.  e2 = y22^2 == gx2
 20.  y2 = CMOV(y21, y22, e2)  // if gx2 is square, this is its sqrt
 21.  e3 = y1^2 == gx1
-22.   x = CMOV(x2, x1, e3)    // if e == True, x=x1, else x=x2
-23.   y = CMOV(y2, y1, e3)    // if e == True, y=y1, else y=y2
+22.   x = CMOV(x2, x1, e3)    // if e == True, x = x1, else x = x2
+23.   y = CMOV(y2, y1, e3)    // if e == True, y = y1, else y = y2
 24.  e4 = sgn0(u) == sgn0(y)  // fix sign of y
 25.   y = CMOV(-y, y, e4)
 26. return (x, y)
@@ -1723,9 +1723,9 @@ Output: (x, y), a point on E.
 
 The function map\_to\_curve\_bf(u) implements the Boneh-Franklin method {{BF01}} which
 covers the supersingular curves defined by y^2 = x^3 + B over a field F such
-that q=2 (mod 3).
+that q = 2 (mod 3).
 
-Preconditions: A supersingular curve over F such that q=2 (mod 3).
+Preconditions: A supersingular curve over F such that q = 2 (mod 3).
 
 Constants: B, the parameter of the supersingular curve.
 
@@ -1762,12 +1762,12 @@ Steps:
 5. return (x, y)
 ~~~
 
-### Elligator 2, A=0 Method
+### Elligator 2, A == 0 Method
 
 The function map\_to\_curve\_ell2A0(u) implements an adaptation of Elligator 2
-{{BLMP19}} targeting curves given by y^2 = x^3 + B * x over F such that q=3 (mod 4).
+{{BLMP19}} targeting curves given by y^2 = x^3 + B * x over F such that q = 3 (mod 4).
 
-Preconditions: A supersingular curve over F such that q=3 (mod 4).
+Preconditions: A supersingular curve over F such that q = 3 (mod 4).
 
 Constants: B, the parameter of the supersingular curve.
 
@@ -1820,7 +1820,7 @@ Steps:
 Shallue and van de Woestijne {{SW06}} describe a mapping that applies to
 essentially any elliptic curve. Fouque and Tibouchi {{FT12}} give a concrete
 set of parameters for this mapping geared toward Barreto-Naehrig pairing-friendly curves
-{{BN05}}, i.e., curves y^2 = x^3 + B over fields of characteristic q=1 (mod 3).
+{{BN05}}, i.e., curves y^2 = x^3 + B over fields of characteristic q = 1 (mod 3).
 Wahby and Boneh {{WB19}} suggest a small generalization of the Fouque-Tibouchi
 parameters that results in a uniform method for handling exceptional cases.
 
@@ -1829,7 +1829,7 @@ SECP256K1 {{SEC2}}. It also covers pairing-friendly curves in the BN {{BN05}},
 KSS {{KSS08}}, and BLS {{BLS03}} families. (Note, however, that the mapping
 described in {{simple-swu-pairing-friendly}} is faster, when it applies.)
 
-Preconditions: An elliptic curve y^2 = g(x) = x^3 + B over F such that q=1 (mod 3) and B != 0.
+Preconditions: An elliptic curve y^2 = g(x) = x^3 + B over F such that q = 1 (mod 3) and B != 0.
 
 Constants:
 
@@ -2789,7 +2789,7 @@ Output:
 
 ## Fouque-Tibouchi to BN256
 
-An instance of a BN curve is defined as `BN256: y^2=x^3 + 1` over
+An instance of a BN curve is defined as `BN256: y^2 = x^3 + 1` over
 `GF(p(t))` such that
 
 ~~~
