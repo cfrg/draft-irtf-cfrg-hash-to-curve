@@ -954,7 +954,7 @@ This document does not cover serialization or deserialization.
 
 ### Domain separation {#term-domain-separation}
 
-In most cases, cryptographic protocols that use random oracles are analyzed
+Cryptographic protocols that use random oracles are often analyzed
 under the assumption that the random oracle answers only queries generated
 by that protocol.
 In practice, this assumption may not hold: commonly, two or more protocols
