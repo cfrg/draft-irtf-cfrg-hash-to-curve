@@ -1289,7 +1289,7 @@ Inputs:
 Output: u, an element in F.
 
 Steps:
-1. m' = H(msg) || I2OSP(ctr, 1)
+1. m' = "HASH-TO-CURVE" || H(msg) || I2OSP(ctr, 1)
 2. for i in (1, ..., m):
 3.   t = ""     // initialize t to the empty string
 4.   for j in (1, ..., W):
