@@ -1041,7 +1041,7 @@ algorithms.
 
 ## Domain separation requirements {#domain-separation}
 
-When invoking hash\_to\_curve, implementors MUST use domain separation
+When invoking hash\_to\_curve in a higher-level protocol, implementors MUST use domain separation
 ({{term-domain-separation}}) to avoid interfering with other protocols
 that also use the hash\_to\_curve functionality.
 In addition, any protocol that uses two or more hash\_to\_curve functions
