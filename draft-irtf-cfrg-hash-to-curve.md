@@ -1991,36 +1991,59 @@ conditions.
 
 # Suites for Hashing {#suites}
 
-The following table lists recommended algorithms for different curves and
-encodings. To select a suitable algorithm, choose the encoding associated with
-the target curve. For example, Elligator 2 is the recommended encoding for
-Curve25519, whereas simplified SWU is the recommended encoding for P-256.
-When the hash function is to be used in a protocol whose security is proven in the
-random oracle model, applications SHOULD use the Random Oracle construction
-given in {{roadmap}}.
+This section lists recommended suites for hashing to standard elliptic curves.
 
-A suite is a bundle of algorithms that provides concrete recommendations for
-hashing bit strings into points of specific elliptic curve groups. Each suite is
-a tuple (E, H, f, ROM) such that
+A suite fully specifies the procedure for hashing bit strings to
+points on a specific elliptic curve group.
+Each suite comprises the following parameters:
 
--   E, is the elliptic curve group.
--   H, is the cryptographic hash function used by hash\_to\_base.
--   f, is an encoding function compatible with E.
--   ROM, is a boolean flag indicating whether or not to use the random oracle construction.
+- Suite ID, a short name used to refer to a given suite.
+- E, the target elliptic curve over a field F.
+- p, the characteristic of the field F.
+- m, the extension degree of the field F.
+- H, the hash function used by hash\_to\_base.
+- W, the number of evaluations of H in hash\_to\_base.
+- f, a mapping function given in {{mappings}}.
+- Z, a constant associated with f (where applicable).
+- h\_eff, the value by which the output of f is multiplied
+  for the purpose of clearing the cofactor ({{cofactor-clearing}}).
+- RO, True if the ciphersuite uses the hash\_to\_curve procedure of {{roadmap}}
+  and False if it uses the encode\_to\_curve procedure.
+  Applications whose security requires a random oracle MUST use
+  a suite for which RO == True.
 
-This document describes the following set of ciphersuites
+The below table lists the curves for which suites are defined and
+the subsection that gives the appropriate parameters.
 
-| Suite ID | E | H | f | ROM |
-|----------|---|---|---|-----|
-| H2C-0001 | P256         | SHA256 | Simplified SWU           | True |
-| H2C-0002 | P384         | SHA512 | Icart                    | True |
-| H2C-0003 | curve25519   | SHA512 | Elligator 2              | True |
-| H2C-0004 | curve448     | SHA512 | Elligator 2              | True |
-| H2C-0005 | edwards25519 | SHA512 | Elligator 2              | True |
-| H2C-0006 | edwards448   | SHA512 | Elligator 2              | True |
-| H2C-0007 | SECP256K1    | SHA512 | Shallue-van de Woestijne | True |
-| H2C-0008 | BLS12381     | SHA512 | Simplified SWU           | True |
+| E                         | Section              |
+|---------------------------|----------------------|
+| NIST P-256                | {{suites-p256}}      |
+| NIST P-384                | {{suites-p384}}      |
+| NIST P-521                | {{suites-p521}}      |
+| curve25519 / edwards25519 | {{suites-25519}}     |
+| curve448 / edwards448     | {{suites-448}}       |
+| SECP256k1                 | {{suites-secp256k1}} |
+| BLS12-381                 | {{suites-bls12381}}  |
+| SIKEP503                  | {{suites-sikep503}}  |
+| SS132                     | {{suites-ss132}}     |
 
+## Suites for NIST P-256 {#suites-p256}
+
+## Suites for NIST P-384 {#suites-p384}
+
+## Suites for NIST P-521 {#suites-p521}
+
+## Suites for curve25519 and edwards25519 {#suites-25519}
+
+## Suites for curve448 and edwards448 {#suites-448}
+
+## Suites for SECP256K1 {#suites-secp256k1}
+
+## Suites for BLS12-381 {#suites-bls12381}
+
+## Suites for SIKE-P503 {#suites-sikep503}
+
+## Suites for SS132 {#suites-ss132}
 
 # IANA Considerations
 
