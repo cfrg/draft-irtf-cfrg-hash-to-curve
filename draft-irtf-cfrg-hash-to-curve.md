@@ -2359,7 +2359,7 @@ This section specifies the isogenous curves and isogeny maps to be used
 when hashing to BLS12-381 with the simplified SWU method of
 {{simple-swu-pairing-friendly}}.
 
-# Curve and map for G1 {#appx-bls12381-g1}
+## Curve and map for G1 {#appx-bls12381-g1}
 
 The curve E' 11-isogenous to the G1 curve of BLS12-381 is given by
 y'^2 = x'^3 + A * x' + B over GF(p), where p is specified in 
@@ -2443,7 +2443,7 @@ The constants used to compute y\_den are as follows:
 - k\_(4,13) = 0x2660400eb2e4f3b628bdd0d53cd76f2bf565b94e72927c1cb748df27942480e420517bd8714cc80d1fadc1326ed06f7
 - k\_(4,14) = 0xe0fa1d816ddc03e6b24255e0d7819c171c40f65e273b853324efcd6356caa205ca2f570f13497804415473a1d634b8f
 
-# Curve and map for G2 {#appx-bls12381-g2}
+## Curve and map for G2 {#appx-bls12381-g2}
 
 The curve E' 11-isogenous to the G2 curve of BLS12-381 is given by
 y'^2 = x'^3 + A * x' + B over GF(p^2), where p is specified in
