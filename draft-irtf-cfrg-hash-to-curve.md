@@ -2032,12 +2032,14 @@ In addition to the above parameters, the mapping f may require
 additional parameters Z, rational\_map, M, E', and/or iso\_map.
 These are specified when applicable.
 
-Suites whose ID ends in "-RO" use the hash\_to\_curve procedure of {{roadmap}}.
-All other suites use the encode\_to\_curve procedure from that section.
+Suites whose ID includes "-RO" use the hash\_to\_curve procedure of {{roadmap}};
+suites whose ID includes "-NU" use the encode\_to\_curve procedure from that section.
 Applications whose security requires a random oracle MUST use a "-RO" suite.
 
 The below table lists the curves for which suites are defined and
 the subsection that gives the corresponding parameters.
+When standardizing a new elliptic curve, corresponding hash-to-curve
+suites SHOULD be specified.
 
 | E                         | Section              |
 |---------------------------|----------------------|
