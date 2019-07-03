@@ -957,9 +957,11 @@ This document does not cover serialization or deserialization.
 Cryptographic protocols that use random oracles are often analyzed
 under the assumption that random oracles answer only queries generated
 by that protocol.
-In practice, this assumption may not hold: commonly, two or more protocols
-may model the same hash function as a random oracle, which violates the above
-assumption if both protocols compute the hash of the same value.
+In practice, this assumption does not hold if two protocols query the
+same random oracle.
+Concretely, consider protocols P1 and P2 that query random oracle R:
+if P1 and P2 both query R on the same value x, the security analysis of
+one or both protocols may be invalidated.
 
 A common approach to addressing this issue is called domain separation,
 which allows a single random oracle to simulate multiple, independent oracles.
@@ -971,10 +973,10 @@ one might define
     R1(x) := R("R1" || x)
     R2(x) := R("R2" || x)
 
-In this example, "R1" and "R2" are called domain separation tags.
-Because of these domain separation tags, queries to R1 and R2 cannot yield identical queries to R.
-overlapping values.
-Thus, it is safe to treat them as independent oracles.
+In this example, "R1" and "R2" are called domain separation tags;
+they ensure that queries to R1 and R2 cannot result in identical
+queries to R.
+Thus, it is safe to treat R1 and R2 as independent oracles.
 
 # Roadmap {#roadmap}
 
@@ -1041,15 +1043,19 @@ algorithms.
 
 ## Domain separation requirements {#domain-separation}
 
-When invoking hash\_to\_curve in a higher-level protocol, implementors MUST use domain separation
+When invoking hash\_to\_curve from a higher-level protocol, implementors MUST use domain separation
 ({{term-domain-separation}}) to avoid interfering with other protocols
 that also use the hash\_to\_curve functionality.
-In addition, any protocol that uses two or more hash\_to\_curve functions
-targeting different elliptic curves MUST enforce domain separation between
-the two functions if those functions are modeled in the protocol as
-independent random oracles.
-Finally, protocols that use encode\_to\_curve SHOULD use domain separation
+Protocols that use encode\_to\_curve SHOULD use domain separation
 if possible, though it is not required in this case.
+
+Protocols that instantiate multiple, independent random
+oracles based on hash\_to\_curve MUST enforce domain separation between
+those oracles.
+This requirement applies both in the case of multiple oracles to the same curve
+and in the case of multiple oracles to different curves.
+This is because the hash\_to\_base primitive ({{hashtobase}}) requires
+domain separation to guarantee independent outputs.
 
 Care is required when choosing a domain separation tag.
 Implementors SHOULD observe the following guidelines:
@@ -1071,14 +1077,22 @@ Implementors SHOULD observe the following guidelines:
    a ciphersuite identifier.
 
 As an example, consider a fictional key exchange protocol named Quux.
-A reasonable choice of tag might be "QUUX-V\<xx\>-CS\<yy\>", where \<xx\> and \<yy\>
+A reasonable choice of tag is "QUUX-V\<xx\>-CS\<yy\>", where \<xx\> and \<yy\>
 are two-digit numbers indicating the version and ciphersuite, respectively.
-
 Alternatively, if a variable-length ciphersuite string must be used,
-a reasonable choice of tag might be "QUUX-V\<xx\>-L\<zz\>-\<csid\>", where
+a reasonable choice of tag is "QUUX-V\<xx\>-L\<zz\>-\<csid\>", where
 where \<csid\> is a the ciphersuite string, and \<xx\> and \<zz\> are
 two-digit numbers indicating the version and the length of the ciphersuite
 string, respectively.
+
+As another example, consider a fictional protocol named Baz that requires
+two independent random oracles, where one oracle outputs points on the curve E1
+and the other outputs points on the curve E2.
+To ensure that these two random oracles are independent, each one must be
+called with a distinct domain separation tag.
+Reasonable choices of tags for the E1 and E2 oracles are
+"BAZ-V\<xx\>-CS\<yy\>-E1" and "BAZ-V\<xx\>-CS\<yy\>-E2", respectively,
+where \<xx\> and \<yy\> are as defined above.
 
 # Utility Functions {#utility}
 
