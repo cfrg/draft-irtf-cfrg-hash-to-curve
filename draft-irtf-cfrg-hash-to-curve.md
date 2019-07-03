@@ -2176,7 +2176,7 @@ These suites share the following parameters:
 This section defines ciphersuites for groups G1 and G2 of
 the BLS12-381 elliptic curve {{draft-yonezawa-pfc-01}}.
 
-The suites BLS12\_381\_G1-SHA256-SSWU-RO and BLS12\_381\_G1-SHA256-SSWU-NU
+The suites BLS12381G1-SHA256-SSWU-RO and BLS12381G1-SHA256-SSWU-NU
 share the following parameters, in addition to the common parameters below.
 
 - E: y^2 = x^3 + 4
@@ -2186,7 +2186,7 @@ share the following parameters, in addition to the common parameters below.
 - iso\_map: the isogeny map to E' from {{WB19}}; see {{appx-bls12381-g1}}
 - h\_eff: 0xd201000000010001
 
-The suites BLS12\_381\_G2-SHA256-SSWU-RO and BLS12\_381\_G2-SHA256-SSWU-NU
+The suites BLS12381G2-SHA256-SSWU-RO and BLS12381G2-SHA256-SSWU-NU
 share the following parameters, in addition to the common parameters below.
 
 - E: y^2 = x^3 + 4 * (1 + i), where
