@@ -1783,7 +1783,7 @@ Steps:
 5. return (x, y)
 ~~~
 
-### Elligator 2, A == 0 Method
+### Elligator 2, A == 0 Method {#ell2a0}
 
 The function map\_to\_curve\_ell2A0(u) implements an adaptation of Elligator 2
 {{BLMP19}} targeting curves given by y^2 = x^3 + B * x over F such that q = 3 (mod 4).
@@ -2047,7 +2047,7 @@ the subsection that gives the corresponding parameters.
 | curve448 / edwards448     | {{suites-448}}       |
 | SECP256k1                 | {{suites-secp256k1}} |
 | BLS12-381                 | {{suites-bls12381}}  |
-| SIKEP503                  | {{suites-sikep503}}  |
+| Montgomery-SIKE/p503      | {{suites-sikep503}}  |
 | SS132                     | {{suites-ss132}}     |
 
 ## Suites for NIST P-256 {#suites-p256}
@@ -2271,9 +2271,32 @@ The common parameters for the above suites are:
 - W: 2
 - f: Simplified SWU for pairing-friendly curves, {{simple-swu-pairing-friendly}}
 
-## Suites for SIKE-P503 {#suites-sikep503}
+## Suites for Montgomery-SIKE/p503 {#suites-sikep503}
+
+This section defines ciphersuites for a supersingular Montgomery curve defined
+over a field having the characteristic given by the SIKE/p503 parameters.
+These suites share the common parameters listed below.
+
+1. Suite ID: MONT\_SIKEp503-SHA512-ELL2A0-ROM
+   - RO: True
+
+2. Suite ID: MONT\_SIKEp503-SHA512-ELL2A0-ENC
+   - RO: False
+
+The common parameters for the above suites are:
+
+- E: y^2 = x^3 + x
+- p: 2^250 * 3^159 - 1
+- m: 1
+- H: SHA512
+- W: 2
+- f: Elligator 2, A == 0 method, {{ell2a0}}
+- Z: -1
+- h\_eff: 1
 
 ## Suites for SS132 {#suites-ss132}
+
+
 
 # IANA Considerations
 
