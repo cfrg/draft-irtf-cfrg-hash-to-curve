@@ -55,6 +55,27 @@ normative:
   RFC8017:
   RFC7748:
 informative:
+  draft-yonezawa-pfc-01:
+    title: Pairing-friendly Curves
+    target: https://datatracker.ietf.org/doc/draft-yonezawa-pairing-friendly-curves/
+    date: March 11, 2019
+    author:
+      -
+        ins: S. Yonezawa
+        name: Shoko Yonezawa
+        org: Lepidum
+      -
+        ins: S. Chikara
+        name: Sakae Chikara
+        org: NTT TechnoCross
+      -
+        ins: T. Kobayashi
+        name: Tetsutaro Kobayashi
+        org: NTT
+      -
+        ins: T. Saito
+        name: Tsunekazu Saito
+        org: NTT
   SECG1:
     title: "SEC 1: Elliptic Curve Cryptography"
     target: http://www.secg.org/sec1-v2.pdf
@@ -2011,7 +2032,7 @@ Each suite comprises the following parameters:
   Applications whose security requires a random oracle MUST use
   a suite for which RO == True.
 
-In addition, the mapping f may require additional parameters Z, rational\_map, and/or iso\_map.
+In addition, the mapping f may require additional parameters Z, rational\_map, M, E', and/or iso\_map.
 These are specified when applicable.
 
 The below table lists the curves for which suites are defined and
@@ -2119,14 +2140,16 @@ These suites share common parameters listed below.
    - E: -x^2 + y^2 = 1 + d * x^2 * y^2, where
       - d = 0x52036cee2b6ffe738cc740797779e89800700a4d4141d8ab75eb4dca135978a3
    - f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
-   - rational\_map: the birational map from {{RFC7748}}, Section 4.1
+   - M: curve25519 defined in {{RFC7748}}, Section 4.1
+   - rational\_map: the birational map defined in {{RFC7748}}, Section 4.1
    - RO: True
 
 4. Suite ID: edwards25519-SHA256-EDELL2-ENC
    - E: -x^2 + y^2 = 1 + d * x^2 * y^2, where
       - d = 0x52036cee2b6ffe738cc740797779e89800700a4d4141d8ab75eb4dca135978a3
    - f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
-   - rational\_map: the birational map from {{RFC7748}}, Section 4.1
+   - M: curve25519 defined in {{RFC7748}}, Section 4.1
+   - rational\_map: the birational map defined in {{RFC7748}}, Section 4.1
    - RO: False
 
 The common parameters for the above suites are:
@@ -2156,12 +2179,14 @@ These suites share common parameters listed below.
 3. Suite ID: edwards448-SHA512-EDELL2-ROM
    - E: x^2 + y^2 = 1 - 39081 * x^2 * y^2
    - f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
-   - rational\_map: the 4-isogeny map from {{RFC7748}}, Section 4.2
+   - M: curve448, defined in {{RFC7748}}, Section 4.2
+   - rational\_map: the 4-isogeny map defined in {{RFC7748}}, Section 4.2
    - RO: True
 
 4. Suite ID: edwards448-SHA512-EDELL2-ENC
    - E: x^2 + y^2 = 1 - 39081 * x^2 * y^2
    - f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
+   - M: curve448, defined in {{RFC7748}}, Section 4.2
    - rational\_map: the 4-isogeny map from {{RFC7748}}, Section 4.2
    - RO: False
 
@@ -2197,6 +2222,54 @@ The common parameters for the above suites are:
 - h\_eff: 1
 
 ## Suites for BLS12-381 {#suites-bls12381}
+
+This section defines ciphersuites for BLS12-381 {{draft-yonezawa-pfc-01}}.
+These suites share the common parameters listed below.
+
+1. Suite ID: BLS12381\_G1-SHA256-SSWU-ROM
+   - E: y^2 = x^3 + 4
+   - m: 1
+   - Z: -1
+   - E': the curve EllP given in {{WB19}}, Appendix A
+   - iso\_map: the isogeny map iso11 given in {{WB19}}, Appendix A
+   - h\_eff: 0xd201000000010001
+   - RO: True
+
+2. Suite ID: BLS12381\_G1-SHA256-SSWU-ENC
+   - E: y^2 = x^3 + 4
+   - m: 1
+   - Z: -1
+   - E': the curve EllP given in {{WB19}}, Appendix A
+   - iso\_map: the isogeny map iso11 given in {{WB19}}, Appendix A
+   - h\_eff: 0xd201000000010001
+   - RO: False
+
+3. Suite ID: BLS12381\_G2-SHA256-SSWU-ROM
+   - E: y^2 = x^3 + 4 * (1 + i), where
+      - i**2 == -1 in F
+   - m: 2; polynomial basis for F = (1 + i)
+   - Z: 1 + i
+   - E': the curve Ell2p given in {{WB19}}, Appendix A
+   - iso\_map: the isogeny map iso3 given in {{WB19}}, Appendix A
+   - h\_eff: 0xbc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff031508ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689f6a359894c0adebbf6b4e8020005aaa95551
+   - RO: True
+
+4. Suite ID: BLS12381\_G2-SHA256-SSWU-ENC
+   - E: y^2 = x^3 + 4 * (1 + i), where
+      - i**2 == -1 in F
+   - m: 2; polynomial basis for F = (1 + i)
+   - Z: 1 + i
+   - E': the curve Ell2p given in {{WB19}}, Appendix A
+   - iso\_map: the isogeny map iso3 given in {{WB19}}, Appendix A
+   - h\_eff: 0xbc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff031508ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689f6a359894c0adebbf6b4e8020005aaa95551
+   - RO: False
+
+The common parameters for the above suites are:
+
+- p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
+- H: SHA-256
+- W: 2
+- f: Simplified SWU for pairing-friendly curves, {{simple-swu-pairing-friendly}}
 
 ## Suites for SIKE-P503 {#suites-sikep503}
 
