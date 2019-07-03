@@ -2140,6 +2140,40 @@ The common parameters for the above suites are:
 
 ## Suites for curve448 and edwards448 {#suites-448}
 
+This section defines ciphersuites for curve448 and edwards448 {{RFC7748}}.
+These suites share common parameters listed below.
+
+1. Suite ID: curve448-SHA512-ELL2-ROM
+   - E: y^2 = x^3 + 156326 * x^2 + x
+   - f: Elligator 2 method, {{elligator2}}
+   - RO: True
+
+2. Suite ID: curve448-SHA512-ELL2-ENC
+   - E: y^2 = x^3 + 156326 * x^2 + x
+   - f: Elligator 2 method, {{elligator2}}
+   - RO: False
+
+3. Suite ID: edwards448-SHA512-EDELL2-ROM
+   - E: x^2 + y^2 = 1 - 39081 * x^2 * y^2
+   - f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
+   - rational\_map: the 4-isogeny map from {{RFC7748}}, Section 4.2
+   - RO: True
+
+4. Suite ID: edwards448-SHA512-EDELL2-ENC
+   - E: x^2 + y^2 = 1 - 39081 * x^2 * y^2
+   - f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
+   - rational\_map: the 4-isogeny map from {{RFC7748}}, Section 4.2
+   - RO: False
+
+The common parameters for the above suites are:
+
+- p: 2^448 - 2^224 - 1
+- m: 1
+- H: SHA-512
+- W: 2
+- Z: -1
+- h\_eff: 4
+
 ## Suites for SECP256K1 {#suites-secp256k1}
 
 ## Suites for BLS12-381 {#suites-bls12381}
