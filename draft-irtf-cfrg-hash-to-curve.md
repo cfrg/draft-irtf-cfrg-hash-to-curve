@@ -2029,9 +2029,69 @@ the subsection that gives the appropriate parameters.
 
 ## Suites for NIST P-256 {#suites-p256}
 
+The following two suites are defined for the NIST P-256 elliptic curve {{FIPS186-4}}.
+These suites share common parameters listed below.
+
+1. Suite ID: P256-SHA256-SSWU-ROM
+   - RO: True
+
+2. Suite ID: P256-SHA256-SSWU-ENC
+   - RO: False
+
+The common parameters for the above suites are:
+
+- E: y^2 = x^3 - 3 * x + 0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b
+- p: 2^256 - 2^224 + 2^192 + 2^96 - 1
+- m: 1
+- H: SHA-256
+- W: 2
+- f: Simplified SWU method, {{simple-swu}}
+- Z: -2
+- h\_eff: 1
+
 ## Suites for NIST P-384 {#suites-p384}
 
+The following two suites are defined for the NIST P-384 elliptic curve {{FIPS186-4}}.
+These suites share common parameters listed below.
+
+1. Suite ID: P384-SHA512-ICART-ROM
+   - RO: True
+
+2. Suite ID: P384-SHA512-ICART-ENC
+   - RO: False
+
+The common parameters for the above suites are:
+
+- E: y^2 = x^3 - 3 * x + 0xb3312fa7e23ee7e4988e056be3f82d19181d9c6efe8141120314088f5013875ac656398d8a2ed19d2a85c8edd3ec2aef
+- p: 2^384 - 2^128 - 2^96 + 2^32 - 1
+- m: 1
+- H: SHA-512
+- W: 2
+- f: Icart's method, {{icart}}
+- Z: n/a
+- h\_eff: 1
+
 ## Suites for NIST P-521 {#suites-p521}
+
+The following two suites are defined for the NIST P-521 elliptic curve {{FIPS186-4}}.
+These suites share common parameters listed below.
+
+1. Suite ID: P521-SHA512-SSWU-ROM
+   - RO: True
+
+2. Suite ID: P521-SHA512-SSWU-ENC
+   - RO: False
+
+The common parameters for the above suites are:
+
+- E: y^2 = x^3 - 3 * x + 51953eb9618e1c9a1f929a21a0b68540eea2da725b99b315f3b8b489918ef109e156193951ec7e937b1652c0bd3bb1bf073573df883d2c34f1ef451fd46b503f00
+- p: 2^521 - 1
+- m: 1
+- H: SHA-512
+- W: 2
+- f: Simplified SWU method, {{simple-swu}}
+- Z: -2
+- h\_eff: 1
 
 ## Suites for curve25519 and edwards25519 {#suites-25519}
 
