@@ -2108,13 +2108,16 @@ This section defines ciphersuites for curve25519 and edwards25519 {{RFC7748}}.
 The suites curve25519-SHA256-ELL2-RO and curve25519-SHA256-ELL2-NU
 share the following parameters, in addition to the common parameters below.
 
-- E: y^2 = x^3 + 486662 * x^2 + x
+- E: B * y^2 = x^3 + A * x^2 + x, where
+  - A = 486662
+  - B = 1
 - f: Elligator 2 method, {{elligator2}}
 
 The suites edwards25519-SHA256-EDELL2-RO and edwards25519-SHA256-EDELL2-NU
 share the following parameters, in addition to the common parameters below.
 
-- E: -x^2 + y^2 = 1 + d * x^2 * y^2, where
+- E: a * x^2 + y^2 = 1 + d * x^2 * y^2, where
+  - a = -1
   - d = 0x52036cee2b6ffe738cc740797779e89800700a4d4141d8ab75eb4dca135978a3
 - f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
 - M: curve25519 defined in {{RFC7748}}, Section 4.1
@@ -2136,13 +2139,17 @@ This section defines ciphersuites for curve448 and edwards448 {{RFC7748}}.
 The suites curve448-SHA512-ELL2-RO and curve448-SHA512-ELL2-NU
 share the following parameters, in addition to the common parameters below.
 
-- E: y^2 = x^3 + 156326 * x^2 + x
+- E: B * y^2 = x^3 + A * x^2 + x, where
+  - A = 156326
+  - B = 1
 - f: Elligator 2 method, {{elligator2}}
 
 The suites edwards448-SHA512-EDELL2-RO and edwards448-SHA512-EDELL2-NU
 share the following parameters, in addition to the common parameters below.
 
-- E: x^2 + y^2 = 1 - 39081 * x^2 * y^2
+- E: a * x^2 + y^2 = 1 + d * x^2 * y^2, where
+  - a = 1
+  - d = -39081
 - f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
 - M: curve448, defined in {{RFC7748}}, Section 4.2
 - rational\_map: the 4-isogeny map defined in {{RFC7748}}, Section 4.2
@@ -2189,9 +2196,11 @@ share the following parameters, in addition to the common parameters below.
 The suites BLS12381G2-SHA256-SSWU-RO and BLS12381G2-SHA256-SSWU-NU
 share the following parameters, in addition to the common parameters below.
 
-- E: y^2 = x^3 + 4 * (1 + i), where
-  - i^2 + 1 == 0 in F
-- m: 2, with polynomial basis (1, i) for F
+- F: GF(p^m), where
+  - p: defined below
+  - m: 2
+  - (1, i) is the basis for F, where i^2 + 1 == 0 in F
+- E: y^2 = x^3 + 4 * (1 + i)
 - Z: 1 + i
 - E': the 3-isogenous curve from {{WB19}}; see {{appx-bls12381-g2}}
 - iso\_map: the isogeny map to E' from {{WB19}}; see {{appx-bls12381-g2}}
@@ -2446,9 +2455,8 @@ The constants used to compute y\_den are as follows:
 ## Curve and map for G2 {#appx-bls12381-g2}
 
 The curve E' 11-isogenous to the G2 curve of BLS12-381 is given by
-y'^2 = x'^3 + A * x' + B over GF(p^2), where p is specified in
-{{suites-bls12381}}.
-The polynomial basis for F is (1, i), where i^2 + 1 == 0 in F, and
+y'^2 = x'^3 + A * x' + B over F = GF(p^2), where p and i are specified
+in {{suites-bls12381}}, and
 
 - A = 240 * i
 - B = 1012 + 1012 * i
