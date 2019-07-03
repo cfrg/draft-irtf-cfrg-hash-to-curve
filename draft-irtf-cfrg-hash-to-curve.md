@@ -972,7 +972,7 @@ one might define
     R2(x) := R("R2" || x)
 
 In this example, "R1" and "R2" are called domain separation tags.
-Because of these domain separation tags, R1 and R2 cannot query R on
+Because of these domain separation tags, queries to R1 and R2 cannot yield identical queries to R.
 overlapping values.
 Thus, it is safe to treat them as independent oracles.
 
