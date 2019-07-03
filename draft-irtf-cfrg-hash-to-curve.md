@@ -1008,7 +1008,7 @@ Input: alpha, an arbitrary-length bit string.
 Output: P, a point in G.
 
 Steps:
-1. u = hash_to_base(alpha, 0)
+1. u = hash_to_base(alpha, 2)
 2. Q = map_to_curve(u)
 3. P = clear_cofactor(Q)
 4. return P
@@ -1282,7 +1282,7 @@ Parameters:
 
 Inputs:
 - msg is the message to hash.
-- ctr is either 0 or 1.
+- ctr is either 0, 1, or 2.
   This is used to efficiently create independent
   instances of hash_to_base (see discussion above).
 
