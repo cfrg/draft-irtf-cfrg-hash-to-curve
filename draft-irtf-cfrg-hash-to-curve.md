@@ -2004,7 +2004,6 @@ Each suite comprises the following parameters:
 - H, the hash function used by hash\_to\_base.
 - W, the number of evaluations of H in hash\_to\_base.
 - f, a mapping function given in {{mappings}}.
-- Z, a constant associated with f (where applicable).
 - h\_eff, the value by which the output of f is multiplied
   for the purpose of clearing the cofactor ({{cofactor-clearing}}).
 - RO, True if the ciphersuite uses the hash\_to\_curve procedure of {{roadmap}}
@@ -2012,8 +2011,11 @@ Each suite comprises the following parameters:
   Applications whose security requires a random oracle MUST use
   a suite for which RO == True.
 
+In addition, the mapping f may require additional parameters Z, rational\_map, and/or iso\_map.
+These are specified when applicable.
+
 The below table lists the curves for which suites are defined and
-the subsection that gives the appropriate parameters.
+the subsection that gives the corresponding parameters.
 
 | E                         | Section              |
 |---------------------------|----------------------|
@@ -2040,7 +2042,9 @@ These suites share common parameters listed below.
 
 The common parameters for the above suites are:
 
-- E: y^2 = x^3 - 3 * x + 0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b
+- E: y^2 = x^3 + A * x + B, where
+   - A = -3
+   - B = 0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b
 - p: 2^256 - 2^224 + 2^192 + 2^96 - 1
 - m: 1
 - H: SHA-256
@@ -2062,13 +2066,14 @@ These suites share common parameters listed below.
 
 The common parameters for the above suites are:
 
-- E: y^2 = x^3 - 3 * x + 0xb3312fa7e23ee7e4988e056be3f82d19181d9c6efe8141120314088f5013875ac656398d8a2ed19d2a85c8edd3ec2aef
+- E: y^2 = x^3 + A * x + B, where
+   - A = -3
+   - B = 0xb3312fa7e23ee7e4988e056be3f82d19181d9c6efe8141120314088f5013875ac656398d8a2ed19d2a85c8edd3ec2aef
 - p: 2^384 - 2^128 - 2^96 + 2^32 - 1
 - m: 1
 - H: SHA-512
 - W: 2
 - f: Icart's method, {{icart}}
-- Z: n/a
 - h\_eff: 1
 
 ## Suites for NIST P-521 {#suites-p521}
@@ -2084,7 +2089,9 @@ These suites share common parameters listed below.
 
 The common parameters for the above suites are:
 
-- E: y^2 = x^3 - 3 * x + 51953eb9618e1c9a1f929a21a0b68540eea2da725b99b315f3b8b489918ef109e156193951ec7e937b1652c0bd3bb1bf073573df883d2c34f1ef451fd46b503f00
+- E: y^2 = x^3 + A * x + B, where
+   - A = -3
+   - B = 0x51953eb9618e1c9a1f929a21a0b68540eea2da725b99b315f3b8b489918ef109e156193951ec7e937b1652c0bd3bb1bf073573df883d2c34f1ef451fd46b503f00
 - p: 2^521 - 1
 - m: 1
 - H: SHA-512
@@ -2094,6 +2101,42 @@ The common parameters for the above suites are:
 - h\_eff: 1
 
 ## Suites for curve25519 and edwards25519 {#suites-25519}
+
+This section defines ciphersuites for curve25519 and edwards25519 {{RFC7748}}.
+These suites share common parameters listed below.
+
+1. Suite ID: curve25519-SHA256-ELL2-ROM
+   - E: y^2 = x^3 + 486662 * x^2 + x
+   - f: Elligator 2 method, {{elligator2}}
+   - RO: True
+
+2. Suite ID: curve25519-SHA256-ELL2-ENC
+   - E: y^2 = x^3 + 486662 * u^2 + u
+   - f: Elligator 2 method, {{elligator2}}
+   - RO: False
+
+3. Suite ID: edwards25519-SHA256-EDELL2-ROM
+   - E: -x^2 + y^2 = 1 + d * x^2 * y^2, where
+      - d = 0x52036cee2b6ffe738cc740797779e89800700a4d4141d8ab75eb4dca135978a3
+   - f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
+   - rational\_map: the birational map from {{RFC7748}}, Section 4.1
+   - RO: True
+
+4. Suite ID: edwards25519-SHA256-EDELL2-ENC
+   - E: -x^2 + y^2 = 1 + d * x^2 * y^2, where
+      - d = 0x52036cee2b6ffe738cc740797779e89800700a4d4141d8ab75eb4dca135978a3
+   - f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
+   - rational\_map: the birational map from {{RFC7748}}, Section 4.1
+   - RO: False
+
+The common parameters for the above suites are:
+
+- p: 2^255 - 19
+- m: 1
+- H: SHA-256
+- W: 2
+- Z: 2
+- h\_eff: 8
 
 ## Suites for curve448 and edwards448 {#suites-448}
 
