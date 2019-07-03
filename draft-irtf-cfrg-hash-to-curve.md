@@ -2176,6 +2176,26 @@ The common parameters for the above suites are:
 
 ## Suites for SECP256K1 {#suites-secp256k1}
 
+This section defines ciphersuites for SECP256K1 {{SEC2}}.
+These suites share the common parameters listed below.
+
+1. Suite ID: SECP256K1-SHA256-SVDW-ROM
+   - RO: True
+
+2. Suite ID: SECP256K1-SHA256-SVDW-ENC
+   - RO: False
+
+The common parameters for the above suites are:
+
+- E: y^2 = x^3 + 7
+- p: 2^256 - 2^32 - 2^9 - 2^8 - 2^7 - 2^6 - 2^4 - 1
+- m: 1
+- H: SHA-256
+- W: 2
+- f: Shallue-van de Woestijne method, {{swpairing}}
+- Z: 1
+- h\_eff: 1
+
 ## Suites for BLS12-381 {#suites-bls12381}
 
 ## Suites for SIKE-P503 {#suites-sikep503}
