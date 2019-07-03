@@ -1049,7 +1049,7 @@ targeting different elliptic curves MUST enforce domain separation between
 the two functions if those functions are modeled in the protocol as
 independent random oracles.
 Finally, protocols that use encode\_to\_curve SHOULD use domain separation
-if possible, but it is not required in this case.
+if possible, though it is not required in this case.
 
 Care is required when choosing a domain separation tag.
 Implementors SHOULD observe the following guidelines:
