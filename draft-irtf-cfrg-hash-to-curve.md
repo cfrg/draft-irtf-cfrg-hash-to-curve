@@ -2027,13 +2027,14 @@ Each suite comprises the following parameters:
 - f, a mapping function given in {{mappings}}.
 - h\_eff, the value by which the output of f is multiplied
   for the purpose of clearing the cofactor ({{cofactor-clearing}}).
-- RO, True if the ciphersuite uses the hash\_to\_curve procedure of {{roadmap}}
-  and False if it uses the encode\_to\_curve procedure.
-  Applications whose security requires a random oracle MUST use
-  a suite for which RO == True.
 
-In addition, the mapping f may require additional parameters Z, rational\_map, M, E', and/or iso\_map.
+In addition to the above parameters, the mapping f may require
+additional parameters Z, rational\_map, M, E', and/or iso\_map.
 These are specified when applicable.
+
+Suites whose ID ends in "-RO" use the hash\_to\_curve procedure of {{roadmap}}.
+All other suites use the encode\_to\_curve procedure from that section.
+Applications whose security requires a random oracle MUST use a "-RO" suite.
 
 The below table lists the curves for which suites are defined and
 the subsection that gives the corresponding parameters.
@@ -2050,16 +2051,9 @@ the subsection that gives the corresponding parameters.
 
 ## Suites for NIST P-256 {#suites-p256}
 
-The following two suites are defined for the NIST P-256 elliptic curve {{FIPS186-4}}.
-These suites share common parameters listed below.
-
-1. Suite ID: P256-SHA256-SSWU-ROM
-   - RO: True
-
-2. Suite ID: P256-SHA256-SSWU-ENC
-   - RO: False
-
-The common parameters for the above suites are:
+The suites P256-SHA256-SSWU-RO and P256-SHA256-SSWU-NU
+are defined for the NIST P-256 elliptic curve {{FIPS186-4}}.
+These suites share the following parameters:
 
 - E: y^2 = x^3 + A * x + B, where
    - A = -3
@@ -2074,20 +2068,13 @@ The common parameters for the above suites are:
 
 ## Suites for NIST P-384 {#suites-p384}
 
-The following two suites are defined for the NIST P-384 elliptic curve {{FIPS186-4}}.
-These suites share common parameters listed below.
-
-1. Suite ID: P384-SHA512-ICART-ROM
-   - RO: True
-
-2. Suite ID: P384-SHA512-ICART-ENC
-   - RO: False
-
-The common parameters for the above suites are:
+The suites P384-SHA512-ICART-RO and P384-SHA512-ICART-NU
+are defined for the NIST P-384 elliptic curve {{FIPS186-4}}.
+These suites share the following parameters:
 
 - E: y^2 = x^3 + A * x + B, where
-   - A = -3
-   - B = 0xb3312fa7e23ee7e4988e056be3f82d19181d9c6efe8141120314088f5013875ac656398d8a2ed19d2a85c8edd3ec2aef
+  - A = -3
+  - B = 0xb3312fa7e23ee7e4988e056be3f82d19181d9c6efe8141120314088f5013875ac656398d8a2ed19d2a85c8edd3ec2aef
 - p: 2^384 - 2^128 - 2^96 + 2^32 - 1
 - m: 1
 - H: SHA-512
@@ -2097,20 +2084,13 @@ The common parameters for the above suites are:
 
 ## Suites for NIST P-521 {#suites-p521}
 
-The following two suites are defined for the NIST P-521 elliptic curve {{FIPS186-4}}.
-These suites share common parameters listed below.
-
-1. Suite ID: P521-SHA512-SSWU-ROM
-   - RO: True
-
-2. Suite ID: P521-SHA512-SSWU-ENC
-   - RO: False
-
-The common parameters for the above suites are:
+The suites P521-SHA512-SSWU-RO and P521-SHA512-SSWU-NU
+are defined for the NIST P-384 elliptic curve {{FIPS186-4}}.
+These suites share the following parameters:
 
 - E: y^2 = x^3 + A * x + B, where
-   - A = -3
-   - B = 0x51953eb9618e1c9a1f929a21a0b68540eea2da725b99b315f3b8b489918ef109e156193951ec7e937b1652c0bd3bb1bf073573df883d2c34f1ef451fd46b503f00
+  - A = -3
+  - B = 0x51953eb9618e1c9a1f929a21a0b68540eea2da725b99b315f3b8b489918ef109e156193951ec7e937b1652c0bd3bb1bf073573df883d2c34f1ef451fd46b503f00
 - p: 2^521 - 1
 - m: 1
 - H: SHA-512
@@ -2122,35 +2102,23 @@ The common parameters for the above suites are:
 ## Suites for curve25519 and edwards25519 {#suites-25519}
 
 This section defines ciphersuites for curve25519 and edwards25519 {{RFC7748}}.
-These suites share common parameters listed below.
 
-1. Suite ID: curve25519-SHA256-ELL2-ROM
-   - E: y^2 = x^3 + 486662 * x^2 + x
-   - f: Elligator 2 method, {{elligator2}}
-   - RO: True
+The suites curve25519-SHA256-ELL2-RO and curve25519-SHA256-ELL2-NU
+share the following parameters, in addition to the common parameters below.
 
-2. Suite ID: curve25519-SHA256-ELL2-ENC
-   - E: y^2 = x^3 + 486662 * u^2 + u
-   - f: Elligator 2 method, {{elligator2}}
-   - RO: False
+- E: y^2 = x^3 + 486662 * x^2 + x
+- f: Elligator 2 method, {{elligator2}}
 
-3. Suite ID: edwards25519-SHA256-EDELL2-ROM
-   - E: -x^2 + y^2 = 1 + d * x^2 * y^2, where
-      - d = 0x52036cee2b6ffe738cc740797779e89800700a4d4141d8ab75eb4dca135978a3
-   - f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
-   - M: curve25519 defined in {{RFC7748}}, Section 4.1
-   - rational\_map: the birational map defined in {{RFC7748}}, Section 4.1
-   - RO: True
+The suites edwards25519-SHA256-EDELL2-RO and edwards25519-SHA256-EDELL2-NU
+share the following parameters, in addition to the common parameters below.
 
-4. Suite ID: edwards25519-SHA256-EDELL2-ENC
-   - E: -x^2 + y^2 = 1 + d * x^2 * y^2, where
-      - d = 0x52036cee2b6ffe738cc740797779e89800700a4d4141d8ab75eb4dca135978a3
-   - f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
-   - M: curve25519 defined in {{RFC7748}}, Section 4.1
-   - rational\_map: the birational map defined in {{RFC7748}}, Section 4.1
-   - RO: False
+- E: -x^2 + y^2 = 1 + d * x^2 * y^2, where
+  - d = 0x52036cee2b6ffe738cc740797779e89800700a4d4141d8ab75eb4dca135978a3
+- f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
+- M: curve25519 defined in {{RFC7748}}, Section 4.1
+- rational\_map: the birational map defined in {{RFC7748}}, Section 4.1
 
-The common parameters for the above suites are:
+The common parameters for all of the above suites are:
 
 - p: 2^255 - 19
 - m: 1
@@ -2162,33 +2130,22 @@ The common parameters for the above suites are:
 ## Suites for curve448 and edwards448 {#suites-448}
 
 This section defines ciphersuites for curve448 and edwards448 {{RFC7748}}.
-These suites share common parameters listed below.
 
-1. Suite ID: curve448-SHA512-ELL2-ROM
-   - E: y^2 = x^3 + 156326 * x^2 + x
-   - f: Elligator 2 method, {{elligator2}}
-   - RO: True
+The suites curve448-SHA512-ELL2-RO and curve448-SHA512-ELL2-NU
+share the following parameters, in addition to the common parameters below.
 
-2. Suite ID: curve448-SHA512-ELL2-ENC
-   - E: y^2 = x^3 + 156326 * x^2 + x
-   - f: Elligator 2 method, {{elligator2}}
-   - RO: False
+- E: y^2 = x^3 + 156326 * x^2 + x
+- f: Elligator 2 method, {{elligator2}}
 
-3. Suite ID: edwards448-SHA512-EDELL2-ROM
-   - E: x^2 + y^2 = 1 - 39081 * x^2 * y^2
-   - f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
-   - M: curve448, defined in {{RFC7748}}, Section 4.2
-   - rational\_map: the 4-isogeny map defined in {{RFC7748}}, Section 4.2
-   - RO: True
+The suites edwards448-SHA512-EDELL2-RO and edwards448-SHA512-EDELL2-NU
+share the following parameters, in addition to the common parameters below.
 
-4. Suite ID: edwards448-SHA512-EDELL2-ENC
-   - E: x^2 + y^2 = 1 - 39081 * x^2 * y^2
-   - f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
-   - M: curve448, defined in {{RFC7748}}, Section 4.2
-   - rational\_map: the 4-isogeny map from {{RFC7748}}, Section 4.2
-   - RO: False
+- E: x^2 + y^2 = 1 - 39081 * x^2 * y^2
+- f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
+- M: curve448, defined in {{RFC7748}}, Section 4.2
+- rational\_map: the 4-isogeny map defined in {{RFC7748}}, Section 4.2
 
-The common parameters for the above suites are:
+The common parameters for all of the above suites are:
 
 - p: 2^448 - 2^224 - 1
 - m: 1
@@ -2199,16 +2156,9 @@ The common parameters for the above suites are:
 
 ## Suites for SECP256K1 {#suites-secp256k1}
 
-This section defines ciphersuites for SECP256K1 {{SEC2}}.
-These suites share the common parameters listed below.
-
-1. Suite ID: SECP256K1-SHA256-SVDW-ROM
-   - RO: True
-
-2. Suite ID: SECP256K1-SHA256-SVDW-ENC
-   - RO: False
-
-The common parameters for the above suites are:
+The suites SECP256K1-SHA256-SVDW-RO and SECP256K1-SHA256-SVDW-NU
+are defined for the SECP256K1 elliptic curve {{SEC2}}.
+These suites share the following parameters:
 
 - E: y^2 = x^3 + 7
 - p: 2^256 - 2^32 - 2^9 - 2^8 - 2^7 - 2^6 - 2^4 - 1
@@ -2221,46 +2171,29 @@ The common parameters for the above suites are:
 
 ## Suites for BLS12-381 {#suites-bls12381}
 
-This section defines ciphersuites for BLS12-381 {{draft-yonezawa-pfc-01}}.
-These suites share the common parameters listed below.
+This section defines ciphersuites for groups G1 and G2 of
+the BLS12-381 elliptic curve {{draft-yonezawa-pfc-01}}.
 
-1. Suite ID: BLS12381\_G1-SHA256-SSWU-ROM
-   - E: y^2 = x^3 + 4
-   - m: 1
-   - Z: -1
-   - E': the curve EllP given in {{WB19}}, Appendix A
-   - iso\_map: the isogeny map iso11 given in {{WB19}}, Appendix A
-   - h\_eff: 0xd201000000010001
-   - RO: True
+The suites BLS12\_381\_G1-SHA256-SSWU-RO and BLS12\_381\_G1-SHA256-SSWU-NU
+share the following parameters, in addition to the common parameters below.
 
-2. Suite ID: BLS12381\_G1-SHA256-SSWU-ENC
-   - E: y^2 = x^3 + 4
-   - m: 1
-   - Z: -1
-   - E': the curve EllP given in {{WB19}}, Appendix A
-   - iso\_map: the isogeny map iso11 given in {{WB19}}, Appendix A
-   - h\_eff: 0xd201000000010001
-   - RO: False
+- E: y^2 = x^3 + 4
+- m: 1
+- Z: -1
+- E': the curve EllP given in {{WB19}}, Appendix A
+- iso\_map: the isogeny map iso11 given in {{WB19}}, Appendix A
+- h\_eff: 0xd201000000010001
 
-3. Suite ID: BLS12381\_G2-SHA256-SSWU-ROM
-   - E: y^2 = x^3 + 4 * (1 + i), where
-      - i**2 == -1 in F
-   - m: 2; polynomial basis for F = (1 + i)
-   - Z: 1 + i
-   - E': the curve Ell2p given in {{WB19}}, Appendix A
-   - iso\_map: the isogeny map iso3 given in {{WB19}}, Appendix A
-   - h\_eff: 0xbc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff031508ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689f6a359894c0adebbf6b4e8020005aaa95551
-   - RO: True
+The suites BLS12\_381\_G2-SHA256-SSWU-RO and BLS12\_381\_G2-SHA256-SSWU-NU
+share the following parameters, in addition to the common parameters below.
 
-4. Suite ID: BLS12381\_G2-SHA256-SSWU-ENC
-   - E: y^2 = x^3 + 4 * (1 + i), where
-      - i**2 == -1 in F
-   - m: 2; polynomial basis for F = (1 + i)
-   - Z: 1 + i
-   - E': the curve Ell2p given in {{WB19}}, Appendix A
-   - iso\_map: the isogeny map iso3 given in {{WB19}}, Appendix A
-   - h\_eff: 0xbc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff031508ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689f6a359894c0adebbf6b4e8020005aaa95551
-   - RO: False
+- E: y^2 = x^3 + 4 * (1 + i), where
+  - i^2 + 1 == 0 in F
+- m: 2, with polynomial basis (1, i) for F
+- Z: 1 + i
+- E': the curve Ell2p given in {{WB19}}, Appendix A
+- iso\_map: the isogeny map iso3 given in {{WB19}}, Appendix A
+- h\_eff: 0xbc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff031508ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689f6a359894c0adebbf6b4e8020005aaa95551
 
 The common parameters for the above suites are:
 
@@ -2268,6 +2201,10 @@ The common parameters for the above suites are:
 - H: SHA-256
 - W: 2
 - f: Simplified SWU for pairing-friendly curves, {{simple-swu-pairing-friendly}}
+
+Note that the h\_eff parameters for all of the above suites are chosen for compatibility
+with the fast cofactor clearing methods described by Scott for G1 ({{WB19}} Section 5)
+and by Budroni and Pintore for G2 ({{BP18}}, Section 4.1).
 
 # IANA Considerations
 
