@@ -1166,10 +1166,9 @@ In this example the bias is negligible, but in general it can be significant.
 To control bias, the input msg should be hashed to an integer comprising at
 least ceil(log2(p)) + k bits; reducing this integer modulo p gives bias at
 most 2^-k, which is a safe choice for a cryptosystem with k-bit security.
-To obtain such an integer, hash H with b-bit output should be evaluated W =
-ceil((ceil(log2(p)) + k) / b) times and the results concatenated to produce a
-(W * b)-bit integer. For example, for H = SHA256, k = 128-bit security, and p
-a 256-bit prime, W = ceil((256 + 128) / 256) = 2.
+To obtain such an integer, we use HKDF {{!RFC5869}} to expand the input msg
+with additional information (a counter) to a (ceil(log2(p)) + k)-bit string,
+which is then converted to an integer via OS2IP.
 
 {{hashtobase-impl}} details the hash\_to\_base procedure.
 
@@ -1204,7 +1203,8 @@ multiple invocations of hash\_to\_base, by factoring out the common computation.
 
 ## Implementation {#hashtobase-impl}
 
-The following procedure implements hash\_to\_base.
+The following procedure implements hash\_to\_base. It requires HKDF-Expand
+from {{!RFC5869}}, which is computed using input hash function H.
 
 ~~~
 hash_to_base(msg, ctr)
@@ -1212,8 +1212,6 @@ hash_to_base(msg, ctr)
 Parameters:
 - H, a cryptographic hash function producing b bits.
 - F, a finite field of characteristic p and order q = p^m.
-- W = ceil((ceil(log2(p)) + k) / b), where k is the security
-  parameter of the cryptosystem (e.g., k = 128).
 
 Inputs:
 - msg is the message to hash.
@@ -1224,13 +1222,12 @@ Inputs:
 Output: u, an element in F.
 
 Steps:
-1. m' = H(msg) || I2OSP(ctr, 1)
-2. for i in (1, ..., m):
-3.   t = ""     // initialize t to the empty string
-4.   for j in (1, ..., W):
-5.     t = t || H( m' || I2OSP(i, 1) || I2OSP(j, 1) )
-6.   e_i = OS2IP(t) mod p
-7. return u = ( e_1, ..., e_m )
+1. L = ceil((ceil(log2(p)) + k) / 8)
+2. m' = H(msg) || I2OSP(ctr, 1)
+3. for i in (1, ..., m):
+4.   t = HKDF-Expand(m', I2OSP(i, 1), L)
+5.   e_i = OS2IP(t) mod p
+6. return u = (e_1, ..., e_m)
 ~~~
 
 # Deterministic Mappings  {#mappings}
