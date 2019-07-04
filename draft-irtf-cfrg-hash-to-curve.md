@@ -1991,24 +1991,45 @@ i.e., a point in a group of order h * r ({{bg-curves}}). Obtaining a point in G
 may require a final operation commonly called "clearing the cofactor," which
 takes as input any point on the curve.
 
-This operation can always be implemented as a scalar multiplication by h.
+The cofactor can always be cleared via scalar multiplication by h.
 For elliptic curves where h = 1, i.e., the curves with a prime number of points,
 no operation is required. This applies, for example, to the NIST curves P-256,
 P-384, and P-521 {{FIPS186-4}}.
 
 In some cases, it is possible to clear the cofactor via a faster method than
-scalar multiplication.
-For pairing-friendly curves having subgroup G2 over an extension
-field, Scott et al. {{SBCDBK09}} describe a method for faster cofactor clearing
-that exploits an efficiently-computable endomorphism. Fuentes-Castaneda
-et al. {{FKR11}} propose an alternative method that is sometimes more efficient.
-Budroni and Pintore {{BP18}} give concrete instantiations of these methods
-for Barreto-Lynn-Scott pairing-friendly curves {{BLS03}}.
+scalar multiplication by h.
+These methods are equivalent to (but usually faster than) multiplication by
+some scalar h\_eff whose value is determined by the method and the curve.
+Examples of fast cofactor clearing methods include the following:
 
-Wahby and Boneh ({{WB19}}, Section 5) describe a trick due to Scott for
-faster cofactor clearing on any elliptic curve for which the prime
-factorization of h and the number of points on the curve meet certain
-conditions.
+- For certain pairing-friendly curves having subgroup G2 over an extension
+  field, Scott et al. {{SBCDBK09}} describe a method for fast cofactor clearing
+  that exploits an efficiently-computable endomorphism. Fuentes-Castaneda
+  et al. {{FKR11}} propose an alternative method that is sometimes more efficient.
+  Budroni and Pintore {{BP18}} give concrete instantiations of these methods
+  for Barreto-Lynn-Scott pairing-friendly curves {{BLS03}}.
+
+- Wahby and Boneh ({{WB19}}, Section 5) describe a trick due to Scott for
+  fast cofactor clearing on any elliptic curve for which the prime
+  factorization of h and the structure of the elliptic curve group meet
+  certain conditions.
+
+The clear\_cofactor function is parameterized by a scalar h\_eff.
+Specifically,
+
+~~~
+clear_cofactor(P) := h_eff * P
+~~~
+
+where \* represents scalar multiplication.
+When a curve does not support a fast cofactor clearing method, h\_eff = h
+and the cofactor MUST be cleared via scalar multiplication.
+
+When a curve admits a fast cofactor clearing method, clear\_cofactor
+MAY be evaluated either via that method or via scalar multiplication
+by the equivalent h\_eff; these two methods give the same result.
+Note that in this case scalar multiplication by the cofactor h does not
+generally give the same result as the fast method, and SHOULD NOT be used.
 
 # Suites for Hashing {#suites}
 
@@ -2022,24 +2043,24 @@ Each suite comprises the following parameters:
 - E, the target elliptic curve over a field F.
 - p, the characteristic of the field F.
 - m, the extension degree of the field F.
-- H, the hash function used by hash\_to\_base.
+- H, the hash function used by hash\_to\_base ({{hashtobase}}).
 - W, the number of evaluations of H in hash\_to\_base.
-- f, a mapping function given in {{mappings}}.
-- h\_eff, the value by which the output of f is multiplied
-  for the purpose of clearing the cofactor ({{cofactor-clearing}}).
+- f, a mapping function from {{mappings}}.
+- h\_eff, the scalar parameter for clear\_cofactor ({{cofactor-clearing}}).
 
 In addition to the above parameters, the mapping f may require
-additional parameters Z, rational\_map, M, E', and/or iso\_map.
+additional parameters Z, M, rational\_map, E', and/or iso\_map.
 These are specified when applicable.
 
 Suites whose ID includes "-RO" use the hash\_to\_curve procedure of {{roadmap}};
 suites whose ID includes "-NU" use the encode\_to\_curve procedure from that section.
 Applications whose security requires a random oracle MUST use a "-RO" suite.
 
-The below table lists the curves for which suites are defined and
-the subsection that gives the corresponding parameters.
 When standardizing a new elliptic curve, corresponding hash-to-curve
 suites SHOULD be specified.
+
+The below table lists the curves for which suites are defined and
+the subsection that gives the corresponding parameters.
 
 | E                         | Section              |
 |---------------------------|----------------------|
@@ -2189,8 +2210,10 @@ share the following parameters, in addition to the common parameters below.
 - E: y^2 = x^3 + 4
 - m: 1
 - Z: -1
-- E': the 11-isogenous curve from {{WB19}}; see {{appx-bls12381-g1}}
-- iso\_map: the isogeny map to E' from {{WB19}}; see {{appx-bls12381-g1}}
+- E': y'^2 = x'^3 + A * x' + B, where
+  - A = 0x144698a3b8e9433d693a02c96d4982b0ea985383ee66a8d8e8981aefd881ac98936f8da0e0f97f5cf428082d584c1d
+  - B = 0x12e2908d11688030018b12e8753eee3b2016c1f0f24f4070a0b9c14fcef35ef55a23215a316ceaa5d1cc48e98e172be0
+- iso\_map: the 11-isogeny map from E' to E given in {{appx-bls12381-g1}}
 - h\_eff: 0xd201000000010001
 
 The suites BLS12381G2-SHA256-SSWU-RO and BLS12381G2-SHA256-SSWU-NU
@@ -2202,8 +2225,10 @@ share the following parameters, in addition to the common parameters below.
   - (1, i) is the basis for F, where i^2 + 1 == 0 in F
 - E: y^2 = x^3 + 4 * (1 + i)
 - Z: 1 + i
-- E': the 3-isogenous curve from {{WB19}}; see {{appx-bls12381-g2}}
-- iso\_map: the isogeny map to E' from {{WB19}}; see {{appx-bls12381-g2}}
+- E': y'^2 = x'^3 + A * x' + BB, where
+  - A = 240 * i
+  - B = 1012 * (1 + i)
+- iso\_map: the isogeny map from E' to E given in {{appx-bls12381-g2}}
 - h\_eff: 0xbc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff031508ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689f6a359894c0adebbf6b4e8020005aaa95551
 
 The common parameters for the above suites are:
@@ -2364,18 +2389,10 @@ following rational map ({{BBJLP08}}, Theorem 3.2):
 
 # Isogenous curves and corresponding maps for BLS12-381 {#appx-bls12381}
 
-This section specifies the isogenous curves and isogeny maps to be used
-when hashing to BLS12-381 with the simplified SWU method of
-{{simple-swu-pairing-friendly}}.
+This section specifies the isogeny maps for the BLS12-381 suites
+listed in {{suites-bls12381}}.
 
-## Curve and map for G1 {#appx-bls12381-g1}
-
-The curve E' 11-isogenous to the G1 curve of BLS12-381 is given by
-y'^2 = x'^3 + A * x' + B over GF(p), where p is specified in 
-{{suites-bls12381}}, and
-
-- A = 0x144698a3b8e9433d693a02c96d4982b0ea985383ee66a8d8e8981aefd881ac98936f8da0e0f97f5cf428082d584c1d
-- B = 0x12e2908d11688030018b12e8753eee3b2016c1f0f24f4070a0b9c14fcef35ef55a23215a316ceaa5d1cc48e98e172be0
+## 11-isogeny map for G1 {#appx-bls12381-g1}
 
 The 11-isogeny map from E' to E is given by the following rational functions:
 
@@ -2452,14 +2469,7 @@ The constants used to compute y\_den are as follows:
 - k\_(4,13) = 0x2660400eb2e4f3b628bdd0d53cd76f2bf565b94e72927c1cb748df27942480e420517bd8714cc80d1fadc1326ed06f7
 - k\_(4,14) = 0xe0fa1d816ddc03e6b24255e0d7819c171c40f65e273b853324efcd6356caa205ca2f570f13497804415473a1d634b8f
 
-## Curve and map for G2 {#appx-bls12381-g2}
-
-The curve E' 11-isogenous to the G2 curve of BLS12-381 is given by
-y'^2 = x'^3 + A * x' + B over F = GF(p^2), where p and i are specified
-in {{suites-bls12381}}, and
-
-- A = 240 * i
-- B = 1012 + 1012 * i
+## 3-isogeny map for G2 {#appx-bls12381-g2}
 
 The 3-isogeny map from E' to E is given by the following rational functions:
 
