@@ -952,6 +952,32 @@ In contrast, this document is concerned with encodings from arbitrary bit string
 to elliptic curve points.
 This document does not cover serialization or deserialization.
 
+### Domain separation {#term-domain-separation}
+
+Cryptographic protocols that use random oracles are often analyzed
+under the assumption that random oracles answer only queries generated
+by that protocol.
+In practice, this assumption does not hold if two protocols query the
+same random oracle.
+Concretely, consider protocols P1 and P2 that query random oracle R:
+if P1 and P2 both query R on the same value x, the security analysis of
+one or both protocols may be invalidated.
+
+A common approach to addressing this issue is called domain separation,
+which allows a single random oracle to simulate multiple, independent oracles.
+This is effected by ensuring that each simulated oracle sees queries that are
+distinct from those seen by all other simulated oracles.
+For example, to simulate two oracles R1 and R2 given a single oracle R,
+one might define
+
+    R1(x) := R("R1" || x)
+    R2(x) := R("R2" || x)
+
+In this example, "R1" and "R2" are called domain separation tags;
+they ensure that queries to R1 and R2 cannot result in identical
+queries to R.
+Thus, it is safe to treat R1 and R2 as independent oracles.
+
 # Roadmap {#roadmap}
 
 This section presents a general framework for encoding bit strings to points
@@ -984,7 +1010,7 @@ Input: alpha, an arbitrary-length bit string.
 Output: P, a point in G.
 
 Steps:
-1. u = hash_to_base(alpha, 0)
+1. u = hash_to_base(alpha, 2)
 2. Q = map_to_curve(u)
 3. P = clear_cofactor(Q)
 4. return P
@@ -1014,6 +1040,59 @@ Steps:
 Instances of these functions are given in {{suites}}, which defines a list of
 suites that specify a full set of parameters matching elliptic curves and
 algorithms.
+
+## Domain separation requirements {#domain-separation}
+
+When invoking hash\_to\_curve from a higher-level protocol, implementors MUST use domain separation
+({{term-domain-separation}}) to avoid interfering with other protocols
+that also use the hash\_to\_curve functionality.
+Protocols that use encode\_to\_curve SHOULD use domain separation
+if possible, though it is not required in this case.
+
+Protocols that instantiate multiple, independent random
+oracles based on hash\_to\_curve MUST enforce domain separation between
+those oracles.
+This requirement applies both in the case of multiple oracles to the same curve
+and in the case of multiple oracles to different curves.
+This is because the hash\_to\_base primitive ({{hashtobase}}) requires
+domain separation to guarantee independent outputs.
+
+Care is required when choosing a domain separation tag.
+Implementors SHOULD observe the following guidelines:
+
+1. Tags should be prepended to the value being hashed, as in the example
+   in {{term-domain-separation}}.
+
+2. Tags should have fixed length, or should be encoded in a way that makes
+   the length of a given tag unambiguous.
+   If a variable-length tag is used, it should be prefixed with a
+   fixed-length field that encodes the length of the tag.
+
+3. Tags should begin with a fixed protocol identification string.
+   Ideally, this identification string should be unique to the protocol.
+
+4. Tags should include a protocol version number.
+
+5. For protocols that support multiple ciphersuites, tags should include
+   a ciphersuite identifier.
+
+As an example, consider a fictional key exchange protocol named Quux.
+A reasonable choice of tag is "QUUX-V\<xx\>-CS\<yy\>", where \<xx\> and \<yy\>
+are two-digit numbers indicating the version and ciphersuite, respectively.
+Alternatively, if a variable-length ciphersuite string must be used,
+a reasonable choice of tag is "QUUX-V\<xx\>-L\<zz\>-\<csid\>", where
+where \<csid\> is a the ciphersuite string, and \<xx\> and \<zz\> are
+two-digit numbers indicating the version and the length of the ciphersuite
+string, respectively.
+
+As another example, consider a fictional protocol named Baz that requires
+two independent random oracles, where one oracle outputs points on the curve E1
+and the other outputs points on the curve E2.
+To ensure that these two random oracles are independent, each one must be
+called with a distinct domain separation tag.
+Reasonable choices of tags for the E1 and E2 oracles are
+"BAZ-V\<xx\>-CS\<yy\>-E1" and "BAZ-V\<xx\>-CS\<yy\>-E2", respectively,
+where \<xx\> and \<yy\> are as defined above.
 
 # Utility Functions {#utility}
 
@@ -2034,12 +2113,15 @@ This document has no IANA actions.
 
 # Security Considerations
 
-Each encoding function variant accepts arbitrary input and maps it to a pseudorandom
+Each encoding function accepts arbitrary input and maps it to a pseudorandom
 point on the curve.
 Directly evaluating the mappings of {{mappings}} produces an output that is
 distinguishable from random.
 {{roadmap}} shows how to use these mappings to construct a function approximating a
 random oracle.
+
+{{domain-separation}} describes considerations related to domain separation
+for random oracle encodings.
 
 {{hashtobase}} describes considerations for uniformly hashing to field elements.
 
