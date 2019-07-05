@@ -1317,7 +1317,7 @@ Output:
 - u, an element in F.
 
 Steps:
-1. m' = HKDF-Extract-H(DSS, msg)
+1. m' = HKDF-Extract-H(DST, msg)
 2. for i in (1, ..., m):
 3.   info = "H2C" || I2OSP(ctr, 1) || I2OSP(i, 1)
 4.   t = HKDF-Expand-H(m', info, L)
