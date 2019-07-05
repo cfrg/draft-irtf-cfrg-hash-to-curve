@@ -1245,17 +1245,17 @@ In this example the bias is negligible, but in general it can be significant.
 To control bias, the input msg should be hashed to an integer comprising at
 least ceil(log2(p)) + k bits; reducing this integer modulo p gives bias at
 most 2^-k, which is a safe choice for a cryptosystem with k-bit security.
-To obtain such an integer, HKDF {{!RFC5869}} is used to expand the input 
-msg to a L-byte string, where L = ceil((ceil(log2(p)) + k) / 8); this 
-string is then interpreted as an integer via OS2IP {{RFC8017}}. For example, 
+To obtain such an integer, HKDF {{!RFC5869}} is used to expand the input
+msg to a L-byte string, where L = ceil((ceil(log2(p)) + k) / 8); this
+string is then interpreted as an integer via OS2IP {{RFC8017}}. For example,
 for p a 255-bit prime and k = 128-bit security, L = ceil((255 + 128) / 8) = 48 bytes.
 
-{{domain-separation}} discusses requirements for domain separation and recommendations
-for choosing domain separation tags.
-The hash\_to\_curve function takes such a tag as a parameter, DST; this is the
-RECOMMENDED way of applying domain separation.
-As an alternative, implementations MAY instead prepend a domain separation tag to the
-input msg; in this case, DST SHOULD be the empty string.
+{{domain-separation}} discusses requirements for domain separation and
+recommendations for choosing domain separation tags. The hash\_to\_curve
+function takes such a tag as a parameter, DST; this is the recommended
+way of applying domain separation. As an alternative, implementations MAY
+instead prepend a domain separation tag to the input msg; in this case,
+DST SHOULD be the empty string.
 
 {{hashtobase-impl}} details the hash\_to\_base procedure.
 
@@ -1296,12 +1296,11 @@ The following procedure implements hash\_to\_base.
 hash_to_base(msg, ctr)
 
 Parameters:
-- DSS, a domain separation string chosen according to the
-  guidelines given in {{domain-separation}}.
+- DST, a domain separation tag (see discussion above).
 - H, a cryptographic hash function.
 - F, a finite field of characteristic p and order q = p^m.
-- L = ceil((ceil(log2(p)) + k) / 8), where k is the security parameter
-  of the cryptosystem (e.g., k = 128).
+- L = ceil((ceil(log2(p)) + k) / 8), where k is the security
+  parameter of the cryptosystem (e.g., k = 128).
 - HKDF-Extract-H is the HKDF-Extract function of RFC5869
   instantiated with hash function H.
 - HKDF-Expand-H is the HKDF-Expand function of RFC5869
