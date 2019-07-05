@@ -1301,10 +1301,8 @@ Parameters:
 - F, a finite field of characteristic p and order q = p^m.
 - L = ceil((ceil(log2(p)) + k) / 8), where k is the security
   parameter of the cryptosystem (e.g., k = 128).
-- HKDF-Extract-H is the HKDF-Extract function of RFC5869
-  instantiated with hash function H.
-- HKDF-Expand-H is the HKDF-Expand function of RFC5869
-  instantiated with hash function H.
+- HKDF-Extract and HKDF-Expand are as defined in {{RFC5869}}, 
+  instantiated with the hash function H.
 
 Inputs:
 - msg is the message to hash.
@@ -1316,10 +1314,10 @@ Output:
 - u, an element in F.
 
 Steps:
-1. m' = HKDF-Extract-H(DST, msg)
+1. m' = HKDF-Extract(DST, msg)
 2. for i in (1, ..., m):
 3.   info = "H2C" || I2OSP(ctr, 1) || I2OSP(i, 1)
-4.   t = HKDF-Expand-H(m', info, L)
+4.   t = HKDF-Expand(m', info, L)
 5.   e_i = OS2IP(t) mod p
 6. return u = (e_1, ..., e_m)
 ~~~
