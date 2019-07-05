@@ -1166,9 +1166,10 @@ In this example the bias is negligible, but in general it can be significant.
 To control bias, the input msg should be hashed to an integer comprising at
 least ceil(log2(p)) + k bits; reducing this integer modulo p gives bias at
 most 2^-k, which is a safe choice for a cryptosystem with k-bit security.
-To obtain such an integer, we use HKDF {{!RFC5869}} to expand the input msg
-with additional information (a counter) to a (ceil(log2(p)) + k)-bit string,
-which is then converted to an integer via OS2IP.
+To obtain such an integer, HKDF {{!RFC5869}} is used to expand the input 
+msg to a L-byte string, where L = ceil((ceil(log2(p)) + k) / 8); this 
+string is then interpreted as an integer via OS2IP {{RFC8017}}. For example, 
+for p a 255-bit prime and k = 128-bit security, L = ceil((255 + 128) / 8) = 48 bytes.
 
 {{hashtobase-impl}} details the hash\_to\_base procedure.
 
@@ -1203,29 +1204,37 @@ multiple invocations of hash\_to\_base, by factoring out the common computation.
 
 ## Implementation {#hashtobase-impl}
 
-The following procedure implements hash\_to\_base. It requires HKDF-Expand
-from {{!RFC5869}}, which is computed using input hash function H.
+The following procedure implements hash\_to\_base. 
 
 ~~~
 hash_to_base(msg, ctr)
 
 Parameters:
-- H, a cryptographic hash function producing b bits.
+- DSS, a domain separation string chosen according to the
+  guidelines given in {{domain-separation}}.
+- H, a cryptographic hash function.
 - F, a finite field of characteristic p and order q = p^m.
+- L = ceil((ceil(log2(p)) + k) / 8), where k is the security parameter
+  of the cryptosystem (e.g., k = 128).
+- HKDF-Extract-H is the HKDF-Extract function of RFC5869
+  instantiated with hash function H.
+- HKDF-Expand-H is the HKDF-Expand function of RFC5869
+  instantiated with hash function H.
 
 Inputs:
 - msg is the message to hash.
-- ctr is either 0 or 1.
+- ctr is 0, 1, or 2.
   This is used to efficiently create independent
   instances of hash_to_base (see discussion above).
 
-Output: u, an element in F.
+Output:
+- u, an element in F.
 
 Steps:
-1. L = ceil((ceil(log2(p)) + k) / 8)
-2. m' = H(msg) || I2OSP(ctr, 1)
-3. for i in (1, ..., m):
-4.   t = HKDF-Expand(m', I2OSP(i, 1), L)
+1. m' = HKDF-Extract-H(DSS, msg)
+2. for i in (1, ..., m):
+3.   info = "H2C" || I2OSP(ctr, 1) || I2OSP(i, 1)
+4.   t = HKDF-Expand-H(m', info, L)
 5.   e_i = OS2IP(t) mod p
 6. return u = (e_1, ..., e_m)
 ~~~
