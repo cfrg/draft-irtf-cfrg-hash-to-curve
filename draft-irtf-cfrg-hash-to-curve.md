@@ -1290,7 +1290,7 @@ multiple invocations of hash\_to\_base, by factoring out the common computation.
 
 ## Implementation {#hashtobase-impl}
 
-The following procedure implements hash\_to\_base. 
+The following procedure implements hash\_to\_base.
 
 ~~~
 hash_to_base(msg, ctr)
