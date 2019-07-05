@@ -1267,26 +1267,26 @@ non-constant-time.
 
 ## Performance considerations {#hashtobase-perf}
 
-Since hash\_to\_base may invoke H multiple times ({{hashtobase-sec}}), its
-performance may be limited by the length of the input msg.
-To address this, hash\_to\_base first computes H(msg) and then derives the
-required bits from this value via further invocations of H.
-For short messages this entails one extra invocation of H, which is a
-negligible overhead in the context of hashing to elliptic curves.
+The hash\_to\_base function uses HKDF-Extract to combine the
+input msg and domain separation tag DST into a short digest, which is then
+passed to HKDF-Expand {{!RFC5869}}.
+For short messages, this entails at most two extra invocations of H, which
+is a negligible overhead in the context of hashing to elliptic curves.
 
-A related issue is that the random oracle construction of {{term-rom}} requires
-evaluating two independent hash functions H0 and H1 on msg.
+A related issue is that the random oracle construction described in {{roadmap}}
+requires evaluating two independent hash functions H0 and H1 on msg.
 A standard way to instantiate independent hashes is to append a counter to
 the value being hashed, e.g., H(msg || 0) and H(msg || 1).
 If msg is long, however, this is either inefficient (because it entails hashing
 msg twice) or requires non-black-box use of H (e.g., partial evaluation).
 
 To sidestep both of these issues, hash\_to\_base takes a second argument, ctr,
-which it appends to H(msg) rather than to msg.
+which it passes to HKDF-Expand.
 This means that two invocations of hash\_to\_base on the same msg with different
-ctr values both start by computing the value H(msg).
-This is an improvement because it allows sharing one evaluation of H(msg) among
-multiple invocations of hash\_to\_base, by factoring out the common computation.
+ctr values both start with identical invocations of HKDF-Extract.
+This is an improvement because it allows sharing one evaluation of HKDF-Extract
+among multiple invocations of hash\_to\_base, i.e., by factoring out the common
+computation.
 
 ## Implementation {#hashtobase-impl}
 
