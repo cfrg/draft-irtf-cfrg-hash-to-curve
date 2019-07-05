@@ -1301,7 +1301,7 @@ Parameters:
 - F, a finite field of characteristic p and order q = p^m.
 - L = ceil((ceil(log2(p)) + k) / 8), where k is the security
   parameter of the cryptosystem (e.g., k = 128).
-- HKDF-Extract and HKDF-Expand are as defined in {{RFC5869}}, 
+- HKDF-Extract and HKDF-Expand are as defined in RFC5869, 
   instantiated with the hash function H.
 
 Inputs:
