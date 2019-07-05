@@ -1250,6 +1250,13 @@ msg to a L-byte string, where L = ceil((ceil(log2(p)) + k) / 8); this
 string is then interpreted as an integer via OS2IP {{RFC8017}}. For example, 
 for p a 255-bit prime and k = 128-bit security, L = ceil((255 + 128) / 8) = 48 bytes.
 
+{{domain-separation}} discusses requirements for domain separation and recommendations
+for choosing domain separation tags.
+The hash\_to\_curve function takes such a tag as a parameter, DST; this is the
+RECOMMENDED way of applying domain separation.
+As an alternative, implementations MAY instead prepend a domain separation tag to the
+input msg; in this case, DST SHOULD be the empty string.
+
 {{hashtobase-impl}} details the hash\_to\_base procedure.
 
 Note that implementors SHOULD NOT use rejection sampling to generate a uniformly
