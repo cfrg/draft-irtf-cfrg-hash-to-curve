@@ -1245,10 +1245,17 @@ In this example the bias is negligible, but in general it can be significant.
 To control bias, the input msg should be hashed to an integer comprising at
 least ceil(log2(p)) + k bits; reducing this integer modulo p gives bias at
 most 2^-k, which is a safe choice for a cryptosystem with k-bit security.
-To obtain such an integer, hash H with b-bit output should be evaluated W =
-ceil((ceil(log2(p)) + k) / b) times and the results concatenated to produce a
-(W * b)-bit integer. For example, for H = SHA256, k = 128-bit security, and p
-a 256-bit prime, W = ceil((256 + 128) / 256) = 2.
+To obtain such an integer, HKDF {{!RFC5869}} is used to expand the input
+msg to a L-byte string, where L = ceil((ceil(log2(p)) + k) / 8); this
+string is then interpreted as an integer via OS2IP {{RFC8017}}. For example,
+for p a 255-bit prime and k = 128-bit security, L = ceil((255 + 128) / 8) = 48 bytes.
+
+{{domain-separation}} discusses requirements for domain separation and
+recommendations for choosing domain separation tags. The hash\_to\_curve
+function takes such a tag as a parameter, DST; this is the recommended
+way of applying domain separation. As an alternative, implementations MAY
+instead prepend a domain separation tag to the input msg; in this case,
+DST SHOULD be the empty string.
 
 {{hashtobase-impl}} details the hash\_to\_base procedure.
 
@@ -1260,26 +1267,26 @@ non-constant-time.
 
 ## Performance considerations {#hashtobase-perf}
 
-Since hash\_to\_base may invoke H multiple times ({{hashtobase-sec}}), its
-performance may be limited by the length of the input msg.
-To address this, hash\_to\_base first computes H(msg) and then derives the
-required bits from this value via further invocations of H.
-For short messages this entails one extra invocation of H, which is a
-negligible overhead in the context of hashing to elliptic curves.
+The hash\_to\_base function uses HKDF-Extract to combine the
+input msg and domain separation tag DST into a short digest, which is then
+passed to HKDF-Expand {{!RFC5869}}.
+For short messages, this entails at most two extra invocations of H, which
+is a negligible overhead in the context of hashing to elliptic curves.
 
-A related issue is that the random oracle construction of {{term-rom}} requires
-evaluating two independent hash functions H0 and H1 on msg.
+A related issue is that the random oracle construction described in {{roadmap}}
+requires evaluating two independent hash functions H0 and H1 on msg.
 A standard way to instantiate independent hashes is to append a counter to
 the value being hashed, e.g., H(msg || 0) and H(msg || 1).
 If msg is long, however, this is either inefficient (because it entails hashing
 msg twice) or requires non-black-box use of H (e.g., partial evaluation).
 
 To sidestep both of these issues, hash\_to\_base takes a second argument, ctr,
-which it appends to H(msg) rather than to msg.
+which it passes to HKDF-Expand.
 This means that two invocations of hash\_to\_base on the same msg with different
-ctr values both start by computing the value H(msg).
-This is an improvement because it allows sharing one evaluation of H(msg) among
-multiple invocations of hash\_to\_base, by factoring out the common computation.
+ctr values both start with identical invocations of HKDF-Extract.
+This is an improvement because it allows sharing one evaluation of HKDF-Extract
+among multiple invocations of hash\_to\_base, i.e., by factoring out the common
+computation.
 
 ## Implementation {#hashtobase-impl}
 
@@ -1289,27 +1296,30 @@ The following procedure implements hash\_to\_base.
 hash_to_base(msg, ctr)
 
 Parameters:
-- H, a cryptographic hash function producing b bits.
+- DST, a domain separation tag (see discussion above).
+- H, a cryptographic hash function.
 - F, a finite field of characteristic p and order q = p^m.
-- W = ceil((ceil(log2(p)) + k) / b), where k is the security
+- L = ceil((ceil(log2(p)) + k) / 8), where k is the security
   parameter of the cryptosystem (e.g., k = 128).
+- HKDF-Extract and HKDF-Expand are as defined in RFC5869, 
+  instantiated with the hash function H.
 
 Inputs:
 - msg is the message to hash.
-- ctr is either 0, 1, or 2.
+- ctr is 0, 1, or 2.
   This is used to efficiently create independent
   instances of hash_to_base (see discussion above).
 
-Output: u, an element in F.
+Output:
+- u, an element in F.
 
 Steps:
-1. m' = "HASH-TO-CURVE" || H(msg) || I2OSP(ctr, 1)
+1. m' = HKDF-Extract(DST, msg)
 2. for i in (1, ..., m):
-3.   t = ""     // initialize t to the empty string
-4.   for j in (1, ..., W):
-5.     t = t || H( m' || I2OSP(i, 1) || I2OSP(j, 1) )
-6.   e_i = OS2IP(t) mod p
-7. return u = ( e_1, ..., e_m )
+3.   info = "H2C" || I2OSP(ctr, 1) || I2OSP(i, 1)
+4.   t = HKDF-Expand(m', info, L)
+5.   e_i = OS2IP(t) mod p
+6. return u = (e_1, ..., e_m)
 ~~~
 
 # Deterministic Mappings  {#mappings}
