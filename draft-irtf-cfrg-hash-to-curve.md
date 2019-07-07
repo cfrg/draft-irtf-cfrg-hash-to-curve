@@ -1032,7 +1032,7 @@ Steps:
 2. u1 = hash_to_base(alpha, 1)
 3. Q0 = map_to_curve(u0)
 4. Q1 = map_to_curve(u1)
-5. R = Q0 + Q1
+5. R = Q0 + Q1      // point addition
 6. P = clear_cofactor(R)
 7. return P
 ~~~
@@ -1098,10 +1098,17 @@ where \<xx\> and \<yy\> are as defined above.
 
 Algorithms in this document make use of utility functions described below.
 
--   CMOV(a, b, c): If c == 0, CMOV returns a, otherwise returns b. To prevent
-    against timing attacks, this operation must run in constant time without
-    revealing the value of c. Commonly, implementations assume that the selector
-    is c == 1 or c == 0. In this case, given a bit string C, the desired selector c can
+For constant-time implementations (i.e., implementations whose execution
+time is independent of the inputs), all field operations, comparisons,
+and assignments must be implemented in constant time.
+Guidance on implementing these low-level operations in constant time is
+beyond the scope of this document.
+
+-   CMOV(a, b, c): If c is False, CMOV returns a, otherwise it returns b.
+    To prevent against timing attacks, this operation must run in constant
+    time, without revealing the value of c.
+    Commonly, implementations assume that the selector is c == 1 for True, or
+    c == 0 for False. In this case, given a bit string C, the desired selector c can
     be computed by OR-ing all bits of C together. The resulting selector will be
     either 0 if all bits of C are zero, or 1 if at least one bit of C is 1.
 
@@ -1114,8 +1121,8 @@ is_square(x, q) := { True,  if x^((q - 1) / 2) is 0 or 1;
                    { False, otherwise.
 ~~~
 
--   sqrt(x, q): The sqrt operation is a multi-valued function, i.e. there exist
-    two roots of x whenever x is square.
+-   sqrt(x): The sqrt operation is a multi-valued function, i.e. there exist
+    two roots of x in F whenever x is square.
     To maintain compatibility across implementations while allowing implementors
     leeway for optimizations, this document does not require sqrt() to return a
     particular value. Instead, as explained in {{point-sign}}, any higher-level
@@ -1123,7 +1130,7 @@ is_square(x, q) := { True,  if x^((q - 1) / 2) is 0 or 1;
     of the result.
 
     The preferred way of computing square roots is to fix a deterministic
-    algorithm particular to q. We give algorithms for the three most common
+    algorithm particular to F. We give algorithms for the three most common
     cases immediately below; other cases are analogous.
 
     Note that Case 3 below applies to GF(p^2) when p = 3 mod 8.
@@ -1132,7 +1139,10 @@ is_square(x, q) := { True,  if x^((q - 1) / 2) is 0 or 1;
     constant time.
 
 ~~~
-s = sqrt(x, q)
+s = sqrt(x)
+
+Parameters:
+- F, a finite field of characteristic p and order q = p^m, m >= 1.
 
 Input: x, an element of F.
 Output: s, an element of F such that s * s = x.
@@ -1149,12 +1159,12 @@ Procedure:
 Case 2: q = 5 (mod 8)
 
 Constants:
-1. c1 = sqrt(-1) in F, i.e., c1 * c1 = -1 mod q.
+1. c1 = sqrt(-1) in F, i.e., (c1 * c1) = -1 in F
 
 Procedure:
 1. t1 = x^((q + 3) / 8)
-2. e  = t1 * t1 == x
-3. s  = CMOV(t1 * c1, t1, e)
+2.  e = (t1 * t1) == x
+3.  s = CMOV(t1 * c1, t1, e)
 3. return s
 
 ======
@@ -1162,26 +1172,27 @@ Procedure:
 Case 3: q = 9 (mod 16)
 
 Constants:
-1. c1 = sqrt(-1) in F, i.e., c1 * c1 = -1 mod q.
-2. c2 = sqrt(sqrt(-1)) in F, i.e., c2 * c2 = c1 mod q.
-3. c3 = sqrt(-sqrt(-1)) in F, i.e., c3 * c3 = -c1 mod q.
+1. c1 = sqrt(-1) in F, i.e., (c1 * c1) == -1 in F
+2. c2 = sqrt(c1) in F, i.e., (c2 * c2) == c1 in F
+3. c3 = sqrt(-c1) in F, i.e., (c3 * c3) == -c1 in F
 
 Procedure:
 1.  t1 = x^((q + 7) / 16)
 2.  t2 = c1 * t1
 3.  t3 = c2 * t1
 4.  t4 = c3 * t1
-5.  e1 = t2 * t2 == x
-6.  e2 = t3 * t3 == x
-7.  t1 = CMOV(t1, t2, e1)  // select t2 if t2 * t2 == x
-8.  t2 = CMOV(t4, t3, e2)  // select t3 if t3 * t3 == x
-9.  e3 = t2 * t2 == x
-10. s  = CMOV(t1, t2, e3)  // select the sqrt from t1 and t2
+5.  e1 = (t2 * t2) == x
+6.  e2 = (t3 * t3) == x
+7.  t1 = CMOV(t1, t2, e1)  // select t2 if (t2 * t2) == x
+8.  t2 = CMOV(t4, t3, e2)  // select t3 if (t3 * t3) == x
+9.  e3 = (t2 * t2) == x
+10.  s = CMOV(t1, t2, e3)  // select the sqrt from t1 and t2
 11. return s
 ~~~
 
--   sgn0(x): This function returns either +1 or -1, indicating the sign of x.
-    This function considers 0 to be positive.
+-   sgn0(x): This function returns either +1 or -1 indicating the "sign" of x,
+    where sgn0(x) == -1 just when x is lexically greater than -1 * x.
+    Thus, this function considers 0 to be positive.
     The following procedure implements sgn0(x) in constant time.
     See {{bg-curves}} for a discussion of representing x as a vector.
 
@@ -1189,7 +1200,8 @@ Procedure:
 sgn0(x)
 
 Parameters:
-  1. F, a finite field of characteristic p and order q = p^m, m >= 1.
+- F, a finite field of characteristic p and order q = p^m, m >= 1.
+
 Input: x, an element of F.
 Output: -1 or 1.
 
@@ -1198,15 +1210,18 @@ Notation: x_i is the i^th element of the vector representation of x.
 Steps:
 1. sign = 0
 2. for i in (m, m - 1, ..., 1):
-3.   sign_i = CMOV(1, -1, x_i > (p - 1) / 2)
+3.   sign_i = CMOV(1, -1, x_i > ((p - 1) / 2))
 4.   sign_i = CMOV(sign_i, 0, x_i == 0)
 5.   sign = CMOV(sign, sign_i, sign == 0)
-6. return CMOV(sign, 1, sign == 0)    # regard x = 0 as positive
+6. return CMOV(sign, 1, sign == 0)    // regard x == 0 as positive
 ~~~
 
--   inv0(x, q): This function returns the multiplicative inverse of x mod q,
+-   abs(x): The absolute value of x is defined in terms of sgn0
+    in the natural way, namely, abs(x) := sgn0(x) * x.
+
+-   inv0(x): This function returns the multiplicative inverse of x in F,
     extended to all of F by fixing inv0(0) == 0.
-    To implement inv0 in constant time, compute alpha = x^(q - 2) mod q.
+    To implement inv0 in constant time, compute inv0(x) := x^(q - 2).
     Notice on input 0, the output is 0 as required.
 
 -   I2OSP and OS2IP: These functions are used to convert an octet string to
@@ -1395,7 +1410,7 @@ E: y^2 = g(x) = x^3 + A * x + B, where 4 * A^3 + 27 * B^2 != 0.
 
 The function map\_to\_curve\_icart(u) implements the Icart method from {{Icart09}}.
 
-Preconditions: An elliptic curve over F, such that p>3 and q = p^m = 2 (mod 3), or
+Preconditions: An elliptic curve over F, such that p > 3 and q = p^m = 2 (mod 3), or
 p = 2 (mod 3) and odd m.
 
 Constants: A and B, the parameters of the Weierstrass curve.
@@ -1404,7 +1419,7 @@ Sign of y: this mapping does not compute a square root, so there
 is no ambiguity regarding the sign of y.
 
 Exceptions: The only exceptional case is u == 0.
-Implementations must detect this case by testing whether u == 0
+Implementations MUST detect this case by testing whether u == 0
 and setting u = 1 if so.
 
 Operations:
@@ -1412,9 +1427,10 @@ Operations:
 ~~~
 1. If u == 0, set u = 1
 2. v = (3 * A - u^4) / (6 * u)
-3. x = (v^2 - B - (u^6 / 27))^((2 * p - 1) / 3) + (u^2 / 3)
-4. y = u * x + v
-5. return (x, y)
+3. w = (2 * p - 1) / 3          // Integer arithmetic
+4. x = (v^2 - B - (u^6 / 27))^w + (u^2 / 3)
+5. y = u * x + v
+6. return (x, y)
 ~~~
 
 #### Implementation
@@ -1441,12 +1457,12 @@ Steps:
 6.  t1 = 6 * u          // 6 * u
 7.  t1 = inv0(t1)       // 1 / (6 * u)
 8.   v = v * t1         // v = (3 * A - u^4) / (6 * u)
-9.  x1 = v^2            // v^2
-10. x1 = x1 - B         // v^2 - B
+9.   x = v^2            // v^2
+10.  x = x - B          // v^2 - B
 11. u6 = u4 * c3        // u^4 / 27
 12. u6 = u6 * u2        // u^6 / 27
-13. x1 = x1 - u6        // v^2 - B - u^6 / 27
-14. x1 = x^c1           // (v^2 - B - u^6 / 27)^(1 / 3)
+13.  x = x - u6         // v^2 - B - u^6 / 27
+14.  x = x^c1           // (v^2 - B - u^6 / 27)^(1 / 3)
 15. t1 = u2 * c2        // u^2 / 3
 16.  x = x + t1         // x = (v^2 - B - u^6 / 27)^(1 / 3) + (u^2 / 3)
 17.  y = u * x          // u * x
@@ -1467,8 +1483,10 @@ Constants:
 
 - A and B, the parameters of the Weierstrass curve.
 
-- Z, the smallest (in absolute value) non-square in F such that g(B / (Z *
-  A)) is square in F, breaking ties by choosing the positive value.
+- Z, the unique non-square in F such that g(B / (Z * A)) is square in F
+  and there is no Z' meeting these criteria for which abs(Z') < abs(Z)
+  ({{utility}}).
+  If Z and -Z both meet the above criteria, choose Z such that sgn0(Z) == 1.
 
 Sign of y: Inputs u and -u give the same x-coordinate.
 Thus, we set sgn0(y) == sgn0(u).
@@ -1482,14 +1500,14 @@ is square by the condition on Z given above.
 Operations:
 
 ~~~
-1. den = inv0(Z^2 * u^4 + Z * u^2)
-2.  x1 = (-B / A) * (1 + den)
-3.  If den == 0, set x1 = B / (Z * A)
+1.  t1 = inv0(Z^2 * u^4 + Z * u^2)
+2.  x1 = (-B / A) * (1 + t1)
+3.  If t1 == 0, set x1 = B / (Z * A)
 4. gx1 = x1^3 + A * x1 + B
 5.  x2 = Z * u^2 * x1
 6. gx2 = x2^3 + A * x2 + B
-7.  If gx1 is square, set x = x1 and y = sqrt(gx1)
-8.  If gx2 is square, set x = x2 and y = sqrt(gx2)
+7.  If is_square(gx1), set x = x1 and y = sqrt(gx1)
+8.  Else if is_square(gx2), set x = x2 and y = sqrt(gx2)
 9.  If sgn0(u) != sgn0(y), set y = -y
 10. return (x, y)
 ~~~
@@ -1513,6 +1531,7 @@ Constants:
 1.  c1 = -B / A
 2.  c2 = -1 / Z
 3.  c3 = sqrt(-Z^3)
+4.  c4 = (p + 1) / 4         // Integer arithmetic
 
 Steps:
 1.   t1 = Z * u^2
@@ -1528,12 +1547,12 @@ Steps:
 11. gx1 = gx1 * x1
 12. gx1 = gx1 + B            // gx1 = g(x1) = x1^3 + A * x1 + B
 13.  x2 = t1 * x1            // x2 = Z * u^2 * x1
-14.  t3 = gx1^((p + 1) / 4)  // if gx1 is square, this is sqrt(g(x1))
+14.  t3 = gx1^c4             // if gx1 is square, this is sqrt(g(x1))
 15.  t4 = t3 * c3
 16.  t4 = t4 * u^3           // if gx1 is not square, this is sqrt(g(x2))
-17.  e3 = t3^2 == gx1
-18.   x = CMOV(x2, x1, e3)   // if e2 == True, x = x1, else x = x2
-19.   y = CMOV(t4, t3, e3)   // if e2 == True, y = t3, else y = t4
+17.  e3 = (t3^2) == gx1
+18.   x = CMOV(x2, x1, e3)   // if e3 is True, x = x1, else x = x2
+19.   y = CMOV(t4, t3, e3)   // if e3 is True, y = t3, else y = t4
 20.  e4 = sgn0(u) == sgn0(y)
 21.   y = CMOV(-y, y, e4)
 22. return (x, y)
@@ -1572,10 +1591,11 @@ where A != 0, B != 0, and A^2 - 4 * B is non-zero and non-square in F.
 
 Constants:
 
-- A and B, the parameters of the curve
+- A and B, the parameters of the elliptic curve.
 
-- Z, the smallest (in absolute value) non-square in F, breaking ties by choosing
-  the positive value.
+- Z, the unique non-square in F such that there is no other non-square
+  Z' for which abs(Z') < abs(Z) ({{utility}}).
+  If Z and -Z are both non-square, choose Z such that sgn0(Z) == 1.
 
 Sign of y: Inputs u and -u give the same x-coordinate.
 Thus, we set sgn0(y) == sgn0(u).
@@ -1593,7 +1613,7 @@ Operations:
 4.  x2 = -x1 - A
 5. gx2 = x2^3 + A * x2^2 + B * x2
 6.  If is_square(gx1), set x = x1 and y = sqrt(gx1)
-7.  If is_square(gx2), set x = x2 and y = sqrt(gx2)
+7.  Else if is_square(gx2), set x = x2 and y = sqrt(gx2)
 8.  If sgn0(u) != sgn0(y), set y = -y
 9.  return (x, y)
 ~~~
@@ -1609,7 +1629,8 @@ Input: u, an element of F.
 Output: (x, y), a point on E.
 
 Constants:
-1. c1 is Z^((q + 1) / 4) in F.
+1. c1 = (q + 1) / 4           // Integer arithmetic
+2. c2 = Z^c1
 
 Steps:
 1.   x1 = u^2
@@ -1617,19 +1638,19 @@ Steps:
 3.   x1 = x1 + 1
 4.   x1 = inv0(x1)
 5.   e1 = x1 == 0
-6.   x1 = CMOV(x1, 1, e1)     // if x1 == 0, set x1 == 1
+6.   x1 = CMOV(x1, 1, e1)     // if x1 == 0, set x1 = 1
 7.   x1 = -A * x1             // x1 = -A / (1 + Z * u^2)
 8.  gx1 = x1 + A
 9.  gx1 = gx1 * x1
 10. gx1 = gx1 + B
 11. gx1 = gx1 * x1            // gx1 = x1^3 + A * x1^2 + B * x1
-12.  y1 = gx1^((q + 1) / 4)
+12.  y1 = gx1^c1
 13.  x2 = -x1 - A
 14.  y2 = y1 * u
-15.  y2 = y2 * c1
-16.  e2 = y1^2 == gx1
-17.   x = CMOV(x2, x1, e2)    // If e == True, x = x1, else x = x2
-18.   y = CMOV(y2, y1, e2)    // If e == True, y = y1, else y = y2
+15.  y2 = y2 * c2
+16.  e2 = (y1^2) == gx1
+17.   x = CMOV(x2, x1, e2)    // If e2 == True, x = x1, else x = x2
+18.   y = CMOV(y2, y1, e2)    // If e2 == True, y = y1, else y = y2
 19.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
 20.   y = CMOV(-y, y, e3)
 21. return (x, y)
@@ -1646,8 +1667,9 @@ Input: u, an element of F.
 Output: (x, y), a point on E.
 
 Constants:
-1. c1 is Z^((q + 3) / 8) in F.
-2. c2 is sqrt(-1) in F.
+1. c1 = (q + 3) / 8           // Integer arithmetic
+2. c2 = Z^c1
+3. c3 = sqrt(-1)
 
 Steps:
 1.   t1 = u^2
@@ -1659,18 +1681,18 @@ Steps:
 7.  gx1 = gx1 * x1
 8.  gx1 = gx1 + B
 9.  gx1 = gx1 * x1            // gx1 = x1^3 + A * x1^2 + B * x1
-10. y11 = gx1^((q + 3) / 8)
-11. y12 = c2 * y11
-12.  e1 = y12^2 == gx1
+10. y11 = gx1^c1
+11. y12 = c3 * y11
+12.  e1 = (y12^2) == gx1
 13.  y1 = CMOV(y11, y12, e1)  // if gx1 is square, this is its sqrt
 14.  x2 = -x1 - A
 15. y21 = y11 * u
-16. y21 = y21 * c1
-17. y22 = c2 * y21
+16. y21 = y21 * c2
+17. y22 = c3 * y21
 18. gx2 = t1 * gx1
-19.  e2 = y22^2 == gx2
+19.  e2 = (y22^2) == gx2
 20.  y2 = CMOV(y21, y22, e2)  // if gx2 is square, this is its sqrt
-21.  e3 = y1^2 == gx1
+21.  e3 = (y1^2) == gx1
 22.   x = CMOV(x2, x1, e3)    // if e == True, x = x1, else x = x2
 23.   y = CMOV(y2, y1, e3)    // if e == True, y = y1, else y = y2
 24.  e4 = sgn0(u) == sgn0(y)  // fix sign of y
@@ -1732,7 +1754,7 @@ y'^2 = x'^3 + A * x'^2 + B * x', as follows:
 - B = (a - d)^2 / 16
 
 Note that the above curve is given in the Weierstrass form required
-by the Elligator 2 mapping.
+by the Elligator 2 mapping of {{elligator2}}.
 The rational map from the point (x', y') on this Weierstrass curve
 to the point (x, y) on the twisted Edwards curve is given by
 
@@ -1825,9 +1847,10 @@ Exceptions: none.
 Operations:
 
 ~~~
-1. x = (u^2 - B)^((2 * q - 1) / 3)
-2. y = u
-3. return (x, y)
+1. w = (2 * q - 1) / 3    // Integer arithmetic
+2. x = (u^2 - B)^w
+3. y = u
+4. return (x, y)
 ~~~
 
 #### Implementation
@@ -1856,9 +1879,9 @@ Steps:
 The function map\_to\_curve\_ell2A0(u) implements an adaptation of Elligator 2
 {{BLMP19}} targeting curves given by y^2 = x^3 + B * x over F such that q = 3 (mod 4).
 
-Preconditions: A supersingular curve over F such that q = 3 (mod 4).
+Preconditions: An elliptic curve over F such that q = 3 (mod 4).
 
-Constants: B, the parameter of the supersingular curve.
+Constants: B, the parameter of the elliptic curve.
 
 Sign of y: Inputs u and -u give the same x-coordinate.
 Thus, we set sgn0(y) == sgn0(u).
@@ -1871,9 +1894,9 @@ Operations:
 1.  x1 = u
 2. gx1 = x1^3 + B * x1
 3.  x2 = -x1
-4. gx2 = x2^3 + B * x2
+4. gx2 = -gx1
 5. If gx1 is square, x = x1 and y = sqrt(gx1)
-6. If gx2 is square, x = x2 and y = sqrt(gx2)
+6. Else x = x2 and y = sqrt(gx2)
 7. If sgn0(u) != sgn0(y), set y = -y.
 8. return (x, y)
 ~~~
@@ -1888,14 +1911,17 @@ map_to_curve_ell2A0(u)
 Input: u, an element of F.
 Output: (x, y), a point on E.
 
+Constants:
+1. c1 = (p + 1) / 4         // Integer arithmetic
+
 Steps:
 1.  x1 = u
 2.  x2 = -x1
 3. gx1 = x1^2
 4. gx1 = gx1 + B
 5. gx1 = gx1 * x1           // gx1 = x1^3 + B * x1
-6.   y = gx1^((p + 1) / 4)  // this is either sqrt(gx1) or sqrt(gx2)
-7.  e1 = y^2 == gx1
+6.   y = gx1^c1             // this is either sqrt(gx1) or sqrt(gx2)
+7.  e1 = (y^2) == gx1
 8.   x = CMOV(x2, x1, e1)
 9.  e2 = sgn0(u) == sgn0(y)
 10.  y = CMOV(-y, y, e2)
@@ -1922,10 +1948,12 @@ Preconditions: An elliptic curve y^2 = g(x) = x^3 + B over F such that q = 1 (mo
 
 Constants:
 
-- B, the parameter of the Weierstrass curve
-- Z, the smallest (in absolute value) element of F such that
-  g((sqrt(-3 * Z^2) - Z) / 2) is square, breaking ties by choosing
-  the positive value.
+- B, the parameter of the Weierstrass curve.
+
+- Z, the unique element in F such that g((sqrt(-3 * Z^2) - Z) / 2)
+  is square and there is no Z' meeting this criterion for which
+  abs(Z') < abs(Z) ({{utility}}).
+  If Z and -Z are both non-square, choose Z such that sgn0(Z) == 1.
 
 Sign of y: Inputs u and -u give the same x-coordinate.
 Thus, we set sgn0(y) == sgn0(u).
@@ -1943,9 +1971,9 @@ Operations:
 4. x1 = ((sqrt(-3 * Z^2) - Z) / 2) - t3
 5. x2 = t3 - ((sqrt(-3 * Z^2) + Z) / 2)
 6. x3 = Z - (t1^3 * t2 / (3 * Z^2))
-7.  If g(x1) is square, set x = x1 and y = sqrt(g(x1))
-8.  If g(x2) is square, set x = x2 and y = sqrt(g(x2))
-9.  If g(x3) is square, set x = x3 and y = sqrt(g(x3))
+7.  If is_square(g(x1)), set x = x1 and y = sqrt(g(x1))
+8.  Else If is_square(g(x2)), set x = x2 and y = sqrt(g(x2))
+9.  Else set x = x3 and y = sqrt(g(x3))
 10. If sgn0(u) != sgn0(y), set y = -y
 11. return (x, y)
 ~~~
@@ -1998,7 +2026,7 @@ Steps:
 28.  gx = CMOV(gx2, gx1, e1)
 29.   x = CMOV(x3, x, e3)   // select x3 if gx1 and gx2 are not square
 30.  gx = CMOV(gx3, gx, e3)
-31.   y = sqrt(gx, q)
+31.   y = sqrt(gx)
 32.  e4 = sgn0(u) == sgn0(y)
 33.   y = CMOV(-y, y, e4)   // select correct sign of y
 34. return (x, y)
@@ -2022,9 +2050,16 @@ that is isogenous to E and has A' != 0 and B' != 0.
 This isogeny defines a map iso\_map(x', y') that takes as input a point
 on E' and produces as output a point on E.
 
-Once E' and iso\_map are identified, this mapping is straightforward: on input
-alpha, first apply the simplified SWU mapping to get a point on E', then apply
+Once E' and iso\_map are identified, this mapping works as follows: on input
+u, first apply the simplified SWU mapping to get a point on E', then apply
 the isogeny map to that point to get a point on E.
+
+Note that iso\_map is a group homomorphism, meaning that point addition
+commutes with iso\_map.
+Thus, when using this mapping in the hash\_to\_curve construction of {{roadmap}},
+one can effect a small optimization by first mapping u0 and u1 to E', adding
+the resulting points on E', and then applying iso\_map to the sum.
+This gives the same result while requiring only one evaluation of iso\_map.
 
 Preconditions: An elliptic curve E' with A' != 0 and B' != 0 that is
 isogenous to the target curve E with isogeny map iso\_map(x, y) from
@@ -2116,6 +2151,10 @@ This document describes the following set of ciphersuites
 This document has no IANA actions.
 
 # Security Considerations
+
+When constant-time implementations are required, all basic operations and
+utility functions must be implemented in constant time, as discussed in
+{{utility}}.
 
 Each encoding function accepts arbitrary input and maps it to a pseudorandom
 point on the curve.
