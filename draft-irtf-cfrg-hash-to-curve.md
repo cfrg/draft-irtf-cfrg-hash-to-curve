@@ -1488,10 +1488,13 @@ Constants:
 
 - A and B, the parameters of the Weierstrass curve.
 
-- Z, the unique non-square in F such that g(B / (Z * A)) is square in F
-  and there is no Z' meeting these criteria for which abs(Z') < abs(Z)
-  ({{utility}}).
-  If Z and -Z both meet the above criteria, choose Z such that sgn0(Z) == 1.
+- Z, the unique element of F meeting all of the following criteria:
+  1. Z is non-square in F,
+  2. g(B / (Z * A)) is square in F,
+  3. there is no other Z' meeting criteria (1) and (2) for which
+     abs(Z') < abs(Z) ({{utility}}), and
+  4. if Z and -Z both meet the above criteria, Z is the element
+     such that sgn0(Z) == 1.
 
 Sign of y: Inputs u and -u give the same x-coordinate.
 Thus, we set sgn0(y) == sgn0(u).
@@ -1598,9 +1601,12 @@ Constants:
 
 - A and B, the parameters of the elliptic curve.
 
-- Z, the unique non-square in F such that there is no other non-square
-  Z' for which abs(Z') < abs(Z) ({{utility}}).
-  If Z and -Z are both non-square, choose Z such that sgn0(Z) == 1.
+- Z, the unique element of F meeting all of the following criteria:
+  1. Z is non-square in F,
+  2. there is no other non-square Z' for which
+     abs(Z') < abs(Z) ({{utility}}), and
+  3. if Z and -Z both met the above criteria, Z is the element
+     such that sgn0(Z) == 1.
 
 Sign of y: Inputs u and -u give the same x-coordinate.
 Thus, we set sgn0(y) == sgn0(u).
@@ -1955,10 +1961,12 @@ Constants:
 
 - B, the parameter of the Weierstrass curve.
 
-- Z, the unique element in F such that g((sqrt(-3 * Z^2) - Z) / 2)
-  is square and there is no Z' meeting this criterion for which
-  abs(Z') < abs(Z) ({{utility}}).
-  If Z and -Z are both non-square, choose Z such that sgn0(Z) == 1.
+- Z, the unique element of F meeting all of the following criteria:
+  1. g((sqrt(-3 * Z^2) - Z) / 2) is square in F,
+  2. there is no other Z' meeting criterion (1) for which
+     abs(Z') < abs(Z) ({{utility}}), and
+  3. if Z and -Z both meet the above criteria, Z is the element
+     such that sgn0(Z) == 1.
 
 Sign of y: Inputs u and -u give the same x-coordinate.
 Thus, we set sgn0(y) == sgn0(u).
