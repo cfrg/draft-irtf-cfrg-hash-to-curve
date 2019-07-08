@@ -1543,9 +1543,9 @@ Operations:
 
 #### Implementation
 
-The following procedure implements the simplified SWU algorithm in a
-straight-line fashion. This implementation is optimized for the case
-that q = 3 (mod 4), which applies to P-256.
+The following procedure implements the simplified SWU mapping in a
+straight-line fashion.
+{{samplecode}} gives an optimized straight-line procedure for P-256 {{FIPS186-4}}.
 For discussion of how to generalize to q = 1 (mod 4), see
 {{WB19}} (Section 4) or the example code found at {{hash2curve-repo}}.
 
@@ -1559,8 +1559,6 @@ Precondition: q = 3 (mod 4)
 Constants:
 1.  c1 = -B / A
 2.  c2 = -1 / Z
-3.  c3 = sqrt(-Z^3)
-4.  c4 = (p + 1) / 4         // Integer arithmetic
 
 Steps:
 1.   t1 = Z * u^2
@@ -1569,21 +1567,21 @@ Steps:
 4.   x1 = inv0(x1)
 5.   e1 = x1 == 0
 6.   x1 = x1 + 1
-7.   x1 = CMOV(x1, c2, e1)   // if (t1 + t2) == 0, set x1 = -1 / Z
+7.   x1 = CMOV(x1, c2, e1)    // if (t1 + t2) == 0, set x1 = -1 / Z
 8.   x1 = x1 * c1      // x1 = (-B / A) * (1 + (1 / (Z^2 * u^4 + Z * u^2)))
 9.  gx1 = x1^2
 10. gx1 = gx1 + A
 11. gx1 = gx1 * x1
-12. gx1 = gx1 + B            // gx1 = g(x1) = x1^3 + A * x1 + B
-13.  x2 = t1 * x1            // x2 = Z * u^2 * x1
-14.  t3 = gx1^c4             // if gx1 is square, this is sqrt(g(x1))
-15.  t4 = t3 * c3
-16.  t4 = t4 * u^3           // if gx1 is not square, this is sqrt(g(x2))
-17.  e3 = (t3^2) == gx1
-18.   x = CMOV(x2, x1, e3)   // if e3 is True, x = x1, else x = x2
-19.   y = CMOV(t4, t3, e3)   // if e3 is True, y = t3, else y = t4
-20.  e4 = sgn0(u) == sgn0(y)
-21.   y = CMOV(-y, y, e4)
+12. gx1 = gx1 + B             // gx1 = g(x1) = x1^3 + A * x1 + B
+13.  x2 = t1 * x1             // x2 = Z * u^2 * x1
+14.  t2 = t1 * t2
+15. gx2 = gx1 * t2            // gx2 = (Z * u^2)^3 * gx1
+16.  e2 = is_square(gx1)
+17.   x = CMOV(x2, x1, e2)    // If is_square(gx1), x = x1, else x = x2
+18.  y2 = CMOV(gx2, gx1, e2)  // If is_square(gx1), y2 = gx1, else y2 = gx2
+19.   y = sqrt(y2)
+20.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
+21.   y = CMOV(-y, y, e3)
 22. return (x, y)
 ~~~
 
@@ -1887,7 +1885,7 @@ Operations:
 
 #### Implementation
 
-The following procedure implements the Elligator 2 algorithm for supersingular
+The following procedure implements the Elligator 2 mapping for supersingular
 curves in a straight-line fashion.
 
 ~~~
@@ -2651,6 +2649,60 @@ and the corresponding conversions:
   the inverse conversion is given by (X', Y', Z') = (x, y, 1).
   To convert (xn, xd, yn, yd) to Jacobian projective coordinates,
   compute (X', Y', Z') = (xn * xd * yd^2, yn * yd^2 * xd^3, xd * yd).
+
+## P-256 (Simplified SWU) {#map-to-p256}
+
+The following is a straight-line implementation of the Simplified SWU
+mapping for P-256 {{FIPS186-4}} as specified in {{suites-p256}}.
+
+~~~
+map_to_curve_simple_swu_p256(u)
+Input: u, an element of F.
+Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
+        point on P-256.
+
+Constants:
+1.   B = 0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b
+2.  c1 = B / 3
+3.  c2 = (p - 3) / 4          // Integer arithmetic
+4.  c3 = sqrt(8)
+
+Steps:
+1.   t1 = u^2
+2.   t3 = -2 * t1
+3.   t2 = t3^2
+4.   xd = t2 + t3
+5.  x1n = xd + 1
+6.  x1n = x1n * B
+7.   xd = xd * 3
+8.   e1 = xd == 0
+9.   xd = CMOV(xd, 6, e1)     // If xd == 0, set xd = Z * A == 6
+10.  t2 = xd^2
+11. gxd = t2 * xd             // gxd == xd^3
+12.  t2 = -3 * t2
+13. gx1 = x1n^2
+14. gx1 = gx1 + t2            // x1n^2 + A * xd^2
+15. gx1 = gx1 * x1n           // x1n^3 + A * x1n * xd^2
+16.  t2 = B * gxd
+17. gx1 = gx1 + t2            // x1n^3 + A * x1n * xd^2 + B * xd^3
+18.  t3 = gxd^2
+19.  t2 = gx1 * gxd
+20.  t3 = t3 * t2             // gx1 * gxd^3
+21.  y1 = t3^c2               // (gx1 * gxd^3)^((p - 3) / 4)
+22.  y1 = y1 * t2             // gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
+23. x2n = t1 * x1n            // x2 = x2n / xd = -2 * u^2 * x1n / xd
+24.  y2 = y1 * c3
+25.  y2 = y2 * t1
+26.  y2 = y2 * u
+27.  t2 = y1^2
+28.  t2 = t2 * gxd
+29.  e2 = t2 == gx1
+30.  xn = CMOV(x2n, x1n, e2)  // If e2, x = x1, else x = x2
+31.   y = CMOV(y2, y1, e2)    // If e2, y = y1, else y = y2
+32.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
+33.   y = CMOV(-y, y, e3)
+34. return (xn, xd, y, 1)
+~~~
 
 ## curve25519 (Elligator 2) {#map-to-curve25519}
 
