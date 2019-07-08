@@ -47,16 +47,13 @@ def map_to_curve_elligator2_curve448(u):
     e1 = xd == 0
     xd = CMOV(xd, 1, e1)
     x1n = CMOV(-156326, 1, e1)
-    gxd = xd^2
-    gxd = gxd * xd
-    t2 = x1n^2
-    gx1 = t2 * x1n
-    t2 = t2 * xd
-    t2 = t2 * 156326
-    gx1 = gx1 + t2
     t2 = xd^2
-    t2 = t2 * x1n
+    gxd = t2 * xd
+    gx1 = 156326 * xd
+    gx1 = gx1 + x1n
+    gx1 = gx1 * x1n
     gx1 = gx1 + t2
+    gx1 = gx1 * x1n
     t3 = gxd^2
     t2 = gx1 * gxd
     t3 = t3 * t2

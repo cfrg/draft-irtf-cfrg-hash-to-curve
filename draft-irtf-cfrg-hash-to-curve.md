@@ -2755,31 +2755,28 @@ Steps:
 3.   e1 = xd == 0
 4.   xd = CMOV(xd, 1, e1)       // If xd == 0, set xd = 1
 5.  x1n = CMOV(-156326, 1, e1)  // If xd == 0, x1n = 1, else x1n = -A
-6.  gxd = xd^2
-7.  gxd = gxd * xd
-8.   t2 = x1n^2
-9.  gx1 = t2 * x1n            // x1n^3 / xd^3 = x1^3
-10.  t2 = t2 * xd
-11.  t2 = t2 * 156326         // 156326 * x1n^2 * xd / xd^3 = 156326 * x1^2
-12. gx1 = gx1 + t2
-13.  t2 = xd^2
-14.  t2 = t2 * x1n            // x1n * xd^2 / xd^3 = x1
-15. gx1 = gx1 + t2            // x1n^3 + 156326 * x1n^2 * xd + x1n * xd^2
-16.  t3 = gxd^2
-17.  t2 = gx1 * gxd           // gx1 * gxd
-18.  t3 = t3 * t2             // gx1 * gxd^3
-19.  y1 = t3^c1               // (gx1 * gxd^3)^((p - 3) / 4)
-20.  y1 = y1 * t2             // gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
-21. x2n = -t1 * x1n           // x2 = x2n / xd = -1 * u^2 * x1n / xd
-22.  y2 = y1 * u
-23.  t2 = y1^2
-24.  t2 = t2 * gxd
-25.  e2 = t2 == gx1
-26.  xn = CMOV(x2n, x1n, e2)  // If e2, x = x1, else x = x2
-27.   y = CMOV(y2, y1, e2)    // If e2, y = y1, else y = y2
-28.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
-29.   y = CMOV(-y, y, e3)
-30. return (xn, xd, y, 1)
+6.   t2 = xd^2
+7.  gxd = t2 * xd             // gxd = xd^3
+8.  gx1 = 156326 * xd         // 156326 * xd
+9.  gx1 = gx1 + x1n           // x1n + 156326 * xd
+10. gx1 = gx1 * x1n           // x1n^2 + 156326 * x1n * xd
+11. gx1 = gx1 + t2            // x1n^2 + 156326 * x1n * xd + xd^2
+12. gx1 = gx1 * x1n           // x1n^3 + 156326 * x1n^2 * xd + x1n * xd^2
+13.  t3 = gxd^2
+14.  t2 = gx1 * gxd           // gx1 * gxd
+15.  t3 = t3 * t2             // gx1 * gxd^3
+16.  y1 = t3^c1               // (gx1 * gxd^3)^((p - 3) / 4)
+17.  y1 = y1 * t2             // gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
+18. x2n = -t1 * x1n           // x2 = x2n / xd = -1 * u^2 * x1n / xd
+19.  y2 = y1 * u
+20.  t2 = y1^2
+21.  t2 = t2 * gxd
+22.  e2 = t2 == gx1
+23.  xn = CMOV(x2n, x1n, e2)  // If e2, x = x1, else x = x2
+24.   y = CMOV(y2, y1, e2)    // If e2, y = y1, else y = y2
+25.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
+26.   y = CMOV(-y, y, e3)
+27. return (xn, xd, y, 1)
 ~~~
 
 ## edwards448 (Elligator 2) {#map-to-edwards448}
