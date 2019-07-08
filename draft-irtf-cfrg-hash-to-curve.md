@@ -2685,12 +2685,12 @@ Steps:
 15. gx1 = gx1 * x1n           // x1n^3 + A * x1n * xd^2
 16.  t2 = B * gxd
 17. gx1 = gx1 + t2            // x1n^3 + A * x1n * xd^2 + B * xd^3
-18.  t3 = gxd^2
+18.  t4 = gxd^2
 19.  t2 = gx1 * gxd
-20.  t3 = t3 * t2             // gx1 * gxd^3
-21.  y1 = t3^c2               // (gx1 * gxd^3)^((p - 3) / 4)
+20.  t4 = t4 * t2             // gx1 * gxd^3
+21.  y1 = t4^c2               // (gx1 * gxd^3)^((p - 3) / 4)
 22.  y1 = y1 * t2             // gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
-23. x2n = t1 * x1n            // x2 = x2n / xd = -2 * u^2 * x1n / xd
+23. x2n = t3 * x1n            // x2 = x2n / xd = -2 * u^2 * x1n / xd
 24.  y2 = y1 * c3
 25.  y2 = y2 * t1
 26.  y2 = y2 * u
