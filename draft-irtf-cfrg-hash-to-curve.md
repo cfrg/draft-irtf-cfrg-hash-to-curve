@@ -1005,7 +1005,7 @@ This section presents a general framework for encoding bit strings to points
 on an elliptic curve. To construct these encodings, we rely on three basic
 functions:
 
--   The function hash\_to\_base, {0, 1}^\* -> F, hashes arbitrary-length bit strings
+-   The function hash\_to\_base, {0, 1}^\* x {0, 1, 2} -> F, hashes arbitrary-length bit strings
     to elements of a finite field; its implementation is defined in
     {{hashtobase}}.
 
@@ -1257,7 +1257,7 @@ Steps:
 
 # Hashing to a Finite Field {#hashtobase}
 
-The hash\_to\_base(msg) function hashes a string msg of any length into an element of a
+The hash\_to\_base function hashes a string msg of any length into an element of a
 field F. This function is parametrized by the field F ({{bg-curves}}) and by H,
 a cryptographic hash function that outputs b bits.
 
