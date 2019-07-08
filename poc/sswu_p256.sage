@@ -12,6 +12,14 @@ def sqrt(x):
     assert F(x).is_square()
     return F(x).sqrt()
 
+def is_square(x):
+    return F(x).is_square()
+
+def inv0(x):
+    if x == 0:
+        return 0
+    return 1 / F(x)
+
 def sswu_p256(u):
     den = Z^2 * u^4 + Z * u^2
     if den == 0:
@@ -50,32 +58,59 @@ def map_to_curve_simple_swu_p256(u):
     x1n = x1n * B
     xd = xd * 3
     e1 = xd == 0
-    xd = CMOV(xd, 6, e1)     
+    xd = CMOV(xd, 6, e1)
     t2 = xd^2
-    gxd = t2 * xd             
+    gxd = t2 * xd
     t2 = -3 * t2
     gx1 = x1n^2
-    gx1 = gx1 + t2            
-    gx1 = gx1 * x1n           
+    gx1 = gx1 + t2
+    gx1 = gx1 * x1n
     t2 = B * gxd
-    gx1 = gx1 + t2            
+    gx1 = gx1 + t2
     t4 = gxd^2
     t2 = gx1 * gxd
-    t4 = t4 * t2             
-    y1 = t4^c2               
-    y1 = y1 * t2             
-    x2n = t3 * x1n            
+    t4 = t4 * t2
+    y1 = t4^c2
+    y1 = y1 * t2
+    x2n = t3 * x1n
     y2 = y1 * c3
     y2 = y2 * t1
     y2 = y2 * u
     t2 = y1^2
     t2 = t2 * gxd
     e2 = t2 == gx1
-    xn = CMOV(x2n, x1n, e2)  
-    y = CMOV(y2, y1, e2)    
-    e3 = sgn0(u) == sgn0(y)  
+    xn = CMOV(x2n, x1n, e2)
+    y = CMOV(y2, y1, e2)
+    e3 = sgn0(u) == sgn0(y)
     y = CMOV(-y, y, e3)
     return (xn, xd, y, 1)
+
+def map_to_curve_simple_swu(u):
+    c1 = -B / A
+    c2 = -1 / Z
+
+    t1 = Z * u^2
+    t2 = t1^2
+    x1 = t1 + t2
+    x1 = inv0(x1)
+    e1 = x1 == 0
+    x1 = x1 + 1
+    x1 = CMOV(x1, c2, e1)
+    x1 = x1 * c1
+    gx1 = x1^2
+    gx1 = gx1 + A
+    gx1 = gx1 * x1
+    gx1 = gx1 + B
+    x2 = t1 * x1
+    t2 = t1 * t2
+    gx2 = gx1 * t2
+    e2 = is_square(gx1)
+    x = CMOV(x2, x1, e2)
+    y2 = CMOV(gx2, gx1, e2)
+    y = sqrt(y2)
+    e3 = sgn0(u) == sgn0(y)
+    y = CMOV(-y, y, e3)
+    return (x, y)
 
 def test_map_p256():
     u = F.random_element()
@@ -86,6 +121,9 @@ def test_map_p256():
     (xp, yp) = sswu_p256(u)
     assert xp == x
     assert yp == y
+    (xpp, ypp) = map_to_curve_simple_swu(u)
+    assert xpp == x
+    assert ypp == y
 
 def test_p256():
     for _ in range(0, 1024):
