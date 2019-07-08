@@ -1257,7 +1257,7 @@ Steps:
 
 # Hashing to a Finite Field {#hashtobase}
 
-The hash\_to\_base(msg) function hashes a string msg of any length into an element of a
+For a given counter ctr the hash\_to\_base(msg, ctr) function hashes a string msg of any length into an element of a
 field F. This function is parametrized by the field F ({{bg-curves}}) and by H,
 a cryptographic hash function that outputs b bits.
 
