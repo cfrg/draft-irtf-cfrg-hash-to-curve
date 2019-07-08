@@ -1229,7 +1229,7 @@ Parameters:
 - F, a finite field of characteristic p and order q = p^m, m >= 1.
 
 Input: x, an element of F.
-Output: -1 or 1.
+Output: -1 or 1 (an integer).
 
 Notation: x_i is the i^th element of the vector representation of x.
 
@@ -1543,9 +1543,9 @@ Operations:
 
 #### Implementation
 
-The following procedure implements the simplified SWU algorithm in a
-straight-line fashion. This implementation is optimized for the case
-that q = 3 (mod 4), which applies to P-256.
+The following procedure implements the simplified SWU mapping in a
+straight-line fashion.
+{{samplecode}} gives an optimized straight-line procedure for P-256 {{FIPS186-4}}.
 For discussion of how to generalize to q = 1 (mod 4), see
 {{WB19}} (Section 4) or the example code found at {{hash2curve-repo}}.
 
@@ -1554,13 +1554,9 @@ map_to_curve_simple_swu(u)
 Input: u, an element of F.
 Output: (x, y), a point on E.
 
-Precondition: q = 3 (mod 4)
-
 Constants:
 1.  c1 = -B / A
 2.  c2 = -1 / Z
-3.  c3 = sqrt(-Z^3)
-4.  c4 = (p + 1) / 4         // Integer arithmetic
 
 Steps:
 1.   t1 = Z * u^2
@@ -1569,21 +1565,21 @@ Steps:
 4.   x1 = inv0(x1)
 5.   e1 = x1 == 0
 6.   x1 = x1 + 1
-7.   x1 = CMOV(x1, c2, e1)   // if (t1 + t2) == 0, set x1 = -1 / Z
+7.   x1 = CMOV(x1, c2, e1)    // if (t1 + t2) == 0, set x1 = -1 / Z
 8.   x1 = x1 * c1      // x1 = (-B / A) * (1 + (1 / (Z^2 * u^4 + Z * u^2)))
 9.  gx1 = x1^2
 10. gx1 = gx1 + A
 11. gx1 = gx1 * x1
-12. gx1 = gx1 + B            // gx1 = g(x1) = x1^3 + A * x1 + B
-13.  x2 = t1 * x1            // x2 = Z * u^2 * x1
-14.  t3 = gx1^c4             // if gx1 is square, this is sqrt(g(x1))
-15.  t4 = t3 * c3
-16.  t4 = t4 * u^3           // if gx1 is not square, this is sqrt(g(x2))
-17.  e3 = (t3^2) == gx1
-18.   x = CMOV(x2, x1, e3)   // if e3 is True, x = x1, else x = x2
-19.   y = CMOV(t4, t3, e3)   // if e3 is True, y = t3, else y = t4
-20.  e4 = sgn0(u) == sgn0(y)
-21.   y = CMOV(-y, y, e4)
+12. gx1 = gx1 + B             // gx1 = g(x1) = x1^3 + A * x1 + B
+13.  x2 = t1 * x1             // x2 = Z * u^2 * x1
+14.  t2 = t1 * t2
+15. gx2 = gx1 * t2            // gx2 = (Z * u^2)^3 * gx1
+16.  e2 = is_square(gx1)
+17.   x = CMOV(x2, x1, e2)    // If is_square(gx1), x = x1, else x = x2
+18.  y2 = CMOV(gx2, gx1, e2)  // If is_square(gx1), y2 = gx1, else y2 = gx2
+19.   y = sqrt(y2)
+20.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
+21.   y = CMOV(-y, y, e3)
 22. return (x, y)
 ~~~
 
@@ -1650,24 +1646,21 @@ Operations:
 9.  return (x, y)
 ~~~
 
-#### Implementation, q = 3 (mod 4)
+#### Implementation
 
-The following procedure implements Elligator 2 in a straight-line
-fashion for curves where q = 3 (mod 4), including Curve448.
+The following procedure implements Elligator 2 in a straight-line fashion.
+{{samplecode}} gives optimized straight-line procedures for curve25519 and
+curve448 {{RFC7748}}.
 
 ~~~
-map_to_curve_elligator2_3mod4(u)
+map_to_curve_elligator2(u)
 Input: u, an element of F.
 Output: (x, y), a point on E.
 
-Constants:
-1. c1 = (q + 1) / 4           // Integer arithmetic
-2. c2 = Z^c1
-
 Steps:
-1.   x1 = u^2
-2.   x1 = Z * x1
-3.   x1 = x1 + 1
+1.   t1 = u^2
+2.   t1 = Z * t1              // Z * u^2
+3.   x1 = t1 + 1
 4.   x1 = inv0(x1)
 5.   e1 = x1 == 0
 6.   x1 = CMOV(x1, 1, e1)     // if x1 == 0, set x1 = 1
@@ -1676,60 +1669,15 @@ Steps:
 9.  gx1 = gx1 * x1
 10. gx1 = gx1 + B
 11. gx1 = gx1 * x1            // gx1 = x1^3 + A * x1^2 + B * x1
-12.  y1 = gx1^c1
-13.  x2 = -x1 - A
-14.  y2 = y1 * u
-15.  y2 = y2 * c2
-16.  e2 = (y1^2) == gx1
-17.   x = CMOV(x2, x1, e2)    // If e2 == True, x = x1, else x = x2
-18.   y = CMOV(y2, y1, e2)    // If e2 == True, y = y1, else y = y2
-19.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
-20.   y = CMOV(-y, y, e3)
-21. return (x, y)
-~~~
-
-#### Implementation, q = 5 (mod 8)
-
-The following is a straight-line implementation of Elligator 2
-for curves where q = 5 (mod 8), including Curve25519.
-
-~~~
-map_to_curve_elligator2_5mod8(u)
-Input: u, an element of F.
-Output: (x, y), a point on E.
-
-Constants:
-1. c1 = (q + 3) / 8           // Integer arithmetic
-2. c2 = Z^c1
-3. c3 = sqrt(-1)
-
-Steps:
-1.   t1 = u^2
-2.   t1 = Z * t1
-3.   x1 = t1 + 1
-4.   x1 = inv0(x1)            // cannot be 0 because q = 5 mod 8
-5.   x1 = -A * x1             // x1 = -A / (1 + Z * u^2)
-6.  gx1 = x1 + A
-7.  gx1 = gx1 * x1
-8.  gx1 = gx1 + B
-9.  gx1 = gx1 * x1            // gx1 = x1^3 + A * x1^2 + B * x1
-10. y11 = gx1^c1
-11. y12 = c3 * y11
-12.  e1 = (y12^2) == gx1
-13.  y1 = CMOV(y11, y12, e1)  // if gx1 is square, this is its sqrt
-14.  x2 = -x1 - A
-15. y21 = y11 * u
-16. y21 = y21 * c2
-17. y22 = c3 * y21
-18. gx2 = t1 * gx1
-19.  e2 = (y22^2) == gx2
-20.  y2 = CMOV(y21, y22, e2)  // if gx2 is square, this is its sqrt
-21.  e3 = (y1^2) == gx1
-22.   x = CMOV(x2, x1, e3)    // if e == True, x = x1, else x = x2
-23.   y = CMOV(y2, y1, e3)    // if e == True, y = y1, else y = y2
-24.  e4 = sgn0(u) == sgn0(y)  // fix sign of y
-25.   y = CMOV(-y, y, e4)
-26. return (x, y)
+12.  x2 = -x1 - A
+13. gx2 = t1 * gx1
+14.  e2 = is_square(gx1)
+15.   x = CMOV(x2, x1, e2)    // If is_square(gx1), x = x1, else x = x2
+16.  y2 = CMOV(gx2, gx1, e2)  // If is_square(gx1), y2 = gx1, else y2 = gx2
+17.   y = sqrt(y2)
+18.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
+19.   y = CMOV(-y, y, e3)
+20. return (x, y)
 ~~~
 
 ## Mappings for Twisted Edwards curves
@@ -1935,7 +1883,7 @@ Operations:
 
 #### Implementation
 
-The following procedure implements the Elligator 2 algorithm for supersingular
+The following procedure implements the Elligator 2 mapping for supersingular
 curves in a straight-line fashion.
 
 ~~~
@@ -2259,6 +2207,8 @@ These suites share the following parameters:
 - Z: -2
 - h\_eff: 1
 
+An optimized example implementation of the above mapping is given in {{map-to-p256}}.
+
 ## Suites for curve25519 and edwards25519 {#suites-25519}
 
 This section defines ciphersuites for curve25519 and edwards25519 {{RFC7748}}.
@@ -2290,6 +2240,9 @@ The common parameters for all of the above suites are:
 - Z: 2
 - h\_eff: 8
 
+Optimized example implementations of the above mappings are given in
+{{map-to-curve25519}} and {{map-to-edwards25519}}.
+
 ## Suites for curve448 and edwards448 {#suites-448}
 
 This section defines ciphersuites for curve448 and edwards448 {{RFC7748}}.
@@ -2320,6 +2273,9 @@ The common parameters for all of the above suites are:
 - W: 2
 - Z: -1
 - h\_eff: 4
+
+Optimized example implementations of the above mappings are given in
+{{map-to-curve448}} and {{map-to-edwards448}}.
 
 ## Suites for SECP256K1 {#suites-secp256k1}
 
@@ -2652,8 +2608,276 @@ The constants used to compute y\_den are as follows:
 
 # Sample Code {#samplecode}
 
-Sample Sage {{SAGE}} code for each algorithm can be found in the draft
-repository {{hash2curve-repo}}.
+This section gives sample implementations optimized for some of the
+elliptic curves listed in {{suites}}.
+A future version of this document will include all listed curves, plus
+accompanying test vectors.
+Sample Sage {{SAGE}} code for each algorithm can also be found in the
+draft repository {{hash2curve-repo}}.
 
-A future version of this document will give optimized examples for
-all curves listed in {{suites}}, and accompanying test vectors.
+## Interface and projective coordinate systems
+
+The sample code in this section uses a different interface than
+the mappings of {{mappings}}.
+Specifically, each mapping function in this section has the following
+signature:
+
+~~~
+(xn, xd, yn, nd) = map_to_curve(u)
+~~~
+
+The resulting point (x, y) is given by (xn / xd, yn / yd).
+
+The reason for this modified interface is that it enables further
+optimizations when working with points in a projective coordinate
+system.
+This is desirable, for example, when the resulting point will be
+immediately multiplied by a scalar, since most scalar multiplication
+algorithms operate on projective points.
+
+The following are two commonly used projective coordinate systems
+and the corresponding conversions:
+
+- A point (X, Y, Z) in homogeneous projective coordinates corresponds
+  to the affine point (x, y) = (X / Z, Y / Z);
+  the inverse conversion is given by (X, Y, Z) = (x, y, 1).
+  To convert (xn, xd, yn, yd) to homogeneous projective coordinates,
+  compute (X, Y, Z) = (xn * yd, yn * xd, xd * yd).
+
+- A point (X', Y', Z') in Jacobian projective coordinates corresponds
+  to the affine point (x, y) = (X' / Z'^2, Y' / Z'^3);
+  the inverse conversion is given by (X', Y', Z') = (x, y, 1).
+  To convert (xn, xd, yn, yd) to Jacobian projective coordinates,
+  compute (X', Y', Z') = (xn * xd * yd^2, yn * yd^2 * xd^3, xd * yd).
+
+## P-256 (Simplified SWU) {#map-to-p256}
+
+The following is a straight-line implementation of the Simplified SWU
+mapping for P-256 {{FIPS186-4}} as specified in {{suites-p256}}.
+
+~~~
+map_to_curve_simple_swu_p256(u)
+Input: u, an element of F.
+Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
+        point on P-256.
+
+Constants:
+1.   B = 0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b
+2.  c1 = B / 3
+3.  c2 = (p - 3) / 4          // Integer arithmetic
+4.  c3 = sqrt(8)
+
+Steps:
+1.   t1 = u^2
+2.   t3 = -2 * t1
+3.   t2 = t3^2
+4.   xd = t2 + t3
+5.  x1n = xd + 1
+6.  x1n = x1n * B
+7.   xd = xd * 3
+8.   e1 = xd == 0
+9.   xd = CMOV(xd, 6, e1)     // If xd == 0, set xd = Z * A == 6
+10.  t2 = xd^2
+11. gxd = t2 * xd             // gxd == xd^3
+12.  t2 = -3 * t2
+13. gx1 = x1n^2
+14. gx1 = gx1 + t2            // x1n^2 + A * xd^2
+15. gx1 = gx1 * x1n           // x1n^3 + A * x1n * xd^2
+16.  t2 = B * gxd
+17. gx1 = gx1 + t2            // x1n^3 + A * x1n * xd^2 + B * xd^3
+18.  t4 = gxd^2
+19.  t2 = gx1 * gxd
+20.  t4 = t4 * t2             // gx1 * gxd^3
+21.  y1 = t4^c2               // (gx1 * gxd^3)^((p - 3) / 4)
+22.  y1 = y1 * t2             // gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
+23. x2n = t3 * x1n            // x2 = x2n / xd = -2 * u^2 * x1n / xd
+24.  y2 = y1 * c3
+25.  y2 = y2 * t1
+26.  y2 = y2 * u
+27.  t2 = y1^2
+28.  t2 = t2 * gxd
+29.  e2 = t2 == gx1
+30.  xn = CMOV(x2n, x1n, e2)  // If e2, x = x1, else x = x2
+31.   y = CMOV(y2, y1, e2)    // If e2, y = y1, else y = y2
+32.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
+33.   y = CMOV(-y, y, e3)
+34. return (xn, xd, y, 1)
+~~~
+
+## curve25519 (Elligator 2) {#map-to-curve25519}
+
+The following is a straight-line implementation of Elligator 2
+for curve25519 {{RFC7748}} as specified in {{suites-25519}}.
+
+~~~
+map_to_curve_elligator2_curve25519(u)
+Input: u, an element of F.
+Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
+        point on curve25519.
+
+Constants:
+1. c1 = (p + 3) / 8           // Integer arithmetic
+2. c2 = 2^c1
+3. c3 = sqrt(-1)
+4. c4 = (p - 5) / 8           // Integer arithmetic
+
+Steps:
+1.   t1 = u^2
+2.   t1 = 2 * t1
+3.   xd = t1 + 1              // nonzero: -1 is square mod p, xd is not
+4.  x1n = -486662             // x1 = x1n / xd = -486662 / (1 + 2 * u^2)
+5.   t2 = xd^2
+6.  gxd = t2 * xd             // gxd = xd^3
+7.  gx1 = 486662 * xd         // 486662 * xd
+8.  gx1 = gx1 + x1n           // x1n + 486662 * xd
+9.  gx1 = gx1 * x1n           // x1n^2 + 486662 * x1n * xd
+10. gx1 = gx1 + t2            // x1n^2 + 486662 * x1n * xd + xd^2
+11. gx1 = gx1 * x1n           // x1n^3 + 486662 * x1n^2 * xd + x1n * xd^2
+12.  t3 = gxd^2
+13.  t2 = t3^2                // gxd^4
+14.  t3 = t3 * gxd            // gxd^3
+15.  t3 = t3 * gx1            // gx1 * gxd^3
+16.  t2 = t2 * t3             // gx1 * gxd^7
+17. y11 = t2^c4               // (gx1 * gxd^7)^((p - 5) / 8)
+18. y11 = y11 * t3            // gx1 * gxd^3 * (gx1 * gxd^7)^((p - 5) / 8)
+19. y12 = y11 * c3
+20.  t2 = y11^2
+21.  t2 = t2 * gxd
+22.  e1 = t2 == gx1
+23.  y1 = CMOV(y12, y11, e1)  // If g(x1) is square, this is its sqrt
+24. x2n = x1n * t1            // x2 = x2n / xd = 2 * u^2 * x1n / xd
+25. y21 = y11 * u
+26. y21 = y21 * c2
+27. y22 = y21 * c3
+28. gx2 = gx1 * t1            // g(x2) = gx2 / gxd = 2 * u^2 * g(x1)
+29.  t2 = y21^2
+30.  t2 = t2 * gxd
+31.  e2 = t2 == gx2
+32.  y2 = CMOV(y22, y21, e2)  // If g(x2) is square, this is its sqrt
+33.  t2 = y1^2
+34.  t2 = t2 * gxd
+35.  e3 = t2 == gx1
+36.  xn = CMOV(x2n, x1n, e3)  // if e3, x = x1, else x = x2
+37.   y = CMOV(y2, y1, e3)    // if e3, y = y1, else y = y2
+38.  e4 = sgn0(u) == sgn0(y)  // fix sign of y
+39.   y = CMOV(-y, y, e4)
+40. return (xn, xd, y, 1)
+~~~
+
+## edwards25519 (Elligator 2) {#map-to-edwards25519}
+
+The following is a straight-line implementation of Elligator 2
+for edwards25519 {{RFC7748}} as specified in {{suites-25519}}.
+The subroutine map\_to\_curve\_elligator2\_curve25519
+is defined in {{map-to-curve25519}}.
+
+~~~
+map_to_curve_elligator2_edwards25519(u)
+Input: u, an element of F.
+Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
+        point on edwards25519.
+
+Constants:
+1. c1 = sqrt(-486664)   // sign MUST be chosen such that sgn0(c1) == 1
+
+Steps:
+1. (xMn, xMd, yMn, yMd) = map_to_curve_elligator2_curve25519(u)
+2. xn = xMn * yMd
+3. xn = xn * c1
+4. xd = xMd * yMn       // xn / xd = c1 * xM / yM
+5. yn = xMn - xMd
+6. yd = xMn + xMd       // (n / d - 1) / (n / d + 1) = (n - d) / (n + d)
+7. return (xn, xd, yn, yd)
+~~~
+
+## curve448 (Elligator 2) {#map-to-curve448}
+
+The following is a straight-line implementation of Elligator 2
+for curve448 {{RFC7748}} as specified in {{suites-448}}.
+
+~~~
+map_to_curve_elligator2_curve448(u)
+Input: u, an element of F.
+Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
+        point on curve448.
+
+Constants:
+1. c1 = (p - 3) / 4           // Integer arithmetic
+
+Steps:
+1.   t1 = u^2
+2.   xd = 1 - t1
+3.   e1 = xd == 0
+4.   xd = CMOV(xd, 1, e1)       // If xd == 0, set xd = 1
+5.  x1n = CMOV(-156326, 1, e1)  // If xd == 0, x1n = 1, else x1n = -A
+6.   t2 = xd^2
+7.  gxd = t2 * xd             // gxd = xd^3
+8.  gx1 = 156326 * xd         // 156326 * xd
+9.  gx1 = gx1 + x1n           // x1n + 156326 * xd
+10. gx1 = gx1 * x1n           // x1n^2 + 156326 * x1n * xd
+11. gx1 = gx1 + t2            // x1n^2 + 156326 * x1n * xd + xd^2
+12. gx1 = gx1 * x1n           // x1n^3 + 156326 * x1n^2 * xd + x1n * xd^2
+13.  t3 = gxd^2
+14.  t2 = gx1 * gxd           // gx1 * gxd
+15.  t3 = t3 * t2             // gx1 * gxd^3
+16.  y1 = t3^c1               // (gx1 * gxd^3)^((p - 3) / 4)
+17.  y1 = y1 * t2             // gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
+18. x2n = -t1 * x1n           // x2 = x2n / xd = -1 * u^2 * x1n / xd
+19.  y2 = y1 * u
+20.  t2 = y1^2
+21.  t2 = t2 * gxd
+22.  e2 = t2 == gx1
+23.  xn = CMOV(x2n, x1n, e2)  // If e2, x = x1, else x = x2
+24.   y = CMOV(y2, y1, e2)    // If e2, y = y1, else y = y2
+25.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
+26.   y = CMOV(-y, y, e3)
+27. return (xn, xd, y, 1)
+~~~
+
+## edwards448 (Elligator 2) {#map-to-edwards448}
+
+The following is a straight-line implementation of Elligator 2
+for edwards448 {{RFC7748}} as specified in {{suites-448}}.
+The subroutine map\_to\_curve\_elligator2\_curve448
+is defined in {{map-to-curve448}}.
+
+~~~
+map_to_curve_elligator2_edwards448(u)
+Input: u, an element of F.
+Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
+        point on edwards448.
+
+Steps:
+1. (xn, xd, yn, yd) = map_to_curve_elligator2_curve448(u)
+2.  xn2 = xn^2
+3.  xd2 = xd^2
+4.  xd4 = xd2^2
+5.  yn2 = yn^2
+6.  yd2 = yd^2
+7.  xEn = xn2 - xd2
+8.   t2 = xEn - xd2
+9.  xEn = xEn * xd2
+10. xEn = xEn * yd
+11. xEn = xEn * yn
+12. xEn = xEn * 4
+13.  t2 = t2 * xn2
+14.  t2 = t2 * yd2
+15.  t3 = 4 * yn2
+16.  t1 = t3 + yd2
+17.  t1 = t1 * xd4
+18. xEd = t1 + t2
+19.  t2 = t2 * xn
+20.  t4 = xn * xd4
+21. yEn = t3 - yd2
+22. yEn = yEn * t4
+23. yEn = yEn - t2
+24.  t1 = xn2 + xd2
+25.  t1 = t1 * xd2
+26.  t1 = t1 * xd
+27.  t1 = t1 * yn2
+28.  t1 = -2 * t1
+29. yEd = t2 + t1
+30.  t4 = t4 * yd2
+31. yEd = yEd + t4
+32. return (xEn, xEd, yEn, yEd)
+~~~
