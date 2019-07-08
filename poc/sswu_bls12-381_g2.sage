@@ -72,6 +72,22 @@ Ell2p_a = F2(240 * X)
 Ell2p_b = F2(1012 * (1 + X))
 Ell2p = EllipticCurve(F2, [Ell2p_a, Ell2p_b])
 
+def show_iso_map():
+    iso = EllipticCurveIsogeny(Ell2p, [6 * (1 - X), 1], codomain=Ell2)
+    ((xnum, xden), (ynum, yden)) = [ (rm.numerator().dict(), rm.denominator().dict()) for rm in iso.rational_maps() ]
+    for (idx, poly) in zip((1, 2, 3, 4), (xnum, xden, ynum, yden)):
+        for ((jdx, _), val) in sorted(poly.iteritems()):
+            (c0, c1) = val._vector_()
+            if c0 != 0 and c1 != 0:
+                vstr = "0x%s + 0x%s * i" % (ZZ(c0).hex(), ZZ(c1).hex())
+            elif c0 != 0 and c1 == 0:
+                vstr = "0x%s" % ZZ(c0).hex()
+            elif c0 == 0 and c1 != 0:
+                vstr = "0x%s * i" % ZZ(c1).hex()
+            elif c0 == 0 and c1 == 0:
+                vstr = "0x0"
+            print "- k\_(%d,%d) = %s" % (idx, jdx, vstr)
+
 # isogeny map back to Ell2
 xnum = ( F2(0x5c759507e8e333ebb5b7a9a47d7ed8532c52d39fd3a042a88b58423c50ae15d5c2638e343d9c71c6238aaaaaaaa97d6 +
             X * 0x5c759507e8e333ebb5b7a9a47d7ed8532c52d39fd3a042a88b58423c50ae15d5c2638e343d9c71c6238aaaaaaaa97d6),
