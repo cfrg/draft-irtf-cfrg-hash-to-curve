@@ -2242,6 +2242,9 @@ The common parameters for all of the above suites are:
 - Z: 2
 - h\_eff: 8
 
+Optimized example implementations of the above maps are given in
+{{map-to-curve25519}} and {{map-to-edwards25519}}.
+
 ## Suites for curve448 and edwards448 {#suites-448}
 
 This section defines ciphersuites for curve448 and edwards448 {{RFC7748}}.
@@ -2272,6 +2275,9 @@ The common parameters for all of the above suites are:
 - W: 2
 - Z: -1
 - h\_eff: 4
+
+Optimized example implementations of the above maps are given in
+{{map-to-curve448}} and {{map-to-edwards448}}.
 
 ## Suites for SECP256K1 {#suites-secp256k1}
 
@@ -2649,7 +2655,7 @@ and the corresponding conversions:
 ## curve25519 (Elligator 2) {#map-to-curve25519}
 
 The following is a straight-line implementation of Elligator 2
-for curve25519 {{RFC7748}} as specified in {{suites}}.
+for curve25519 {{RFC7748}} as specified in {{suites-25519}}.
 
 ~~~
 map_to_curve_elligator2_curve25519(u)
@@ -2709,7 +2715,7 @@ Steps:
 ## edwards25519 (Elligator 2) {#map-to-edwards25519}
 
 The following is a straight-line implementation of Elligator 2
-for edwards25519 {{RFC7748}} as specified in {{suites}}.
+for edwards25519 {{RFC7748}} as specified in {{suites-25519}}.
 The subroutine map\_to\_curve\_elligator2\_curve25519
 is defined in {{map-to-curve25519}}.
 
@@ -2735,7 +2741,7 @@ Steps:
 ## curve448 (Elligator 2) {#map-to-curve448}
 
 The following is a straight-line implementation of Elligator 2
-for curve448 {{RFC7748}} as specified in {{suites}}.
+for curve448 {{RFC7748}} as specified in {{suites-448}}.
 
 ~~~
 map_to_curve_elligator2_curve448(u)
@@ -2779,7 +2785,7 @@ Steps:
 ## edwards448 (Elligator 2) {#map-to-edwards448}
 
 The following is a straight-line implementation of Elligator 2
-for edwards448 {{RFC7748}} as specified in {{suites}}.
+for edwards448 {{RFC7748}} as specified in {{suites-448}}.
 The subroutine map\_to\_curve\_elligator2\_curve448
 is defined in {{map-to-curve448}}.
 
