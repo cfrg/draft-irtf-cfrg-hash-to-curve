@@ -9,6 +9,14 @@ def sqrt(x):
     assert F(x).is_square()
     return F(x).sqrt()
 
+def is_square(x):
+    return F(x).is_square()
+
+def inv0(x):
+    if x == 0:
+        return 0
+    return 1 / F(x)
+
 def ell2_curve25519(u):
     A = F(486662)
     B = F(1)
@@ -91,6 +99,33 @@ def map_to_curve_elligator2_curve25519(u):
     y = CMOV(-y, y, e4)
     return (xn, xd, y, 1)
 
+def map_to_curve_elligator2(u):
+    A = 486662
+    B = 1
+    Z = 2
+
+    t1 = u^2
+    t1 = Z * t1
+    x1 = t1 + 1
+    x1 = inv0(x1)
+    e1 = x1 == 0
+    x1 = CMOV(x1, 1, e1)
+    x1 = -A * x1
+    gx1 = x1 + A
+    gx1 = gx1 * x1
+    gx1 = gx1 + B
+    gx1 = gx1 * x1
+    x2 = -x1 - A
+    gx2 = t1 * gx1
+    e2 = is_square(gx1)
+    x = CMOV(x2, x1, e2)
+    y2 = CMOV(gx2, gx1, e2)
+    y = sqrt(y2)
+    e3 = sgn0(u) == sgn0(y)
+    y = CMOV(-y, y, e3)
+    return (x, y)
+
+
 def map_to_curve_elligator2_edwards25519(u):
     c1 = sqrt(F(-486664))
     c1 = sgn0(c1) * c1
@@ -115,6 +150,9 @@ def test_curve25519():
     (xp, yp) = ell2_curve25519(u)
     assert xp == x
     assert yp == y
+    (xpp, ypp) = map_to_curve_elligator2(u)
+    assert xpp == x
+    assert ypp == y
 
 def test_edwards25519():
     u = F.random_element()

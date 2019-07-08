@@ -1554,8 +1554,6 @@ map_to_curve_simple_swu(u)
 Input: u, an element of F.
 Output: (x, y), a point on E.
 
-Precondition: q = 3 (mod 4)
-
 Constants:
 1.  c1 = -B / A
 2.  c2 = -1 / Z
