@@ -1650,24 +1650,21 @@ Operations:
 9.  return (x, y)
 ~~~
 
-#### Implementation, q = 3 (mod 4)
+#### Implementation
 
-The following procedure implements Elligator 2 in a straight-line
-fashion for curves where q = 3 (mod 4), including Curve448.
+The following procedure implements Elligator 2 in a straight-line fashion.
+{{samplecode}} gives optimized straight-line procedures for curve25519 and
+curve448 {{RFC7748}}.
 
 ~~~
-map_to_curve_elligator2_3mod4(u)
+map_to_curve_elligator2(u)
 Input: u, an element of F.
 Output: (x, y), a point on E.
 
-Constants:
-1. c1 = (q + 1) / 4           // Integer arithmetic
-2. c2 = Z^c1
-
 Steps:
-1.   x1 = u^2
-2.   x1 = Z * x1
-3.   x1 = x1 + 1
+1.   t1 = u^2
+2.   t1 = Z * t1              // Z * u^2
+3.   x1 = t1 + 1
 4.   x1 = inv0(x1)
 5.   e1 = x1 == 0
 6.   x1 = CMOV(x1, 1, e1)     // if x1 == 0, set x1 = 1
@@ -1676,60 +1673,15 @@ Steps:
 9.  gx1 = gx1 * x1
 10. gx1 = gx1 + B
 11. gx1 = gx1 * x1            // gx1 = x1^3 + A * x1^2 + B * x1
-12.  y1 = gx1^c1
-13.  x2 = -x1 - A
-14.  y2 = y1 * u
-15.  y2 = y2 * c2
-16.  e2 = (y1^2) == gx1
-17.   x = CMOV(x2, x1, e2)    // If e2 == True, x = x1, else x = x2
-18.   y = CMOV(y2, y1, e2)    // If e2 == True, y = y1, else y = y2
-19.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
-20.   y = CMOV(-y, y, e3)
-21. return (x, y)
-~~~
-
-#### Implementation, q = 5 (mod 8)
-
-The following is a straight-line implementation of Elligator 2
-for curves where q = 5 (mod 8), including Curve25519.
-
-~~~
-map_to_curve_elligator2_5mod8(u)
-Input: u, an element of F.
-Output: (x, y), a point on E.
-
-Constants:
-1. c1 = (q + 3) / 8           // Integer arithmetic
-2. c2 = Z^c1
-3. c3 = sqrt(-1)
-
-Steps:
-1.   t1 = u^2
-2.   t1 = Z * t1
-3.   x1 = t1 + 1
-4.   x1 = inv0(x1)            // cannot be 0 because q = 5 mod 8
-5.   x1 = -A * x1             // x1 = -A / (1 + Z * u^2)
-6.  gx1 = x1 + A
-7.  gx1 = gx1 * x1
-8.  gx1 = gx1 + B
-9.  gx1 = gx1 * x1            // gx1 = x1^3 + A * x1^2 + B * x1
-10. y11 = gx1^c1
-11. y12 = c3 * y11
-12.  e1 = (y12^2) == gx1
-13.  y1 = CMOV(y11, y12, e1)  // if gx1 is square, this is its sqrt
-14.  x2 = -x1 - A
-15. y21 = y11 * u
-16. y21 = y21 * c2
-17. y22 = c3 * y21
-18. gx2 = t1 * gx1
-19.  e2 = (y22^2) == gx2
-20.  y2 = CMOV(y21, y22, e2)  // if gx2 is square, this is its sqrt
-21.  e3 = (y1^2) == gx1
-22.   x = CMOV(x2, x1, e3)    // if e == True, x = x1, else x = x2
-23.   y = CMOV(y2, y1, e3)    // if e == True, y = y1, else y = y2
-24.  e4 = sgn0(u) == sgn0(y)  // fix sign of y
-25.   y = CMOV(-y, y, e4)
-26. return (x, y)
+12.  x2 = -x1 - A
+13. gx2 = t1 * gx1
+14.  e2 = is_square(gx1)
+15.   x = CMOV(x2, x1, e2)    // If is_square(gx1), x = x1, else x = x2
+16.  y2 = CMOV(gx2, gx1, e2)  // If is_square(gx1), y2 = gx1, else y2 = gx2
+17.   y = sqrt(y2)
+18.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
+19.   y = CMOV(-y, y, e3)
+20. return (x, y)
 ~~~
 
 ## Mappings for Twisted Edwards curves
@@ -2652,8 +2604,228 @@ The constants used to compute y\_den are as follows:
 
 # Sample Code {#samplecode}
 
-Sample Sage {{SAGE}} code for each algorithm can be found in the draft
-repository {{hash2curve-repo}}.
+This section gives sample implementations optimized for some of the
+elliptic curves listed in {{suites}}.
+A future version of this document will include all listed curves, plus
+accompanying test vectors.
+Sample Sage {{SAGE}} code for each algorithm can also be found in the
+draft repository {{hash2curve-repo}}.
 
-A future version of this document will give optimized examples for
-all curves listed in {{suites}}, and accompanying test vectors.
+## Interface and projective coordinate systems
+
+The sample code in this section uses a different interface than
+the mappings of {{mappings}}.
+Specifically, each mapping function in this section has the following
+signature:
+
+~~~
+(xn, xd, yn, nd) = map_to_curve(u)
+~~~
+
+The resulting point (x, y) is given by (xn / xd, yn / yd).
+
+The reason for this modified interface is that it enables further
+optimizations when working with points in a projective coordinate
+system.
+This is desirable, for example, when the resulting point will be
+immediately multiplied by a scalar, since most scalar multiplication
+algorithms operate on projective points.
+
+The following are two commonly used projective coordinate systems
+and the corresponding conversions:
+
+- A point (X, Y, Z) in homogeneous projective coordinates corresponds
+  to the affine point (x, y) = (X / Z, Y / Z);
+  the inverse conversion is given by (X, Y, Z) = (x, y, 1).
+  To convert (xn, xd, yn, yd) to homogeneous projective coordinates,
+  compute (X, Y, Z) = (xn * yd, yn * xd, xd * yd).
+
+- A point (X', Y', Z') in Jacobian projective coordinates corresponds
+  to the affine point (x, y) = (X' / Z'^2, Y' / Z'^3);
+  the inverse conversion is given by (X', Y', Z') = (x, y, 1).
+  To convert (xn, xd, yn, yd) to Jacobian projective coordinates,
+  compute (X', Y', Z') = (xn * xd * yd^2, yn * yd^2 * xd^3, xd * yd).
+
+## curve25519 (Elligator 2) {#map-to-curve25519}
+
+The following is a straight-line implementation of Elligator 2
+for curve25519 {{RFC7748}} as specified in {{suites}}.
+
+~~~
+map_to_curve_elligator2_curve25519(u)
+Input: u, an element of F.
+Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
+        point on curve25519.
+
+Constants:
+1. c1 = (p + 3) / 8           // Integer arithmetic
+2. c2 = 2^c1
+3. c3 = sqrt(-1)
+4. c4 = (p - 5) / 8           // Integer arithmetic
+
+Steps:
+1.   t1 = u^2
+2.   t1 = 2 * t1
+3.   xd = t1 + 1              // nonzero: -1 is square mod p, xd is not
+4.  x1n = -486662             // x1 = x1n / xd = -486662 / (1 + 2 * u^2)
+5.  gxd = xd^2
+6.  gxd = gxd * xd
+7.   t2 = x1n^2
+8.  gx1 = t2 * x1n            // x1n^3 / xd^3 = x1^3
+9.   t2 = t2 * xd
+10.  t2 = t2 * 486662         // 486662 * x1n^2 * xd / xd^3 = 486662 * x1^2
+11. gx1 = gx1 + t2
+12.  t2 = xd^2
+13.  t2 = t2 * x1n            // x1n * xd^2 / xd^3 = x1
+14. gx1 = gx1 + t2            // x1n^3 + 486662 * x1n^2 * xd + x1n * xd^2
+15.  t3 = gxd^2
+16.  t2 = t3^2                // gxd^4
+17.  t3 = t3 * gxd            // gxd^3
+18.  t3 = t3 * gx1            // gx1 * gxd^3
+19.  t2 = t2 * t3             // gx1 * gxd^7
+20. y11 = t2^c4               // (gx1 * gxd^7)^((p - 5) / 8)
+21. y11 = y11 * t3            // gx1 * gxd^3 * (gx1 * gxd^7)^((p - 5) / 8)
+22. y12 = y11 * c3
+23.  t2 = y11^2
+24.  t2 = t2 * gxd
+25.  e1 = t2 == gx1
+26.  y1 = CMOV(y12, y11, e1)  // If g(x1) is square, this is its sqrt
+27. x2n = x1n * t1            // x2 = x2n / xd = 2 * u^2 * x1n / xd
+28. y21 = y11 * u
+29. y21 = y21 * c2
+30. y22 = y21 * c3
+31. gx2 = gx1 * t1            // g(x2) = gx2 / gxd = 2 * u^2 * g(x1)
+32.  t2 = y21^2
+33.  t2 = t2 * gxd
+34.  e2 = t2 == gx2
+35.  y2 = CMOV(y22, y21, e2)  // If g(x2) is square, this is its sqrt
+36.  t2 = y1^2
+37.  t2 = t2 * gxd
+38.  e3 = t2 == gx1
+39.  xn = CMOV(x2n, x1n, e3)  // if e3, x = x1, else x = x2
+40.   y = CMOV(y2, y1, e3)    // if e3, y = y1, else y = y2
+41.  e4 = sgn0(u) == sgn0(y)  // fix sign of y
+42.   y = CMOV(-y, y, e4)
+43. return (xn, xd, y, 1)
+~~~
+
+## edwards25519 (Elligator 2) {#map-to-edwards25519}
+
+The following is a straight-line implementation of Elligator 2
+for edwards25519 {{RFC7748}} as specified in {{suites}}.
+The subroutine map\_to\_curve\_elligator2\_curve25519
+is defined in {{map-to-curve25519}}.
+
+~~~
+map_to_curve_elligator2_edwards25519(u)
+Input: u, an element of F.
+Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
+        point on edwards25519.
+
+Constants:
+1. c1 = sqrt(-486664)   // sign MUST be chosen such that sgn0(c1) == 1
+
+Steps:
+1. (xMn, xMd, yMn, yMd) = map_to_curve_elligator2_curve25519(u)
+2. xn = xMn * yMd
+3. xn = xn * c1
+4. xd = xMd * yMn       // xn / xd = c1 * xM / yM
+5. yn = xMn - xMd
+6. yd = xMn + xMd       // (n / d - 1) / (n / d + 1) = (n - d) / (n + d)
+7. return (xn, xd, yn, yd)
+~~~
+
+## curve448 (Elligator 2) {#map-to-curve448}
+
+The following is a straight-line implementation of Elligator 2
+for curve448 {{RFC7748}} as specified in {{suites}}.
+
+~~~
+map_to_curve_elligator2_curve448(u)
+Input: u, an element of F.
+Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
+        point on curve448.
+
+Constants:
+1. c1 = (p - 3) / 4           // Integer arithmetic
+
+Steps:
+1.   t1 = u^2
+2.   xd = 1 - t1
+3.   e1 = xd == 0
+4.   xd = CMOV(xd, 1, e1)       // If xd == 0, set xd = 1
+5.  x1n = CMOV(-156326, 1, e1)  // If xd == 0, x1n = 1, else x1n = -A
+6.  gxd = xd^2
+7.  gxd = gxd * xd
+8.   t2 = x1n^2
+9.  gx1 = t2 * x1n            // x1n^3 / xd^3 = x1^3
+10.  t2 = t2 * xd
+11.  t2 = t2 * 156326         // 156326 * x1n^2 * xd / xd^3 = 156326 * x1^2
+12. gx1 = gx1 + t2
+13.  t2 = xd^2
+14.  t2 = t2 * x1n            // x1n * xd^2 / xd^3 = x1
+15. gx1 = gx1 + t2            // x1n^3 + 156326 * x1n^2 * xd + x1n * xd^2
+16.  t3 = gxd^2
+17.  t2 = gx1 * gxd           // gx1 * gxd
+18.  t3 = t3 * t2             // gx1 * gxd^3
+19.  y1 = t3^c4               // (gx1 * gxd^3)^((p - 3) / 4)
+20.  y1 = y1 * t2             // gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
+21. x2n = -t1 * x1n           // x2 = x2n / xd = -1 * u^2 * x1n / xd
+22.  y2 = y1 * u
+23.  t2 = y1^2
+24.  t2 = t2 * gxd
+25.  e2 = t2 == gx1
+26.  xn = CMOV(x2n, x1n, e2)  // If e2, x = x1, else x = x2
+27.   y = CMOV(y2, y1, e2)    // If e2, y = y1, else y = y2
+28.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
+29.   y = CMOV(-y, y, e3)
+30. return (xn, xd, y, 1)
+~~~
+
+## edwards448 (Elligator 2) {#map-to-edwards448}
+
+The following is a straight-line implementation of Elligator 2
+for edwards448 {{RFC7748}} as specified in {{suites}}.
+The subroutine map\_to\_curve\_elligator2\_curve448
+is defined in {{map-to-curve448}}.
+
+~~~
+map_to_curve_elligator2_edwards448(u)
+Input: u, an element of F.
+Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
+        point on edwards448.
+
+Steps:
+1. (xn, xd, yn, yd) = map_to_curve_elligator2_curve448(u)
+2.  xn2 = xn^2
+3.  xd2 = xd^2
+4.  xd4 = xd2^2
+5.  yn2 = yn^2
+6.  yd2 = yd^2
+7.  xEn = xn2 - xd2
+8.   t2 = xEn - xd2
+9.  xEn = xEn * xd2
+10. xEn = xEn * yd
+11. xEn = xEn * yn
+12. xEn = xEn * 4
+13.  t2 = t2 * xn2
+14.  t2 = t2 * yd2
+15.  t3 = 4 * yn2
+16.  t1 = t3 + yd2
+17.  t1 = t1 * xd4
+18. xEd = t1 + t2
+19.  t2 = t2 * xn
+20.  t4 = xn * xd4
+21. yEn = yd2 - t3
+22. yEn = yEn * t4
+23. yEn = yEn + t2
+24.  t1 = xn2 + xd2
+25.  t1 = t1 * xd2
+26.  t1 = t1 * xd
+27.  t1 = t1 * yn2
+28.  t1 = -2 * t1
+29. yEd = t2 + t1
+30.  t4 = t4 * yd2
+31. yEd = yEd + t4
+32. return (xEn, xEd, yEn, yEd)
+~~~
