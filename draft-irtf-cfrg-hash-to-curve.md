@@ -2209,6 +2209,8 @@ These suites share the following parameters:
 - Z: -2
 - h\_eff: 1
 
+An optimized example implementation of the above mapping is given in {{map-to-p256}}.
+
 ## Suites for curve25519 and edwards25519 {#suites-25519}
 
 This section defines ciphersuites for curve25519 and edwards25519 {{RFC7748}}.
@@ -2240,7 +2242,7 @@ The common parameters for all of the above suites are:
 - Z: 2
 - h\_eff: 8
 
-Optimized example implementations of the above maps are given in
+Optimized example implementations of the above mappings are given in
 {{map-to-curve25519}} and {{map-to-edwards25519}}.
 
 ## Suites for curve448 and edwards448 {#suites-448}
@@ -2274,7 +2276,7 @@ The common parameters for all of the above suites are:
 - Z: -1
 - h\_eff: 4
 
-Optimized example implementations of the above maps are given in
+Optimized example implementations of the above mappings are given in
 {{map-to-curve448}} and {{map-to-edwards448}}.
 
 ## Suites for SECP256K1 {#suites-secp256k1}
