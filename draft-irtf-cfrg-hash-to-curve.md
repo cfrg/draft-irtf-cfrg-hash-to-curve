@@ -1145,7 +1145,7 @@ Parameters:
 - F, a finite field of characteristic p and order q = p^m, m >= 1.
 
 Input: x, an element of F.
-Output: s, an element of F such that s * s = x.
+Output: s, an element of F such that (s^2) == x.
 
 ======
 
@@ -1159,11 +1159,11 @@ Procedure:
 Case 2: q = 5 (mod 8)
 
 Constants:
-1. c1 = sqrt(-1) in F, i.e., (c1 * c1) = -1 in F
+1. c1 = sqrt(-1) in F, i.e., (c1^2) == -1 in F
 
 Procedure:
 1. t1 = x^((q + 3) / 8)
-2.  e = (t1 * t1) == x
+2.  e = (t1^2) == x
 3.  s = CMOV(t1 * c1, t1, e)
 3. return s
 
@@ -1172,20 +1172,20 @@ Procedure:
 Case 3: q = 9 (mod 16)
 
 Constants:
-1. c1 = sqrt(-1) in F, i.e., (c1 * c1) == -1 in F
-2. c2 = sqrt(c1) in F, i.e., (c2 * c2) == c1 in F
-3. c3 = sqrt(-c1) in F, i.e., (c3 * c3) == -c1 in F
+1. c1 = sqrt(-1) in F, i.e., (c1^2) == -1 in F
+2. c2 = sqrt(c1) in F, i.e., (c2^2) == c1 in F
+3. c3 = sqrt(-c1) in F, i.e., (c3^2) == -c1 in F
 
 Procedure:
 1.  t1 = x^((q + 7) / 16)
 2.  t2 = c1 * t1
 3.  t3 = c2 * t1
 4.  t4 = c3 * t1
-5.  e1 = (t2 * t2) == x
-6.  e2 = (t3 * t3) == x
-7.  t1 = CMOV(t1, t2, e1)  // select t2 if (t2 * t2) == x
-8.  t2 = CMOV(t4, t3, e2)  // select t3 if (t3 * t3) == x
-9.  e3 = (t2 * t2) == x
+5.  e1 = (t2^2) == x
+6.  e2 = (t3^2) == x
+7.  t1 = CMOV(t1, t2, e1)  // select t2 if (t2^2) == x
+8.  t2 = CMOV(t4, t3, e2)  // select t3 if (t3^2) == x
+9.  e3 = (t2^2) == x
 10.  s = CMOV(t1, t2, e3)  // select the sqrt from t1 and t2
 11. return s
 ~~~
