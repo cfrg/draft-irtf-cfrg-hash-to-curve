@@ -1098,31 +1098,31 @@ where \<xx\> and \<yy\> are as defined above.
 
 Algorithms in this document make use of utility functions described below.
 
-For constant-time implementations (i.e., implementations whose execution
-time is independent of the inputs), all field operations, comparisons,
-and assignments must be implemented in constant time.
+For security reasons, all field operations, comparisons, and assignments
+MUST be implemented in constant time (i.e., execution time MUST NOT depend
+on the values of the inputs), and without branching.
 Guidance on implementing these low-level operations in constant time is
 beyond the scope of this document.
 
 -   CMOV(a, b, c): If c is False, CMOV returns a, otherwise it returns b.
     To prevent against timing attacks, this operation must run in constant
     time, without revealing the value of c.
-    Commonly, implementations assume that the selector is c == 1 for True, or
-    c == 0 for False. In this case, given a bit string C, the desired selector c can
+    Commonly, implementations assume that the selector c is 1 for True or
+    0 for False. In this case, given a bit string C, the desired selector c can
     be computed by OR-ing all bits of C together. The resulting selector will be
     either 0 if all bits of C are zero, or 1 if at least one bit of C is 1.
 
--   is\_square(x, q): This function returns True whenever the value x is a
-    square in GF(q). Due to Euler's criterion, this function can be calculated
-    in constant time as
+-   is\_square(x): This function returns True whenever the value x is a
+    square in the field F. Due to Euler's criterion, this function can be
+    calculated in constant time as
 
 ~~~
-is_square(x, q) := { True,  if x^((q - 1) / 2) is 0 or 1;
-                   { False, otherwise.
+is_square(x) := { True,  if x^((q - 1) / 2) is 0 or 1 in F;
+                { False, otherwise.
 ~~~
 
 -   sqrt(x): The sqrt operation is a multi-valued function, i.e. there exist
-    two roots of x in F whenever x is square.
+    two roots of x in the field F whenever x is square.
     To maintain compatibility across implementations while allowing implementors
     leeway for optimizations, this document does not require sqrt() to return a
     particular value. Instead, as explained in {{point-sign}}, any higher-level
@@ -1151,8 +1151,11 @@ Output: s, an element of F such that (s^2) == x.
 
 Case 1: q = 3 (mod 4)
 
+Constants:
+1. c1 = (q + 1) / 4     // Integer arithmetic
+
 Procedure:
-1. return x^((q + 1) / 4)
+1. return x^c1
 
 ======
 
@@ -1160,9 +1163,10 @@ Case 2: q = 5 (mod 8)
 
 Constants:
 1. c1 = sqrt(-1) in F, i.e., (c1^2) == -1 in F
+2. c2 = (q + 3) / 8     // Integer arithmetic
 
 Procedure:
-1. t1 = x^((q + 3) / 8)
+1. t1 = x^c2
 2.  e = (t1^2) == x
 3.  s = CMOV(t1 * c1, t1, e)
 3. return s
@@ -1175,9 +1179,10 @@ Constants:
 1. c1 = sqrt(-1) in F, i.e., (c1^2) == -1 in F
 2. c2 = sqrt(c1) in F, i.e., (c2^2) == c1 in F
 3. c3 = sqrt(-c1) in F, i.e., (c3^2) == -c1 in F
+4. c4 = (q + 7) / 16    // Integer arithmetic
 
 Procedure:
-1.  t1 = x^((q + 7) / 16)
+1.  t1 = x^c4
 2.  t2 = c1 * t1
 3.  t3 = c2 * t1
 4.  t4 = c3 * t1
@@ -1191,7 +1196,7 @@ Procedure:
 ~~~
 
 -   sgn0(x): This function returns either +1 or -1 indicating the "sign" of x,
-    where sgn0(x) == -1 just when x is lexically greater than -1 * x.
+    where sgn0(x) == -1 just when x is lexically greater than -x.
     Thus, this function considers 0 to be positive.
     The following procedure implements sgn0(x) in constant time.
     See {{bg-curves}} for a discussion of representing x as a vector.
@@ -1507,7 +1512,7 @@ Operations:
 5.  x2 = Z * u^2 * x1
 6. gx2 = x2^3 + A * x2 + B
 7.  If is_square(gx1), set x = x1 and y = sqrt(gx1)
-8.  Else if is_square(gx2), set x = x2 and y = sqrt(gx2)
+8.  Else set x = x2 and y = sqrt(gx2)
 9.  If sgn0(u) != sgn0(y), set y = -y
 10. return (x, y)
 ~~~
