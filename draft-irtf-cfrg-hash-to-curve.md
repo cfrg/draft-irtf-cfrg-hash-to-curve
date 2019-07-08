@@ -1101,8 +1101,8 @@ As an example, consider a fictional key exchange protocol named Quux.
 A reasonable choice of tag is "QUUX-V\<xx\>-CS\<yy\>", where \<xx\> and \<yy\>
 are two-digit numbers indicating the version and ciphersuite, respectively.
 Alternatively, if a variable-length ciphersuite string must be used,
-a reasonable choice of tag is "QUUX-V\<xx\>-L\<zz\>-\<csid\>", where
-where \<csid\> is a the ciphersuite string, and \<xx\> and \<zz\> are
+a reasonable choice of tag is "QUUX-V\<xx\>-L\<zz\>-\<csid\>", 
+ where \<csid\> is the ciphersuite string, and \<xx\> and \<zz\> are
 two-digit numbers indicating the version and the length of the ciphersuite
 string, respectively.
 
