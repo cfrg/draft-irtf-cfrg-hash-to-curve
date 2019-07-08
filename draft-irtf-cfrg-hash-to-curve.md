@@ -2314,7 +2314,7 @@ share the following parameters, in addition to the common parameters below.
   - (1, i) is the basis for F, where i^2 + 1 == 0 in F
 - E: y^2 = x^3 + 4 * (1 + i)
 - Z: 1 + i
-- E': y'^2 = x'^3 + A * x' + BB, where
+- E': y'^2 = x'^3 + A * x' + B, where
   - A = 240 * i
   - B = 1012 * (1 + i)
 - iso\_map: the isogeny map from E' to E given in {{appx-bls12381-g2}}
