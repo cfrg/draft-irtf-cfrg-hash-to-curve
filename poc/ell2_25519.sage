@@ -10,10 +10,10 @@ def sqrt(x):
     return F(x).sqrt()
 
 def ell2_curve25519(u):
-    den = F(1 + 2 * u^2)
     A = F(486662)
     B = F(1)
 
+    den = F(1 + 2 * u^2)
     if den == 0:
         den = F(1)
     x1 = -A / den
@@ -131,7 +131,10 @@ def test_edwards25519():
     assert xp == x
     assert yp == y
 
-if __name__ == "__main__":
+def test_25519():
     for _ in range(0, 1024):
         test_curve25519()
         test_edwards25519()
+
+if __name__ == "__main__":
+    test_25519()
