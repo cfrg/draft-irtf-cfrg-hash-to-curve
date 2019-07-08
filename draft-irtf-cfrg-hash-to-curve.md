@@ -1229,7 +1229,7 @@ Parameters:
 - F, a finite field of characteristic p and order q = p^m, m >= 1.
 
 Input: x, an element of F.
-Output: -1 or 1.
+Output: -1 or 1 (an integer).
 
 Notation: x_i is the i^th element of the vector representation of x.
 
