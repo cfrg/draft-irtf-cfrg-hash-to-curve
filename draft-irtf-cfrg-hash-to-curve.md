@@ -1280,7 +1280,7 @@ Ensuring that the hash\_to\_base output is a uniform random element of F require
 care, even when H outputs a uniformly random string. For example,
 if H is SHA256 and F is a field of characteristic p = 2^255 - 19, then the
 result of reducing H(msg) (a 256-bit integer) modulo p is slightly more likely
-to be in \[0, 38\] than if the value were selected uniformly at random.
+to be in \[0, 37\] than if the value were selected uniformly at random.
 In this example the bias is negligible, but in general it can be significant.
 
 To control bias, the input msg should be hashed to an integer comprising at
