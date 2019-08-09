@@ -2131,7 +2131,7 @@ Each suite comprises the following parameters:
 - p, the characteristic of the field F.
 - m, the extension degree of the field F.
 - H, the hash function used by hash\_to\_base ({{hashtobase}}).
-- W, the number of evaluations of H in hash\_to\_base.
+- L, the length of HKDF-Expand output in hash\_to\_base.
 - f, a mapping function from {{mappings}}.
 - h\_eff, the scalar parameter for clear\_cofactor ({{cofactor-clearing}}).
 
@@ -2200,7 +2200,7 @@ These suites share the following parameters:
 - p: 2^256 - 2^224 + 2^192 + 2^96 - 1
 - m: 1
 - H: SHA-256
-- W: 2
+- L: 48
 - f: Simplified SWU method, {{simple-swu}}
 - Z: -2
 - h\_eff: 1
@@ -2217,7 +2217,7 @@ These suites share the following parameters:
 - p: 2^384 - 2^128 - 2^96 + 2^32 - 1
 - m: 1
 - H: SHA-512
-- W: 2
+- L: 72
 - f: Icart's method, {{icart}}
 - h\_eff: 1
 
@@ -2233,7 +2233,7 @@ These suites share the following parameters:
 - p: 2^521 - 1
 - m: 1
 - H: SHA-512
-- W: 2
+- L: 96
 - f: Simplified SWU method, {{simple-swu}}
 - Z: -2
 - h\_eff: 1
@@ -2267,7 +2267,7 @@ The common parameters for all of the above suites are:
 - p: 2^255 - 19
 - m: 1
 - H: SHA-256
-- W: 2
+- L: 48
 - Z: 2
 - h\_eff: 8
 
@@ -2301,7 +2301,7 @@ The common parameters for all of the above suites are:
 - p: 2^448 - 2^224 - 1
 - m: 1
 - H: SHA-512
-- W: 2
+- L: 84
 - Z: -1
 - h\_eff: 4
 
@@ -2318,7 +2318,7 @@ These suites share the following parameters:
 - p: 2^256 - 2^32 - 2^9 - 2^8 - 2^7 - 2^6 - 2^4 - 1
 - m: 1
 - H: SHA-256
-- W: 2
+- L: 48
 - f: Shallue-van de Woestijne method, {{swpairing}}
 - Z: 1
 - h\_eff: 1
@@ -2359,7 +2359,7 @@ The common parameters for the above suites are:
 
 - p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
 - H: SHA-256
-- W: 2
+- L: 64
 - f: Simplified SWU for pairing-friendly curves, {{simple-swu-pairing-friendly}}
 
 Note that the h\_eff parameters for all of the above suites are chosen for compatibility
