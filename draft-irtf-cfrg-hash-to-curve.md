@@ -1356,11 +1356,12 @@ Output:
 
 Steps:
 1. m' = HKDF-Extract(DST, msg)
-2. for i in (1, ..., m):
-3.   info = "H2C" || I2OSP(ctr, 1) || I2OSP(i, 1)
-4.   t = HKDF-Expand(m', info, L)
-5.   e_i = OS2IP(t) mod p
-6. return u = (e_1, ..., e_m)
+2. info' = "H2C" || I2OSP(ctr, 1)       // "H2C" is an ASCII literal
+3. for i in (1, ..., m):
+4.   info = info' || I2OSP(i, 1)
+5.   t = HKDF-Expand(m', info, L)
+6.   e_i = OS2IP(t) mod p
+7. return u = (e_1, ..., e_m)
 ~~~
 
 # Deterministic Mappings  {#mappings}
