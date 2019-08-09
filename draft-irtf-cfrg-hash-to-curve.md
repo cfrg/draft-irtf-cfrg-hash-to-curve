@@ -2188,6 +2188,11 @@ Fields MUST be chosen as follows:
     - If ENC\_TYPE begins with "NU", the suite uses encode\_to\_curve.
     - ENC\_TYPE MUST NOT begin with any other string.
 
+The ENC\_TYPE field can be used to encode a suite version number.
+The RECOMMENDED way to do so is to append a string of the form ":Vnn".
+For example, "RO:V02" is an appropriate choice for the second version
+of a random-oracle suite.
+
 ## Suites for NIST P-256 {#suites-p256}
 
 The suites P256-SHA256-SSWU-RO- and P256-SHA256-SSWU-NU-
