@@ -999,6 +999,8 @@ they ensure that queries to R1 and R2 cannot result in identical
 queries to R.
 Thus, it is safe to treat R1 and R2 as independent oracles.
 
+<!-- TODO(RSW) harmonize with S5 and S3 -->
+
 # Roadmap {#roadmap}
 
 This section presents a general framework for encoding bit strings to points
@@ -2130,14 +2132,14 @@ Each suite comprises the following parameters:
 - E, the target elliptic curve over a field F.
 - p, the characteristic of the field F.
 - m, the extension degree of the field F.
-- H, the hash function used by hash\_to\_base ({{hashtobase}}).
-- L, the length of HKDF-Expand output in hash\_to\_base.
+- H, the hash function used by hash\_to\_base ({{hashtobase-sec}}).
+- L, the length of HKDF-Expand output in hash\_to\_base ({{hashtobase-sec}}).
 - f, a mapping function from {{mappings}}.
 - h\_eff, the scalar parameter for clear\_cofactor ({{cofactor-clearing}}).
 
 In addition to the above parameters, the mapping f may require
 additional parameters Z, M, rational\_map, E', and/or iso\_map.
-These are specified when applicable.
+These MUST be specified when applicable.
 
 Applications whose security requires a random oracle MUST use
 a suite specifying hash\_to\_curve ({{roadmap}}); see {{suiteIDformat}}.
