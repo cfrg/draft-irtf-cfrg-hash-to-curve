@@ -1357,13 +1357,14 @@ Output:
 - u, an element in F.
 
 Steps:
-1. m' = HKDF-Extract(DST, msg)
-2. info' = "H2C" || I2OSP(ctr, 1)       // "H2C" is an ASCII literal
+1. msg_prime = HKDF-Extract(DST, msg)
+2. info_pfx = "H2C" || I2OSP(ctr, 1)   // "H2C" is a 3-byte ASCII string
 3. for i in (1, ..., m):
-4.   info = info' || I2OSP(i, 1)
-5.   t = HKDF-Expand(m', info, L)
+4.   info = info_pfx || I2OSP(i, 1)
+5.   t = HKDF-Expand(msg_prime, info, L)
 6.   e_i = OS2IP(t) mod p
-7. return u = (e_1, ..., e_m)
+7. u = (e_1, ..., e_m)
+8. return u
 ~~~
 
 # Deterministic Mappings  {#mappings}
