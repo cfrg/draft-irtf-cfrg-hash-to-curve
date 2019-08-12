@@ -2129,7 +2129,9 @@ points on a specific elliptic curve group.
 Each suite comprises the following parameters:
 
 - Suite ID, a short name used to refer to a given suite.
-  {{suiteIDformat}} discusses the naming convention for suite IDs.
+  The ID also indicates whether a suite is a random oracle or nonuniform
+  encoding ({{term-rom}}, {{roadmap}}).
+  {{suiteIDformat}} discusses the naming conventions for suite IDs.
 - E, the target elliptic curve over a field F.
 - p, the characteristic of the field F.
 - m, the extension degree of the field F.
@@ -2163,7 +2165,7 @@ the subsection that gives the corresponding parameters.
 
 ## Suite ID naming conventions {#suiteIDformat}
 
-New Suite IDs MUST be constructed as follows:
+Suite IDs MUST be constructed as follows:
 
     CURVE_ID || "-" || HASH_ID || "-" || MAP_ID || "-" || ENC_TYPE || "-"
 
@@ -2172,7 +2174,7 @@ ASCII-encoded strings of at most 64 characters each.
 Fields can contain only ASCII characters between 0x21 and 0x7E (inclusive)
 other than hyphen and underscore (i.e., 0x2d, and 0x5f).
 As indicated above, each field (including the last) is followed by a hyphen
-("-", ASCII 0x2d); this makes it easier to create prefix-free Suite IDs.
+("-", ASCII 0x2d); this helps to ensure that Suite IDs are prefix free.
 
 Fields MUST be chosen as follows:
 
