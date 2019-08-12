@@ -2167,9 +2167,9 @@ the subsection that gives the corresponding parameters.
 
 Suite IDs MUST be constructed as follows:
 
-    CURVE_ID || "-" || HASH_ID || "-" || MAP_ID || "-" || ENC_TYPE || "-"
+    CURVE_ID || "-" || HASH_ID || "-" || MAP_ID || "-" || ENC_VAR || "-"
 
-The fields CURVE\_ID, HASH\_ID, MAP\_ID, and ENC\_TYPE are
+The fields CURVE\_ID, HASH\_ID, MAP\_ID, and ENC\_VAR are
 ASCII-encoded strings of at most 64 characters each.
 Fields can contain only ASCII characters between 0x21 and 0x7E (inclusive)
 other than hyphen and underscore (i.e., 0x2d, and 0x5f).
@@ -2186,17 +2186,22 @@ Fields MUST be chosen as follows:
 - MAP\_ID: a human-readable representation of the map\_to\_curve function
   ({{mappings}}).
 
-- ENC\_TYPE: a string indicating whether the suite represents
-  a hash\_to\_curve or an encode\_to\_curve operation ({{roadmap}}).
+- ENC\_VAR: a string indicating the encoding type and other information.
+  The first two characters of this string indicate whether the suite
+  represents a hash\_to\_curve or an encode\_to\_curve operation
+  ({{roadmap}}), as follows:
 
-    - If ENC\_TYPE begins with "RO", the suite uses hash\_to\_curve.
-    - If ENC\_TYPE begins with "NU", the suite uses encode\_to\_curve.
-    - ENC\_TYPE MUST NOT begin with any other string.
+    - If ENC\_VAR begins with "RO", the suite uses hash\_to\_curve.
+    - If ENC\_VAR begins with "NU", the suite uses encode\_to\_curve.
+    - ENC\_VAR MUST NOT begin with any other string.
 
-The ENC\_TYPE field can be used to encode a suite version number.
-The RECOMMENDED way to do so is to append a string of the form ":Vnn".
-For example, "RO:V02" is an appropriate choice for the second version
-of a random-oracle suite.
+    ENC\_VAR MAY also be used to encode other information used to identify
+    variants, for example, a version number.
+    The RECOMMENDED way to do so is to add one or more subfields separated
+    by colons.
+    For example, "RO:V02" is an appropriate ENC\_VAR value for the second
+    version of a random-oracle suite, while "RO:V02:FOO01:BAR17" might be
+    used to indicate a variant of that suite.
 
 ## Suites for NIST P-256 {#suites-p256}
 
