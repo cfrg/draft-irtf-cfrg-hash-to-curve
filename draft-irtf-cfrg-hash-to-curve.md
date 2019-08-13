@@ -999,6 +999,8 @@ they ensure that queries to R1 and R2 cannot result in identical
 queries to R.
 Thus, it is safe to treat R1 and R2 as independent oracles.
 
+<!-- TODO(RSW) harmonize with S5 and S3 -->
+
 # Roadmap {#roadmap}
 
 This section presents a general framework for encoding bit strings to points
@@ -1355,12 +1357,14 @@ Output:
 - u, an element in F.
 
 Steps:
-1. m' = HKDF-Extract(DST, msg)
-2. for i in (1, ..., m):
-3.   info = "H2C" || I2OSP(ctr, 1) || I2OSP(i, 1)
-4.   t = HKDF-Expand(m', info, L)
-5.   e_i = OS2IP(t) mod p
-6. return u = (e_1, ..., e_m)
+1. msg_prime = HKDF-Extract(DST, msg)
+2. info_pfx = "H2C" || I2OSP(ctr, 1)   // "H2C" is a 3-byte ASCII string
+3. for i in (1, ..., m):
+4.   info = info_pfx || I2OSP(i, 1)
+5.   t = HKDF-Expand(msg_prime, info, L)
+6.   e_i = OS2IP(t) mod p
+7. u = (e_1, ..., e_m)
+8. return u
 ~~~
 
 # Deterministic Mappings  {#mappings}
@@ -2125,21 +2129,23 @@ points on a specific elliptic curve group.
 Each suite comprises the following parameters:
 
 - Suite ID, a short name used to refer to a given suite.
+  The ID also indicates whether a suite is a random oracle or nonuniform
+  encoding ({{term-rom}}, {{roadmap}}).
+  {{suiteIDformat}} discusses the naming conventions for suite IDs.
 - E, the target elliptic curve over a field F.
 - p, the characteristic of the field F.
 - m, the extension degree of the field F.
-- H, the hash function used by hash\_to\_base ({{hashtobase}}).
-- W, the number of evaluations of H in hash\_to\_base.
+- H, the hash function used by hash\_to\_base ({{hashtobase-sec}}).
+- L, the length of HKDF-Expand output in hash\_to\_base ({{hashtobase-sec}}).
 - f, a mapping function from {{mappings}}.
 - h\_eff, the scalar parameter for clear\_cofactor ({{cofactor-clearing}}).
 
 In addition to the above parameters, the mapping f may require
 additional parameters Z, M, rational\_map, E', and/or iso\_map.
-These are specified when applicable.
+These MUST be specified when applicable.
 
-Suites whose ID includes "-RO" use the hash\_to\_curve procedure of {{roadmap}};
-suites whose ID includes "-NU" use the encode\_to\_curve procedure from that section.
-Applications whose security requires a random oracle MUST use a "-RO" suite.
+Applications whose security requires a random oracle MUST use
+a suite specifying hash\_to\_curve ({{roadmap}}); see {{suiteIDformat}}.
 
 When standardizing a new elliptic curve, corresponding hash-to-curve
 suites SHOULD be specified.
@@ -2157,9 +2163,49 @@ the subsection that gives the corresponding parameters.
 | SECP256k1                 | {{suites-secp256k1}} |
 | BLS12-381                 | {{suites-bls12381}}  |
 
+## Suite ID naming conventions {#suiteIDformat}
+
+Suite IDs MUST be constructed as follows:
+
+    CURVE_ID || "-" || HASH_ID || "-" || MAP_ID || "-" || ENC_VAR || "-"
+
+The fields CURVE\_ID, HASH\_ID, MAP\_ID, and ENC\_VAR are
+ASCII-encoded strings of at most 64 characters each.
+Fields can contain only ASCII characters between 0x21 and 0x7E (inclusive)
+other than hyphen and underscore (i.e., 0x2d, and 0x5f).
+As indicated above, each field (including the last) is followed by a hyphen
+("-", ASCII 0x2d); this helps to ensure that Suite IDs are prefix free.
+
+Fields MUST be chosen as follows:
+
+- CURVE\_ID: a human-readable representation of the target elliptic curve.
+
+- HASH\_ID: a human-readable representation of the hash function used in
+  hash\_to\_base ({{hashtobase}}).
+
+- MAP\_ID: a human-readable representation of the map\_to\_curve function
+  ({{mappings}}).
+
+- ENC\_VAR: a string indicating the encoding type and other information.
+  The first two characters of this string indicate whether the suite
+  represents a hash\_to\_curve or an encode\_to\_curve operation
+  ({{roadmap}}), as follows:
+
+    - If ENC\_VAR begins with "RO", the suite uses hash\_to\_curve.
+    - If ENC\_VAR begins with "NU", the suite uses encode\_to\_curve.
+    - ENC\_VAR MUST NOT begin with any other string.
+
+    ENC\_VAR MAY also be used to encode other information used to identify
+    variants, for example, a version number.
+    The RECOMMENDED way to do so is to add one or more subfields separated
+    by colons.
+    For example, "RO:V02" is an appropriate ENC\_VAR value for the second
+    version of a random-oracle suite, while "RO:V02:FOO01:BAR17" might be
+    used to indicate a variant of that suite.
+
 ## Suites for NIST P-256 {#suites-p256}
 
-The suites P256-SHA256-SSWU-RO and P256-SHA256-SSWU-NU
+The suites P256-SHA256-SSWU-RO- and P256-SHA256-SSWU-NU-
 are defined for the NIST P-256 elliptic curve {{FIPS186-4}}.
 These suites share the following parameters:
 
@@ -2169,14 +2215,14 @@ These suites share the following parameters:
 - p: 2^256 - 2^224 + 2^192 + 2^96 - 1
 - m: 1
 - H: SHA-256
-- W: 2
+- L: 48
 - f: Simplified SWU method, {{simple-swu}}
 - Z: -2
 - h\_eff: 1
 
 ## Suites for NIST P-384 {#suites-p384}
 
-The suites P384-SHA512-ICART-RO and P384-SHA512-ICART-NU
+The suites P384-SHA512-ICART-RO- and P384-SHA512-ICART-NU-
 are defined for the NIST P-384 elliptic curve {{FIPS186-4}}.
 These suites share the following parameters:
 
@@ -2186,13 +2232,13 @@ These suites share the following parameters:
 - p: 2^384 - 2^128 - 2^96 + 2^32 - 1
 - m: 1
 - H: SHA-512
-- W: 2
+- L: 72
 - f: Icart's method, {{icart}}
 - h\_eff: 1
 
 ## Suites for NIST P-521 {#suites-p521}
 
-The suites P521-SHA512-SSWU-RO and P521-SHA512-SSWU-NU
+The suites P521-SHA512-SSWU-RO- and P521-SHA512-SSWU-NU-
 are defined for the NIST P-384 elliptic curve {{FIPS186-4}}.
 These suites share the following parameters:
 
@@ -2202,7 +2248,7 @@ These suites share the following parameters:
 - p: 2^521 - 1
 - m: 1
 - H: SHA-512
-- W: 2
+- L: 96
 - f: Simplified SWU method, {{simple-swu}}
 - Z: -2
 - h\_eff: 1
@@ -2213,7 +2259,7 @@ An optimized example implementation of the above mapping is given in {{map-to-p2
 
 This section defines ciphersuites for curve25519 and edwards25519 {{RFC7748}}.
 
-The suites curve25519-SHA256-ELL2-RO and curve25519-SHA256-ELL2-NU
+The suites curve25519-SHA256-ELL2-RO- and curve25519-SHA256-ELL2-NU-
 share the following parameters, in addition to the common parameters below.
 
 - E: B * y^2 = x^3 + A * x^2 + x, where
@@ -2221,7 +2267,7 @@ share the following parameters, in addition to the common parameters below.
   - B = 1
 - f: Elligator 2 method, {{elligator2}}
 
-The suites edwards25519-SHA256-EDELL2-RO and edwards25519-SHA256-EDELL2-NU
+The suites edwards25519-SHA256-EDELL2-RO- and edwards25519-SHA256-EDELL2-NU-
 share the following parameters, in addition to the common parameters below.
 
 - E: a * x^2 + y^2 = 1 + d * x^2 * y^2, where
@@ -2236,7 +2282,7 @@ The common parameters for all of the above suites are:
 - p: 2^255 - 19
 - m: 1
 - H: SHA-256
-- W: 2
+- L: 48
 - Z: 2
 - h\_eff: 8
 
@@ -2247,7 +2293,7 @@ Optimized example implementations of the above mappings are given in
 
 This section defines ciphersuites for curve448 and edwards448 {{RFC7748}}.
 
-The suites curve448-SHA512-ELL2-RO and curve448-SHA512-ELL2-NU
+The suites curve448-SHA512-ELL2-RO- and curve448-SHA512-ELL2-NU-
 share the following parameters, in addition to the common parameters below.
 
 - E: B * y^2 = x^3 + A * x^2 + x, where
@@ -2255,7 +2301,7 @@ share the following parameters, in addition to the common parameters below.
   - B = 1
 - f: Elligator 2 method, {{elligator2}}
 
-The suites edwards448-SHA512-EDELL2-RO and edwards448-SHA512-EDELL2-NU
+The suites edwards448-SHA512-EDELL2-RO- and edwards448-SHA512-EDELL2-NU-
 share the following parameters, in addition to the common parameters below.
 
 - E: a * x^2 + y^2 = 1 + d * x^2 * y^2, where
@@ -2270,7 +2316,7 @@ The common parameters for all of the above suites are:
 - p: 2^448 - 2^224 - 1
 - m: 1
 - H: SHA-512
-- W: 2
+- L: 84
 - Z: -1
 - h\_eff: 4
 
@@ -2279,7 +2325,7 @@ Optimized example implementations of the above mappings are given in
 
 ## Suites for SECP256K1 {#suites-secp256k1}
 
-The suites SECP256K1-SHA256-SVDW-RO and SECP256K1-SHA256-SVDW-NU
+The suites SECP256K1-SHA256-SVDW-RO- and SECP256K1-SHA256-SVDW-NU-
 are defined for the SECP256K1 elliptic curve {{SEC2}}.
 These suites share the following parameters:
 
@@ -2287,7 +2333,7 @@ These suites share the following parameters:
 - p: 2^256 - 2^32 - 2^9 - 2^8 - 2^7 - 2^6 - 2^4 - 1
 - m: 1
 - H: SHA-256
-- W: 2
+- L: 48
 - f: Shallue-van de Woestijne method, {{swpairing}}
 - Z: 1
 - h\_eff: 1
@@ -2297,7 +2343,7 @@ These suites share the following parameters:
 This section defines ciphersuites for groups G1 and G2 of
 the BLS12-381 elliptic curve {{draft-yonezawa-pfc-01}}.
 
-The suites BLS12381G1-SHA256-SSWU-RO and BLS12381G1-SHA256-SSWU-NU
+The suites BLS12381G1-SHA256-SSWU-RO- and BLS12381G1-SHA256-SSWU-NU-
 share the following parameters, in addition to the common parameters below.
 
 - E: y^2 = x^3 + 4
@@ -2309,7 +2355,7 @@ share the following parameters, in addition to the common parameters below.
 - iso\_map: the 11-isogeny map from E' to E given in {{appx-bls12381-g1}}
 - h\_eff: 0xd201000000010001
 
-The suites BLS12381G2-SHA256-SSWU-RO and BLS12381G2-SHA256-SSWU-NU
+The suites BLS12381G2-SHA256-SSWU-RO- and BLS12381G2-SHA256-SSWU-NU-
 share the following parameters, in addition to the common parameters below.
 
 - F: GF(p^m), where
@@ -2328,7 +2374,7 @@ The common parameters for the above suites are:
 
 - p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
 - H: SHA-256
-- W: 2
+- L: 64
 - f: Simplified SWU for pairing-friendly curves, {{simple-swu-pairing-friendly}}
 
 Note that the h\_eff parameters for all of the above suites are chosen for compatibility
