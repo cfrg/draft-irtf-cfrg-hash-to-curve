@@ -485,7 +485,7 @@ informative:
       -
         ins: A. Langley
         name: Adam Langley
-  SBCDBK09:
+  SBCDK09:
     title: Fast Hashing to G2 on Pairing-Friendly Curves
     seriesinfo:
         "In": Pairing-Based Cryptography - Pairing 2009
@@ -509,10 +509,6 @@ informative:
       -
         ins: L. J. Dominguez Perez
         name: Luis J. Dominguez Perez
-        org: School of Computing Dublin City University, Ballymun. Dublin, Ireland.
-      -
-        ins: N. Benger
-        name: Naomi Benger
         org: School of Computing Dublin City University, Ballymun. Dublin, Ireland.
       -
         ins: E. J. Kachisa
@@ -2028,7 +2024,7 @@ some scalar h\_eff whose value is determined by the method and the curve.
 Examples of fast cofactor clearing methods include the following:
 
 - For certain pairing-friendly curves having subgroup G2 over an extension
-  field, Scott et al. {{SBCDBK09}} describe a method for fast cofactor clearing
+  field, Scott et al. {{SBCDK09}} describe a method for fast cofactor clearing
   that exploits an efficiently-computable endomorphism. Fuentes-Castaneda
   et al. {{FKR11}} propose an alternative method that is sometimes more efficient.
   Budroni and Pintore {{BP18}} give concrete instantiations of these methods
