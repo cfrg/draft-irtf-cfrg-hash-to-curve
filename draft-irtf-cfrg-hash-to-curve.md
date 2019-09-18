@@ -1103,7 +1103,7 @@ As an example, consider a fictional key exchange protocol named Quux.
 A reasonable choice of tag is "QUUX-V\<xx\>-CS\<yy\>", where \<xx\> and \<yy\>
 are two-digit numbers indicating the version and ciphersuite, respectively.
 Alternatively, if a variable-length ciphersuite string must be used,
-a reasonable choice of tag is "QUUX-V\<xx\>-L\<zz\>-\<csid\>", 
+a reasonable choice of tag is "QUUX-V\<xx\>-L\<zz\>-\<csid\>",
  where \<csid\> is the ciphersuite string, and \<xx\> and \<zz\> are
 two-digit numbers indicating the version and the length of the ciphersuite
 string, respectively.
@@ -1344,7 +1344,7 @@ Parameters:
 - F, a finite field of characteristic p and order q = p^m.
 - L = ceil((ceil(log2(p)) + k) / 8), where k is the security
   parameter of the cryptosystem (e.g., k = 128).
-- HKDF-Extract and HKDF-Expand are as defined in RFC5869, 
+- HKDF-Extract and HKDF-Expand are as defined in RFC5869,
   instantiated with the hash function H.
 
 Inputs:
@@ -1435,6 +1435,107 @@ cases that result from attempting to compute the inverse of 0.
 
 The following mappings apply to elliptic curves defined by the equation
 E: y^2 = g(x) = x^3 + A * x + B, where 4 * A^3 + 27 * B^2 != 0.
+
+### Shallue-van de Woestijne Method {#sw}
+
+Shallue and van de Woestijne {{SW06}} described a mapping that applies to
+essentially any elliptic curve provided the existence of a fixed
+parameter Z satisfying certain conditions.
+Due to the general applicability of this map, it requires a larger number of
+operations than curve-specific mappings described below.
+
+Preconditions: An elliptic curve y^2 = g(x) = x^3 + A * x + B over F, and an
+element Z satisfying:
+
+ - g(Z) is a non-zero quadratic residue.
+ - -(3 * Z^2 + 4 * A) is a non-zero quadratic residue.
+
+Constants:
+
+- c1 = -Z / 2.
+- c2 = g(Z).
+- c3 = (-1 / 2) * sqrt( - (3 * Z^2 + 4 * A) ).
+- c4 = 1 / (4*c3 ^ 2).
+
+Sign of y: Inputs u and -u give the same x-coordinate.
+Thus, we set sgn0(y) == sgn0(u).
+
+Exceptions: The exceptional cases for u occur when
+u^2 * (u^2 + g(Z)) == 0. The restriction on Z given above ensures that
+implementations that use inv0 to invert this product are exception free.
+
+Operations:
+
+~~~
+1.  t0 = u^2
+2.  t1 = t0 + c2
+3.  t2 = t0 - c2
+4.  t3 = inv0(t0 * t1)
+5.  x1 = c1 + c3 * t2 * t3 * t0
+6.  x2 = - u - x1
+7.  x3 = u + c4 * t1^2 * t3 * t1
+8.  If is_square(g(x1)), set x = x1 and y = sqrt(g(x1))
+9.  Else If is_square(g(x2)), set x = x2 and y = sqrt(g(x2))
+10. Else set x = x3 and y = sqrt(g(x3))
+11. If sgn0(u) != sgn0(y), set y = -y
+12. return (x, y)
+~~~
+
+#### Implementation
+
+The following procedure implements the Shallue and van de Woestijne method in a
+straight-line fashion.
+
+~~~
+map_to_curve_sw(u)
+Input: u, an element of F.
+Output: (x, y), a point on E.
+
+Constants:
+1. c1 = -Z / 2.
+2. c2 = g(Z).
+3. c3 = (-1 / 2) * sqrt( - (3 * Z^2 + 4 * A) ).
+4. c4 = 1 / (4 * c3^2).
+
+Steps:
+1.   t0 = u^2
+2.   t1 = t0 + c2
+3.   t2 = t0 - c2
+4.   t3 = t0 * t1
+5.   t4 = inv0(t3)
+6.   x1 = c3 * t2
+7.   x1 = x1 * t4
+8.   x1 = x1 * t0
+9.   x1 = x1 + c1            // x1 = c1 + c3 * t2 * t3 * t0
+10.  x2 = -u - x1            // x2 = -u - x1
+11.  x3 = t1 ^ 2
+12.  x3 = x3 * t4
+13.  x3 = x3 * t1
+14.  x3 = x3 * c4
+15.  x3 = x3 + u             // x3 = u + c4 * t1^2 * t3 * t1
+16. gx1 = x1^2
+17. gx1 = gx1 + A
+18. gx1 = gx1 * x1
+19. gx1 = gx1 + B            // gx1 = x1^3 + A * x1 + B
+20.  e1 = is_square(gx1)
+21. gx2 = x2^2
+22. gx2 = gx2 + A
+23. gx2 = gx2 * x2
+24. gx2 = gx2 + B            // gx2 = x2^3 + A * x2 + B
+25.  e2 = is_square(gx2)
+26. gx3 = x3^2
+27. gx3 = gx3 + A
+28. gx3 = gx3 * x3
+29. gx3 = gx3 + B            // gx3 = x3^3 + A * x3 + B
+30.   x = CMOV(x3, x2, e2)   // select  x2 if gx2 is square
+31.   x = CMOV( x, x1, e1)   // select  x1 if gx1 is square
+32.  gx = CMOV(gx3, gx2, e2) // select gx2 if gx2 is square
+33.  gx = CMOV( gx, gx1, e1) // select gx1 if gx1 is square
+34.   y = sqrt(gx)
+35.  e4 = sgn0(u) == sgn0(y)
+36.   y = CMOV(-y, y, e4)    // select correct sign of y
+37. return (x, y)
+~~~
 
 ### Icart Method {#icart}
 
@@ -1914,109 +2015,9 @@ Steps:
 
 ## Mappings for Pairing-Friendly curves
 
-### Shallue-van de Woestijne Method {#swpairing}
-
-Shallue and van de Woestijne {{SW06}} describe a mapping that applies to
-essentially any elliptic curve. Fouque and Tibouchi {{FT12}} give a concrete
-set of parameters for this mapping geared toward Barreto-Naehrig pairing-friendly curves
-{{BN05}}, i.e., curves y^2 = x^3 + B over fields of characteristic q = 1 (mod 3).
-Wahby and Boneh {{WB19}} suggest a small generalization of the Fouque-Tibouchi
-parameters that results in a uniform method for handling exceptional cases.
-
-The Shallue-van de Woestijne mapping method covers curves not handled by other methods, e.g.,
-SECP256K1 {{SEC2}}. It also covers pairing-friendly curves in the BN {{BN05}},
-KSS {{KSS08}}, and BLS {{BLS03}} families. (Note, however, that the mapping
-described in {{simple-swu-pairing-friendly}} is faster, when it applies.)
-
-Preconditions: An elliptic curve y^2 = g(x) = x^3 + B over F such that q = 1 (mod 3) and B != 0.
-
-Constants:
-
-- B, the parameter of the Weierstrass curve.
-
-- Z, the unique element of F meeting all of the following criteria:
-  1. g((sqrt(-3 * Z^2) - Z) / 2) is square in F,
-  2. there is no other Z' meeting criterion (1) for which
-     abs(Z') < abs(Z) ({{utility}}), and
-  3. if Z and -Z both meet the above criteria, Z is the element
-     such that sgn0(Z) == 1.
-
-Sign of y: Inputs u and -u give the same x-coordinate.
-Thus, we set sgn0(y) == sgn0(u).
-
-Exceptions: The exceptional cases for u occur when
-u^2 * (u^2 + g(Z)) == 0. The restriction on Z given above ensures that
-implementations that use inv0 to invert this product are exception free.
-
-Operations:
-
-~~~
-1. t1 = u^2 + g(Z)
-2. t2 = inv0(u^2 * t1)
-3. t3 = u^4 * t2 * sqrt(-3 * Z^2)
-4. x1 = ((sqrt(-3 * Z^2) - Z) / 2) - t3
-5. x2 = t3 - ((sqrt(-3 * Z^2) + Z) / 2)
-6. x3 = Z - (t1^3 * t2 / (3 * Z^2))
-7.  If is_square(g(x1)), set x = x1 and y = sqrt(g(x1))
-8.  Else If is_square(g(x2)), set x = x2 and y = sqrt(g(x2))
-9.  Else set x = x3 and y = sqrt(g(x3))
-10. If sgn0(u) != sgn0(y), set y = -y
-11. return (x, y)
-~~~
-
-#### Implementation
-
-The following procedure implements the Shallue and van de Woestijne method in a
-straight-line fashion.
-
-~~~
-map_to_curve_svdw(u)
-Input: u, an element of F.
-Output: (x, y), a point on E.
-
-Constants:
-1. c1 = g(Z)
-2. c2 = sqrt(-3 * Z^2)
-3. c3 = (sqrt(-3 * Z^2) - Z) / 2
-4. c4 = (sqrt(-3 * Z^2) + Z) / 2
-5. c5 = 1 / (3 * Z^2)
-
-Steps:
-1.   t1 = u^2
-2.   t2 = t1 + c1           // t2 = u^2 + g(Z)
-3.   t3 = t1 * t2
-4.   t4 = inv0(t3)          // t4 = 1 / (u^2 * (u^2 + g(Z)))
-5.   t3 = t1^2
-6.   t3 = t3 * t4
-7.   t3 = t3 * c2           // t3 = u^2 * sqrt(-3 * Z^2) / (u^2 + g(Z))
-8.   x1 = c3 - t3
-9.  gx1 = x1^2
-10. gx1 = gx1 * x1
-11. gx1 = gx1 + B           // gx1 = x1^3 + B
-12.  e1 = is_square(gx1)
-13.  x2 = t3 - c4
-14. gx2 = x2^2
-15. gx2 = gx2 * x2
-16. gx2 = gx2 + B           // gx2 = x2^3 + B
-17.  e2 = is_square(gx2)
-18.  e3 = e1 OR e2          // logical OR
-19.  x3 = t2^2
-20.  x3 = x3 * t2
-21.  x3 = x3 * t4
-22.  x3 = x3 * c5
-23.  x3 = Z - x3            // Z - (u^2 + g(Z))^2 / (3 Z^2 u^2)
-24. gx3 = x3^2
-25. gx3 = gx3 * x3
-26. gx3 = gx3 + B           // gx3 = x3^3 + B
-27.   x = CMOV(x2, x1, e1)  // select x1 if gx1 is square
-28.  gx = CMOV(gx2, gx1, e1)
-29.   x = CMOV(x3, x, e3)   // select x3 if gx1 and gx2 are not square
-30.  gx = CMOV(gx3, gx, e3)
-31.   y = sqrt(gx)
-32.  e4 = sgn0(u) == sgn0(y)
-33.   y = CMOV(-y, y, e4)   // select correct sign of y
-34. return (x, y)
-~~~
+The Shallue-van de Woestijne mapping from {{sw}} covers pairing-friendly
+curves such as BN {{BN05}}, KSS {{KSS08}}, and BLS {{BLS03}} families. However,
+the following mapping is faster, when it applies.
 
 ### Simplified SWU for Pairing-Friendly Curves {#simple-swu-pairing-friendly}
 
@@ -2205,9 +2206,7 @@ Fields MUST be chosen as follows:
 
 ## Suites for NIST P-256 {#suites-p256}
 
-The suites P256-SHA256-SSWU-RO- and P256-SHA256-SSWU-NU-
-are defined for the NIST P-256 elliptic curve {{FIPS186-4}}.
-These suites share the following parameters:
+The NIST P-256 elliptic curve {{FIPS186-4}} has the following parameters.
 
 - E: y^2 = x^3 + A * x + B, where
    - A = -3
@@ -2216,15 +2215,21 @@ These suites share the following parameters:
 - m: 1
 - H: SHA-256
 - L: 48
+- h\_eff: 1
+
+The suites P256-SHA256-SW-RO- and P256-SHA256-SW-NU- are specified by
+
+- f: Shallue-van de Woestijne method, {{sw}}
+- Z: -3
+
+The suites P256-SHA256-SSWU-RO- and P256-SHA256-SSWU-NU- are specified by
+
 - f: Simplified SWU method, {{simple-swu}}
 - Z: -2
-- h\_eff: 1
 
 ## Suites for NIST P-384 {#suites-p384}
 
-The suites P384-SHA512-ICART-RO- and P384-SHA512-ICART-NU-
-are defined for the NIST P-384 elliptic curve {{FIPS186-4}}.
-These suites share the following parameters:
+The NIST P-384 elliptic curve {{FIPS186-4}} has the following parameters.
 
 - E: y^2 = x^3 + A * x + B, where
   - A = -3
@@ -2233,14 +2238,21 @@ These suites share the following parameters:
 - m: 1
 - H: SHA-512
 - L: 72
-- f: Icart's method, {{icart}}
 - h\_eff: 1
+
+The suites P384-SHA512-SW-RO- and P384-SHA512-SW-NU- are specified by
+
+- f: Shallue-van de Woestijne method, {{sw}}
+- Z: 0
+
+The suites P384-SHA512-SSWU-RO- and P384-SHA512-SSWU-NU- are specified by
+
+- f: Simplified SWU method, {{simple-swu}}
+- Z: -2
 
 ## Suites for NIST P-521 {#suites-p521}
 
-The suites P521-SHA512-SSWU-RO- and P521-SHA512-SSWU-NU-
-are defined for the NIST P-384 elliptic curve {{FIPS186-4}}.
-These suites share the following parameters:
+The NIST P-521 elliptic curve {{FIPS186-4}} has the following parameters.
 
 - E: y^2 = x^3 + A * x + B, where
   - A = -3
@@ -2249,11 +2261,17 @@ These suites share the following parameters:
 - m: 1
 - H: SHA-512
 - L: 96
-- f: Simplified SWU method, {{simple-swu}}
-- Z: -2
 - h\_eff: 1
 
-An optimized example implementation of the above mapping is given in {{map-to-p256}}.
+The suites P521-SHA512-SW-RO- and P521-SHA512-SW-NU- are specified by
+
+- f: Shallue-van de Woestijne method, {{sw}}
+- Z: 1
+
+The suites P521-SHA512-SSWU-RO- and P521-SHA512-SSWU-NU- are specified by
+
+- f: Simplified SWU method, {{simple-swu}}
+- Z: -2
 
 ## Suites for curve25519 and edwards25519 {#suites-25519}
 
@@ -2325,7 +2343,7 @@ Optimized example implementations of the above mappings are given in
 
 ## Suites for SECP256K1 {#suites-secp256k1}
 
-The suites SECP256K1-SHA256-SVDW-RO- and SECP256K1-SHA256-SVDW-NU-
+The suites SECP256K1-SHA256-SW-RO- and SECP256K1-SHA256-SW-NU-
 are defined for the SECP256K1 elliptic curve {{SEC2}}.
 These suites share the following parameters:
 
@@ -2334,9 +2352,26 @@ These suites share the following parameters:
 - m: 1
 - H: SHA-256
 - L: 48
-- f: Shallue-van de Woestijne method, {{swpairing}}
+- f: Shallue-van de Woestijne method, {{sw}}
 - Z: 1
 - h\_eff: 1
+
+## Suites for BN256 {#suites-bn256}
+
+The suites BN256G1-SHA256-SW-RO- and BN256G1-SHA256-SW-NU-
+are defined for the G1 subgroup of the BN256 elliptic curve {{BN05}}.
+These suites share the following parameters:
+
+- E: y^2 = x^3 + 3
+- p: 36t^4 + 36t^3 + 24t^2 + 6t + 1, where t = 6518589491078791937.
+- m: 1
+- H: SHA-256
+- W: 2
+- f: Shallue-van de Woestijne method, {{sw}}
+- Z: 1
+- h\_eff: 1
+
+These parameters lead are equivalent to the construction given by Fouque-Tibouchi {{FT12}}.
 
 ## Suites for BLS12-381 {#suites-bls12381}
 

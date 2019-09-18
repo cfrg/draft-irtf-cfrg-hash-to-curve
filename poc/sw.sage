@@ -12,14 +12,14 @@ B = F(7)
 E = EllipticCurve(F, [A,B])
 Z = F(1)
 
-h2c_suite = "H2C-SECP256K1-SHA512-SVDW-"
+h2c_suite = "H2C-SECP256K1-SHA512-SW-"
 
 # Curve equation: y^2 = g(x) = x^3 + B
 def g(x):
     return F(x ** 3 + B)
 
 # Reference Implementation
-def svdw(alpha):
+def sw(alpha):
     u = h2b_from_label(h2c_suite, alpha)
 
     # handle exceptional case by computing inv0(u^2 * (u^2 + g(Z)))
@@ -66,7 +66,7 @@ G_Z = g(Z)
 assert g(CX1).is_square()
 
 # Constant Time Implementation
-def svdw_CT(alpha):
+def sw_CT(alpha):
     u = h2b_from_label(h2c_suite, alpha)
     tv("u ", u, 32)
 
@@ -121,7 +121,7 @@ def svdw_CT(alpha):
 
 if __name__ == "__main__":
     enable_debug()
-    print "## Shallue-van de Woestijne to Secp256k1"
+    print "## Shallue-van de Woestijne to SECP256k1"
     for alpha in map2curve_alphas:
         print "\n~~~"
         print("Input:")
@@ -130,7 +130,7 @@ if __name__ == "__main__":
         print("")
         print("Intermediate values:")
         print("")
-        pA, pB = svdw(alpha), svdw_CT(alpha)
+        pA, pB = sw(alpha), sw_CT(alpha)
         assert pA == pB
         print("")
         print("Output:")
