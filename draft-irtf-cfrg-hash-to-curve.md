@@ -1103,7 +1103,7 @@ As an example, consider a fictional key exchange protocol named Quux.
 A reasonable choice of tag is "QUUX-V\<xx\>-CS\<yy\>", where \<xx\> and \<yy\>
 are two-digit numbers indicating the version and ciphersuite, respectively.
 Alternatively, if a variable-length ciphersuite string must be used,
-a reasonable choice of tag is "QUUX-V\<xx\>-L\<zz\>-\<csid\>", 
+a reasonable choice of tag is "QUUX-V\<xx\>-L\<zz\>-\<csid\>",
  where \<csid\> is the ciphersuite string, and \<xx\> and \<zz\> are
 two-digit numbers indicating the version and the length of the ciphersuite
 string, respectively.
@@ -1344,7 +1344,7 @@ Parameters:
 - F, a finite field of characteristic p and order q = p^m.
 - L = ceil((ceil(log2(p)) + k) / 8), where k is the security
   parameter of the cryptosystem (e.g., k = 128).
-- HKDF-Extract and HKDF-Expand are as defined in RFC5869, 
+- HKDF-Extract and HKDF-Expand are as defined in RFC5869,
   instantiated with the hash function H.
 
 Inputs:
@@ -1435,70 +1435,6 @@ cases that result from attempting to compute the inverse of 0.
 
 The following mappings apply to elliptic curves defined by the equation
 E: y^2 = g(x) = x^3 + A * x + B, where 4 * A^3 + 27 * B^2 != 0.
-
-### Icart Method {#icart}
-
-The function map\_to\_curve\_icart(u) implements the Icart method from {{Icart09}}.
-
-Preconditions: An elliptic curve over F, such that p > 3 and q = p^m = 2 (mod 3), or
-p = 2 (mod 3) and odd m.
-
-Constants: A and B, the parameters of the Weierstrass curve.
-
-Sign of y: this mapping does not compute a square root, so there
-is no ambiguity regarding the sign of y.
-
-Exceptions: The only exceptional case is u == 0.
-Implementations MUST detect this case by testing whether u == 0
-and setting u = 1 if so.
-
-Operations:
-
-~~~
-1. If u == 0, set u = 1
-2. v = (3 * A - u^4) / (6 * u)
-3. w = (2 * p - 1) / 3          // Integer arithmetic
-4. x = (v^2 - B - (u^6 / 27))^w + (u^2 / 3)
-5. y = u * x + v
-6. return (x, y)
-~~~
-
-#### Implementation
-
-The following procedure implements Icart's algorithm in a straight-line fashion.
-
-~~~
-map_to_curve_icart(u)
-Input: u, an element of F.
-Output: (x, y), a point on E.
-
-Constants:
-1. c1 = (2 * p - 1) / 3   // Integer arithmetic
-2. c2 = 1 / 3
-3. c3 = c2^3
-4. c4 = 3 * A
-
-Steps:
-1.   e = u == 0
-2.   u = CMOV(u, 1, e)  // handle exceptional case u == 0
-3.  u2 = u^2            // u^2
-4.  u4 = u2^2           // u^4
-5.   v = c4 - u4        // 3 * A - u^4
-6.  t1 = 6 * u          // 6 * u
-7.  t1 = inv0(t1)       // 1 / (6 * u)
-8.   v = v * t1         // v = (3 * A - u^4) / (6 * u)
-9.   x = v^2            // v^2
-10.  x = x - B          // v^2 - B
-11. u6 = u4 * c3        // u^4 / 27
-12. u6 = u6 * u2        // u^6 / 27
-13.  x = x - u6         // v^2 - B - u^6 / 27
-14.  x = x^c1           // (v^2 - B - u^6 / 27)^(1 / 3)
-15. t1 = u2 * c2        // u^2 / 3
-16.  x = x + t1         // x = (v^2 - B - u^6 / 27)^(1 / 3) + (u^2 / 3)
-17.  y = u * x          // u * x
-18.  y = y + v          // y = u * x + v
-19. return (x, y)
-~~~
 
 ### Simplified Shallue-van de Woestijne-Ulas Method {#simple-swu}
 
@@ -2222,7 +2158,7 @@ These suites share the following parameters:
 
 ## Suites for NIST P-384 {#suites-p384}
 
-The suites P384-SHA512-ICART-RO- and P384-SHA512-ICART-NU-
+The suites P384-SHA512-SSWU-RO- and P384-SHA512-SSWU-NU-
 are defined for the NIST P-384 elliptic curve {{FIPS186-4}}.
 These suites share the following parameters:
 
@@ -2233,7 +2169,8 @@ These suites share the following parameters:
 - m: 1
 - H: SHA-512
 - L: 72
-- f: Icart's method, {{icart}}
+- f: Simplified SWU method, {{simple-swu}}
+- Z: -2
 - h\_eff: 1
 
 ## Suites for NIST P-521 {#suites-p521}
