@@ -1467,13 +1467,13 @@ implementations that use inv0 to invert this product are exception free.
 Operations:
 
 ~~~
-1.  t0 = u^2
-2.  t1 = t0 + c2
-3.  t2 = t0 - c2
-4.  t3 = inv0(t0 * t1)
-5.  x1 = c1 + c3 * t2 * t3 * t0
+1.  t1 = u^2
+2.  t2 = t1 + c2
+3.  t3 = t1 - c2
+4.  t4 = inv0(t1 * t2)
+5.  x1 = c1 + c3 * t3 * t4 * t1
 6.  x2 = - u - x1
-7.  x3 = u + c4 * t1^2 * t3 * t1
+7.  x3 = u + c4 * t2^2 * t4 * t2
 8.  If is_square(g(x1)), set x = x1 and y = sqrt(g(x1))
 9.  Else If is_square(g(x2)), set x = x2 and y = sqrt(g(x2))
 10. Else set x = x3 and y = sqrt(g(x3))
@@ -1498,21 +1498,21 @@ Constants:
 4. c4 = 1 / (4 * c3^2).
 
 Steps:
-1.   t0 = u^2
-2.   t1 = t0 + c2
-3.   t2 = t0 - c2
-4.   t3 = t0 * t1
-5.   t4 = inv0(t3)
-6.   x1 = c3 * t2
-7.   x1 = x1 * t4
-8.   x1 = x1 * t0
-9.   x1 = x1 + c1            // x1 = c1 + c3 * t2 * t3 * t0
+1.   t1 = u^2
+2.   t2 = t1 + c2
+3.   t3 = t1 - c2
+4.   t4 = t1 * t2
+5.   t5 = inv0(t4)
+6.   x1 = c3 * t3
+7.   x1 = x1 * t5
+8.   x1 = x1 * t1
+9.   x1 = x1 + c1            // x1 = c1 + c3 * t3 * t4 * t1
 10.  x2 = -u - x1            // x2 = -u - x1
-11.  x3 = t1 ^ 2
-12.  x3 = x3 * t4
-13.  x3 = x3 * t1
+11.  x3 = t2 ^ 2
+12.  x3 = x3 * t5
+13.  x3 = x3 * t2
 14.  x3 = x3 * c4
-15.  x3 = x3 + u             // x3 = u + c4 * t1^2 * t3 * t1
+15.  x3 = x3 + u             // x3 = u + c4 * t2^2 * t4 * t2
 16. gx1 = x1^2
 17. gx1 = gx1 + A
 18. gx1 = gx1 * x1
