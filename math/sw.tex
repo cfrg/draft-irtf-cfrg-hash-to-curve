@@ -1,0 +1,281 @@
+\documentclass[letterpaper,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{multicol}
+\usepackage{xcolor}
+\usepackage[margin=0.85in]{geometry}
+\usepackage[english]{babel}
+
+\usepackage[hidelinks]{hyperref}
+
+\author{Armando Faz-Hern\'andez}
+\title{Explicit Formulas of Shallue \& van de Woestijne Encoding}
+\date{Cloudflare Inc.}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+ This document shows explicit formulas for the construction proposed by Andrew Shallue and Christiaan van de Woestijne (SW)~\cite{SW}. We follow the Fouque-Tibouchi~\cite{ft2012} approach for deriving formulas for SW map without loss of generality.
+\end{abstract}
+
+\section{Definitions}
+Assume $\mathbb{F}$ is a finite field of characteristic larger than 5.
+
+Let $E_{A,B}$ be an elliptic curve in short Weierstrass form:
+\begin{equation}
+  E/\mathbb{F} \colon y^2 = f(x)= x^3+Ax+B 
+\end{equation}
+where $4A^3+27B^2\neq 0$.
+
+Let $V_{A,B}$ be an algebraic threefold defined as:
+\begin{equation}
+ V/\mathbb{F} \colon {x_4}^2 =  f(x_1) f(x_2) f(x_3)
+\end{equation}
+
+Let $S_{A,B}$ be a surface defined as:
+\begin{equation}
+ S/\mathbb{F} \colon \lambda^2 h(u,v)= -f(u)
+\end{equation}
+where $h(u,v) = u^2+uv+v^2+A$.
+
+
+Let $C_{a,b,c}$ be a non-degenerate curve defined as:
+\begin{equation}
+ C/\mathbb{F} \colon az^2+bw^2=c
+\end{equation}
+such that $a,b,c\neq 0$. Given the point $(z_0=\sqrt{\frac{c}{a}},0)\in C$, such that $\frac{c}{a}$ is a QR, the parametrization of the points on $C$ on variable $t$ is given as:
+\begin{equation}
+(z(t),w(t)) = \left( z_0+tw(t),-\dfrac{2az_0t}{at^2+b} \right) 
+\end{equation}
+Proof on Appendix~\ref{app:conic}.
+
+\subsection{Mappings}
+
+SW proved there exists a rational map that given a point in $S$ obtains a point in $V$.
+\begin{equation}
+ \begin{aligned}
+  \psi \colon S &\rightarrow V\\
+   (u,v,\lambda) &\mapsto (x_1,x_2,x_3,x_4)
+                 = \left(v , -u-v, u+\lambda^2, \frac{f(u+\lambda^ 2)h(u,v)}{\lambda}\right)
+ \end{aligned}
+\end{equation}
+This map is proved for any point $(u,v,\lambda)\in S$ such that $f(u)\neq 0$, which implies that $\lambda\neq 0$ and $h(u,v)\neq 0$.
+
+SW also showed how to construct a point in $S$ by transforming $S$ into a conic $C$ for which, a parametrization on variable $t$ is easy to find.
+Then, 
+\begin{equation}
+ \begin{aligned}
+  \phi \colon \mathbb{F} &\rightarrow S\\
+   t &\mapsto (u,v(t),\lambda(t))
+ \end{aligned}
+\end{equation}
+for some fixed $u$ such that $f(u)\neq 0$.
+
+
+\section{Mathematical Construction}
+
+The mapping $\mathbb{F}\overbrace{\rightarrow C\rightarrow}^\phi S \xrightarrow{\psi} V$ gives a point in $t\mapsto\psi(\phi(t))=(x_1,x_2,x_3,x_4)\in V$. Then, it is guaranteed that exists $i\in\{1,2,3\}$ such that $(x_i,y=\sqrt{f(x_i)})\in E$ is a point on the elliptic curve.
+\begin{itemize}
+ \item[Note 1.] The composition of each rational map require some conditions to hold.
+\item[Note 2.] There are different ways to convert $S$ into $C_{a,b,c}$.
+\item[Note 3.] The sign of $y$ must be explicitly chosen.
+\end{itemize}
+
+\section{Explicit Formulas}
+
+The purpose of this section is to obtain explicit formulas for $t\mapsto\psi(\phi(t))=(x_1,x_2,x_3,x_4)\in V$. 
+First, we need to determine $a,b,c$ of a curve $C_{a,b,c}$ given $S$. Second, we will obtain the explicit parametrization of $(z(t),w(t))\in C$. And finally, we will get  formulas for $\psi(\phi(t))\in V$.
+
+We followed the same approach as Fouque-Tibouchi~\cite{ft2012} (FT) for converting $S$ into a conic $C$ due to two reasons. It is expected that our derivation leads to the same formulas as the ones of FT when they are instantiated with a BN curve; and, the FT paper  already includes a detailed analysis of the image size of the map and the proofs that this encoding is admissible, which is required to get indifferentiability.
+\subsection{Defining $\phi$}
+Let $S$ as above, and fix $u\in\mathbb{F}$ as a variable subject to some restrictions given in the course of this description.
+Let's manipulate $S$ to transform it to a conic $C$.
+\begin{eqnarray*}
+\lambda^2(u^2+uv+v^2+A) &=& -f(u) \\
+ \lambda^2\left( \frac{3}{4}u^2 + \left(v+\frac{u}{2}\right)^2 \right) &=& -f(u)-A\lambda^2
+\end{eqnarray*}
+Define $z=v+\frac{u}{2}$ and $w=\frac{1}{\lambda}$, and replace them into the previous equation.
+\begin{eqnarray*}
+ \lambda^2\left(\frac{3}{4}u^2 + z^2\right)  &=& -f(u)-A\lambda^2 \\
+ \frac{3}{4}u^2 + z^2  &=& -\frac{f(u)}{\lambda^2}-A \\
+  z^2 + f(u) w^ 2  &=& -\left(\tfrac{3}{4}u^2+A\right)
+\end{eqnarray*}
+Hence, we have the shape of a curve $C$ with coefficients $a=1$, $b=f(u)$, and $c=-\left(\tfrac{3}{4}u^2+A\right)$. We want that $C$ be non-degenerated ($a,b,c\neq 0$), so \textcolor{red}{$f(u)\neq 0$} and \textcolor{red}{$3u^2+4A \neq 0$}.
+
+At this point, we have an explicit conic $C$. Now, we want to derive a parametrization of their points. To do that, we know there exists a point $(z_0=\sqrt{\frac{c}{a}},0)\in C$, iff $\frac{c}{a}$ is a QR. Thus, define $z_0=\sqrt{-\left(\tfrac{3}{4}u^2+A\right)} =\tfrac{1}{2}\sqrt{-(3u^2+4A)}$ and we must guarantee that there exists a $u$ such that \textcolor{red}{$-(3u^2+4A)$ is a QR}.
+
+The parametrization of $C$ is given as: $(z(t),w(t)) = \left( z_0+tw(t),-\frac{2az_0t}{at^2+b} \right)$, where
+\begin{eqnarray*}
+ w(t) &=& -\frac{2z_0t}{t^2+f(u)}\\
+ z(t) &=& z_0-\frac{2z_0t^2}{t^2+f(u)}
+\end{eqnarray*}
+
+Now, lets derive the explicit map $\phi$, which sends $ t \mapsto (u,v(t),\lambda(t))$ to a point in $S$. We know that $z=v+\tfrac{u}{2}$ and $w= \tfrac{1}{\lambda}$, lets solve these equations for $v(t)$ and $\lambda(t)$.
+\begin{eqnarray*}
+ v(t) &=&  z(t)-\frac{u}{2} = z_0-\frac{2z_0t^2}{t^2+f(u)}-\frac{u}{2}
+       =  -\frac{u}{2}-z_0\left(\frac{t^2-f(u)}{t^2+f(u)} \right) \\
+\lambda(t) &=& \frac{1}{w(t)} = -\frac{t^2+f(u)}{2z_0t} \\
+\end{eqnarray*}
+At this point, we require that both maps be defined, hence, we have:
+\begin{itemize}
+ \item $v(t)$ is defined when \textcolor{blue}{$t^2+f(u)\neq 0 $}.
+ \item Since $t^2+f(u)\neq 0 $, then $\lambda(t)\neq 0$.
+ \item $\lambda(t)$ is defined when $2z_0t\neq 0 $: We already know $z_0\neq 0$. So, we require \textcolor{blue}{$t\neq 0$}.
+\end{itemize}
+
+
+\subsection{Defining $\psi\circ\phi$}
+Now, lets derive the explicit map $\psi\circ\phi$, which sends $t\mapsto(x_1(t),x_2(t),x_3(t),x_4(t))\in V$ to a point in the treefold.
+\begin{equation}
+ \begin{aligned}
+ x_1(t) &= -\frac{u}{2}-z_0\left(\frac{t^2-f(u)}{t^2+f(u)} \right) \\
+ x_2(t) &= -u-x_1  \\
+ x_3(t) &=  u +\frac{1}{4{z_0}^2} \frac{\left(t^2+f(u)\right)^2}{t^2} 
+ \end{aligned}
+\end{equation}
+These equations gives three candidates to be the $x$-coordinate of a point on $E$, where the unique restrictions in the parameter $t$ are \textcolor{blue}{$t^2+f(u)\neq 0 $} and \textcolor{blue}{$t\neq 0 $}.
+
+\subsection{Solving the Map Exceptions}
+There exist some values $t$ such that violates the \textcolor{blue}{blue} restrictions. However, we want the hashing works for any $t\in\mathbb{F}$. To remedy that, we rely on the function
+\begin{equation}
+ \begin{aligned}
+\texttt{inv0}\colon \mathbb{F}&\rightarrow\mathbb{F}\\
+x&\mapsto 1/x \\
+0&\mapsto 0
+ \end{aligned}
+\end{equation}
+Then, we can apply \texttt{inv0} on the calculation of $x_i$, and observe its behaviour under all combinations of blue restrictions:
+\begin{center}
+\begin{tabular}{l|l|l}
+ $t^2+f(u)   = 0$ & $t\neq 0 $ & $x_1(t)=x_2(t)=-\frac{u}{2}\,,\;x_3(t)=u$ \\[7pt] \hline
+ $t^2+f(u)\neq 0$ & $t   = 0 $ & $x_1(t)=-\frac{u}{2}+z_0\,,\;x_2(t)=-\frac{u}{2}-z_0\,,\;x_3(t)=u$ \\[7pt] \hline
+ $t^2+f(u)   = 0$ & $t   = 0 $ & Can't happen, since $f(u)\neq0$. \\
+\end{tabular}
+\end{center}
+Also, it is easy to show that $f(-\frac{u}{2}+z_0) = f(u)$.
+Hence, by choosing $u$ such that \textcolor{red}{$f(u)$ is a QR}, it always returns a point in the curve for any $t\in\mathbb{F}$.
+
+\section{SW Algorithm}
+
+\subsection{Requirements}
+Given an elliptic curve $E_{A,B}/\mathbb{F}$, find $u$ under the following restrictions:
+\begin{itemize}
+\begin{multicols}{2}
+ \item $f(u)$ is a non-zero QR.
+ \item $-(3u^2+4A)$  is a non-zero QR.
+\end{multicols}
+\end{itemize}
+
+\subsection{Constants}
+Once such a $u$ was found, precompute the following constants.
+\begin{itemize}
+\begin{multicols}{2}
+ \item $c_0 = -u/2$
+ \item $c_1 = f(u) = u^3+Au+B$
+ \item $c_2 = -z_0 = -\frac{1}{2}\sqrt{-\left(3u^2+4A\right)}$
+ \item $c_3 = \dfrac{1}{4{z_0}^2} $ 
+\end{multicols}
+\end{itemize}
+
+\subsection{Implementation}
+Assuming these are operations on $\mathbb{F}$:
+\begin{itemize}
+\begin{multicols}{3}
+ \item \textbf{M} = multipication
+ \item \textbf{S} = squaring
+ \item \textbf{A} = addition/subtraction
+ \item \textbf{I} = Inverse
+ \item \textbf{E} = Exponentiation
+ \item \textbf{L} = Legendre symbol
+ \item \textbf{R} = square-root 
+\end{multicols}
+\end{itemize}
+The implementation of SW map takes 1\textbf{I}+2\textbf{L}+1\textbf{R}+10\textbf{M}+5\textbf{S}+9\textbf{A} field operations, which is around 4\textbf{E} field exponentiations.
+
+\begin{algorithm}[H]
+\caption{SW Map}
+  \begin{algorithmic}[1]
+  \small
+ \ENSURE $t\in \mathbb{F}$
+ \REQUIRE  $(x,y)\in E_{A,B}/\mathbb{F}$
+%  \begin{multicols}{1}
+ \STATE $t_0 \leftarrow t^2$
+ \STATE $t_1 \leftarrow t_0+c_1$
+ \STATE $t_2 \leftarrow t_0-c_1$
+ \STATE $t_3 \leftarrow t_0\times t_1$
+ \STATE $t_4 \leftarrow \text{inv0}(t_3)$
+ \STATE $x_1 \leftarrow c_0+c_2\times t_2\times t_4\times t_0$
+ \STATE $x_2 \leftarrow -u-x_1 $
+ \STATE $x_3 \leftarrow u+c_3\times {t_1}^2\times t_4\times t_1 $
+ \STATE $f_1 \leftarrow x_1\times({x_1}^2+A)+B$
+ \STATE $f_2 \leftarrow x_2\times({x_2}^2+A)+B$
+ \STATE $f_3 \leftarrow x_3\times({x_3}^2+A)+B$
+ \STATE $b_1\leftarrow 0$\,, $b_2\leftarrow 0$\,, $s\leftarrow 0$
+ \IF{$f_1$ is QR}
+    \STATE $b_1 \leftarrow 1$
+ \ENDIF
+ \IF{$f_2$ is QR} 
+    \STATE $b_2 \leftarrow 1$
+ \ENDIF
+ \STATE $x\leftarrow \textsc{cmov}(x_3,x_2,b_2)$
+ \STATE $x\leftarrow \textsc{cmov}(x,x_1,b_1)$
+ \STATE $f\leftarrow \textsc{cmov}(f_3,f_2,b_2)$
+ \STATE $f\leftarrow \textsc{cmov}(f,f_1,b_1)$
+ \STATE $y \leftarrow \sqrt{f} $
+ \IF{$\text{sgn0}(t) \neq \text{sgn0}(y) $}
+    \STATE $s\leftarrow 1$
+ \ENDIF
+ \STATE $y\leftarrow \textsc{cmov}(-y,y,s)$
+%  \end{multicols}
+ \RETURN $(x,y)$
+ \end{algorithmic}
+\end{algorithm}
+
+\section{Examples}
+
+\subsection{BN Curves}
+Setting $u=1$ for BN curves leads to Fouque-Tibouchi~\cite{ft2012} original formulas.
+
+\bibliographystyle{ieeetr}
+\bibliography{ecc.bib}
+
+\appendix
+\section{Parametrizing a Conic}
+\label{app:conic}
+
+We want to find a  parametrization of the points on $C$ on variable $t$.
+To do that, we intersect a line passing through $(z_0,w_0)$, this line has equation:
+\begin{equation}
+ z = t (w-w_0)+z_0
+\end{equation}
+with the slope $t$.
+It is clear that $(z_0=\sqrt{\frac{c}{a}},0)\in C$ is a point as long as $\frac{c}{a}$ be a QR. Then, the line equation passing through $(z_0,0)$ is $z=z_0+tw$.
+
+Now, we substitute $z$ into $C$ equation as follows:
+\begin{eqnarray*}
+ az^2+bw^2 = c\\
+ a(z_0+tw)^2+bw^2- c = 0 \\
+ a{z_0}^2+2a{z_0}tw+t^2w^2+bw^2 - c = 0
+\end{eqnarray*}
+Solving this equation for $w$, we have:
+\begin{eqnarray*}
+ a{z_0}^2+2a{z_0}tw+at^2w^2+bw^2 - c = 0 \\
+ w( at^2w+bw+2a{z_0}t)-c+a{z_0}^2 = 0 \\
+ w( at^2w+bw+2a{z_0}t)= 0 \\
+ w( w( at^2+b) + 2a{z_0}t)= 0 
+\end{eqnarray*}
+hence $w=0$ or $w = -\dfrac{2atz_0}{at^2+b}$.
+Finally, we have that
+\begin{equation}
+(z(t),w(t)) = \left( z_0+tw(t),-\dfrac{2atz_0}{at^2+b} \right)\in C 
+\end{equation}
+for $z_0=\sqrt{\frac{c}{a}}$ be a QR.
+\end{document}
+
+
