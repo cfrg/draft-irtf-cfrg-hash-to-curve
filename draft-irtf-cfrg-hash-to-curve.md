@@ -2403,6 +2403,18 @@ for random oracle encodings.
 
 {{hashtobase}} describes considerations for uniformly hashing to field elements.
 
+If the output of hash\_to\_base or any of its derived values is leaked, an adversary
+can perform dictionary and brute-force attacks on the password. In practice, this may
+happen when a device storing the hash\_to\_base or derived output is compromised. To
+mitigate these attacks, it is recommended to first execute a more costly key derivation
+function on the password and use the resulting output as the input to hash\_to_base.
+Example key derivation functions are PBKDF2 {{!RFC2898}} or scrypt {{!RFC7914}}.
+Care must be taken that the key derivation function offers collision resistance
+in line with the security level of the target curve or field. Generally, this means
+that the underlying hash function should output at least 2 * k bits, where k is the
+security level. For example, when using an elliptic curve that offers 224 bits of
+security, PBKDF2-HMAC-SHA512 would be an appropriate choice.
+
 # Acknowledgements
 
 The authors would like to thank Adam Langley for his detailed writeup up Elligator 2 with
