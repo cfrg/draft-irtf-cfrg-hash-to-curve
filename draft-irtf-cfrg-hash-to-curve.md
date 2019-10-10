@@ -2170,7 +2170,7 @@ These suites share the following parameters:
 - H: SHA-512
 - L: 72
 - f: Simplified SWU method, {{simple-swu}}
-- Z: -2
+- Z: -1
 - h\_eff: 1
 
 ## Suites for NIST P-521 {#suites-p521}
