@@ -798,6 +798,25 @@ informative:
         org: The Sage Developers
     target: https://www.sagemath.org
     date: 2019
+  LBB19:
+    title: A Mechanised Proof of the WireGuard Virtual Private Network Protocol
+    seriesinfo:
+        "In": INRIA Research Report No. 9269
+    target: https://hal.inria.fr/hal-02100345/
+    date: Apr, 2019
+    author:
+      -
+        ins: B. Lipp
+        name: Benjamin Lipp
+        org: INRIA Paris
+      -
+        ins: B. Blanchet
+        name: Bruno Blanchet
+        org: INRIA Paris
+      -
+        ins: K. Bhargavan
+        name: Karthikeyan Bhargavan
+        org: INRIA Paris
 
 --- abstract
 
@@ -1068,47 +1087,35 @@ algorithms.
 
 ## Domain separation requirements {#domain-separation}
 
-When invoking hash\_to\_curve from a higher-level protocol, implementors MUST use domain separation
-({{term-domain-separation}}) to avoid interfering with other protocols
-that also use the hash\_to\_curve functionality.
-Protocols that use encode\_to\_curve SHOULD use domain separation
-if possible, though it is not required in this case.
+When invoking hash\_to\_curve or encode\_to\_curve from a higher-level protocol,
+implementors MUST always use domain separation ({{term-domain-separation}}) to
+avoid interfering with other protocols that also use the same functionality.
 
-Protocols that instantiate multiple, independent random
-oracles based on hash\_to\_curve MUST enforce domain separation between
-those oracles.
-This requirement applies both in the case of multiple oracles to the same curve
-and in the case of multiple oracles to different curves.
-This is because the hash\_to\_base primitive ({{hashtobase}}) requires
-domain separation to guarantee independent outputs.
+Protocols that instantiate multiple, independent hash functions based on
+either hash\_to\_curve or encode\_to\_curve MUST enforce domain separation
+between those hash functions.
+This requirement applies both in the case of multiple hashes to the same
+curve and in the case of multiple hashes to different curves.
+(This is because the hash\_to\_base primitive ({{hashtobase}}) requires
+domain separation to guarantee independent outputs.)
 
 Care is required when choosing a domain separation tag.
-Implementors SHOULD observe the following guidelines:
+Implementors MUST observe the following guidelines:
 
-1. Tags should be prepended to the value being hashed, as in the example
-   in {{term-domain-separation}}.
+1. Tags must be supplied as the DST parameter to hash\_to\_base, as
+   described in {{hashtobase}}.
 
-2. Tags should have fixed length, or should be encoded in a way that makes
-   the length of a given tag unambiguous.
-   If a variable-length tag is used, it should be prefixed with a
-   fixed-length field that encodes the length of the tag.
+2. Tags should begin with a fixed protocol identification string.
+   This identification string should be unique to the protocol.
 
-3. Tags should begin with a fixed protocol identification string.
-   Ideally, this identification string should be unique to the protocol.
+3. Tags should include a protocol version number.
 
-4. Tags should include a protocol version number.
-
-5. For protocols that support multiple ciphersuites, tags should include
+4. For protocols that support multiple ciphersuites, tags must include
    a ciphersuite identifier.
 
 As an example, consider a fictional key exchange protocol named Quux.
 A reasonable choice of tag is "QUUX-V\<xx\>-CS\<yy\>", where \<xx\> and \<yy\>
 are two-digit numbers indicating the version and ciphersuite, respectively.
-Alternatively, if a variable-length ciphersuite string must be used,
-a reasonable choice of tag is "QUUX-V\<xx\>-L\<zz\>-\<csid\>",
- where \<csid\> is the ciphersuite string, and \<xx\> and \<zz\> are
-two-digit numbers indicating the version and the length of the ciphersuite
-string, respectively.
 
 As another example, consider a fictional protocol named Baz that requires
 two independent random oracles, where one oracle outputs points on the curve E1
@@ -1274,17 +1281,17 @@ a cryptographic hash function H which satisfies the following properties:
 1. The number of bits output by H should be b >= 2 * k for sufficient collision
 resistance, where k is the target security level in bits. (This is needed for a
 birthday bound of approximately 2^(-k).)
-2. H is modeled as a random oracle, so its output must be indistinguishable
-from a uniformly random bit string.
+2. H is modeled as a random oracle, so it should be chosen such that its output
+is plausibly indistinguishable from a uniformly random bit string.
 
 For example, for 128-bit security, b >= 256 bits; in this case, SHA256 would
 be an appropriate choice for H.
 
 Ensuring that the hash\_to\_base output is a uniform random element of F requires
-care, even when H outputs a uniformly random string. For example,
+care, even when H is modeled as a random oracle. For example,
 if H is SHA256 and F is a field of characteristic p = 2^255 - 19, then the
 result of reducing H(msg) (a 256-bit integer) modulo p is slightly more likely
-to be in \[0, 38\] than if the value were selected uniformly at random.
+to be in \[0, 37\] than if the value were selected uniformly at random.
 In this example the bias is negligible, but in general it can be significant.
 
 To control bias, the input msg should be hashed to an integer comprising at
@@ -1295,12 +1302,18 @@ msg to a L-byte string, where L = ceil((ceil(log2(p)) + k) / 8); this
 string is then interpreted as an integer via OS2IP {{RFC8017}}. For example,
 for p a 255-bit prime and k = 128-bit security, L = ceil((255 + 128) / 8) = 48 bytes.
 
+Finally, hash\_to\_base sets the input to HKDF to H(msg) rather than to msg.
+This ensures that the use of HKDF in hash\_to\_base is indifferentiable
+from a random oracle (see {{LBB19}}, Appx. A.2).
+(In particular, as long as the output length of H is greater than 48
+bits---which will always be true in practice---the inputs to HKDF-Extract
+and HKDF-Expand are guaranteed to be disjoint, since they are of different
+lengths.)
+
 {{domain-separation}} discusses requirements for domain separation and
 recommendations for choosing domain separation tags. The hash\_to\_curve
-function takes such a tag as a parameter, DST; this is the recommended
-way of applying domain separation. As an alternative, implementations MAY
-instead prepend a domain separation tag to the input msg; in this case,
-DST SHOULD be the empty string.
+function takes such a tag as a parameter, DST; this is the REQUIRED
+method for applying domain separation.
 
 {{hashtobase-impl}} details the hash\_to\_base procedure.
 
@@ -1320,7 +1333,7 @@ is a negligible overhead in the context of hashing to elliptic curves.
 
 A related issue is that the random oracle construction described in {{roadmap}}
 requires evaluating two independent hash functions H0 and H1 on msg.
-A standard way to instantiate independent hashes is to append a counter to
+One way to instantiate independent hashes is to append a counter to
 the value being hashed, e.g., H(msg || 0) and H(msg || 1).
 If msg is long, however, this is either inefficient (because it entails hashing
 msg twice) or requires non-black-box use of H (e.g., partial evaluation).
@@ -1332,6 +1345,9 @@ ctr values both start with identical invocations of HKDF-Extract.
 This is an improvement because it allows sharing one evaluation of HKDF-Extract
 among multiple invocations of hash\_to\_base, i.e., by factoring out the common
 computation.
+Moreover, since HKDF-Expand operates on H(msg) rather than msg, applications
+that have already computed H(msg) for other purposes can use this pre-computed
+value when invoking HKDF-Expand.
 
 ## Implementation {#hashtobase-impl}
 
@@ -1344,6 +1360,8 @@ Parameters:
 - DST, a domain separation tag (see discussion above).
 - H, a cryptographic hash function.
 - F, a finite field of characteristic p and order q = p^m.
+- p, the characteristic of F (see immediately above).
+- m, the extension degree of F (see immediately above).
 - L = ceil((ceil(log2(p)) + k) / 8), where k is the security
   parameter of the cryptosystem (e.g., k = 128).
 - HKDF-Extract and HKDF-Expand are as defined in RFC5869,
@@ -1359,14 +1377,15 @@ Output:
 - u, an element in F.
 
 Steps:
-1. msg_prime = HKDF-Extract(DST, msg)
-2. info_pfx = "H2C" || I2OSP(ctr, 1)   // "H2C" is a 3-byte ASCII string
-3. for i in (1, ..., m):
-4.   info = info_pfx || I2OSP(i, 1)
-5.   t = HKDF-Expand(msg_prime, info, L)
-6.   e_i = OS2IP(t) mod p
-7. u = (e_1, ..., e_m)
-8. return u
+1. msg_hashed = H(msg)
+2. msg_prime = HKDF-Extract(DST, msg_hashed)
+3. info_pfx = "H2C" || I2OSP(ctr, 1)   // "H2C" is a 3-byte ASCII string
+4. for i in (1, ..., m):
+5.   info = info_pfx || I2OSP(i, 1)
+6.   t = HKDF-Expand(msg_prime, info, L)
+7.   e_i = OS2IP(t) mod p
+8. u = (e_1, ..., e_m)
+9. return u
 ~~~
 
 # Deterministic Mappings  {#mappings}
