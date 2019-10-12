@@ -2363,9 +2363,10 @@ for random oracle encodings.
 
 # Acknowledgements
 
-The authors would like to thank Adam Langley for his detailed writeup up Elligator 2 with
-Curve25519 {{L13}}. We also thank Sean Devlin and Thomas Icart for feedback on
-earlier versions of this document.
+The authors would like to thank Adam Langley for his detailed writeup of Elligator 2 with
+Curve25519 {{L13}};
+Chris Patton for educational discussions on the security of domain separation; and
+Sean Devlin, Justin Drake, Dan Harkins, and Thomas Icart for their careful feedback.
 
 # Contributors
 
