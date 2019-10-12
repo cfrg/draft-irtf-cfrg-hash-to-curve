@@ -976,7 +976,7 @@ construction is distinguishable from uniformly random, i.e., it does
 not behave like a random oracle.
 
 Brier et al. {{BCIMRT10}} describe two generic constructions whose outputs are
-indistinguishable from a random oracle. Farashahi et al. {{FFSTV13}} and
+indifferentiable from a random oracle. Farashahi et al. {{FFSTV13}} and
 Tibouchi and Kim {{TK17}} refine the analysis of one of these constructions.
 That construction is described in {{roadmap}}.
 
@@ -1061,8 +1061,8 @@ Steps:
 ~~~
 
 -   Random oracle encoding (hash\_to\_curve). This function encodes bit strings to points in G.
-    The distribution of the output is indistinguishable from uniformly random
-    in G provided that map\_to\_curve is "well distributed" ({{FFSTV13}}, Def. 1).
+    This function is suitable for applications requiring a random oracle to G, provided that
+    map\_to\_curve is "well distributed" ({{FFSTV13}}, Def. 1).
     All of the map\_to\_curve functions defined in {{mappings}} meet this requirement.
 
 ~~~
