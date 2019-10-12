@@ -828,6 +828,12 @@ We provide implementation details for each algorithm, describe
 the security rationale behind each recommendation, and give guidance for
 elliptic curves that are not explicitly covered.
 
+This document does not cover rejection sampling methods, sometimes known
+as "try-and-increment" or "hunt-and-peck," because the goal is to describe
+algorithms that can plausibly be made constant time. Use of these rejection
+methods is NOT RECOMMENDED, because they have been a perennial cause of
+side-channel vulnerabilities.
+
 ## Requirements
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
