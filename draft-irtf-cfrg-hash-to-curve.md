@@ -2101,7 +2101,10 @@ In addition to the above parameters, the mapping f may require
 additional parameters Z, M, rational\_map, E', and/or iso\_map.
 These MUST be specified when applicable.
 
-Applications whose security requires a random oracle MUST use
+All applications MUST choose a domain separation tag (DST)
+for use with hash\_to\_base ({{hashtobase}}), in accordance with the
+guidelines of {{domain-separation}}.
+In addition, applications whose security requires a random oracle MUST use
 a suite specifying hash\_to\_curve ({{roadmap}}); see {{suiteIDformat}}.
 
 When standardizing a new elliptic curve, corresponding hash-to-curve
