@@ -2364,12 +2364,21 @@ for random oracle encodings.
 
 {{hashtobase}} describes considerations for uniformly hashing to field elements.
 
+When hashing passwords using any function described in this document, an adversary
+who learns the output of the hash function (or potentially any intermediate value,
+e.g., the output of hash\_to\_base) may be able to carry out a dictionary attack.
+To mitigate such attacks, it is recommended to first execute a more costly key
+derivation function (e.g., scrypt {{!RFC7914}}) on the password, then hash the
+output of that function to the target elliptic curve.
+For collision resistance, the hash underlying the key derivation function
+should be chosen according to the guidelines listed in {{hashtobase-sec}}.
+
 # Acknowledgements
 
 The authors would like to thank Adam Langley for his detailed writeup of Elligator 2 with
 Curve25519 {{L13}};
 Chris Patton for educational discussions on the security of domain separation; and
-Sean Devlin, Justin Drake, Dan Harkins, and Thomas Icart for their careful feedback.
+Sean Devlin, Justin Drake, Dan Harkins, Thomas Icart, and Mathy Vanhoef for helpful feedback.
 
 # Contributors
 
