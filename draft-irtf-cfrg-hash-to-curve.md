@@ -1132,26 +1132,29 @@ Implementors MUST observe the following guidelines:
 1. Tags must be supplied as the DST parameter to hash\_to\_base, as
    described in {{hashtobase}}.
 
-2. Tags should begin with a fixed protocol identification string.
+2. Tags must begin with a fixed protocol identification string.
    This identification string should be unique to the protocol.
 
-3. Tags should include a protocol version number.
+3. Tags must include a protocol version number.
 
-4. For protocols that support multiple ciphersuites, tags must include
-   a ciphersuite identifier.
+4. For protocols that define multiple ciphersuites, each ciphersuite's
+   tag must be different. For this purpose, it is recommended to
+   include a ciphersuite identifier in each tag.
 
-As an example, consider a fictional key exchange protocol named Quux.
+5. For protocols that use multiple encodings, either to the same curve
+   or to different curves, each encoding must use a different tag.
+
+As an example, consider a fictional key exchange protocol named Quux
+that defines several different ciphersuites.
 A reasonable choice of tag is "QUUX-V\<xx\>-CS\<yy\>", where \<xx\> and \<yy\>
 are two-digit numbers indicating the version and ciphersuite, respectively.
 
 As another example, consider a fictional protocol named Baz that requires
-two independent random oracles, where one oracle outputs points on the curve E1
-and the other outputs points on the curve E2.
-To ensure that these two random oracles are independent, each one must be
-called with a distinct domain separation tag.
+two independent random oracles, where one oracle outputs points on the curve
+E1 and the other outputs points on the curve E2.
 Reasonable choices of tags for the E1 and E2 oracles are
 "BAZ-V\<xx\>-CS\<yy\>-E1" and "BAZ-V\<xx\>-CS\<yy\>-E2", respectively,
-where \<xx\> and \<yy\> are as defined above.
+where \<xx\> and \<yy\> are as described above.
 
 # Utility Functions {#utility}
 
