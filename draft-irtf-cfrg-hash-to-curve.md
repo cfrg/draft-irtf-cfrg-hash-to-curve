@@ -817,6 +817,31 @@ informative:
         ins: K. Bhargavan
         name: Karthikeyan Bhargavan
         org: INRIA Paris
+  DRST12:
+    title: "To hash or not to hash again? (In)differentiability results for H^2 and HMAC"
+    seriesinfo:
+      "In": Advances in Cryptology - CRYPTO 2012
+      "pages": 348-366
+      DOI: 10.1007/978-3-642-32009-5_21
+    target: https://doi.org/10.1007/978-3-642-32009-5_21
+    date: Aug, 2012
+    author:
+      -
+        ins: Y. Dodis
+        name: Yevgeniy Dodis
+        org: New York University
+      -
+        ins: T. Ristenpart
+        name: Thomas Ristenpart
+        org: University of Wisconsin-Madison
+      -
+        ins: J. Steinberger
+        name: John Steinberger
+        org: Tsinghua University
+      -
+        ins: S. Tessaro
+        name: Stefano Tessaro
+        org: Massachusetts Institute of Technology
 
 --- abstract
 
@@ -976,8 +1001,10 @@ construction is distinguishable from uniformly random, i.e., it does
 not behave like a random oracle.
 
 Brier et al. {{BCIMRT10}} describe two generic constructions whose outputs are
-indifferentiable from a random oracle. Farashahi et al. {{FFSTV13}} and
-Tibouchi and Kim {{TK17}} refine the analysis of one of these constructions.
+indifferentiable from a random oracle when the constructions are instantiated
+with appropriate hash functions modeled as random oracles.
+Farashahi et al. {{FFSTV13}} and Tibouchi and Kim {{TK17}} refine the analysis
+of one of these constructions.
 That construction is described in {{roadmap}}.
 
 ### Serialization {#term-serialization}
@@ -1061,8 +1088,8 @@ Steps:
 ~~~
 
 -   Random oracle encoding (hash\_to\_curve). This function encodes bit strings to points in G.
-    This function is suitable for applications requiring a random oracle to G, provided that
-    map\_to\_curve is "well distributed" ({{FFSTV13}}, Def. 1).
+    This function is suitable for applications requiring a random oracle returning points in G,
+    provided that map\_to\_curve is "well distributed" ({{FFSTV13}}, Def. 1).
     All of the map\_to\_curve functions defined in {{mappings}} meet this requirement.
 
 ~~~
@@ -1281,8 +1308,8 @@ a cryptographic hash function H which satisfies the following properties:
 1. The number of bits output by H should be b >= 2 * k for sufficient collision
 resistance, where k is the target security level in bits. (This is needed for a
 birthday bound of approximately 2^(-k).)
-2. H is modeled as a random oracle, so it should be chosen such that its output
-is plausibly indistinguishable from a uniformly random bit string.
+2. H is modeled as a random oracle, so care should be taken when instantiating it.
+Hash functions in the SHA-2 and SHA-3 families are typical and RECOMMENDED choices.
 
 For example, for 128-bit security, b >= 256 bits; in this case, SHA256 would
 be an appropriate choice for H.
@@ -1304,11 +1331,11 @@ for p a 255-bit prime and k = 128-bit security, L = ceil((255 + 128) / 8) = 48 b
 
 Finally, hash\_to\_base sets the input to HKDF to H(msg) rather than to msg.
 This ensures that the use of HKDF in hash\_to\_base is indifferentiable
-from a random oracle (see {{LBB19}}, Appx. A.2).
+from a random oracle (see {{LBB19}}, Lemma 8 and {{DRST12}}, Theorems 4.3 and 4.4).
 (In particular, as long as the output length of H is greater than 48
-bits---which will always be true in practice---the inputs to HKDF-Extract
-and HKDF-Expand are guaranteed to be disjoint, since they are of different
-lengths.)
+bits---which will always be true in practice---the inputs to the HMAC
+invocations inside HKDF-Extract and HKDF-Expand are guaranteed to be
+disjoint, since they are of different lengths.)
 
 {{domain-separation}} discusses requirements for domain separation and
 recommendations for choosing domain separation tags. The hash\_to\_curve
@@ -2377,7 +2404,7 @@ should be chosen according to the guidelines listed in {{hashtobase-sec}}.
 
 The authors would like to thank Adam Langley for his detailed writeup of Elligator 2 with
 Curve25519 {{L13}};
-Chris Patton for educational discussions on the security of domain separation; and
+Christopher Patton for educational discussions on the security of domain separation; and
 Sean Devlin, Justin Drake, Dan Harkins, Thomas Icart, and Mathy Vanhoef for helpful feedback.
 
 # Contributors
