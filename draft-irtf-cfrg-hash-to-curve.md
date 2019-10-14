@@ -1229,69 +1229,9 @@ is_square(x) := { True,  if x^((q - 1) / 2) is 0 or 1 in F;
 
     The preferred way of computing square roots is to fix a deterministic
     algorithm particular to F. We give algorithms for the three most common
-    cases immediately below; other cases are analogous.
-
-    Note that Case 3 below applies to GF(p^2) when p = 3 (mod 8).
-    {{AR13}} and {{S85}} describe methods that work for other field extensions.
-    Regardless of the method chosen, the sqrt function MUST be performed in
-    constant time.
-
-~~~
-s = sqrt(x)
-
-Parameters:
-- F, a finite field of characteristic p and order q = p^m, m >= 1.
-
-Input: x, an element of F.
-Output: s, an element of F such that (s^2) == x.
-
-======
-
-Case 1: q = 3 (mod 4)
-
-Constants:
-1. c1 = (q + 1) / 4     // Integer arithmetic
-
-Procedure:
-1. return x^c1
-
-======
-
-Case 2: q = 5 (mod 8)
-
-Constants:
-1. c1 = sqrt(-1) in F, i.e., (c1^2) == -1 in F
-2. c2 = (q + 3) / 8     // Integer arithmetic
-
-Procedure:
-1. t1 = x^c2
-2.  e = (t1^2) == x
-3.  s = CMOV(t1 * c1, t1, e)
-3. return s
-
-======
-
-Case 3: q = 9 (mod 16)
-
-Constants:
-1. c1 = sqrt(-1) in F, i.e., (c1^2) == -1 in F
-2. c2 = sqrt(c1) in F, i.e., (c2^2) == c1 in F
-3. c3 = sqrt(-c1) in F, i.e., (c3^2) == -c1 in F
-4. c4 = (q + 7) / 16    // Integer arithmetic
-
-Procedure:
-1.  t1 = x^c4
-2.  t2 = c1 * t1
-3.  t3 = c2 * t1
-4.  t4 = c3 * t1
-5.  e1 = (t2^2) == x
-6.  e2 = (t3^2) == x
-7.  t1 = CMOV(t1, t2, e1)  // Select t2 if (t2^2) == x
-8.  t2 = CMOV(t4, t3, e2)  // Select t3 if (t3^2) == x
-9.  e3 = (t2^2) == x
-10.  s = CMOV(t1, t2, e3)  // Select the sqrt from t1 and t2
-11. return s
-~~~
+    cases in {{sqrt-variants}}.
+    Regardless of the method chosen, the sqrt function should be implemented
+    in a way that resists timing side channels, i.e., in constant time.
 
 -   sgn0(x): This function returns either +1 or -1 indicating the "sign" of x,
     where sgn0(x) == -1 just when x is "negative".
@@ -1399,6 +1339,91 @@ Steps:
 4.   sign_i = CMOV(sign_i, 0, x_i == 0)
 5.   sign = CMOV(sign, sign_i, sign == 0)
 6. return CMOV(sign, 1, sign == 0)     // regard x == 0 as positive
+~~~
+
+## sqrt variants {#sqrt-variants}
+
+This section defines sqrt for the three most common cases:
+p = 3 (mod 4), p = 5 (mod 8), and p = 9 (mod 16).
+
+### p = 3 mod 4 {#sqrt-3mod4}
+
+~~~
+sqrt_3mod4(x)
+
+Parameters:
+- F, a finite field of characteristic p and order q = p^m.
+- p, the characteristic of F (see immediately above).
+- m, the extension degree of F, m >= 1 (see immediately above).
+
+Input: x, an element of F.
+Output: s, an element of F such that (s^2) == x.
+
+Constants:
+1. c1 = (q + 1) / 4     // Integer arithmetic
+
+Procedure:
+1. return x^c1
+~~~
+
+### p = 5 mod 8 {#sqrt-5mod8}
+
+~~~
+sqrt_5mod8(x)
+
+Parameters:
+- F, a finite field of characteristic p and order q = p^m.
+- p, the characteristic of F (see immediately above).
+- m, the extension degree of F, m >= 1 (see immediately above).
+
+Input: x, an element of F.
+Output: s, an element of F such that (s^2) == x.
+
+Constants:
+1. c1 = sqrt(-1) in F, i.e., (c1^2) == -1 in F
+2. c2 = (q + 3) / 8     // Integer arithmetic
+
+Procedure:
+1. t1 = x^c2
+2.  e = (t1^2) == x
+3.  s = CMOV(t1 * c1, t1, e)
+3. return s
+~~~
+
+### p = 9 mod 16 {#sqrt-9mod16}
+
+Note that this case also applies to GF(p^2) when p = 3 (mod 8).
+{{AR13}} and {{S85}} describe methods that work for other field extensions.
+
+~~~
+sqrt_9mod16(x)
+
+Parameters:
+- F, a finite field of characteristic p and order q = p^m.
+- p, the characteristic of F (see immediately above).
+- m, the extension degree of F, m >= 1 (see immediately above).
+
+Input: x, an element of F.
+Output: s, an element of F such that (s^2) == x.
+
+Constants:
+1. c1 = sqrt(-1) in F, i.e., (c1^2) == -1 in F
+2. c2 = sqrt(c1) in F, i.e., (c2^2) == c1 in F
+3. c3 = sqrt(-c1) in F, i.e., (c3^2) == -c1 in F
+4. c4 = (q + 7) / 16    // Integer arithmetic
+
+Procedure:
+1.  t1 = x^c4
+2.  t2 = c1 * t1
+3.  t3 = c2 * t1
+4.  t4 = c3 * t1
+5.  e1 = (t2^2) == x
+6.  e2 = (t3^2) == x
+7.  t1 = CMOV(t1, t2, e1)  // Select t2 if (t2^2) == x
+8.  t2 = CMOV(t4, t3, e2)  // Select t3 if (t3^2) == x
+9.  e3 = (t2^2) == x
+10.  s = CMOV(t1, t2, e3)  // Select the sqrt from t1 and t2
+11. return s
 ~~~
 
 # Hashing to a Finite Field {#hashtobase}
@@ -1512,7 +1537,7 @@ Steps:
 3. for i in (1, ..., m):
 4.   info = info_pfx || I2OSP(i, 1)
 5.   t = HKDF-Expand(msg_prime, info, L)
-6.   e_i = OS2IP(t) (mod p)
+6.   e_i = OS2IP(t) mod p
 7. u = (e_1, ..., e_m)
 8. return u
 ~~~
