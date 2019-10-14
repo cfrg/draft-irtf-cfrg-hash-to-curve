@@ -871,6 +871,13 @@ informative:
         ins: R. S. Wahby
         name: Riad S. Wahby
         org: Stanford University
+  p1363a:
+    title: "IEEE Standard Specifications for Public-Key Cryptography---Amendment 1: Additional Techniques"
+    target: https://standards.ieee.org/standard/1363a-2004.html
+    date: March, 2004
+    author:
+      -
+        org: IEEE Computer Society
 
 --- abstract
 
@@ -1287,16 +1294,62 @@ Procedure:
 ~~~
 
 -   sgn0(x): This function returns either +1 or -1 indicating the "sign" of x,
-    where sgn0(x) == -1 just when x is lexically greater than -x.
-    Thus, this function considers 0 to be positive.
-    The following procedure implements sgn0(x) in constant time.
-    See {{bg-curves}} for a discussion of representing x as a vector.
+    where sgn0(x) == -1 just when x is "negative".
+    In other words, this function always considers 0 to be positive.
+    This function may be implemented in multiple ways; {{sgn0-variants}} defines two variants.
+    Throughout the document, sgn0 is used generically to mean either of these variants.
+    Each suite in {{suites}} specifies the sgn0 variant to be used.
+
+-   abs(x): The absolute value of x is defined in terms of sgn0
+    in the natural way, namely, abs(x) := sgn0(x) * x.
+
+-   inv0(x): This function returns the multiplicative inverse of x in F,
+    extended to all of F by fixing inv0(0) == 0.
+    To implement inv0 in constant time, compute inv0(x) := x^(q - 2).
+    Notice on input 0, the output is 0 as required.
+
+-   I2OSP and OS2IP: These functions are used to convert an octet string to
+    and from a non-negative integer as described in {{RFC8017}}.
+
+-   a \|\| b: denotes the concatenation of bit strings a and b.
+
+## sgn0 variants {#sgn0-variants}
+
+This section defines two ways of determining the "sign" of an element of F.
+The variant that should be used is a matter of convention.
+Other sgn0 variants are possible, but the two given below appear to cover
+all commonly used notions of sign.
+
+It is recommended to select the variant that matches the point decompression
+method of the target curve.
+In particular, since point decompression requires computing a square root
+and then choosing the sign of the resulting point, all decompression methods
+specify, implicitly or explicitly, a method for determining the sign of an
+element of F.
+It is convenient for hash-to-curve and decompression to agree on a notion of
+sign, since this potentially allows for simpler implementations.
+
+See {{bg-curves}} for a discussion of representing x as a vector; this
+representation is used in both of the variants immediately below.
+
+### Big endian variant {#sgn0-be}
+
+The following sgn0 variant is defined such that sgn0\_be(x) = -1
+just when the big-endian encoding of x is lexically greater than
+the encoding of -x.
+
+This variant is convenient when points are serialized
+in big-endian byte order, or when points are serialized
+according to IEEE 1363a-2004 {{p1363a}} and the extension
+degree of F is greater than 1.
 
 ~~~
-sgn0(x)
+sgn0_be(x)
 
 Parameters:
-- F, a finite field of characteristic p and order q = p^m, m >= 1.
+- F, a finite field of characteristic p and order q = p^m.
+- p, the characteristic of F (see immediately above).
+- m, the extension degree of F, m >= 1 (see immediately above).
 
 Input: x, an element of F.
 Output: -1 or 1 (an integer).
@@ -1312,18 +1365,41 @@ Steps:
 6. return CMOV(sign, 1, sign == 0)    // Regard x == 0 as positive
 ~~~
 
--   abs(x): The absolute value of x is defined in terms of sgn0
-    in the natural way, namely, abs(x) := sgn0(x) * x.
+### Little endian variant {#sgn0-le}
 
--   inv0(x): This function returns the multiplicative inverse of x in F,
-    extended to all of F by fixing inv0(0) == 0.
-    To implement inv0 in constant time, compute inv0(x) := x^(q - 2).
-    Notice on input 0, the output is 0 as required.
+The following sgn0 variant is defined such that sgn0\_le(x) = -1
+just when the parity of the least significant nonzero entry of the
+vector representation of x is 1.
 
--   I2OSP and OS2IP: These functions are used to convert an octet string to
-    and from a non-negative integer as described in {{RFC8017}}.
+This variant is convenient when points are serialized
+in little-endian byte order.
+For example, this serialization is specified for the
+Ed25519 and Ed448 elliptic curves {{!RFC8032}}.
+This variant is also convenient when points are serialized
+according to IEEE 1363a-2004 {{p1363a}} and the extension
+degree of F is exactly 1.
 
--   a \|\| b: denotes the concatenation of bit strings a and b.
+~~~
+sgn0_le(x)
+
+Parameters:
+- F, a finite field of characteristic p and order q = p^m.
+- p, the characteristic of F (see immediately above).
+- m, the extension degree of F, m >= 1 (see immediately above).
+
+Input: x, an element of F.
+Output: -1 or 1 (an integer).
+
+Notation: x_i is the i^th element of the vector representation of x.
+
+Steps:
+1. sign = 0
+2. for i in (1, 2, ..., m):
+3.   sign_i = CMOV(1, -1, x_i mod 2 == 1)
+4.   sign_i = CMOV(sign_i, 0, x_i == 0)
+5.   sign = CMOV(sign, sign_i, sign == 0)
+6. return CMOV(sign, 1, sign == 0)     // regard x == 0 as positive
+~~~
 
 # Hashing to a Finite Field {#hashtobase}
 
@@ -1415,7 +1491,7 @@ Parameters:
 - H, a cryptographic hash function.
 - F, a finite field of characteristic p and order q = p^m.
 - p, the characteristic of F (see immediately above).
-- m, the extension degree of F (see immediately above).
+- m, the extension degree of F, m >= 1 (see immediately above).
 - L = ceil((ceil(log2(p)) + k) / 8), where k is the security
   parameter of the cryptosystem (e.g., k = 128).
 - HKDF-Extract and HKDF-Expand are as defined in RFC5869,
