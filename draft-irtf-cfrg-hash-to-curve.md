@@ -930,11 +930,14 @@ For further reference on elliptic curves, consult {{CFADLNV05}} or {{W08}}.
 
 Let F be the finite field GF(q) of prime characteristic p. In most cases F
 is a prime field, so q = p. Otherwise, F is a field extension, so q = p^m for
-an integer m > 1. This document assumes that elements of field extensions
-are written in a primitive element or polynomial basis, i.e., as
-of m elements of GF(p) written in ascending order
-by degree. For example, if q = p^2 and the primitive element basis is {1, i},
-then the vector (a, b) corresponds to the element a + b * i.
+an integer m > 1. This document writes elements of field extensions
+in a primitive element or polynomial basis, i.e., as a vector
+of m elements of GF(p) written in ascending order by degree.
+The entries of this vector are indexed in ascending order starting from 1,
+i.e., x = (x_1, x_2, ..., x_m).
+For example, if q = p^2 and the primitive element basis is (1, i),
+then x = (a, b) corresponds to the element a + b * i, where
+x_1 = a and x_2 = b.
 
 An elliptic curve E is specified by an equation in two variables and a
 finite field F. An elliptic curve equation takes one of several standard forms,
@@ -1308,8 +1311,8 @@ Steps:
 ### Little endian variant {#sgn0-le}
 
 The following sgn0 variant is defined such that sgn0\_le(x) = -1
-just when the parity of the least significant nonzero entry of the
-vector representation of x is 1.
+just when x != 0 and the parity of the least significant nonzero
+entry of the vector representation of x is 1.
 
 This variant is convenient when points are serialized
 in little-endian byte order.
