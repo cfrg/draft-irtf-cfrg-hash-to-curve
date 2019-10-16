@@ -2253,6 +2253,7 @@ Each suite comprises the following parameters:
 - E, the target elliptic curve over a field F.
 - p, the characteristic of the field F.
 - m, the extension degree of the field F.
+- sgn0, one of the variants specified in {{sgn0-variants}}.
 - H, the hash function used by hash\_to\_base ({{hashtobase-sec}}).
 - L, the length of HKDF-Expand output in hash\_to\_base ({{hashtobase-sec}}).
 - f, a mapping function from {{mappings}}.
@@ -2347,6 +2348,7 @@ The common parameters for the above suites are:
    - B = 0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b
 - p: 2^256 - 2^224 + 2^192 + 2^96 - 1
 - m: 1
+- sgn0: sgn0\_le ({{sgn0-le}})
 - H: SHA-256
 - L: 48
 - h\_eff: 1
@@ -2377,6 +2379,7 @@ The common parameters for the above suites are:
   - B = 0xb3312fa7e23ee7e4988e056be3f82d19181d9c6efe8141120314088f5013875ac656398d8a2ed19d2a85c8edd3ec2aef
 - p: 2^384 - 2^128 - 2^96 + 2^32 - 1
 - m: 1
+- sgn0: sgn0\_le ({{sgn0-le}})
 - H: SHA-512
 - L: 72
 - h\_eff: 1
@@ -2404,6 +2407,7 @@ The common parameters for the above suites are:
   - B = 0x51953eb9618e1c9a1f929a21a0b68540eea2da725b99b315f3b8b489918ef109e156193951ec7e937b1652c0bd3bb1bf073573df883d2c34f1ef451fd46b503f00
 - p: 2^521 - 1
 - m: 1
+- sgn0: sgn0\_le ({{sgn0-le}})
 - H: SHA-512
 - L: 96
 - h\_eff: 1
@@ -2434,6 +2438,7 @@ The common parameters for all of the above suites are:
 
 - p: 2^255 - 19
 - m: 1
+- sgn0: sgn0\_le ({{sgn0-le}})
 - H: SHA-256
 - L: 48
 - Z: 2
@@ -2468,6 +2473,7 @@ The common parameters for all of the above suites are:
 
 - p: 2^448 - 2^224 - 1
 - m: 1
+- sgn0: sgn0\_le ({{sgn0-le}})
 - H: SHA-512
 - L: 84
 - Z: -1
@@ -2501,6 +2507,7 @@ The common parameters for all of the above suites are:
 - E: y^2 = x^3 + 7
 - p: 2^256 - 2^32 - 2^9 - 2^8 - 2^7 - 2^6 - 2^4 - 1
 - m: 1
+- sgn0: sgn0\_le ({{sgn0-le}})
 - H: SHA-256
 - L: 48
 - h\_eff: 1
@@ -2533,6 +2540,7 @@ The common parameters for the above suites are:
 - E: y^2 = x^3 + 4
 - p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
 - m: 1
+- sgn0: sgn0\_be ({{sgn0-be}})
 - H: SHA-256
 - L: 64
 - h\_eff: 0xd201000000010001
@@ -2568,6 +2576,7 @@ The common parameters for the above suites are:
 
 - E: y^2 = x^3 + 4 * (1 + I)
 - p, m, F: defined above
+- sgn0: sgn0\_be ({{sgn0-be}})
 - H: SHA-256
 - L: 64
 - h\_eff: 0xbc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff031508ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689f6a359894c0adebbf6b4e8020005aaa95551
