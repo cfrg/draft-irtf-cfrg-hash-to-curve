@@ -1513,7 +1513,7 @@ E: y^2 = g(x) = x^3 + A * x + B, where 4 * A^3 + 27 * B^2 != 0.
 ### Shallue-van de Woestijne Method {#svdw}
 
 Shallue and van de Woestijne {{SW06}} describe a mapping that applies to
-essentially any elliptic curve over a field F = GF(p^m), p odd.
+essentially any elliptic curve.
 This generality, however, comes at a price: this mapping is strictly
 more expensive to evaluate than the other mappings in this document.
 
@@ -1526,7 +1526,8 @@ Wahby and Boneh {{WB19}} suggest a small modification to the Fouque-Tibouchi
 parameters that results in a uniform method for handling exceptional cases;
 that method is the one used below.
 
-Preconditions: A Weierstrass curve over F.
+Preconditions: A Weierstrass curve y^2 = x^3 + A * x + B over F = GF(p^m)
+where p > 5 and odd.
 
 Constants:
 
@@ -1629,7 +1630,8 @@ of the Shallue-van de Woestijne-Ulas mapping {{U07}} described by Brier et
 al. {{BCIMRT10}}, which they call the "simplified SWU" map. Wahby and Boneh
 {{WB19}} generalize this mapping to curves over fields of odd characteristic p > 3.
 
-Preconditions: A Weierstrass curve over F such that A != 0 and B != 0.
+Preconditions: A Weierstrass curve y^2 = x^3 + A * x + B over F = GF(p^m)
+where p > 5 and odd, A != 0, and B != 0.
 
 Constants:
 
