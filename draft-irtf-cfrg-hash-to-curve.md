@@ -863,6 +863,14 @@ informative:
         ins: T. Shrimpton
         name: Thomas Shrimpton
         org: Portland State University
+  W19:
+    title: An explicit, generic parameterization for the Shallue--van de Woestijne map
+    target: https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/doc/svdw_params.pdf
+    author:
+      -
+        ins: R. S. Wahby
+        name: Riad S. Wahby
+        org: Stanford University
 
 --- abstract
 
@@ -1502,6 +1510,118 @@ cases that result from attempting to compute the inverse of 0.
 The following mappings apply to elliptic curves defined by the equation
 E: y^2 = g(x) = x^3 + A * x + B, where 4 * A^3 + 27 * B^2 != 0.
 
+### Shallue-van de Woestijne Method {#svdw}
+
+Shallue and van de Woestijne {{SW06}} describe a mapping that applies to
+essentially any elliptic curve over a field F = GF(p^m), p odd.
+This generality, however, comes at a price: this mapping is strictly
+more expensive to evaluate than the other mappings in this document.
+
+The parameterization given below works for essentially any Weierstrass curve;
+its derivation is detailed in {{W19}}.
+Fouque and Tibouchi {{FT12}} give a different parameterization of this mapping
+that works for Barreto-Naehrig pairing-friendly curves {{BN05}}, i.e.,
+curves y^2 = x^3 + B over fields of characteristic q = 1 (mod 3).
+Wahby and Boneh {{WB19}} suggest a small modification to the Fouque-Tibouchi
+parameters that results in a uniform method for handling exceptional cases;
+that method is the one used below.
+
+Preconditions: A Weierstrass curve over F.
+
+Constants:
+
+- A and B, the parameter of the Weierstrass curve.
+
+- Z, an element of F meeting the below criteria.
+  {{svdw-z-code}} gives a Sage {{SAGE}} script that outputs the RECOMMENDED Z.
+  1. g(Z) != 0 in F.
+  2. -(3 * Z^2 + 4 * A) / (4 * g(Z)) != 0 in F.
+  3. -(3 * Z^2 + 4 * A) / (4 * g(Z)) is square in F.
+  4. At least one of g(Z) and g(-Z / 2) is square in F.
+
+Sign of y: Inputs u and -u give the same x-coordinate.
+Thus, we set sgn0(y) == sgn0(u).
+
+Exceptions: The exceptional cases for u occur when
+(1 + u^2 * g(Z)) * (1 - u^2 * g(Z)) == 0.
+The restrictions on Z given above ensure that implementations that use inv0
+to invert this product are exception free.
+
+Operations:
+
+~~~
+1. t1 = u^2 * g(Z)
+2. t2 = 1 + t1
+3. t1 = 1 - t1
+4. t3 = inv0(t1 * t2)
+5. t4 = u * t1 * t3 * sqrt(-g(Z) * (3 * Z^2 + 4 * A))
+6. x1 = -Z / 2 - t4
+7. x2 = -Z / 2 + t4
+8. t5 = 2 * t2^2 * t3 * sqrt(-g(Z) / (3 * Z^2 + 4 * A))
+9. x3 = Z + t5^2
+10. If is_square(g(x1)), set x = x1 and y = sqrt(g(x1))
+11. Else If is_square(g(x2)), set x = x2 and y = sqrt(g(x2))
+12. Else set x = x3 and y = sqrt(g(x3))
+13. If sgn0(u) != sgn0(y), set y = -y
+14. return (x, y)
+~~~
+
+#### Implementation
+
+The following procedure implements the Shallue and van de Woestijne method in a
+straight-line fashion.
+
+~~~
+map_to_curve_svdw(u)
+Input: u, an element of F.
+Output: (x, y), a point on E.
+
+Constants:
+1. c1 = g(Z)
+2. c2 = sqrt(-3 * Z^2)
+3. c3 = (sqrt(-3 * Z^2) - Z) / 2
+4. c4 = (sqrt(-3 * Z^2) + Z) / 2
+5. c5 = 1 / (3 * Z^2)
+
+Steps:
+1.   t1 = u^2
+2.   t2 = t1 + c1           // t2 = u^2 + g(Z)
+3.   t3 = t1 * t2
+4.   t4 = inv0(t3)          // t4 = 1 / (u^2 * (u^2 + g(Z)))
+5.   t3 = t1^2
+6.   t3 = t3 * t4
+7.   t3 = t3 * c2           // t3 = u^2 * sqrt(-3 * Z^2) / (u^2 + g(Z))
+8.   x1 = c3 - t3
+9.  gx1 = x1^2
+10. gx1 = gx1 * x1
+11. gx1 = gx1 + B           // gx1 = x1^3 + B
+12.  e1 = is_square(gx1)
+13.  x2 = t3 - c4
+14. gx2 = x2^2
+15. gx2 = gx2 * x2
+16. gx2 = gx2 + B           // gx2 = x2^3 + B
+17.  e2 = is_square(gx2)
+18.  e3 = e1 OR e2          // logical OR
+19.  x3 = t2^2
+20.  x3 = x3 * t2
+21.  x3 = x3 * t4
+22.  x3 = x3 * c5
+23.  x3 = Z - x3            // Z - (u^2 + g(Z))^2 / (3 Z^2 u^2)
+24. gx3 = x3^2
+25. gx3 = gx3 * x3
+26. gx3 = gx3 + B           // gx3 = x3^3 + B
+27.   x = CMOV(x2, x1, e1)  // select x1 if gx1 is square
+28.  gx = CMOV(gx2, gx1, e1)
+29.   x = CMOV(x3, x, e3)   // select x3 if gx1 and gx2 are not square
+30.  gx = CMOV(gx3, gx, e3)
+31.   y = sqrt(gx)
+32.  e4 = sgn0(u) == sgn0(y)
+33.   y = CMOV(-y, y, e4)   // select correct sign of y
+34. return (x, y)
+~~~
+
+
+
 ### Simplified Shallue-van de Woestijne-Ulas Method {#simple-swu}
 
 The function map\_to\_curve\_simple\_swu(u) implements a simplification
@@ -1912,110 +2032,6 @@ Steps:
 
 ## Mappings for Pairing-Friendly curves
 
-### Shallue-van de Woestijne Method {#swpairing}
-
-Shallue and van de Woestijne {{SW06}} describe a mapping that applies to
-essentially any elliptic curve. Fouque and Tibouchi {{FT12}} give a concrete
-set of parameters for this mapping geared toward Barreto-Naehrig pairing-friendly curves
-{{BN05}}, i.e., curves y^2 = x^3 + B over fields of characteristic q = 1 (mod 3).
-Wahby and Boneh {{WB19}} suggest a small generalization of the Fouque-Tibouchi
-parameters that results in a uniform method for handling exceptional cases.
-
-The Shallue-van de Woestijne mapping method covers curves not handled by other methods, e.g.,
-SECP256K1 {{SEC2}}. It also covers pairing-friendly curves in the BN {{BN05}},
-KSS {{KSS08}}, and BLS {{BLS03}} families. (Note, however, that the mapping
-described in {{simple-swu-pairing-friendly}} is faster, when it applies.)
-
-Preconditions: An elliptic curve y^2 = g(x) = x^3 + B over F such that q = 1 (mod 3) and B != 0.
-
-Constants:
-
-- B, the parameter of the Weierstrass curve.
-
-- Z, the unique element of F meeting all of the following criteria:
-  1. g((sqrt(-3 * Z^2) - Z) / 2) is square in F,
-  2. there is no other Z' meeting criterion (1) for which
-     abs(Z') < abs(Z) ({{utility}}), and
-  3. if Z and -Z both meet the above criteria, Z is the element
-     such that sgn0(Z) == 1.
-
-Sign of y: Inputs u and -u give the same x-coordinate.
-Thus, we set sgn0(y) == sgn0(u).
-
-Exceptions: The exceptional cases for u occur when
-u^2 * (u^2 + g(Z)) == 0. The restriction on Z given above ensures that
-implementations that use inv0 to invert this product are exception free.
-
-Operations:
-
-~~~
-1. t1 = u^2 + g(Z)
-2. t2 = inv0(u^2 * t1)
-3. t3 = u^4 * t2 * sqrt(-3 * Z^2)
-4. x1 = ((sqrt(-3 * Z^2) - Z) / 2) - t3
-5. x2 = t3 - ((sqrt(-3 * Z^2) + Z) / 2)
-6. x3 = Z - (t1^3 * t2 / (3 * Z^2))
-7.  If is_square(g(x1)), set x = x1 and y = sqrt(g(x1))
-8.  Else If is_square(g(x2)), set x = x2 and y = sqrt(g(x2))
-9.  Else set x = x3 and y = sqrt(g(x3))
-10. If sgn0(u) != sgn0(y), set y = -y
-11. return (x, y)
-~~~
-
-#### Implementation
-
-The following procedure implements the Shallue and van de Woestijne method in a
-straight-line fashion.
-
-~~~
-map_to_curve_svdw(u)
-Input: u, an element of F.
-Output: (x, y), a point on E.
-
-Constants:
-1. c1 = g(Z)
-2. c2 = sqrt(-3 * Z^2)
-3. c3 = (sqrt(-3 * Z^2) - Z) / 2
-4. c4 = (sqrt(-3 * Z^2) + Z) / 2
-5. c5 = 1 / (3 * Z^2)
-
-Steps:
-1.   t1 = u^2
-2.   t2 = t1 + c1           // t2 = u^2 + g(Z)
-3.   t3 = t1 * t2
-4.   t4 = inv0(t3)          // t4 = 1 / (u^2 * (u^2 + g(Z)))
-5.   t3 = t1^2
-6.   t3 = t3 * t4
-7.   t3 = t3 * c2           // t3 = u^2 * sqrt(-3 * Z^2) / (u^2 + g(Z))
-8.   x1 = c3 - t3
-9.  gx1 = x1^2
-10. gx1 = gx1 * x1
-11. gx1 = gx1 + B           // gx1 = x1^3 + B
-12.  e1 = is_square(gx1)
-13.  x2 = t3 - c4
-14. gx2 = x2^2
-15. gx2 = gx2 * x2
-16. gx2 = gx2 + B           // gx2 = x2^3 + B
-17.  e2 = is_square(gx2)
-18.  e3 = e1 OR e2          // logical OR
-19.  x3 = t2^2
-20.  x3 = x3 * t2
-21.  x3 = x3 * t4
-22.  x3 = x3 * c5
-23.  x3 = Z - x3            // Z - (u^2 + g(Z))^2 / (3 Z^2 u^2)
-24. gx3 = x3^2
-25. gx3 = gx3 * x3
-26. gx3 = gx3 + B           // gx3 = x3^3 + B
-27.   x = CMOV(x2, x1, e1)  // select x1 if gx1 is square
-28.  gx = CMOV(gx2, gx1, e1)
-29.   x = CMOV(x3, x, e3)   // select x3 if gx1 and gx2 are not square
-30.  gx = CMOV(gx3, gx, e3)
-31.   y = sqrt(gx)
-32.  e4 = sgn0(u) == sgn0(y)
-33.   y = CMOV(-y, y, e4)   // select correct sign of y
-34. return (x, y)
-~~~
-
 ### Simplified SWU for Pairing-Friendly Curves {#simple-swu-pairing-friendly}
 
 Wahby and Boneh {{WB19}} show how to adapt the simplified SWU mapping to
@@ -2336,7 +2352,7 @@ These suites share the following parameters:
 - m: 1
 - H: SHA-256
 - L: 48
-- f: Shallue-van de Woestijne method, {{swpairing}}
+- f: Shallue-van de Woestijne method, {{svdw}}
 - Z: 1
 - h\_eff: 1
 
@@ -2955,6 +2971,15 @@ Steps:
 # Scripts for parameter generation {#paramgen}
 
 This section gives Sage {{SAGE}} scripts used to generate parameters for the mappings of {{mappings}}.
+
+## Finding Z for the Shallue and van de Woestijne map {#svdw-z-code}
+
+The below function outputs an appropriate Z for the Shallue and van de Woestijne map ({{svdw}}).
+
+~~~sage
+def find_z_svdw(F, A, B):
+    pass
+~~~
 
 ## Finding Z for Simplified SWU {#sswu-z-code}
 
