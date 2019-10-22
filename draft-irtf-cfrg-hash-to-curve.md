@@ -1623,12 +1623,8 @@ Constants:
 
 - A and B, the parameters of the elliptic curve.
 
-- Z, the unique element of F meeting all of the following criteria:
-  1. Z is non-square in F,
-  2. there is no other non-square Z' for which
-     abs(Z') < abs(Z) ({{utility}}), and
-  3. if Z and -Z both met the above criteria, Z is the element
-     such that sgn0(Z) == 1.
+- Z, a non-square element of F.
+  (See {{elligator-z-code}} for a Sage {{SAGE}} script that outputs an appropriate Z.)
 
 Sign of y: Inputs u and -u give the same x-coordinate.
 Thus, we set sgn0(y) == sgn0(u).
@@ -2988,5 +2984,23 @@ def find_z_sswu(F, A, B):
             if g(B / (Z_cand * A)).is_square():
                 # Criterion 4: g(B / (Z * A)) is square in F.
                 return Z_cand
+        ctr += 1
+~~~
+
+## Finding Z for Elligator 2 {#elligator-z-code}
+
+The below function outputs an appropriate Z for the Elligator 2 map ({{elligator2}}).
+
+It takes one argument, F, a finite field object created via the `GF()` constructor.
+
+~~~sage
+def find_z_ell2(F):
+    ctr = F.gen()
+    while True:
+        for Z_cand in (F(ctr), F(-ctr)):
+            if Z_cand.is_square():
+                # Z must be a non-square in F.
+                continue
+            return Z_cand
         ctr += 1
 ~~~

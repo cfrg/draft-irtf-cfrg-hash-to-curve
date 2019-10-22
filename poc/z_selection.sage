@@ -20,3 +20,14 @@ def find_z_sswu(F, A, B):
                 # Criterion 4: g(B / (Z * A)) is square in F.
                 return Z_cand
         ctr += 1
+
+def find_z_ell2(F):
+    ctr = F.gen()
+    while True:
+        for Z_cand in (F(ctr), F(-ctr)):
+            if Z_cand.is_square():
+                # Z must be a non-square in F.
+                continue
+            return Z_cand
+        ctr += 1
+
