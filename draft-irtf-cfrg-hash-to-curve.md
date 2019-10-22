@@ -1515,13 +1515,12 @@ Constants:
 
 - A and B, the parameters of the Weierstrass curve.
 
-- Z, the unique element of F meeting all of the following criteria:
+- Z, an element of F meeting the below criteria.
+  (See {{sswu-z-code}} for a Sage {{SAGE}} script that outputs an appropriate Z.)
   1. Z is non-square in F,
-  2. g(B / (Z * A)) is square in F,
-  3. there is no other Z' meeting criteria (1) and (2) for which
-     abs(Z') < abs(Z) ({{utility}}), and
-  4. if Z and -Z both meet the above criteria, Z is the element
-     such that sgn0(Z) == 1.
+  2. Z != -1 in F,
+  3. the polynomial g(x) - Z is irreducible over F, and
+  4. g(B / (Z * A)) is square in F.
 
 Sign of y: Inputs u and -u give the same x-coordinate.
 Thus, we set sgn0(y) == sgn0(u).
@@ -2954,4 +2953,40 @@ Steps:
 30.  t4 = t4 * yd2
 31. yEd = yEd + t4
 32. return (xEn, xEd, yEn, yEd)
+~~~
+
+# Scripts for parameter generation {#paramgen}
+
+This section gives Sage {{SAGE}} scripts used to generate parameters for the mappings of {{mappings}}.
+
+## Finding Z for Simplified SWU {#sswu-z-code}
+
+The below function outputs an appropriate Z for the Simplified SWU map ({{simple-swu}}).
+
+It takes the following arguments:
+
+- F is a finite field object created via the `GF()` constructor.
+
+- A and B are the parameters of the elliptic curve y^2 = x^3 + A * x + B over F.
+
+~~~sage
+def find_z_sswu(F, A, B):
+    R.<xx> = F[]                        # polynomial ring over F
+    g = xx ** 3 + F(A) * xx + F(B)      # y^2 = g(x) = x^3 + A x + B
+    ctr = F.gen()
+    while True:
+        for Z_cand in (F(ctr), F(-ctr)):
+            if Z_cand.is_square():
+                # Criterion 1: Z is non-square in F.
+                continue
+            if Z_cand == F(-1):
+                # Criterion 2: Z != -1 in F.
+                continue
+            if not (g - Z_cand).is_irreducible():
+                # Criterion 3: g(x) - Z is irreducible over F.
+                continue
+            if g(B / (Z_cand * A)).is_square():
+                # Criterion 4: g(B / (Z * A)) is square in F.
+                return Z_cand
+        ctr += 1
 ~~~
