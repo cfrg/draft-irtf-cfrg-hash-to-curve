@@ -2959,13 +2959,10 @@ This section gives Sage {{SAGE}} scripts used to generate parameters for the map
 
 The below function outputs an appropriate Z for the Simplified SWU map ({{simple-swu}}).
 
-It takes the following arguments:
-
-- F is a finite field object created via the `GF()` constructor.
-
-- A and B are the parameters of the elliptic curve y^2 = x^3 + A * x + B over F.
-
 ~~~sage
+# Arguments:
+# - F, a field object, e.g., F = GF(2^521 - 1)
+# - A and B, the coefficients of the curve equation y^2 = x^3 + A * x + B
 def find_z_sswu(F, A, B):
     R.<xx> = F[]                        # polynomial ring over F
     g = xx ** 3 + F(A) * xx + F(B)      # y^2 = g(x) = x^3 + A x + B
@@ -2991,9 +2988,9 @@ def find_z_sswu(F, A, B):
 
 The below function outputs an appropriate Z for the Elligator 2 map ({{elligator2}}).
 
-It takes one argument, F, a finite field object created via the `GF()` constructor.
-
 ~~~sage
+# Argument:
+# - F, a field object, e.g., F = GF(2^255 - 19)
 def find_z_ell2(F):
     ctr = F.gen()
     while True:
