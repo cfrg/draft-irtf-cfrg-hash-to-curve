@@ -1516,7 +1516,8 @@ Constants:
 - A and B, the parameters of the Weierstrass curve.
 
 - Z, an element of F meeting the below criteria.
-  (See {{sswu-z-code}} for a Sage {{SAGE}} script that outputs an appropriate Z.)
+  {{sswu-z-code}} gives a Sage {{SAGE}} script that outputs the RECOMMENDED Z.
+  The criteria are:
   1. Z is non-square in F,
   2. Z != -1 in F,
   3. the polynomial g(x) - Z is irreducible over F, and
@@ -1624,7 +1625,7 @@ Constants:
 - A and B, the parameters of the elliptic curve.
 
 - Z, a non-square element of F.
-  (See {{elligator-z-code}} for a Sage {{SAGE}} script that outputs an appropriate Z.)
+  {{elligator-z-code}} gives a Sage {{SAGE}} script that outputs the RECOMMENDED Z.
 
 Sign of y: Inputs u and -u give the same x-coordinate.
 Thus, we set sgn0(y) == sgn0(u).
