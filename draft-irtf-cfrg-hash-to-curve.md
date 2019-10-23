@@ -1579,49 +1579,48 @@ Output: (x, y), a point on E.
 
 Constants:
 1. c1 = g(Z)
-2. c2 = sqrt(-3 * Z^2)
-3. c3 = (sqrt(-3 * Z^2) - Z) / 2
-4. c4 = (sqrt(-3 * Z^2) + Z) / 2
-5. c5 = 1 / (3 * Z^2)
+2. c2 = -Z / 2
+3. c3 = sqrt(-g(Z) * (3 * Z^2 + 4 * A))         // sgn0(c3) MUST equal 1
+4. c4 = -4 * g(Z) / (3 * Z^2 + 4 * A)
 
 Steps:
 1.   t1 = u^2
-2.   t2 = t1 + c1           // t2 = u^2 + g(Z)
-3.   t3 = t1 * t2
-4.   t4 = inv0(t3)          // t4 = 1 / (u^2 * (u^2 + g(Z)))
-5.   t3 = t1^2
-6.   t3 = t3 * t4
-7.   t3 = t3 * c2           // t3 = u^2 * sqrt(-3 * Z^2) / (u^2 + g(Z))
-8.   x1 = c3 - t3
-9.  gx1 = x1^2
-10. gx1 = gx1 * x1
-11. gx1 = gx1 + B           // gx1 = x1^3 + B
-12.  e1 = is_square(gx1)
-13.  x2 = t3 - c4
-14. gx2 = x2^2
-15. gx2 = gx2 * x2
-16. gx2 = gx2 + B           // gx2 = x2^3 + B
-17.  e2 = is_square(gx2)
-18.  e3 = e1 OR e2          // logical OR
-19.  x3 = t2^2
-20.  x3 = x3 * t2
-21.  x3 = x3 * t4
-22.  x3 = x3 * c5
-23.  x3 = Z - x3            // Z - (u^2 + g(Z))^2 / (3 Z^2 u^2)
-24. gx3 = x3^2
-25. gx3 = gx3 * x3
-26. gx3 = gx3 + B           // gx3 = x3^3 + B
-27.   x = CMOV(x2, x1, e1)  // select x1 if gx1 is square
-28.  gx = CMOV(gx2, gx1, e1)
-29.   x = CMOV(x3, x, e3)   // select x3 if gx1 and gx2 are not square
-30.  gx = CMOV(gx3, gx, e3)
-31.   y = sqrt(gx)
-32.  e4 = sgn0(u) == sgn0(y)
-33.   y = CMOV(-y, y, e4)   // select correct sign of y
-34. return (x, y)
+2.   t1 = t1 * c1
+3.   t2 = 1 + t1
+4.   t1 = 1 - t1
+5.   t3 = t1 * t2
+6.   t3 = inv0(t3)
+7.   t4 = u * t1
+8.   t4 = t4 * t3
+9.   t4 = t4 * c3
+10.  x1 = c2 - t4
+11. gx1 = x1^2
+12. gx1 = gx1 + A
+13. gx1 = gx1 * x1
+14. gx1 = gx1 + B
+15.  e1 = is_square(gx1)
+16.  x2 = c2 + t4
+17. gx2 = x2^2
+18. gx2 = gx2 + A
+19. gx2 = gx2 * x2
+20. gx2 = gx2 + B
+21.  e2 = is_square(gx2) AND NOT e1     // avoid short-circuit logic ops!
+22.  x3 = t2^2
+23.  x3 = x3 * t3
+24.  x3 = x3^2
+25.  x3 = x3 * c4
+26.  x3 = x3 + Z
+27.   x = CMOV(x3, x1, e1)      // x = x1 if gx1 is square, else x = x3
+28.   x = CMOV(x, x2, e2)       // x = x2 if gx2 is square and gx1 is not
+29.  gx = x^2
+30.  gx = gx + A
+31.  gx = gx * x
+32.  gx = gx + B
+33.   y = sqrt(gx)
+34.  e3 = sgn0(u) == sgn0(y)
+35.   y = CMOV(-y, y, e3)       // select correct sign of y
+36. return (x, y)
 ~~~
-
-
 
 ### Simplified Shallue-van de Woestijne-Ulas Method {#simple-swu}
 
@@ -2866,7 +2865,7 @@ Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on edwards25519.
 
 Constants:
-1. c1 = sqrt(-486664)   // sign MUST be chosen such that sgn0(c1) == 1
+1. c1 = sqrt(-486664)   // sgn0(c1) MUST equal 1
 
 Steps:
 1. (xMn, xMd, yMn, yMd) = map_to_curve_elligator2_curve25519(u)
