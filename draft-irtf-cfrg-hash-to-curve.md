@@ -485,7 +485,7 @@ informative:
       -
         ins: A. Langley
         name: Adam Langley
-  SBCDBK09:
+  SBCDK09:
     title: Fast Hashing to G2 on Pairing-Friendly Curves
     seriesinfo:
         "In": Pairing-Based Cryptography - Pairing 2009
@@ -509,10 +509,6 @@ informative:
       -
         ins: L. J. Dominguez Perez
         name: Luis J. Dominguez Perez
-        org: School of Computing Dublin City University, Ballymun. Dublin, Ireland.
-      -
-        ins: N. Benger
-        name: Naomi Benger
         org: School of Computing Dublin City University, Ballymun. Dublin, Ireland.
       -
         ins: E. J. Kachisa
@@ -802,6 +798,71 @@ informative:
         org: The Sage Developers
     target: https://www.sagemath.org
     date: 2019
+  LBB19:
+    title: A Mechanised Proof of the WireGuard Virtual Private Network Protocol
+    seriesinfo:
+        "In": INRIA Research Report No. 9269
+    target: https://hal.inria.fr/hal-02100345/
+    date: Apr, 2019
+    author:
+      -
+        ins: B. Lipp
+        name: Benjamin Lipp
+        org: INRIA Paris
+      -
+        ins: B. Blanchet
+        name: Bruno Blanchet
+        org: INRIA Paris
+      -
+        ins: K. Bhargavan
+        name: Karthikeyan Bhargavan
+        org: INRIA Paris
+  DRST12:
+    title: "To hash or not to hash again? (In)differentiability results for H^2 and HMAC"
+    seriesinfo:
+      "In": Advances in Cryptology - CRYPTO 2012
+      "pages": 348-366
+      DOI: 10.1007/978-3-642-32009-5_21
+    target: https://doi.org/10.1007/978-3-642-32009-5_21
+    date: Aug, 2012
+    author:
+      -
+        ins: Y. Dodis
+        name: Yevgeniy Dodis
+        org: New York University
+      -
+        ins: T. Ristenpart
+        name: Thomas Ristenpart
+        org: University of Wisconsin-Madison
+      -
+        ins: J. Steinberger
+        name: John Steinberger
+        org: Tsinghua University
+      -
+        ins: S. Tessaro
+        name: Stefano Tessaro
+        org: Massachusetts Institute of Technology
+  RSS11:
+    title: "Careful with Composition: Limitations of the Indifferentiability Framework"
+    seriesinfo:
+      "In": Advances in Cryptology - EUROCRYPT 2011
+      "pages": 487-506
+      DOI: 10.1007/978-3-642-20465-4_27
+    target: https://doi.org/10.1007/978-3-642-20465-4_27
+    date: May, 2011
+    author:
+      -
+        ins: T. Ristenpart
+        name: Thomas Ristenpart
+        org: University of Wisconsin-Madison
+      -
+        ins: H. Shacham
+        name: Hovav Shacham
+        org: UC San Diego
+      -
+        ins: T. Shrimpton
+        name: Thomas Shrimpton
+        org: Portland State University
 
 --- abstract
 
@@ -831,6 +892,12 @@ bit string and produces as output a point on an elliptic curve.
 We provide implementation details for each algorithm, describe
 the security rationale behind each recommendation, and give guidance for
 elliptic curves that are not explicitly covered.
+
+This document does not cover rejection sampling methods, sometimes known
+as "try-and-increment" or "hunt-and-peck," because the goal is to describe
+algorithms that can plausibly be made constant time. Use of these rejection
+methods is NOT RECOMMENDED, because they have been a perennial cause of
+side-channel vulnerabilities.
 
 ## Requirements
 
@@ -955,8 +1022,10 @@ construction is distinguishable from uniformly random, i.e., it does
 not behave like a random oracle.
 
 Brier et al. {{BCIMRT10}} describe two generic constructions whose outputs are
-indistinguishable from a random oracle. Farashahi et al. {{FFSTV13}} and
-Tibouchi and Kim {{TK17}} refine the analysis of one of these constructions.
+indifferentiable from a random oracle when the constructions are instantiated
+with appropriate hash functions modeled as random oracles.
+Farashahi et al. {{FFSTV13}} and Tibouchi and Kim {{TK17}} refine the analysis
+of one of these constructions.
 That construction is described in {{roadmap}}.
 
 ### Serialization {#term-serialization}
@@ -1040,8 +1109,8 @@ Steps:
 ~~~
 
 -   Random oracle encoding (hash\_to\_curve). This function encodes bit strings to points in G.
-    The distribution of the output is indistinguishable from uniformly random
-    in G provided that map\_to\_curve is "well distributed" ({{FFSTV13}}, Def. 1).
+    This function is suitable for applications requiring a random oracle returning points in G,
+    provided that map\_to\_curve is "well distributed" ({{FFSTV13}}, Def. 1).
     All of the map\_to\_curve functions defined in {{mappings}} meet this requirement.
 
 ~~~
@@ -1066,56 +1135,47 @@ algorithms.
 
 ## Domain separation requirements {#domain-separation}
 
-When invoking hash\_to\_curve from a higher-level protocol, implementors MUST use domain separation
-({{term-domain-separation}}) to avoid interfering with other protocols
-that also use the hash\_to\_curve functionality.
-Protocols that use encode\_to\_curve SHOULD use domain separation
-if possible, though it is not required in this case.
+When invoking hash\_to\_curve or encode\_to\_curve from a higher-level protocol,
+implementors MUST always use domain separation ({{term-domain-separation}}) to
+avoid interfering with other protocols that also use the same functionality.
 
-Protocols that instantiate multiple, independent random
-oracles based on hash\_to\_curve MUST enforce domain separation between
-those oracles.
-This requirement applies both in the case of multiple oracles to the same curve
-and in the case of multiple oracles to different curves.
-This is because the hash\_to\_base primitive ({{hashtobase}}) requires
-domain separation to guarantee independent outputs.
+Protocols that instantiate multiple, independent hash functions based on
+either hash\_to\_curve or encode\_to\_curve MUST enforce domain separation
+between those hash functions.
+This requirement applies both in the case of multiple hashes to the same
+curve and in the case of multiple hashes to different curves.
+(This is because the hash\_to\_base primitive ({{hashtobase}}) requires
+domain separation to guarantee independent outputs.)
 
 Care is required when choosing a domain separation tag.
-Implementors SHOULD observe the following guidelines:
+Implementors MUST observe the following guidelines:
 
-1. Tags should be prepended to the value being hashed, as in the example
-   in {{term-domain-separation}}.
+1. Tags must be supplied as the DST parameter to hash\_to\_base, as
+   described in {{hashtobase}}.
 
-2. Tags should have fixed length, or should be encoded in a way that makes
-   the length of a given tag unambiguous.
-   If a variable-length tag is used, it should be prefixed with a
-   fixed-length field that encodes the length of the tag.
+2. Tags must begin with a fixed protocol identification string.
+   This identification string should be unique to the protocol.
 
-3. Tags should begin with a fixed protocol identification string.
-   Ideally, this identification string should be unique to the protocol.
+3. Tags must include a protocol version number.
 
-4. Tags should include a protocol version number.
+4. For protocols that define multiple ciphersuites, each ciphersuite's
+   tag must be different. For this purpose, it is recommended to
+   include a ciphersuite identifier in each tag.
 
-5. For protocols that support multiple ciphersuites, tags should include
-   a ciphersuite identifier.
+5. For protocols that use multiple encodings, either to the same curve
+   or to different curves, each encoding must use a different tag.
 
-As an example, consider a fictional key exchange protocol named Quux.
+As an example, consider a fictional key exchange protocol named Quux
+that defines several different ciphersuites.
 A reasonable choice of tag is "QUUX-V\<xx\>-CS\<yy\>", where \<xx\> and \<yy\>
 are two-digit numbers indicating the version and ciphersuite, respectively.
-Alternatively, if a variable-length ciphersuite string must be used,
-a reasonable choice of tag is "QUUX-V\<xx\>-L\<zz\>-\<csid\>",
- where \<csid\> is the ciphersuite string, and \<xx\> and \<zz\> are
-two-digit numbers indicating the version and the length of the ciphersuite
-string, respectively.
 
 As another example, consider a fictional protocol named Baz that requires
-two independent random oracles, where one oracle outputs points on the curve E1
-and the other outputs points on the curve E2.
-To ensure that these two random oracles are independent, each one must be
-called with a distinct domain separation tag.
+two independent random oracles, where one oracle outputs points on the curve
+E1 and the other outputs points on the curve E2.
 Reasonable choices of tags for the E1 and E2 oracles are
 "BAZ-V\<xx\>-CS\<yy\>-E1" and "BAZ-V\<xx\>-CS\<yy\>-E2", respectively,
-where \<xx\> and \<yy\> are as defined above.
+where \<xx\> and \<yy\> are as described above.
 
 # Utility Functions {#utility}
 
@@ -1272,17 +1332,17 @@ a cryptographic hash function H which satisfies the following properties:
 1. The number of bits output by H should be b >= 2 * k for sufficient collision
 resistance, where k is the target security level in bits. (This is needed for a
 birthday bound of approximately 2^(-k).)
-2. H is modeled as a random oracle, so its output must be indistinguishable
-from a uniformly random bit string.
+2. H is modeled as a random oracle, so care should be taken when instantiating it.
+Hash functions in the SHA-2 and SHA-3 families are typical and RECOMMENDED choices.
 
 For example, for 128-bit security, b >= 256 bits; in this case, SHA256 would
 be an appropriate choice for H.
 
 Ensuring that the hash\_to\_base output is a uniform random element of F requires
-care, even when H outputs a uniformly random string. For example,
+care, even when H is modeled as a random oracle. For example,
 if H is SHA256 and F is a field of characteristic p = 2^255 - 19, then the
 result of reducing H(msg) (a 256-bit integer) modulo p is slightly more likely
-to be in \[0, 38\] than if the value were selected uniformly at random.
+to be in \[0, 37\] than if the value were selected uniformly at random.
 In this example the bias is negligible, but in general it can be significant.
 
 To control bias, the input msg should be hashed to an integer comprising at
@@ -1293,12 +1353,16 @@ msg to a L-byte string, where L = ceil((ceil(log2(p)) + k) / 8); this
 string is then interpreted as an integer via OS2IP {{RFC8017}}. For example,
 for p a 255-bit prime and k = 128-bit security, L = ceil((255 + 128) / 8) = 48 bytes.
 
+Finally, hash\_to\_base appends one zero byte to msg in the invocation of HKDF-Extract.
+This ensures that the use of HKDF in hash\_to\_base is indifferentiable
+from a random oracle (see {{LBB19}}, Lemma 8 and {{DRST12}}, Theorems 4.3 and 4.4).
+(In particular, this approach works because it ensures that the final byte of
+each HMAC invocation in HKDF-Extract and HKDF-Expand is distinct.)
+
 {{domain-separation}} discusses requirements for domain separation and
 recommendations for choosing domain separation tags. The hash\_to\_curve
-function takes such a tag as a parameter, DST; this is the recommended
-way of applying domain separation. As an alternative, implementations MAY
-instead prepend a domain separation tag to the input msg; in this case,
-DST SHOULD be the empty string.
+function takes such a tag as a parameter, DST; this is the REQUIRED
+method for applying domain separation.
 
 {{hashtobase-impl}} details the hash\_to\_base procedure.
 
@@ -1318,7 +1382,7 @@ is a negligible overhead in the context of hashing to elliptic curves.
 
 A related issue is that the random oracle construction described in {{roadmap}}
 requires evaluating two independent hash functions H0 and H1 on msg.
-A standard way to instantiate independent hashes is to append a counter to
+One way to instantiate independent hashes is to append a counter to
 the value being hashed, e.g., H(msg || 0) and H(msg || 1).
 If msg is long, however, this is either inefficient (because it entails hashing
 msg twice) or requires non-black-box use of H (e.g., partial evaluation).
@@ -1342,6 +1406,8 @@ Parameters:
 - DST, a domain separation tag (see discussion above).
 - H, a cryptographic hash function.
 - F, a finite field of characteristic p and order q = p^m.
+- p, the characteristic of F (see immediately above).
+- m, the extension degree of F (see immediately above).
 - L = ceil((ceil(log2(p)) + k) / 8), where k is the security
   parameter of the cryptosystem (e.g., k = 128).
 - HKDF-Extract and HKDF-Expand are as defined in RFC5869,
@@ -1357,7 +1423,7 @@ Output:
 - u, an element in F.
 
 Steps:
-1. msg_prime = HKDF-Extract(DST, msg)
+1. msg_prime = HKDF-Extract(DST, msg || I2OSP(0, 1))
 2. info_pfx = "H2C" || I2OSP(ctr, 1)   // "H2C" is a 3-byte ASCII string
 3. for i in (1, ..., m):
 4.   info = info_pfx || I2OSP(i, 1)
@@ -2028,7 +2094,7 @@ some scalar h\_eff whose value is determined by the method and the curve.
 Examples of fast cofactor clearing methods include the following:
 
 - For certain pairing-friendly curves having subgroup G2 over an extension
-  field, Scott et al. {{SBCDBK09}} describe a method for fast cofactor clearing
+  field, Scott et al. {{SBCDK09}} describe a method for fast cofactor clearing
   that exploits an efficiently-computable endomorphism. Fuentes-Castaneda
   et al. {{FKR11}} propose an alternative method that is sometimes more efficient.
   Budroni and Pintore {{BP18}} give concrete instantiations of these methods
@@ -2080,7 +2146,10 @@ In addition to the above parameters, the mapping f may require
 additional parameters Z, M, rational\_map, E', and/or iso\_map.
 These MUST be specified when applicable.
 
-Applications whose security requires a random oracle MUST use
+All applications MUST choose a domain separation tag (DST)
+for use with hash\_to\_base ({{hashtobase}}), in accordance with the
+guidelines of {{domain-separation}}.
+In addition, applications whose security requires a random oracle MUST use
 a suite specifying hash\_to\_curve ({{roadmap}}); see {{suiteIDformat}}.
 
 When standardizing a new elliptic curve, corresponding hash-to-curve
@@ -2340,11 +2409,33 @@ for random oracle encodings.
 
 {{hashtobase}} describes considerations for uniformly hashing to field elements.
 
+When the hash\_to\_curve function ({{roadmap}}) is instantiated
+with hash\_to\_base ({{hashtobase}}), the resulting function is
+indifferentiable from a random oracle.
+In most cases such a function can be safely used in protocols whose security
+analysis assumes a random oracle that outputs points on an elliptic curve.
+As Ristenpart et al. discuss in {{RSS11}}, however, not all security proofs
+that rely on random oracles continue to hold when those oracles are replaced
+by indifferentiable functionalities.
+This limitation should be considered when analyzing the security of protocols
+relying on the hash\_to\_curve function.
+
+When hashing passwords using any function described in this document, an adversary
+who learns the output of the hash function (or potentially any intermediate value,
+e.g., the output of hash\_to\_base) may be able to carry out a dictionary attack.
+To mitigate such attacks, it is recommended to first execute a more costly key
+derivation function (e.g., PBKDF2 {{!RFC2898}} or scrypt {{!RFC7914}}) on the password,
+then hash the output of that function to the target elliptic curve.
+For collision resistance, the hash underlying the key derivation function
+should be chosen according to the guidelines listed in {{hashtobase-sec}}.
+
 # Acknowledgements
 
-The authors would like to thank Adam Langley for his detailed writeup up Elligator 2 with
-Curve25519 {{L13}}. We also thank Sean Devlin and Thomas Icart for feedback on
-earlier versions of this document.
+The authors would like to thank Adam Langley for his detailed writeup of Elligator 2 with
+Curve25519 {{L13}};
+Christopher Patton and Benjamin Lipp for educational discussions; and
+Sean Devlin, Justin Drake, Dan Harkins, Thomas Icart, Michael Scott, and Mathy Vanhoef
+for helpful feedback.
 
 # Contributors
 
