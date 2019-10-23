@@ -842,6 +842,27 @@ informative:
         ins: S. Tessaro
         name: Stefano Tessaro
         org: Massachusetts Institute of Technology
+  RSS11:
+    title: "Careful with Composition: Limitations of the Indifferentiability Framework"
+    seriesinfo:
+      "In": Advances in Cryptology - EUROCRYPT 2011
+      "pages": 487-506
+      DOI: 10.1007/978-3-642-20465-4_27
+    target: https://doi.org/10.1007/978-3-642-20465-4_27
+    date: May, 2011
+    author:
+      -
+        ins: T. Ristenpart
+        name: Thomas Ristenpart
+        org: University of Wisconsin-Madison
+      -
+        ins: H. Shacham
+        name: Hovav Shacham
+        org: UC San Diego
+      -
+        ins: T. Shrimpton
+        name: Thomas Shrimpton
+        org: Portland State University
 
 --- abstract
 
@@ -1332,13 +1353,11 @@ msg to a L-byte string, where L = ceil((ceil(log2(p)) + k) / 8); this
 string is then interpreted as an integer via OS2IP {{RFC8017}}. For example,
 for p a 255-bit prime and k = 128-bit security, L = ceil((255 + 128) / 8) = 48 bytes.
 
-Finally, hash\_to\_base sets the input to HKDF to H(msg) rather than to msg.
+Finally, hash\_to\_base appends one zero byte to msg in the invocation of HKDF-Extract.
 This ensures that the use of HKDF in hash\_to\_base is indifferentiable
 from a random oracle (see {{LBB19}}, Lemma 8 and {{DRST12}}, Theorems 4.3 and 4.4).
-(In particular, as long as the output length of H is greater than 48
-bits---which will always be true in practice---the inputs to the HMAC
-invocations inside HKDF-Extract and HKDF-Expand are guaranteed to be
-disjoint, since they are of different lengths.)
+(In particular, this approach works because it ensures that the final byte of
+each HMAC invocation in HKDF-Extract and HKDF-Expand is distinct.)
 
 {{domain-separation}} discusses requirements for domain separation and
 recommendations for choosing domain separation tags. The hash\_to\_curve
@@ -1375,9 +1394,6 @@ ctr values both start with identical invocations of HKDF-Extract.
 This is an improvement because it allows sharing one evaluation of HKDF-Extract
 among multiple invocations of hash\_to\_base, i.e., by factoring out the common
 computation.
-Moreover, since HKDF-Expand operates on H(msg) rather than msg, applications
-that have already computed H(msg) for other purposes can use this pre-computed
-value when invoking HKDF-Expand.
 
 ## Implementation {#hashtobase-impl}
 
@@ -1407,15 +1423,14 @@ Output:
 - u, an element in F.
 
 Steps:
-1. msg_hashed = H(msg)
-2. msg_prime = HKDF-Extract(DST, msg_hashed)
-3. info_pfx = "H2C" || I2OSP(ctr, 1)   // "H2C" is a 3-byte ASCII string
-4. for i in (1, ..., m):
-5.   info = info_pfx || I2OSP(i, 1)
-6.   t = HKDF-Expand(msg_prime, info, L)
-7.   e_i = OS2IP(t) mod p
-8. u = (e_1, ..., e_m)
-9. return u
+1. msg_prime = HKDF-Extract(DST, msg || I2OSP(0, 1))
+2. info_pfx = "H2C" || I2OSP(ctr, 1)   // "H2C" is a 3-byte ASCII string
+3. for i in (1, ..., m):
+4.   info = info_pfx || I2OSP(i, 1)
+5.   t = HKDF-Expand(msg_prime, info, L)
+6.   e_i = OS2IP(t) mod p
+7. u = (e_1, ..., e_m)
+8. return u
 ~~~
 
 # Deterministic Mappings  {#mappings}
@@ -2394,12 +2409,20 @@ for random oracle encodings.
 
 {{hashtobase}} describes considerations for uniformly hashing to field elements.
 
+When the hash\_to\_curve function ({{roadmap}}) is instantiated
+with hash\_to\_base ({{hashtobase}}), the resulting function is
+indifferentiable from a random oracle.
+In most cases such a function can be safely used in protocols whose security
+analysis assumes a random oracle that outputs points on an elliptic curve.
+As Ristenpart et al. discuss in {{RSS11}}, however, the indifferentiability
+framework has limitations which must be considered when analyzing security.
+
 When hashing passwords using any function described in this document, an adversary
 who learns the output of the hash function (or potentially any intermediate value,
 e.g., the output of hash\_to\_base) may be able to carry out a dictionary attack.
 To mitigate such attacks, it is recommended to first execute a more costly key
-derivation function (e.g., scrypt {{!RFC7914}}) on the password, then hash the
-output of that function to the target elliptic curve.
+derivation function (e.g., PBKDF2 {{!RFC2898}} or scrypt {{!RFC7914}}) on the password,
+then hash the output of that function to the target elliptic curve.
 For collision resistance, the hash underlying the key derivation function
 should be chosen according to the guidelines listed in {{hashtobase-sec}}.
 
@@ -2407,8 +2430,9 @@ should be chosen according to the guidelines listed in {{hashtobase-sec}}.
 
 The authors would like to thank Adam Langley for his detailed writeup of Elligator 2 with
 Curve25519 {{L13}};
-Christopher Patton for educational discussions on the security of domain separation; and
-Sean Devlin, Justin Drake, Dan Harkins, Thomas Icart, and Mathy Vanhoef for helpful feedback.
+Christopher Patton and Benjamin Lipp for educational discussions; and
+Sean Devlin, Justin Drake, Dan Harkins, Thomas Icart, Michael Scott, and Mathy Vanhoef
+for helpful feedback.
 
 # Contributors
 
