@@ -2414,8 +2414,11 @@ with hash\_to\_base ({{hashtobase}}), the resulting function is
 indifferentiable from a random oracle.
 In most cases such a function can be safely used in protocols whose security
 analysis assumes a random oracle that outputs points on an elliptic curve.
-As Ristenpart et al. discuss in {{RSS11}}, however, the indifferentiability
-framework has limitations which must be considered when analyzing security.
+As Ristenpart et al. discuss in {{RSS11}}, however, not all security proofs
+that rely on random oracles continue to hold when those oracles are replaced
+by indifferentiable functionalities.
+This limitation should be considered when analyzing the security of protocols
+relying on the hash\_to\_curve function.
 
 When hashing passwords using any function described in this document, an adversary
 who learns the output of the hash function (or potentially any intermediate value,
