@@ -2980,7 +2980,24 @@ The below function outputs an appropriate Z for the Shallue and van de Woestijne
 
 ~~~sage
 def find_z_svdw(F, A, B):
-    pass
+    g = lambda x: F(x) ** 3 + F(A) * F(x) + F(B)
+    h = lambda Z: -(F(3) * Z ** 2 + F(4) * A) / (F(4) * g(Z))
+    ctr = F.gen()
+    while True:
+        for Z_cand in (F(ctr), F(-ctr)):
+            if g(Z_cand) == F(0):
+                # Criterion 1: g(Z) != 0 in F.
+                continue
+            if h(Z_cand) == F(0):
+                # Criterion 2: -(3 * Z^2 + 4 * A) / (4 * g(Z)) != 0 in F.
+                continue
+            if not h(Z_cand).is_square():
+                # Criterion 3: -(3 * Z^2 + 4 * A) / (4 * g(Z)) is square in F.
+                continue
+            if g(Z_cand).is_square() or g(-Z_cand / F(2)).is_square():
+                # Criterion 4: At least one of g(Z) and g(-Z / 2) is square in F.
+                return Z_cand
+        ctr += 1
 ~~~
 
 ## Finding Z for Simplified SWU {#sswu-z-code}
