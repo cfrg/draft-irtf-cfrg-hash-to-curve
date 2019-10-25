@@ -2223,9 +2223,21 @@ Fields MUST be chosen as follows:
 
 ## Suites for NIST P-256 {#suites-p256}
 
+This section defines ciphersuites for the NIST P-256 elliptic curve {{FIPS186-4}}.
+
 The suites P256-SHA256-SSWU-RO- and P256-SHA256-SSWU-NU-
-are defined for the NIST P-256 elliptic curve {{FIPS186-4}}.
-These suites share the following parameters:
+share the following parameters, in addition to the common parameters below.
+
+- f: Simplified SWU method, {{simple-swu}}
+- Z: -10
+
+The suites P256-SHA256-SVDW-RO- and P256-SHA256-SVDW-NU-
+share the following parameters, in addition to the common parameters below.
+
+- f: Shallue-van de Woestijne method, {{svdw}}
+- Z: -3
+
+The common parameters for the above suites are:
 
 - E: y^2 = x^3 + A * x + B, where
    - A = -3
@@ -2234,15 +2246,28 @@ These suites share the following parameters:
 - m: 1
 - H: SHA-256
 - L: 48
-- f: Simplified SWU method, {{simple-swu}}
-- Z: -2
 - h\_eff: 1
+
+An optimized example implementation of the Simplified SWU mapping
+for P-256 is given in {{map-to-p256}}.
 
 ## Suites for NIST P-384 {#suites-p384}
 
+This section defines ciphersuites for the NIST P-384 elliptic curve {{FIPS186-4}}.
+
 The suites P384-SHA512-SSWU-RO- and P384-SHA512-SSWU-NU-
-are defined for the NIST P-384 elliptic curve {{FIPS186-4}}.
-These suites share the following parameters:
+share the following parameters, in addition to the common parameters below.
+
+- f: Simplified SWU method, {{simple-swu}}
+- Z: -12
+
+The suites P384-SHA512-SVDW-RO- and P384-SHA512-SVDW-NU-
+share the following parameters, in addition to the common parameters below.
+
+- f: Shallue-van de Woestijne method, {{svdw}}
+- Z: -1
+
+The common parameters for the above suites are:
 
 - E: y^2 = x^3 + A * x + B, where
   - A = -3
@@ -2251,15 +2276,25 @@ These suites share the following parameters:
 - m: 1
 - H: SHA-512
 - L: 72
-- f: Simplified SWU method, {{simple-swu}}
-- Z: -1
 - h\_eff: 1
 
 ## Suites for NIST P-521 {#suites-p521}
 
+This section defines ciphersuites for the NIST P-521 elliptic curve {{FIPS186-4}}.
+
 The suites P521-SHA512-SSWU-RO- and P521-SHA512-SSWU-NU-
-are defined for the NIST P-384 elliptic curve {{FIPS186-4}}.
-These suites share the following parameters:
+share the following parameters, in addition to the common parameters below.
+
+- f: Simplified SWU method, {{simple-swu}}
+- Z: -4
+
+The suites P521-SHA512-SVDW-RO- and P521-SHA512-SVDW-NU-
+share the following parameters, in addition to the common parameters below.
+
+- f: Shallue-van de Woestijne method, {{svdw}}
+- Z: 1
+
+The common parameters for the above suites are:
 
 - E: y^2 = x^3 + A * x + B, where
   - A = -3
@@ -2268,11 +2303,7 @@ These suites share the following parameters:
 - m: 1
 - H: SHA-512
 - L: 96
-- f: Simplified SWU method, {{simple-swu}}
-- Z: -2
 - h\_eff: 1
-
-An optimized example implementation of the above mapping is given in {{map-to-p256}}.
 
 ## Suites for curve25519 and edwards25519 {#suites-25519}
 
@@ -2344,17 +2375,31 @@ Optimized example implementations of the above mappings are given in
 
 ## Suites for SECP256K1 {#suites-secp256k1}
 
+This section defines ciphersuites for the SECP256K1 elliptic curve {{SEC2}}.
+
+The suites SECP256K1-SHA256-SSWU-RO- and SECP256K1-SHA256-SSWU-NU-
+share the following parameters, in addition to the common parameters below.
+
+- f: Simplified SWU method, {{simple-swu}}
+- Z: -11
+- E': y'^2 = x'^3 + A' * x' + B', where
+  - A': 0x3f8731abdd661adca08a5558f0f5d272e953d363cb6f0e5d405447c01a444533
+  - B': 1771
+- iso\_map: the 3-isogeny map from E' to E given in {{appx-iso-secp256k1}}
+
 The suites SECP256K1-SHA256-SVDW-RO- and SECP256K1-SHA256-SVDW-NU-
-are defined for the SECP256K1 elliptic curve {{SEC2}}.
-These suites share the following parameters:
+share the following parameters, in addition to the common parameters below.
+
+- f: Shallue-van de Woestijne method, {{svdw}}
+- Z: 1
+
+The common parameters for all of the above suites are:
 
 - E: y^2 = x^3 + 7
 - p: 2^256 - 2^32 - 2^9 - 2^8 - 2^7 - 2^6 - 2^4 - 1
 - m: 1
 - H: SHA-256
 - L: 48
-- f: Shallue-van de Woestijne method, {{svdw}}
-- Z: 1
 - h\_eff: 1
 
 ## Suites for BLS12-381 {#suites-bls12381}
@@ -2362,43 +2407,71 @@ These suites share the following parameters:
 This section defines ciphersuites for groups G1 and G2 of
 the BLS12-381 elliptic curve {{draft-yonezawa-pfc-01}}.
 
+### BLS12-381 G1 {#suites-bls12381-g1}
+
 The suites BLS12381G1-SHA256-SSWU-RO- and BLS12381G1-SHA256-SSWU-NU-
 share the following parameters, in addition to the common parameters below.
 
+- f: Simplified SWU for pairing-friendly curves, {{simple-swu-pairing-friendly}}
+- Z: 11
+- E': y'^2 = x'^3 + A' * x' + B', where
+  - A' = 0x144698a3b8e9433d693a02c96d4982b0ea985383ee66a8d8e8981aefd881ac98936f8da0e0f97f5cf428082d584c1d
+  - B' = 0x12e2908d11688030018b12e8753eee3b2016c1f0f24f4070a0b9c14fcef35ef55a23215a316ceaa5d1cc48e98e172be0
+- iso\_map: the 11-isogeny map from E' to E given in {{appx-iso-bls12381-g1}}
+
+The suites BLS12381G1-SHA256-SVDW-RO- and BLS12381G1-SHA256-SVDW-NU-
+share the following parameters, in addition to the common parameters below.
+
+- f: Shallue-van de Woestijne method, {{svdw}}
+- Z: -3
+
+The common parameters for the above suites are:
+
 - E: y^2 = x^3 + 4
+- p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
 - m: 1
-- Z: -1
-- E': y'^2 = x'^3 + A * x' + B, where
-  - A = 0x144698a3b8e9433d693a02c96d4982b0ea985383ee66a8d8e8981aefd881ac98936f8da0e0f97f5cf428082d584c1d
-  - B = 0x12e2908d11688030018b12e8753eee3b2016c1f0f24f4070a0b9c14fcef35ef55a23215a316ceaa5d1cc48e98e172be0
-- iso\_map: the 11-isogeny map from E' to E given in {{appx-bls12381-g1}}
+- H: SHA-256
+- L: 64
 - h\_eff: 0xd201000000010001
+
+Note that this h\_eff value is chosen for compatibility
+with the fast cofactor clearing method described by Scott ({{WB19}} Section 5).
+
+### BLS12-381 G2 {#suites-bls12381-g2}
+
+Group G2 of BLS12-381 is defined over a field F = GF(p^m) defined as:
+
+- p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
+- m: 2
+- (1, I) is the basis for F, where I^2 + 1 == 0 in F
 
 The suites BLS12381G2-SHA256-SSWU-RO- and BLS12381G2-SHA256-SSWU-NU-
 share the following parameters, in addition to the common parameters below.
 
-- F: GF(p^m), where
-  - p: defined below
-  - m: 2
-  - (1, i) is the basis for F, where i^2 + 1 == 0 in F
-- E: y^2 = x^3 + 4 * (1 + i)
-- Z: 1 + i
-- E': y'^2 = x'^3 + A * x' + B, where
-  - A = 240 * i
-  - B = 1012 * (1 + i)
-- iso\_map: the isogeny map from E' to E given in {{appx-bls12381-g2}}
-- h\_eff: 0xbc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff031508ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689f6a359894c0adebbf6b4e8020005aaa95551
+- f: Simplified SWU for pairing-friendly curves, {{simple-swu-pairing-friendly}}
+- Z: -(2 + I)
+- E': y'^2 = x'^3 + A' * x' + B', where
+  - A' = 240 * I
+  - B' = 1012 * (1 + I)
+- iso\_map: the isogeny map from E' to E given in {{appx-iso-bls12381-g2}}
+
+The suites BLS12381G2-SHA256-SSWU-RO- and BLS12381G2-SHA256-SSWU-NU-
+share the following parameters, in addition to the common parameters below.
+
+- f: Shallue-van de Woestijne method, {{svdw}}
+- Z: I
 
 The common parameters for the above suites are:
 
-- p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
+- E: y^2 = x^3 + 4 * (1 + I)
+- p, m, F: defined above
 - H: SHA-256
 - L: 64
-- f: Simplified SWU for pairing-friendly curves, {{simple-swu-pairing-friendly}}
+- h\_eff: 0xbc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff031508ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689f6a359894c0adebbf6b4e8020005aaa95551
 
-Note that the h\_eff parameters for all of the above suites are chosen for compatibility
-with the fast cofactor clearing methods described by Scott for G1 ({{WB19}} Section 5)
-and by Budroni and Pintore for G2 ({{BP18}}, Section 4.1).
+Note that this h\_eff value is chosen for compatibility
+with the fast cofactor clearing method described by
+Budroni and Pintore ({{BP18}}, Section 4.1).
 
 # IANA Considerations
 
@@ -2574,22 +2647,69 @@ following rational map ({{BBJLP08}}, Theorem 3.2):
 - x'' = (1 + y) / (1 - y)
 - y'' = (1 + y) / (x * (1 - y))
 
-# Isogenous curves and corresponding maps for BLS12-381 {#appx-bls12381}
+# Isogeny maps for Suites {#appx-iso}
 
-This section specifies the isogeny maps for the BLS12-381 suites
-listed in {{suites-bls12381}}.
+This section specifies the isogeny maps for the SECP256k1 and BLS12-381
+suites listed in {{suites}}.
 
-## 11-isogeny map for G1 {#appx-bls12381-g1}
+These maps are given in terms of affine coordinates.
+Wahby and Boneh ({{WB19}}, Section 4.3) show how to evaluate these maps
+in a projective coordinate system ({{projective-coords}}), which avoids
+modular inversions.
 
-The 11-isogeny map from E' to E is given by the following rational functions:
+Refer to the draft repository {{hash2curve-repo}} for a Sage {{SAGE}} script
+that constructs these isogenies.
+
+## 3-isogeny map for SECP256k1 {#appx-iso-secp256k1}
+
+This section specifies the isogeny map for the SECP256k1 suite listed in {{suites-secp256k1}}.
+
+The 3-isogeny map from (x', y') on E' to (x, y) on E is given by the following rational functions:
 
 - x = x\_num / x\_den, where
-  - x\_num = k\_(1,11) * x'^11 + k\_(1,10) * x'^10 + ... + k\_(1,0)
-  - x\_den = x'^10 + k\_(2,9) * x'^9 + ... + k\_(2,0)
+  - x\_num = k\_(1,3) * x'^3 + k\_(1,2) * x'^2 + k\_(1,1) * x' + k\_(1,0)
+  - x\_den = x'^2 + k\_(2,1) * x' + k\_(2,0)
 
 - y = y' * y\_num / y\_den, where
-  - y\_num = k\_(3,15) * x'^15 + k\_(3,14) * x'^14 + ... + k\_(3,0)
-  - y\_den = x'^15 + k\_(4,14) * x'^14 + ... + k\_(4,0)
+  - y\_num = k\_(3,3) * x'^3 + k\_(3,2) * x'^2 + k\_(3,1) * x' + k\_(3,0)
+  - y\_den = x'^3 + k\_(4,2) * x'^2 + k\_(4,1) * x' + k\_(4,0)
+
+The constants used to compute x\_num are as follows:
+
+- k\_(1,0) = 0x8e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38daaaaa8c7
+- k\_(1,1) = 0x7d3d4c80bc321d5b9f315cea7fd44c5d595d2fc0bf63b92dfff1044f17c6581
+- k\_(1,2) = 0x534c328d23f234e6e2a413deca25caece4506144037c40314ecbd0b53d9dd262
+- k\_(1,3) = 0x8e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38daaaaa88c
+
+The constants used to compute x\_den are as follows:
+
+- k\_(2,0) = 0xd35771193d94918a9ca34ccbb7b640dd86cd409542f8487d9fe6b745781eb49b
+- k\_(2,1) = 0xedadc6f64383dc1df7c4b2d51b54225406d36b641f5e41bbc52a56612a8c6d14
+
+The constants used to compute y\_num are as follows:
+
+- k\_(3,0) = 0x4bda12f684bda12f684bda12f684bda12f684bda12f684bda12f684b8e38e23c
+- k\_(3,1) = 0xc75e0c32d5cb7c0fa9d0a54b12a0a6d5647ab046d686da6fdffc90fc201d71a3
+- k\_(3,2) = 0x29a6194691f91a73715209ef6512e576722830a201be2018a765e85a9ecee931
+- k\_(3,3) = 0x2f684bda12f684bda12f684bda12f684bda12f684bda12f684bda12f38e38d84
+
+The constants used to compute y\_den are as follows:
+
+- k\_(4,0) = 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffff93b
+- k\_(4,1) = 0x7a06534bb8bdb49fd5e9e6632722c2989467c1bfc8e8d978dfb425d2685c2573
+- k\_(4,2) = 0x6484aa716545ca2cf3a70c3fa8fe337e0a3d21162f0d6299a7bf8192bfd2a76f
+
+## 11-isogeny map for BLS12-381 G1 {#appx-iso-bls12381-g1}
+
+The 11-isogeny map from (x', y') on E' to (x, y) on E is given by the following rational functions:
+
+- x = x\_num / x\_den, where
+  - x\_num = k\_(1,11) * x'^11 + k\_(1,10) * x'^10 + k\_(1,9) * x'^9 + ... + k\_(1,0)
+  - x\_den = x'^10 + k\_(2,9) * x'^9 + k\_(2,8) * x'^8 + ... + k\_(2,0)
+
+- y = y' * y\_num / y\_den, where
+  - y\_num = k\_(3,15) * x'^15 + k\_(3,14) * x'^14 + k\_(3,13) * x'^13 + ... + k\_(3,0)
+  - y\_den = x'^15 + k\_(4,14) * x'^14 + k\_(4,13) * x'^13 + ... + k\_(4,0)
 
 The constants used to compute x\_num are as follows:
 
@@ -2656,42 +2776,42 @@ The constants used to compute y\_den are as follows:
 - k\_(4,13) = 0x2660400eb2e4f3b628bdd0d53cd76f2bf565b94e72927c1cb748df27942480e420517bd8714cc80d1fadc1326ed06f7
 - k\_(4,14) = 0xe0fa1d816ddc03e6b24255e0d7819c171c40f65e273b853324efcd6356caa205ca2f570f13497804415473a1d634b8f
 
-## 3-isogeny map for G2 {#appx-bls12381-g2}
+## 3-isogeny map for BLS12-381 G2 {#appx-iso-bls12381-g2}
 
-The 3-isogeny map from E' to E is given by the following rational functions:
+The 3-isogeny map from (x', y') on E' to (x, y) on E is given by the following rational functions:
 
 - x = x\_num / x\_den, where
-  - x\_num = k\_(1,3) * x'^3 + k\_(1,2) * x'^2 + ... + k\_(1,0)
+  - x\_num = k\_(1,3) * x'^3 + k\_(1,2) * x'^2 + k\_(1,1) * x' + k\_(1,0)
   - x\_den = x'^2 + k\_(2,1) * x' + k\_(2,0)
 
 - y = y' * y\_num / y\_den, where
-  - y\_num = k\_(3,3) * x'^3 + k\_(3,2) * x'^2 + ... + k\_(3,0)
-  - y\_den = x'^3 + k\_(4,2) * x'^2 + ... + k\_(4,0)
+  - y\_num = k\_(3,3) * x'^3 + k\_(3,2) * x'^2 + k\_(3,1) * x' + k\_(3,0)
+  - y\_den = x'^3 + k\_(4,2) * x'^2 + k\_(4,1) * x' + k\_(4,0)
 
 The constants used to compute x\_num are as follows:
 
-- k\_(1,0) = 0x5c759507e8e333ebb5b7a9a47d7ed8532c52d39fd3a042a88b58423c50ae15d5c2638e343d9c71c6238aaaaaaaa97d6 + 0x5c759507e8e333ebb5b7a9a47d7ed8532c52d39fd3a042a88b58423c50ae15d5c2638e343d9c71c6238aaaaaaaa97d6 * i
-- k\_(1,1) = 0x11560bf17baa99bc32126fced787c88f984f87adf7ae0c7f9a208c6b4f20a4181472aaa9cb8d555526a9ffffffffc71a * i
-- k\_(1,2) = 0x11560bf17baa99bc32126fced787c88f984f87adf7ae0c7f9a208c6b4f20a4181472aaa9cb8d555526a9ffffffffc71e + 0x8ab05f8bdd54cde190937e76bc3e447cc27c3d6fbd7063fcd104635a790520c0a395554e5c6aaaa9354ffffffffe38d * i
+- k\_(1,0) = 0x5c759507e8e333ebb5b7a9a47d7ed8532c52d39fd3a042a88b58423c50ae15d5c2638e343d9c71c6238aaaaaaaa97d6 + 0x5c759507e8e333ebb5b7a9a47d7ed8532c52d39fd3a042a88b58423c50ae15d5c2638e343d9c71c6238aaaaaaaa97d6 * I
+- k\_(1,1) = 0x11560bf17baa99bc32126fced787c88f984f87adf7ae0c7f9a208c6b4f20a4181472aaa9cb8d555526a9ffffffffc71a * I
+- k\_(1,2) = 0x11560bf17baa99bc32126fced787c88f984f87adf7ae0c7f9a208c6b4f20a4181472aaa9cb8d555526a9ffffffffc71e + 0x8ab05f8bdd54cde190937e76bc3e447cc27c3d6fbd7063fcd104635a790520c0a395554e5c6aaaa9354ffffffffe38d * I
 - k\_(1,3) = 0x171d6541fa38ccfaed6dea691f5fb614cb14b4e7f4e810aa22d6108f142b85757098e38d0f671c7188e2aaaaaaaa5ed1
 
 The constants used to compute x\_den are as follows:
 
-- k\_(2,0) = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaa63 * i
-- k\_(2,1) = 0xc + 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaa9f * i
+- k\_(2,0) = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaa63 * I
+- k\_(2,1) = 0xc + 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaa9f * I
 
 The constants used to compute y\_num are as follows:
 
-- k\_(3,0) = 0x1530477c7ab4113b59a4c18b076d11930f7da5d4a07f649bf54439d87d27e500fc8c25ebf8c92f6812cfc71c71c6d706 + 0x1530477c7ab4113b59a4c18b076d11930f7da5d4a07f649bf54439d87d27e500fc8c25ebf8c92f6812cfc71c71c6d706 * i
-- k\_(3,1) = 0x5c759507e8e333ebb5b7a9a47d7ed8532c52d39fd3a042a88b58423c50ae15d5c2638e343d9c71c6238aaaaaaaa97be * i
-- k\_(3,2) = 0x11560bf17baa99bc32126fced787c88f984f87adf7ae0c7f9a208c6b4f20a4181472aaa9cb8d555526a9ffffffffc71c + 0x8ab05f8bdd54cde190937e76bc3e447cc27c3d6fbd7063fcd104635a790520c0a395554e5c6aaaa9354ffffffffe38f * i
+- k\_(3,0) = 0x1530477c7ab4113b59a4c18b076d11930f7da5d4a07f649bf54439d87d27e500fc8c25ebf8c92f6812cfc71c71c6d706 + 0x1530477c7ab4113b59a4c18b076d11930f7da5d4a07f649bf54439d87d27e500fc8c25ebf8c92f6812cfc71c71c6d706 * I
+- k\_(3,1) = 0x5c759507e8e333ebb5b7a9a47d7ed8532c52d39fd3a042a88b58423c50ae15d5c2638e343d9c71c6238aaaaaaaa97be * I
+- k\_(3,2) = 0x11560bf17baa99bc32126fced787c88f984f87adf7ae0c7f9a208c6b4f20a4181472aaa9cb8d555526a9ffffffffc71c + 0x8ab05f8bdd54cde190937e76bc3e447cc27c3d6fbd7063fcd104635a790520c0a395554e5c6aaaa9354ffffffffe38f * I
 - k\_(3,3) = 0x124c9ad43b6cf79bfbf7043de3811ad0761b0f37a1e26286b0e977c69aa274524e79097a56dc4bd9e1b371c71c718b10
 
 The constants used to compute y\_den are as follows:
 
-- k\_(4,0) = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffa8fb + 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffa8fb * i
-- k\_(4,1) = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffa9d3 * i
-- k\_(4,2) = 0x12 + 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaa99 * i
+- k\_(4,0) = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffa8fb + 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffa8fb * I
+- k\_(4,1) = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffa9d3 * I
+- k\_(4,2) = 0x12 + 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaa99 * I
 
 # Sample Code {#samplecode}
 
@@ -2702,7 +2822,7 @@ accompanying test vectors.
 Sample Sage {{SAGE}} code for each algorithm can also be found in the
 draft repository {{hash2curve-repo}}.
 
-## Interface and projective coordinate systems
+## Interface and projective coordinate systems {#projective-coords}
 
 The sample code in this section uses a different interface than
 the mappings of {{mappings}}.
