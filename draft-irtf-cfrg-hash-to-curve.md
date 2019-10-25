@@ -2564,7 +2564,7 @@ However, the running time of this method depends on the input string,
 which means that it is not safe to use in protocols sensitive to timing
 side channels.
 
-Schinzel and Skalba {{SS04}} introduce the first method of constructing
+Schinzel and Skalba {{SS04}} introduce a method of constructing
 elliptic curve points deterministically, for a restricted class of curves
 and a very small number of points.
 Skalba {{S05}} generalizes this construction to more curves and more points
@@ -2578,6 +2578,8 @@ al. {{BCIMRT10}} give a further simplification, which the authors call the
 The simplified map applies only to fields of characteristic p = 3 mod 4;
 Wahby and Boneh {{WB19}} generalize to fields of any characteristic.
 
+Boneh and Franklin give a deterministic algorithm mapping to certain
+supersingular curves over fields of characteristic p = 2 mod 3 {{BF01}}.
 Icart gives another deterministic algorithm which maps to any curve
 over a field of characteristic p = 2 mod 3 {{Icart09}}.
 Several extensions and generalizations follow this work, including
@@ -2602,7 +2604,7 @@ computes f(H0(msg)) + f(H1(msg)) for two distinct hash functions
 H0 and H1 from bit strings to F and a mapping f from F to the elliptic curve E.
 The second, which applies to essentially all deterministic mappings but
 is more costly, computes f(H0(msg)) + H2(msg) * P, for P a generator of the
-elliptic curve group and H2 a hash from bit strings to integers modulo n,
+elliptic curve group and H2 a hash from bit strings to integers modulo r,
 the order of the elliptic curve group.
 Farashahi et al. {{FFSTV13}} improve the analysis of the first method,
 showing that it applies to essentially all deterministic mappings.
