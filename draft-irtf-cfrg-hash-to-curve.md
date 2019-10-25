@@ -1604,7 +1604,7 @@ Steps:
 18. gx2 = gx2 + A
 19. gx2 = gx2 * x2
 20. gx2 = gx2 + B
-21.  e2 = is_square(gx2) AND NOT e1     // avoid short-circuit logic ops!
+21.  e2 = is_square(gx2) AND NOT e1     // avoid short-circuit logic ops
 22.  x3 = t2^2
 23.  x3 = x3 * t3
 24.  x3 = x3^2
