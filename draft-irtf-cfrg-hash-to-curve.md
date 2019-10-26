@@ -76,7 +76,7 @@ informative:
         ins: T. Saito
         name: Tsunekazu Saito
         org: NTT
-  SECG1:
+  SEC1:
     title: "SEC 1: Elliptic Curve Cryptography"
     target: http://www.secg.org/sec1-v2.pdf
     date: May, 2009
@@ -749,9 +749,13 @@ informative:
   WB19:
     title: Fast and simple constant-time hashing to the BLS12-381 elliptic curve
     seriesinfo:
-        "Technical report": ePrint 2019/403
+        "In": IACR Trans. CHES
+        "volume": 2019
+        "issue": 4
+        DOI: 10.13154/tches.v2019.i4.154-179
+        "ePrint": 2019/403
     target: https://eprint.iacr.org/2019/403
-    date: 2019
+    date: Aug, 2019
     author:
       -
         ins: R. S. Wahby
@@ -889,6 +893,14 @@ informative:
     author:
       -
         org: IEEE Computer Society
+  x9.62:
+    title: "Public Key Cryptography for the Financial Services Industry: the Elliptic Curve Digital Signature Algorithm (ECDSA)"
+    date: Sep, 1998
+    seriesinfo:
+      "ANSI": X9.62-1998
+    author:
+      -
+        org: ANSI
 
 --- abstract
 
@@ -1061,9 +1073,8 @@ That construction is described in {{roadmap}}.
 
 A procedure related to encoding is the conversion of an elliptic curve point to a bit string.
 This is called serialization, and is typically used for compactly storing or transmitting points.
-For example, {{SECG1}} gives a standard method for serializing points.
-The reverse operation, deserialization, converts a bit string to an elliptic
-curve point.
+The reverse operation, deserialization, converts a bit string to an elliptic curve point.
+For example, {{SEC1}} and {{p1363a}} give standard methods for serialization and deserialization.
 
 Deserialization is different from encoding in that only certain strings
 (namely, those output by the serialization procedure) can be deserialized.
@@ -1291,10 +1302,9 @@ The following sgn0 variant is defined such that sgn0\_be(x) = -1
 just when the big-endian encoding of x is lexically greater than
 the encoding of -x.
 
-This variant is convenient when points are serialized
-in big-endian byte order, or when points are serialized
-according to IEEE 1363a-2004 {{p1363a}} and the extension
-degree of F is greater than 1.
+This variant SHOULD be used when points on the target elliptic curve
+are serialized using the SORT compression method given in
+IEEE 1363a-2004 {{p1363a}}, Section 5.5.6.1.2, and other similar methods.
 
 ~~~
 sgn0_be(x)
@@ -1324,13 +1334,15 @@ The following sgn0 variant is defined such that sgn0\_le(x) = -1
 just when x != 0 and the parity of the least significant nonzero
 entry of the vector representation of x is 1.
 
-This variant is convenient when points are serialized
-in little-endian byte order.
-For example, this serialization is specified for the
+This variant SHOULD be used when points on the target elliptic curve are serialized
+using any of the following methods:
+
+- the LSB compression method given in IEEE 1363a-2004 {{p1363a}}, Section 5.5.6.1.1,
+- the method given in {{SEC1}} Section 2.3.3, or
+- the method given in ANSI X9.62-1998 {{x9.62}}, Section 4.2.1.
+
+This variant is also compatible with the compression method specified for the
 Ed25519 and Ed448 elliptic curves {{!RFC8032}}.
-This variant is also convenient when points are serialized
-according to IEEE 1363a-2004 {{p1363a}} and the extension
-degree of F is exactly 1.
 
 ~~~
 sgn0_le(x)
