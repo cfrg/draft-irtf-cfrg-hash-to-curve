@@ -1493,7 +1493,7 @@ Steps:
 ## Alternative hash\_to\_base functions {#hashtobase-alt}
 
 The hash\_to\_base function is suitable for use with a wide range of hash functions,
-including SHA-3 {{FIPS202}}, BLAKE2 {{!RFC7963}}, and others.
+including SHA-2 {{FIPS180-4}}, SHA-3 {{FIPS202}}, BLAKE2 {{!RFC7963}}, and others.
 In some cases, however, implementors may wish to replace the HKDF-based function
 defined in this section with one that uses a different pseudorandom generator,
 e.g., a function based on an extendable-output function like cSHAKE {{SP.800-185}}
@@ -1513,7 +1513,7 @@ In particular:
   given in {{hashtobase-sec}}.
 
 - The alternative hash\_to\_base function MUST support domain separation
-  via a supplied domain separation tag.
+  via a supplied domain separation tag (DST).
   For example, a hash\_to\_base function based on cSHAKE might set S,
   the cSHAKE customization bit string argument, to the DST value.
 
