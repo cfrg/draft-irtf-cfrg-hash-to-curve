@@ -863,6 +863,14 @@ informative:
         ins: T. Shrimpton
         name: Thomas Shrimpton
         org: Portland State University
+  W19:
+    title: An explicit, generic parameterization for the Shallue--van de Woestijne map
+    target: https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/doc/svdw_params.pdf
+    author:
+      -
+        ins: R. S. Wahby
+        name: Riad S. Wahby
+        org: Stanford University
 
 --- abstract
 
@@ -1502,6 +1510,118 @@ cases that result from attempting to compute the inverse of 0.
 The following mappings apply to elliptic curves defined by the equation
 E: y^2 = g(x) = x^3 + A * x + B, where 4 * A^3 + 27 * B^2 != 0.
 
+### Shallue-van de Woestijne Method {#svdw}
+
+Shallue and van de Woestijne {{SW06}} describe a mapping that applies to
+essentially any elliptic curve.
+This generality, however, comes at a price: this mapping is strictly
+more expensive to evaluate than the other mappings in this document.
+
+The parameterization given below works for essentially any Weierstrass curve;
+its derivation is detailed in {{W19}}.
+Fouque and Tibouchi {{FT12}} give a different parameterization of this mapping
+that works for Barreto-Naehrig pairing-friendly curves {{BN05}}, i.e.,
+curves y^2 = x^3 + B over fields of characteristic q = 1 (mod 3).
+Wahby and Boneh {{WB19}} suggest a small modification to the Fouque-Tibouchi
+parameters that results in a uniform method for handling exceptional cases;
+that method is the one used below.
+
+Preconditions: A Weierstrass curve y^2 = x^3 + A * x + B over F = GF(p^m)
+where p > 5 and odd.
+
+Constants:
+
+- A and B, the parameter of the Weierstrass curve.
+
+- Z, an element of F meeting the below criteria.
+  {{svdw-z-code}} gives a Sage {{SAGE}} script that outputs the RECOMMENDED Z.
+  1. g(Z) != 0 in F.
+  2. -(3 * Z^2 + 4 * A) / (4 * g(Z)) != 0 in F.
+  3. -(3 * Z^2 + 4 * A) / (4 * g(Z)) is square in F.
+  4. At least one of g(Z) and g(-Z / 2) is square in F.
+
+Sign of y: Inputs u and -u give the same x-coordinate.
+Thus, we set sgn0(y) == sgn0(u).
+
+Exceptions: The exceptional cases for u occur when
+(1 + u^2 * g(Z)) * (1 - u^2 * g(Z)) == 0.
+The restrictions on Z given above ensure that implementations that use inv0
+to invert this product are exception free.
+
+Operations:
+
+~~~
+1. t1 = u^2 * g(Z)
+2. t2 = 1 + t1
+3. t1 = 1 - t1
+4. t3 = inv0(t1 * t2)
+5. t4 = u * t1 * t3 * sqrt(-g(Z) * (3 * Z^2 + 4 * A))
+6. x1 = -Z / 2 - t4
+7. x2 = -Z / 2 + t4
+8. t5 = 2 * t2^2 * t3 * sqrt(-g(Z) / (3 * Z^2 + 4 * A))
+9. x3 = Z + t5^2
+10. If is_square(g(x1)), set x = x1 and y = sqrt(g(x1))
+11. Else If is_square(g(x2)), set x = x2 and y = sqrt(g(x2))
+12. Else set x = x3 and y = sqrt(g(x3))
+13. If sgn0(u) != sgn0(y), set y = -y
+14. return (x, y)
+~~~
+
+#### Implementation
+
+The following procedure implements the Shallue and van de Woestijne method in a
+straight-line fashion.
+
+~~~
+map_to_curve_svdw(u)
+Input: u, an element of F.
+Output: (x, y), a point on E.
+
+Constants:
+1. c1 = g(Z)
+2. c2 = -Z / 2
+3. c3 = sqrt(-g(Z) * (3 * Z^2 + 4 * A))         // sgn0(c3) MUST equal 1
+4. c4 = -4 * g(Z) / (3 * Z^2 + 4 * A)
+
+Steps:
+1.   t1 = u^2
+2.   t1 = t1 * c1
+3.   t2 = 1 + t1
+4.   t1 = 1 - t1
+5.   t3 = t1 * t2
+6.   t3 = inv0(t3)
+7.   t4 = u * t1
+8.   t4 = t4 * t3
+9.   t4 = t4 * c3
+10.  x1 = c2 - t4
+11. gx1 = x1^2
+12. gx1 = gx1 + A
+13. gx1 = gx1 * x1
+14. gx1 = gx1 + B
+15.  e1 = is_square(gx1)
+16.  x2 = c2 + t4
+17. gx2 = x2^2
+18. gx2 = gx2 + A
+19. gx2 = gx2 * x2
+20. gx2 = gx2 + B
+21.  e2 = is_square(gx2) AND NOT e1     // avoid short-circuit logic ops
+22.  x3 = t2^2
+23.  x3 = x3 * t3
+24.  x3 = x3^2
+25.  x3 = x3 * c4
+26.  x3 = x3 + Z
+27.   x = CMOV(x3, x1, e1)      // x = x1 if gx1 is square, else x = x3
+28.   x = CMOV(x, x2, e2)       // x = x2 if gx2 is square and gx1 is not
+29.  gx = x^2
+30.  gx = gx + A
+31.  gx = gx * x
+32.  gx = gx + B
+33.   y = sqrt(gx)
+34.  e3 = sgn0(u) == sgn0(y)
+35.   y = CMOV(-y, y, e3)       // select correct sign of y
+36. return (x, y)
+~~~
+
 ### Simplified Shallue-van de Woestijne-Ulas Method {#simple-swu}
 
 The function map\_to\_curve\_simple\_swu(u) implements a simplification
@@ -1509,19 +1629,20 @@ of the Shallue-van de Woestijne-Ulas mapping {{U07}} described by Brier et
 al. {{BCIMRT10}}, which they call the "simplified SWU" map. Wahby and Boneh
 {{WB19}} generalize this mapping to curves over fields of odd characteristic p > 3.
 
-Preconditions: A Weierstrass curve over F such that A != 0 and B != 0.
+Preconditions: A Weierstrass curve y^2 = x^3 + A * x + B over F = GF(p^m)
+where p > 5 and odd, A != 0, and B != 0.
 
 Constants:
 
 - A and B, the parameters of the Weierstrass curve.
 
-- Z, the unique element of F meeting all of the following criteria:
+- Z, an element of F meeting the below criteria.
+  {{sswu-z-code}} gives a Sage {{SAGE}} script that outputs the RECOMMENDED Z.
+  The criteria are:
   1. Z is non-square in F,
-  2. g(B / (Z * A)) is square in F,
-  3. there is no other Z' meeting criteria (1) and (2) for which
-     abs(Z') < abs(Z) ({{utility}}), and
-  4. if Z and -Z both meet the above criteria, Z is the element
-     such that sgn0(Z) == 1.
+  2. Z != -1 in F,
+  3. the polynomial g(x) - Z is irreducible over F, and
+  4. g(B / (Z * A)) is square in F.
 
 Sign of y: Inputs u and -u give the same x-coordinate.
 Thus, we set sgn0(y) == sgn0(u).
@@ -1624,12 +1745,8 @@ Constants:
 
 - A and B, the parameters of the elliptic curve.
 
-- Z, the unique element of F meeting all of the following criteria:
-  1. Z is non-square in F,
-  2. there is no other non-square Z' for which
-     abs(Z') < abs(Z) ({{utility}}), and
-  3. if Z and -Z both met the above criteria, Z is the element
-     such that sgn0(Z) == 1.
+- Z, a non-square element of F.
+  {{elligator-z-code}} gives a Sage {{SAGE}} script that outputs the RECOMMENDED Z.
 
 Sign of y: Inputs u and -u give the same x-coordinate.
 Thus, we set sgn0(y) == sgn0(u).
@@ -1916,110 +2033,6 @@ Steps:
 
 ## Mappings for Pairing-Friendly curves
 
-### Shallue-van de Woestijne Method {#swpairing}
-
-Shallue and van de Woestijne {{SW06}} describe a mapping that applies to
-essentially any elliptic curve. Fouque and Tibouchi {{FT12}} give a concrete
-set of parameters for this mapping geared toward Barreto-Naehrig pairing-friendly curves
-{{BN05}}, i.e., curves y^2 = x^3 + B over fields of characteristic q = 1 (mod 3).
-Wahby and Boneh {{WB19}} suggest a small generalization of the Fouque-Tibouchi
-parameters that results in a uniform method for handling exceptional cases.
-
-The Shallue-van de Woestijne mapping method covers curves not handled by other methods, e.g.,
-SECP256K1 {{SEC2}}. It also covers pairing-friendly curves in the BN {{BN05}},
-KSS {{KSS08}}, and BLS {{BLS03}} families. (Note, however, that the mapping
-described in {{simple-swu-pairing-friendly}} is faster, when it applies.)
-
-Preconditions: An elliptic curve y^2 = g(x) = x^3 + B over F such that q = 1 (mod 3) and B != 0.
-
-Constants:
-
-- B, the parameter of the Weierstrass curve.
-
-- Z, the unique element of F meeting all of the following criteria:
-  1. g((sqrt(-3 * Z^2) - Z) / 2) is square in F,
-  2. there is no other Z' meeting criterion (1) for which
-     abs(Z') < abs(Z) ({{utility}}), and
-  3. if Z and -Z both meet the above criteria, Z is the element
-     such that sgn0(Z) == 1.
-
-Sign of y: Inputs u and -u give the same x-coordinate.
-Thus, we set sgn0(y) == sgn0(u).
-
-Exceptions: The exceptional cases for u occur when
-u^2 * (u^2 + g(Z)) == 0. The restriction on Z given above ensures that
-implementations that use inv0 to invert this product are exception free.
-
-Operations:
-
-~~~
-1. t1 = u^2 + g(Z)
-2. t2 = inv0(u^2 * t1)
-3. t3 = u^4 * t2 * sqrt(-3 * Z^2)
-4. x1 = ((sqrt(-3 * Z^2) - Z) / 2) - t3
-5. x2 = t3 - ((sqrt(-3 * Z^2) + Z) / 2)
-6. x3 = Z - (t1^3 * t2 / (3 * Z^2))
-7.  If is_square(g(x1)), set x = x1 and y = sqrt(g(x1))
-8.  Else If is_square(g(x2)), set x = x2 and y = sqrt(g(x2))
-9.  Else set x = x3 and y = sqrt(g(x3))
-10. If sgn0(u) != sgn0(y), set y = -y
-11. return (x, y)
-~~~
-
-#### Implementation
-
-The following procedure implements the Shallue and van de Woestijne method in a
-straight-line fashion.
-
-~~~
-map_to_curve_svdw(u)
-Input: u, an element of F.
-Output: (x, y), a point on E.
-
-Constants:
-1. c1 = g(Z)
-2. c2 = sqrt(-3 * Z^2)
-3. c3 = (sqrt(-3 * Z^2) - Z) / 2
-4. c4 = (sqrt(-3 * Z^2) + Z) / 2
-5. c5 = 1 / (3 * Z^2)
-
-Steps:
-1.   t1 = u^2
-2.   t2 = t1 + c1           // t2 = u^2 + g(Z)
-3.   t3 = t1 * t2
-4.   t4 = inv0(t3)          // t4 = 1 / (u^2 * (u^2 + g(Z)))
-5.   t3 = t1^2
-6.   t3 = t3 * t4
-7.   t3 = t3 * c2           // t3 = u^2 * sqrt(-3 * Z^2) / (u^2 + g(Z))
-8.   x1 = c3 - t3
-9.  gx1 = x1^2
-10. gx1 = gx1 * x1
-11. gx1 = gx1 + B           // gx1 = x1^3 + B
-12.  e1 = is_square(gx1)
-13.  x2 = t3 - c4
-14. gx2 = x2^2
-15. gx2 = gx2 * x2
-16. gx2 = gx2 + B           // gx2 = x2^3 + B
-17.  e2 = is_square(gx2)
-18.  e3 = e1 OR e2          // logical OR
-19.  x3 = t2^2
-20.  x3 = x3 * t2
-21.  x3 = x3 * t4
-22.  x3 = x3 * c5
-23.  x3 = Z - x3            // Z - (u^2 + g(Z))^2 / (3 Z^2 u^2)
-24. gx3 = x3^2
-25. gx3 = gx3 * x3
-26. gx3 = gx3 + B           // gx3 = x3^3 + B
-27.   x = CMOV(x2, x1, e1)  // select x1 if gx1 is square
-28.  gx = CMOV(gx2, gx1, e1)
-29.   x = CMOV(x3, x, e3)   // select x3 if gx1 and gx2 are not square
-30.  gx = CMOV(gx3, gx, e3)
-31.   y = sqrt(gx)
-32.  e4 = sgn0(u) == sgn0(y)
-33.   y = CMOV(-y, y, e4)   // select correct sign of y
-34. return (x, y)
-~~~
-
 ### Simplified SWU for Pairing-Friendly Curves {#simple-swu-pairing-friendly}
 
 Wahby and Boneh {{WB19}} show how to adapt the simplified SWU mapping to
@@ -2210,9 +2223,21 @@ Fields MUST be chosen as follows:
 
 ## Suites for NIST P-256 {#suites-p256}
 
+This section defines ciphersuites for the NIST P-256 elliptic curve {{FIPS186-4}}.
+
 The suites P256-SHA256-SSWU-RO- and P256-SHA256-SSWU-NU-
-are defined for the NIST P-256 elliptic curve {{FIPS186-4}}.
-These suites share the following parameters:
+share the following parameters, in addition to the common parameters below.
+
+- f: Simplified SWU method, {{simple-swu}}
+- Z: -10
+
+The suites P256-SHA256-SVDW-RO- and P256-SHA256-SVDW-NU-
+share the following parameters, in addition to the common parameters below.
+
+- f: Shallue-van de Woestijne method, {{svdw}}
+- Z: -3
+
+The common parameters for the above suites are:
 
 - E: y^2 = x^3 + A * x + B, where
    - A = -3
@@ -2221,15 +2246,28 @@ These suites share the following parameters:
 - m: 1
 - H: SHA-256
 - L: 48
-- f: Simplified SWU method, {{simple-swu}}
-- Z: -2
 - h\_eff: 1
+
+An optimized example implementation of the Simplified SWU mapping
+for P-256 is given in {{map-to-p256}}.
 
 ## Suites for NIST P-384 {#suites-p384}
 
+This section defines ciphersuites for the NIST P-384 elliptic curve {{FIPS186-4}}.
+
 The suites P384-SHA512-SSWU-RO- and P384-SHA512-SSWU-NU-
-are defined for the NIST P-384 elliptic curve {{FIPS186-4}}.
-These suites share the following parameters:
+share the following parameters, in addition to the common parameters below.
+
+- f: Simplified SWU method, {{simple-swu}}
+- Z: -12
+
+The suites P384-SHA512-SVDW-RO- and P384-SHA512-SVDW-NU-
+share the following parameters, in addition to the common parameters below.
+
+- f: Shallue-van de Woestijne method, {{svdw}}
+- Z: -1
+
+The common parameters for the above suites are:
 
 - E: y^2 = x^3 + A * x + B, where
   - A = -3
@@ -2238,15 +2276,25 @@ These suites share the following parameters:
 - m: 1
 - H: SHA-512
 - L: 72
-- f: Simplified SWU method, {{simple-swu}}
-- Z: -1
 - h\_eff: 1
 
 ## Suites for NIST P-521 {#suites-p521}
 
+This section defines ciphersuites for the NIST P-521 elliptic curve {{FIPS186-4}}.
+
 The suites P521-SHA512-SSWU-RO- and P521-SHA512-SSWU-NU-
-are defined for the NIST P-384 elliptic curve {{FIPS186-4}}.
-These suites share the following parameters:
+share the following parameters, in addition to the common parameters below.
+
+- f: Simplified SWU method, {{simple-swu}}
+- Z: -4
+
+The suites P521-SHA512-SVDW-RO- and P521-SHA512-SVDW-NU-
+share the following parameters, in addition to the common parameters below.
+
+- f: Shallue-van de Woestijne method, {{svdw}}
+- Z: 1
+
+The common parameters for the above suites are:
 
 - E: y^2 = x^3 + A * x + B, where
   - A = -3
@@ -2255,11 +2303,7 @@ These suites share the following parameters:
 - m: 1
 - H: SHA-512
 - L: 96
-- f: Simplified SWU method, {{simple-swu}}
-- Z: -2
 - h\_eff: 1
-
-An optimized example implementation of the above mapping is given in {{map-to-p256}}.
 
 ## Suites for curve25519 and edwards25519 {#suites-25519}
 
@@ -2331,17 +2375,31 @@ Optimized example implementations of the above mappings are given in
 
 ## Suites for SECP256K1 {#suites-secp256k1}
 
+This section defines ciphersuites for the SECP256K1 elliptic curve {{SEC2}}.
+
+The suites SECP256K1-SHA256-SSWU-RO- and SECP256K1-SHA256-SSWU-NU-
+share the following parameters, in addition to the common parameters below.
+
+- f: Simplified SWU method, {{simple-swu}}
+- Z: -11
+- E': y'^2 = x'^3 + A' * x' + B', where
+  - A': 0x3f8731abdd661adca08a5558f0f5d272e953d363cb6f0e5d405447c01a444533
+  - B': 1771
+- iso\_map: the 3-isogeny map from E' to E given in {{appx-iso-secp256k1}}
+
 The suites SECP256K1-SHA256-SVDW-RO- and SECP256K1-SHA256-SVDW-NU-
-are defined for the SECP256K1 elliptic curve {{SEC2}}.
-These suites share the following parameters:
+share the following parameters, in addition to the common parameters below.
+
+- f: Shallue-van de Woestijne method, {{svdw}}
+- Z: 1
+
+The common parameters for all of the above suites are:
 
 - E: y^2 = x^3 + 7
 - p: 2^256 - 2^32 - 2^9 - 2^8 - 2^7 - 2^6 - 2^4 - 1
 - m: 1
 - H: SHA-256
 - L: 48
-- f: Shallue-van de Woestijne method, {{swpairing}}
-- Z: 1
 - h\_eff: 1
 
 ## Suites for BLS12-381 {#suites-bls12381}
@@ -2349,43 +2407,71 @@ These suites share the following parameters:
 This section defines ciphersuites for groups G1 and G2 of
 the BLS12-381 elliptic curve {{draft-yonezawa-pfc-01}}.
 
+### BLS12-381 G1 {#suites-bls12381-g1}
+
 The suites BLS12381G1-SHA256-SSWU-RO- and BLS12381G1-SHA256-SSWU-NU-
 share the following parameters, in addition to the common parameters below.
 
+- f: Simplified SWU for pairing-friendly curves, {{simple-swu-pairing-friendly}}
+- Z: 11
+- E': y'^2 = x'^3 + A' * x' + B', where
+  - A' = 0x144698a3b8e9433d693a02c96d4982b0ea985383ee66a8d8e8981aefd881ac98936f8da0e0f97f5cf428082d584c1d
+  - B' = 0x12e2908d11688030018b12e8753eee3b2016c1f0f24f4070a0b9c14fcef35ef55a23215a316ceaa5d1cc48e98e172be0
+- iso\_map: the 11-isogeny map from E' to E given in {{appx-iso-bls12381-g1}}
+
+The suites BLS12381G1-SHA256-SVDW-RO- and BLS12381G1-SHA256-SVDW-NU-
+share the following parameters, in addition to the common parameters below.
+
+- f: Shallue-van de Woestijne method, {{svdw}}
+- Z: -3
+
+The common parameters for the above suites are:
+
 - E: y^2 = x^3 + 4
+- p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
 - m: 1
-- Z: -1
-- E': y'^2 = x'^3 + A * x' + B, where
-  - A = 0x144698a3b8e9433d693a02c96d4982b0ea985383ee66a8d8e8981aefd881ac98936f8da0e0f97f5cf428082d584c1d
-  - B = 0x12e2908d11688030018b12e8753eee3b2016c1f0f24f4070a0b9c14fcef35ef55a23215a316ceaa5d1cc48e98e172be0
-- iso\_map: the 11-isogeny map from E' to E given in {{appx-bls12381-g1}}
+- H: SHA-256
+- L: 64
 - h\_eff: 0xd201000000010001
+
+Note that this h\_eff value is chosen for compatibility
+with the fast cofactor clearing method described by Scott ({{WB19}} Section 5).
+
+### BLS12-381 G2 {#suites-bls12381-g2}
+
+Group G2 of BLS12-381 is defined over a field F = GF(p^m) defined as:
+
+- p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
+- m: 2
+- (1, I) is the basis for F, where I^2 + 1 == 0 in F
 
 The suites BLS12381G2-SHA256-SSWU-RO- and BLS12381G2-SHA256-SSWU-NU-
 share the following parameters, in addition to the common parameters below.
 
-- F: GF(p^m), where
-  - p: defined below
-  - m: 2
-  - (1, i) is the basis for F, where i^2 + 1 == 0 in F
-- E: y^2 = x^3 + 4 * (1 + i)
-- Z: 1 + i
-- E': y'^2 = x'^3 + A * x' + B, where
-  - A = 240 * i
-  - B = 1012 * (1 + i)
-- iso\_map: the isogeny map from E' to E given in {{appx-bls12381-g2}}
-- h\_eff: 0xbc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff031508ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689f6a359894c0adebbf6b4e8020005aaa95551
+- f: Simplified SWU for pairing-friendly curves, {{simple-swu-pairing-friendly}}
+- Z: -(2 + I)
+- E': y'^2 = x'^3 + A' * x' + B', where
+  - A' = 240 * I
+  - B' = 1012 * (1 + I)
+- iso\_map: the isogeny map from E' to E given in {{appx-iso-bls12381-g2}}
+
+The suites BLS12381G2-SHA256-SVDW-RO- and BLS12381G2-SHA256-SVDW-NU-
+share the following parameters, in addition to the common parameters below.
+
+- f: Shallue-van de Woestijne method, {{svdw}}
+- Z: I
 
 The common parameters for the above suites are:
 
-- p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
+- E: y^2 = x^3 + 4 * (1 + I)
+- p, m, F: defined above
 - H: SHA-256
 - L: 64
-- f: Simplified SWU for pairing-friendly curves, {{simple-swu-pairing-friendly}}
+- h\_eff: 0xbc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff031508ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689f6a359894c0adebbf6b4e8020005aaa95551
 
-Note that the h\_eff parameters for all of the above suites are chosen for compatibility
-with the fast cofactor clearing methods described by Scott for G1 ({{WB19}} Section 5)
-and by Budroni and Pintore for G2 ({{BP18}}, Section 4.1).
+Note that this h\_eff value is chosen for compatibility
+with the fast cofactor clearing method described by
+Budroni and Pintore ({{BP18}}, Section 4.1).
 
 # IANA Considerations
 
@@ -2478,7 +2564,7 @@ However, the running time of this method depends on the input string,
 which means that it is not safe to use in protocols sensitive to timing
 side channels.
 
-Schinzel and Skalba {{SS04}} introduce the first method of constructing
+Schinzel and Skalba {{SS04}} introduce a method of constructing
 elliptic curve points deterministically, for a restricted class of curves
 and a very small number of points.
 Skalba {{S05}} generalizes this construction to more curves and more points
@@ -2492,6 +2578,8 @@ al. {{BCIMRT10}} give a further simplification, which the authors call the
 The simplified map applies only to fields of characteristic p = 3 mod 4;
 Wahby and Boneh {{WB19}} generalize to fields of any characteristic.
 
+Boneh and Franklin give a deterministic algorithm mapping to certain
+supersingular curves over fields of characteristic p = 2 mod 3 {{BF01}}.
 Icart gives another deterministic algorithm which maps to any curve
 over a field of characteristic p = 2 mod 3 {{Icart09}}.
 Several extensions and generalizations follow this work, including
@@ -2516,7 +2604,7 @@ computes f(H0(msg)) + f(H1(msg)) for two distinct hash functions
 H0 and H1 from bit strings to F and a mapping f from F to the elliptic curve E.
 The second, which applies to essentially all deterministic mappings but
 is more costly, computes f(H0(msg)) + H2(msg) * P, for P a generator of the
-elliptic curve group and H2 a hash from bit strings to integers modulo n,
+elliptic curve group and H2 a hash from bit strings to integers modulo r,
 the order of the elliptic curve group.
 Farashahi et al. {{FFSTV13}} improve the analysis of the first method,
 showing that it applies to essentially all deterministic mappings.
@@ -2561,22 +2649,69 @@ following rational map ({{BBJLP08}}, Theorem 3.2):
 - x'' = (1 + y) / (1 - y)
 - y'' = (1 + y) / (x * (1 - y))
 
-# Isogenous curves and corresponding maps for BLS12-381 {#appx-bls12381}
+# Isogeny maps for Suites {#appx-iso}
 
-This section specifies the isogeny maps for the BLS12-381 suites
-listed in {{suites-bls12381}}.
+This section specifies the isogeny maps for the SECP256k1 and BLS12-381
+suites listed in {{suites}}.
 
-## 11-isogeny map for G1 {#appx-bls12381-g1}
+These maps are given in terms of affine coordinates.
+Wahby and Boneh ({{WB19}}, Section 4.3) show how to evaluate these maps
+in a projective coordinate system ({{projective-coords}}), which avoids
+modular inversions.
 
-The 11-isogeny map from E' to E is given by the following rational functions:
+Refer to the draft repository {{hash2curve-repo}} for a Sage {{SAGE}} script
+that constructs these isogenies.
+
+## 3-isogeny map for SECP256k1 {#appx-iso-secp256k1}
+
+This section specifies the isogeny map for the SECP256k1 suite listed in {{suites-secp256k1}}.
+
+The 3-isogeny map from (x', y') on E' to (x, y) on E is given by the following rational functions:
 
 - x = x\_num / x\_den, where
-  - x\_num = k\_(1,11) * x'^11 + k\_(1,10) * x'^10 + ... + k\_(1,0)
-  - x\_den = x'^10 + k\_(2,9) * x'^9 + ... + k\_(2,0)
+  - x\_num = k\_(1,3) * x'^3 + k\_(1,2) * x'^2 + k\_(1,1) * x' + k\_(1,0)
+  - x\_den = x'^2 + k\_(2,1) * x' + k\_(2,0)
 
 - y = y' * y\_num / y\_den, where
-  - y\_num = k\_(3,15) * x'^15 + k\_(3,14) * x'^14 + ... + k\_(3,0)
-  - y\_den = x'^15 + k\_(4,14) * x'^14 + ... + k\_(4,0)
+  - y\_num = k\_(3,3) * x'^3 + k\_(3,2) * x'^2 + k\_(3,1) * x' + k\_(3,0)
+  - y\_den = x'^3 + k\_(4,2) * x'^2 + k\_(4,1) * x' + k\_(4,0)
+
+The constants used to compute x\_num are as follows:
+
+- k\_(1,0) = 0x8e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38daaaaa8c7
+- k\_(1,1) = 0x7d3d4c80bc321d5b9f315cea7fd44c5d595d2fc0bf63b92dfff1044f17c6581
+- k\_(1,2) = 0x534c328d23f234e6e2a413deca25caece4506144037c40314ecbd0b53d9dd262
+- k\_(1,3) = 0x8e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38daaaaa88c
+
+The constants used to compute x\_den are as follows:
+
+- k\_(2,0) = 0xd35771193d94918a9ca34ccbb7b640dd86cd409542f8487d9fe6b745781eb49b
+- k\_(2,1) = 0xedadc6f64383dc1df7c4b2d51b54225406d36b641f5e41bbc52a56612a8c6d14
+
+The constants used to compute y\_num are as follows:
+
+- k\_(3,0) = 0x4bda12f684bda12f684bda12f684bda12f684bda12f684bda12f684b8e38e23c
+- k\_(3,1) = 0xc75e0c32d5cb7c0fa9d0a54b12a0a6d5647ab046d686da6fdffc90fc201d71a3
+- k\_(3,2) = 0x29a6194691f91a73715209ef6512e576722830a201be2018a765e85a9ecee931
+- k\_(3,3) = 0x2f684bda12f684bda12f684bda12f684bda12f684bda12f684bda12f38e38d84
+
+The constants used to compute y\_den are as follows:
+
+- k\_(4,0) = 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffff93b
+- k\_(4,1) = 0x7a06534bb8bdb49fd5e9e6632722c2989467c1bfc8e8d978dfb425d2685c2573
+- k\_(4,2) = 0x6484aa716545ca2cf3a70c3fa8fe337e0a3d21162f0d6299a7bf8192bfd2a76f
+
+## 11-isogeny map for BLS12-381 G1 {#appx-iso-bls12381-g1}
+
+The 11-isogeny map from (x', y') on E' to (x, y) on E is given by the following rational functions:
+
+- x = x\_num / x\_den, where
+  - x\_num = k\_(1,11) * x'^11 + k\_(1,10) * x'^10 + k\_(1,9) * x'^9 + ... + k\_(1,0)
+  - x\_den = x'^10 + k\_(2,9) * x'^9 + k\_(2,8) * x'^8 + ... + k\_(2,0)
+
+- y = y' * y\_num / y\_den, where
+  - y\_num = k\_(3,15) * x'^15 + k\_(3,14) * x'^14 + k\_(3,13) * x'^13 + ... + k\_(3,0)
+  - y\_den = x'^15 + k\_(4,14) * x'^14 + k\_(4,13) * x'^13 + ... + k\_(4,0)
 
 The constants used to compute x\_num are as follows:
 
@@ -2643,42 +2778,42 @@ The constants used to compute y\_den are as follows:
 - k\_(4,13) = 0x2660400eb2e4f3b628bdd0d53cd76f2bf565b94e72927c1cb748df27942480e420517bd8714cc80d1fadc1326ed06f7
 - k\_(4,14) = 0xe0fa1d816ddc03e6b24255e0d7819c171c40f65e273b853324efcd6356caa205ca2f570f13497804415473a1d634b8f
 
-## 3-isogeny map for G2 {#appx-bls12381-g2}
+## 3-isogeny map for BLS12-381 G2 {#appx-iso-bls12381-g2}
 
-The 3-isogeny map from E' to E is given by the following rational functions:
+The 3-isogeny map from (x', y') on E' to (x, y) on E is given by the following rational functions:
 
 - x = x\_num / x\_den, where
-  - x\_num = k\_(1,3) * x'^3 + k\_(1,2) * x'^2 + ... + k\_(1,0)
+  - x\_num = k\_(1,3) * x'^3 + k\_(1,2) * x'^2 + k\_(1,1) * x' + k\_(1,0)
   - x\_den = x'^2 + k\_(2,1) * x' + k\_(2,0)
 
 - y = y' * y\_num / y\_den, where
-  - y\_num = k\_(3,3) * x'^3 + k\_(3,2) * x'^2 + ... + k\_(3,0)
-  - y\_den = x'^3 + k\_(4,2) * x'^2 + ... + k\_(4,0)
+  - y\_num = k\_(3,3) * x'^3 + k\_(3,2) * x'^2 + k\_(3,1) * x' + k\_(3,0)
+  - y\_den = x'^3 + k\_(4,2) * x'^2 + k\_(4,1) * x' + k\_(4,0)
 
 The constants used to compute x\_num are as follows:
 
-- k\_(1,0) = 0x5c759507e8e333ebb5b7a9a47d7ed8532c52d39fd3a042a88b58423c50ae15d5c2638e343d9c71c6238aaaaaaaa97d6 + 0x5c759507e8e333ebb5b7a9a47d7ed8532c52d39fd3a042a88b58423c50ae15d5c2638e343d9c71c6238aaaaaaaa97d6 * i
-- k\_(1,1) = 0x11560bf17baa99bc32126fced787c88f984f87adf7ae0c7f9a208c6b4f20a4181472aaa9cb8d555526a9ffffffffc71a * i
-- k\_(1,2) = 0x11560bf17baa99bc32126fced787c88f984f87adf7ae0c7f9a208c6b4f20a4181472aaa9cb8d555526a9ffffffffc71e + 0x8ab05f8bdd54cde190937e76bc3e447cc27c3d6fbd7063fcd104635a790520c0a395554e5c6aaaa9354ffffffffe38d * i
+- k\_(1,0) = 0x5c759507e8e333ebb5b7a9a47d7ed8532c52d39fd3a042a88b58423c50ae15d5c2638e343d9c71c6238aaaaaaaa97d6 + 0x5c759507e8e333ebb5b7a9a47d7ed8532c52d39fd3a042a88b58423c50ae15d5c2638e343d9c71c6238aaaaaaaa97d6 * I
+- k\_(1,1) = 0x11560bf17baa99bc32126fced787c88f984f87adf7ae0c7f9a208c6b4f20a4181472aaa9cb8d555526a9ffffffffc71a * I
+- k\_(1,2) = 0x11560bf17baa99bc32126fced787c88f984f87adf7ae0c7f9a208c6b4f20a4181472aaa9cb8d555526a9ffffffffc71e + 0x8ab05f8bdd54cde190937e76bc3e447cc27c3d6fbd7063fcd104635a790520c0a395554e5c6aaaa9354ffffffffe38d * I
 - k\_(1,3) = 0x171d6541fa38ccfaed6dea691f5fb614cb14b4e7f4e810aa22d6108f142b85757098e38d0f671c7188e2aaaaaaaa5ed1
 
 The constants used to compute x\_den are as follows:
 
-- k\_(2,0) = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaa63 * i
-- k\_(2,1) = 0xc + 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaa9f * i
+- k\_(2,0) = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaa63 * I
+- k\_(2,1) = 0xc + 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaa9f * I
 
 The constants used to compute y\_num are as follows:
 
-- k\_(3,0) = 0x1530477c7ab4113b59a4c18b076d11930f7da5d4a07f649bf54439d87d27e500fc8c25ebf8c92f6812cfc71c71c6d706 + 0x1530477c7ab4113b59a4c18b076d11930f7da5d4a07f649bf54439d87d27e500fc8c25ebf8c92f6812cfc71c71c6d706 * i
-- k\_(3,1) = 0x5c759507e8e333ebb5b7a9a47d7ed8532c52d39fd3a042a88b58423c50ae15d5c2638e343d9c71c6238aaaaaaaa97be * i
-- k\_(3,2) = 0x11560bf17baa99bc32126fced787c88f984f87adf7ae0c7f9a208c6b4f20a4181472aaa9cb8d555526a9ffffffffc71c + 0x8ab05f8bdd54cde190937e76bc3e447cc27c3d6fbd7063fcd104635a790520c0a395554e5c6aaaa9354ffffffffe38f * i
+- k\_(3,0) = 0x1530477c7ab4113b59a4c18b076d11930f7da5d4a07f649bf54439d87d27e500fc8c25ebf8c92f6812cfc71c71c6d706 + 0x1530477c7ab4113b59a4c18b076d11930f7da5d4a07f649bf54439d87d27e500fc8c25ebf8c92f6812cfc71c71c6d706 * I
+- k\_(3,1) = 0x5c759507e8e333ebb5b7a9a47d7ed8532c52d39fd3a042a88b58423c50ae15d5c2638e343d9c71c6238aaaaaaaa97be * I
+- k\_(3,2) = 0x11560bf17baa99bc32126fced787c88f984f87adf7ae0c7f9a208c6b4f20a4181472aaa9cb8d555526a9ffffffffc71c + 0x8ab05f8bdd54cde190937e76bc3e447cc27c3d6fbd7063fcd104635a790520c0a395554e5c6aaaa9354ffffffffe38f * I
 - k\_(3,3) = 0x124c9ad43b6cf79bfbf7043de3811ad0761b0f37a1e26286b0e977c69aa274524e79097a56dc4bd9e1b371c71c718b10
 
 The constants used to compute y\_den are as follows:
 
-- k\_(4,0) = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffa8fb + 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffa8fb * i
-- k\_(4,1) = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffa9d3 * i
-- k\_(4,2) = 0x12 + 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaa99 * i
+- k\_(4,0) = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffa8fb + 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffa8fb * I
+- k\_(4,1) = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffa9d3 * I
+- k\_(4,2) = 0x12 + 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaa99 * I
 
 # Sample Code {#samplecode}
 
@@ -2689,7 +2824,7 @@ accompanying test vectors.
 Sample Sage {{SAGE}} code for each algorithm can also be found in the
 draft repository {{hash2curve-repo}}.
 
-## Interface and projective coordinate systems
+## Interface and projective coordinate systems {#projective-coords}
 
 The sample code in this section uses a different interface than
 the mappings of {{mappings}}.
@@ -2852,7 +2987,7 @@ Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on edwards25519.
 
 Constants:
-1. c1 = sqrt(-486664)   // sign MUST be chosen such that sgn0(c1) == 1
+1. c1 = sqrt(-486664)   // sgn0(c1) MUST equal 1
 
 Steps:
 1. (xMn, xMd, yMn, yMd) = map_to_curve_elligator2_curve25519(u)
@@ -2954,4 +3089,81 @@ Steps:
 30.  t4 = t4 * yd2
 31. yEd = yEd + t4
 32. return (xEn, xEd, yEn, yEd)
+~~~
+
+# Scripts for parameter generation {#paramgen}
+
+This section gives Sage {{SAGE}} scripts used to generate parameters for the mappings of {{mappings}}.
+
+## Finding Z for the Shallue and van de Woestijne map {#svdw-z-code}
+
+The below function outputs an appropriate Z for the Shallue and van de Woestijne map ({{svdw}}).
+
+~~~sage
+def find_z_svdw(F, A, B):
+    g = lambda x: F(x) ** 3 + F(A) * F(x) + F(B)
+    h = lambda Z: -(F(3) * Z ** 2 + F(4) * A) / (F(4) * g(Z))
+    ctr = F.gen()
+    while True:
+        for Z_cand in (F(ctr), F(-ctr)):
+            if g(Z_cand) == F(0):
+                # Criterion 1: g(Z) != 0 in F.
+                continue
+            if h(Z_cand) == F(0):
+                # Criterion 2: -(3 * Z^2 + 4 * A) / (4 * g(Z)) != 0 in F.
+                continue
+            if not h(Z_cand).is_square():
+                # Criterion 3: -(3 * Z^2 + 4 * A) / (4 * g(Z)) is square in F.
+                continue
+            if g(Z_cand).is_square() or g(-Z_cand / F(2)).is_square():
+                # Criterion 4: At least one of g(Z) and g(-Z / 2) is square in F.
+                return Z_cand
+        ctr += 1
+~~~
+
+## Finding Z for Simplified SWU {#sswu-z-code}
+
+The below function outputs an appropriate Z for the Simplified SWU map ({{simple-swu}}).
+
+~~~sage
+# Arguments:
+# - F, a field object, e.g., F = GF(2^521 - 1)
+# - A and B, the coefficients of the curve equation y^2 = x^3 + A * x + B
+def find_z_sswu(F, A, B):
+    R.<xx> = F[]                        # polynomial ring over F
+    g = xx ** 3 + F(A) * xx + F(B)      # y^2 = g(x) = x^3 + A x + B
+    ctr = F.gen()
+    while True:
+        for Z_cand in (F(ctr), F(-ctr)):
+            if Z_cand.is_square():
+                # Criterion 1: Z is non-square in F.
+                continue
+            if Z_cand == F(-1):
+                # Criterion 2: Z != -1 in F.
+                continue
+            if not (g - Z_cand).is_irreducible():
+                # Criterion 3: g(x) - Z is irreducible over F.
+                continue
+            if g(B / (Z_cand * A)).is_square():
+                # Criterion 4: g(B / (Z * A)) is square in F.
+                return Z_cand
+        ctr += 1
+~~~
+
+## Finding Z for Elligator 2 {#elligator-z-code}
+
+The below function outputs an appropriate Z for the Elligator 2 map ({{elligator2}}).
+
+~~~sage
+# Argument:
+# - F, a field object, e.g., F = GF(2^255 - 19)
+def find_z_ell2(F):
+    ctr = F.gen()
+    while True:
+        for Z_cand in (F(ctr), F(-ctr)):
+            if Z_cand.is_square():
+                # Z must be a non-square in F.
+                continue
+            return Z_cand
+        ctr += 1
 ~~~
