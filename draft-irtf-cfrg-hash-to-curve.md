@@ -706,6 +706,17 @@ informative:
       -
         ins: L. C. Washington
         name: Lawrence C. Washington
+  C93:
+    title: "A Course in Computational Algebraic Number Theory"
+    seriesinfo:
+        publisher: Springer-Verlag
+        ISBN: 9783642081422
+    target: https://doi.org/10.1007/978-3-662-02945-9
+    date: 1993
+    author:
+      -
+        ins: H. Cohen
+        name: Henri Cohen
   CFADLNV05:
     title: Handbook of Elliptic and Hyperelliptic Curve Cryptography
     seriesinfo:
@@ -1231,8 +1242,7 @@ is_square(x) := { True,  if x^((q - 1) / 2) is 0 or 1 in F;
     of the result.
 
     The preferred way of computing square roots is to fix a deterministic
-    algorithm particular to F. We give algorithms for the three most common
-    cases in {{sqrt-variants}}.
+    algorithm particular to F. We give several algorithms in {{sqrt-variants}}.
     Regardless of the method chosen, the sqrt function should be implemented
     in a way that resists timing side channels, i.e., in constant time.
 
@@ -1346,8 +1356,9 @@ Steps:
 
 ## sqrt variants {#sqrt-variants}
 
-This section defines sqrt for the three most common cases:
+This section defines special-purpose sqrt functions for the three most common cases,
 p = 3 (mod 4), p = 5 (mod 8), and p = 9 (mod 16).
+In addition, it gives a generic constant-time algorithm that works for any prime modulus.
 
 ### p = 3 mod 4 {#sqrt-3mod4}
 
@@ -1427,6 +1438,74 @@ Procedure:
 9.  e3 = (t2^2) == x
 10.  s = CMOV(t1, t2, e3)  // Select the sqrt from t1 and t2
 11. return s
+~~~
+
+### Constant-time Tonelli-Shanks algorithm {#sqrt-ts}
+
+This algorithm is a constant-time version of the classic Tonelli-Shanks algorithm
+({{C93}}, Algorithm 1.5.1) due to Sean Bowe, Jack Grigg, and Eirik Ogilvie-Wigley,
+adapted and optimized by Michael Scott.
+
+This algorithm applies to GF(p) for any p.
+Note, however, that the special-purpose algorithms given in the prior sections are
+faster, when they apply.
+
+~~~
+sqrt_ts_ct(x)
+
+Parameters:
+- F, a finite field of order p
+- p, the characteristic of F (see immediately above)
+
+Input x, an element of F.
+Output: r, an element of F such that (r^2) == 2.
+
+Constants (see discussion below):
+1. c1, the largest integer such that 2^c1 divides p - 1.
+2. c2 = (p - 1) / (2^c1)        // integer arithmetic
+3. c3 = (c2 - 1) / 2            // integer arithmetic
+4. c4, a non-square value in F
+5. c5 = c4^c2 in F
+
+Procedure:
+1.  r = x^c3
+2.  t = r * r * x
+3.  r = r * x
+4.  b = t
+5.  c = c5
+6.  for k in (m, m - 1, ..., 2):
+7.      for j in (1, 2, ..., k - 1):
+8.           b = b * b
+9.      b_is_good = b != 1
+10.     tmp = r * c
+11.     r = CMOV(r, tmp, e)
+12.     c = c * c
+13.     tmp = t * c
+14.     t = CMOV(t, tmp, e)
+15.     b = t
+16. return r
+~~~
+
+The constants used in this procedure can be computed as follows:
+
+~~~
+precompute_ts(p)
+
+Input: p, a prime
+Output: the required constants c1, ..., c5
+
+Procedure:
+1.  c1 = 0
+2.  c2 = p - 1
+3.  while c2 is even:
+4.      c2 = c2 / 2              // integer arithmetic
+5.      c1 = c1 + 1
+6.  c3 = (c2 - 1) / 2            // integer arithmetic
+7.  c4 = 1
+8.  while c4 is square mod p:
+9.      c4 = c4 + 1
+10. c5 = c4^c2 mod p
+11. return (c1, c2, c3, c4, c5)
 ~~~
 
 # Hashing to a Finite Field {#hashtobase}
@@ -2632,8 +2711,8 @@ should be chosen according to the guidelines listed in {{hashtobase-sec}}.
 The authors would like to thank Adam Langley for his detailed writeup of Elligator 2 with
 Curve25519 {{L13}};
 Christopher Patton and Benjamin Lipp for educational discussions; and
-Sean Devlin, Justin Drake, Dan Harkins, Thomas Icart, Michael Scott, and Mathy Vanhoef
-for helpful feedback.
+Sean Devlin, Justin Drake, Dan Harkins, Thomas Icart, Leo Reyzin, Michael Scott,
+and Mathy Vanhoef for helpful feedback.
 
 # Contributors
 
@@ -3213,8 +3292,8 @@ The below function outputs an appropriate Z for the Shallue and van de Woestijne
 
 ~~~sage
 def find_z_svdw(F, A, B):
-    g = lambda x: F(x) ** 3 + F(A) * F(x) + F(B)
-    h = lambda Z: -(F(3) * Z ** 2 + F(4) * A) / (F(4) * g(Z))
+    g = lambda x: F(x)^3 + F(A) * F(x) + F(B)
+    h = lambda Z: -(F(3) * Z^2 + F(4) * A) / (F(4) * g(Z))
     ctr = F.gen()
     while True:
         for Z_cand in (F(ctr), F(-ctr)):
@@ -3243,7 +3322,7 @@ The below function outputs an appropriate Z for the Simplified SWU map ({{simple
 # - A and B, the coefficients of the curve equation y^2 = x^3 + A * x + B
 def find_z_sswu(F, A, B):
     R.<xx> = F[]                        # Polynomial ring over F
-    g = xx ** 3 + F(A) * xx + F(B)      # y^2 = g(x) = x^3 + A x + B
+    g = xx^3 + F(A) * xx + F(B)         # y^2 = g(x) = x^3 + A * x + B
     ctr = F.gen()
     while True:
         for Z_cand in (F(ctr), F(-ctr)):
