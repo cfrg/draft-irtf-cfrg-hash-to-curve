@@ -1509,7 +1509,7 @@ In particular:
 - The alternative hash\_to\_base function MUST NOT use rejection sampling,
   and it MUST output an element of F whose statistical distance from uniform
   is commensurate with the security level of the target elliptic curve.
-  It is strongly RECOMMENDED to follow the guidelines for controlling bias
+  It is RECOMMENDED to follow the guidelines for controlling bias
   given in {{hashtobase-sec}}.
 
 - The alternative hash\_to\_base function MUST support domain separation
