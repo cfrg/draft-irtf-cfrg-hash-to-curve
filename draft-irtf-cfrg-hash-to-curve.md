@@ -2455,7 +2455,7 @@ share the following parameters, in addition to the common parameters below.
   - B' = 1012 * (1 + I)
 - iso\_map: the isogeny map from E' to E given in {{appx-iso-bls12381-g2}}
 
-The suites BLS12381G2-SHA256-SSWU-RO- and BLS12381G2-SHA256-SSWU-NU-
+The suites BLS12381G2-SHA256-SVDW-RO- and BLS12381G2-SHA256-SVDW-NU-
 share the following parameters, in addition to the common parameters below.
 
 - f: Shallue-van de Woestijne method, {{svdw}}
