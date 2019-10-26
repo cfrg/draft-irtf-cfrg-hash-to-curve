@@ -1242,7 +1242,7 @@ is_square(x) := { True,  if x^((q - 1) / 2) is 0 or 1 in F;
     of the result.
 
     The preferred way of computing square roots is to fix a deterministic
-    algorithm particular to F. We give several algorithms in {{sqrt-variants}}.
+    algorithm particular to F. We give several algorithms in {{appx-sqrt}}.
     Regardless of the method chosen, the sqrt function should be implemented
     in a way that resists timing side channels, i.e., in constant time.
 
@@ -1352,160 +1352,6 @@ Steps:
 4.   sign_i = CMOV(sign_i, 0, x_i == 0)
 5.   sign = CMOV(sign, sign_i, sign == 0)
 6. return CMOV(sign, 1, sign == 0)     // regard x == 0 as positive
-~~~
-
-## sqrt variants {#sqrt-variants}
-
-This section defines special-purpose sqrt functions for the three most common cases,
-p = 3 (mod 4), p = 5 (mod 8), and p = 9 (mod 16).
-In addition, it gives a generic constant-time algorithm that works for any prime modulus.
-
-### p = 3 mod 4 {#sqrt-3mod4}
-
-~~~
-sqrt_3mod4(x)
-
-Parameters:
-- F, a finite field of characteristic p and order q = p^m.
-- p, the characteristic of F (see immediately above).
-- m, the extension degree of F, m >= 1 (see immediately above).
-
-Input: x, an element of F.
-Output: s, an element of F such that (s^2) == x.
-
-Constants:
-1. c1 = (q + 1) / 4     // Integer arithmetic
-
-Procedure:
-1. return x^c1
-~~~
-
-### p = 5 mod 8 {#sqrt-5mod8}
-
-~~~
-sqrt_5mod8(x)
-
-Parameters:
-- F, a finite field of characteristic p and order q = p^m.
-- p, the characteristic of F (see immediately above).
-- m, the extension degree of F, m >= 1 (see immediately above).
-
-Input: x, an element of F.
-Output: s, an element of F such that (s^2) == x.
-
-Constants:
-1. c1 = sqrt(-1) in F, i.e., (c1^2) == -1 in F
-2. c2 = (q + 3) / 8     // Integer arithmetic
-
-Procedure:
-1. t1 = x^c2
-2.  e = (t1^2) == x
-3.  s = CMOV(t1 * c1, t1, e)
-3. return s
-~~~
-
-### p = 9 mod 16 {#sqrt-9mod16}
-
-Note that this case also applies to GF(p^2) when p = 3 (mod 8).
-{{AR13}} and {{S85}} describe methods that work for other field extensions.
-
-~~~
-sqrt_9mod16(x)
-
-Parameters:
-- F, a finite field of characteristic p and order q = p^m.
-- p, the characteristic of F (see immediately above).
-- m, the extension degree of F, m >= 1 (see immediately above).
-
-Input: x, an element of F.
-Output: s, an element of F such that (s^2) == x.
-
-Constants:
-1. c1 = sqrt(-1) in F, i.e., (c1^2) == -1 in F
-2. c2 = sqrt(c1) in F, i.e., (c2^2) == c1 in F
-3. c3 = sqrt(-c1) in F, i.e., (c3^2) == -c1 in F
-4. c4 = (q + 7) / 16    // Integer arithmetic
-
-Procedure:
-1.  t1 = x^c4
-2.  t2 = c1 * t1
-3.  t3 = c2 * t1
-4.  t4 = c3 * t1
-5.  e1 = (t2^2) == x
-6.  e2 = (t3^2) == x
-7.  t1 = CMOV(t1, t2, e1)  // Select t2 if (t2^2) == x
-8.  t2 = CMOV(t4, t3, e2)  // Select t3 if (t3^2) == x
-9.  e3 = (t2^2) == x
-10.  s = CMOV(t1, t2, e3)  // Select the sqrt from t1 and t2
-11. return s
-~~~
-
-### Constant-time Tonelli-Shanks algorithm {#sqrt-ts}
-
-This algorithm is a constant-time version of the classic Tonelli-Shanks algorithm
-({{C93}}, Algorithm 1.5.1) due to Sean Bowe, Jack Grigg, and Eirik Ogilvie-Wigley,
-adapted and optimized by Michael Scott.
-
-This algorithm applies to GF(p) for any p.
-Note, however, that the special-purpose algorithms given in the prior sections are
-faster, when they apply.
-
-~~~
-sqrt_ts_ct(x)
-
-Parameters:
-- F, a finite field of order p
-- p, the characteristic of F (see immediately above)
-
-Input x, an element of F.
-Output: r, an element of F such that (r^2) == 2.
-
-Constants (see discussion below):
-1. c1, the largest integer such that 2^c1 divides p - 1.
-2. c2 = (p - 1) / (2^c1)        // integer arithmetic
-3. c3 = (c2 - 1) / 2            // integer arithmetic
-4. c4, a non-square value in F
-5. c5 = c4^c2 in F
-
-Procedure:
-1.  r = x^c3
-2.  t = r * r * x
-3.  r = r * x
-4.  b = t
-5.  c = c5
-6.  for k in (m, m - 1, ..., 2):
-7.      for j in (1, 2, ..., k - 1):
-8.           b = b * b
-9.      b_is_good = b != 1
-10.     tmp = r * c
-11.     r = CMOV(r, tmp, e)
-12.     c = c * c
-13.     tmp = t * c
-14.     t = CMOV(t, tmp, e)
-15.     b = t
-16. return r
-~~~
-
-The constants used in this procedure can be computed as follows:
-
-~~~
-precompute_ts(p)
-
-Input: p, a prime
-Output: the required constants c1, ..., c5
-
-Procedure:
-1.  c1 = 0
-2.  c2 = p - 1
-3.  while c2 is even:
-4.      c2 = c2 / 2              // integer arithmetic
-5.      c1 = c1 + 1
-6.  c3 = (c2 - 1) / 2            // integer arithmetic
-7.  c4 = 1
-8.  while c4 is square mod p:
-9.      c4 = c4 + 1
-10. c5 = c4^c2 mod p
-11. return (c1, c2, c3, c4, c5)
 ~~~
 
 # Hashing to a Finite Field {#hashtobase}
@@ -3357,4 +3203,158 @@ def find_z_ell2(F):
                 continue
             return Z_cand
         ctr += 1
+~~~
+
+# sqrt functions {#appx-sqrt}
+
+This section defines special-purpose sqrt functions for the three most common cases,
+p = 3 (mod 4), p = 5 (mod 8), and p = 9 (mod 16).
+In addition, it gives a generic constant-time algorithm that works for any prime modulus.
+
+## p = 3 (mod 4) {#sqrt-3mod4}
+
+~~~
+sqrt_3mod4(x)
+
+Parameters:
+- F, a finite field of characteristic p and order q = p^m.
+- p, the characteristic of F (see immediately above).
+- m, the extension degree of F, m >= 1 (see immediately above).
+
+Input: x, an element of F.
+Output: s, an element of F such that (s^2) == x.
+
+Constants:
+1. c1 = (q + 1) / 4     // Integer arithmetic
+
+Procedure:
+1. return x^c1
+~~~
+
+## p = 5 (mod 8) {#sqrt-5mod8}
+
+~~~
+sqrt_5mod8(x)
+
+Parameters:
+- F, a finite field of characteristic p and order q = p^m.
+- p, the characteristic of F (see immediately above).
+- m, the extension degree of F, m >= 1 (see immediately above).
+
+Input: x, an element of F.
+Output: s, an element of F such that (s^2) == x.
+
+Constants:
+1. c1 = sqrt(-1) in F, i.e., (c1^2) == -1 in F
+2. c2 = (q + 3) / 8     // Integer arithmetic
+
+Procedure:
+1. t1 = x^c2
+2.  e = (t1^2) == x
+3.  s = CMOV(t1 * c1, t1, e)
+3. return s
+~~~
+
+## p = 9 (mod 16) {#sqrt-9mod16}
+
+Note that this case also applies to GF(p^2) when p = 3 (mod 8).
+{{AR13}} and {{S85}} describe methods that work for other field extensions.
+
+~~~
+sqrt_9mod16(x)
+
+Parameters:
+- F, a finite field of characteristic p and order q = p^m.
+- p, the characteristic of F (see immediately above).
+- m, the extension degree of F, m >= 1 (see immediately above).
+
+Input: x, an element of F.
+Output: s, an element of F such that (s^2) == x.
+
+Constants:
+1. c1 = sqrt(-1) in F, i.e., (c1^2) == -1 in F
+2. c2 = sqrt(c1) in F, i.e., (c2^2) == c1 in F
+3. c3 = sqrt(-c1) in F, i.e., (c3^2) == -c1 in F
+4. c4 = (q + 7) / 16    // Integer arithmetic
+
+Procedure:
+1.  t1 = x^c4
+2.  t2 = c1 * t1
+3.  t3 = c2 * t1
+4.  t4 = c3 * t1
+5.  e1 = (t2^2) == x
+6.  e2 = (t3^2) == x
+7.  t1 = CMOV(t1, t2, e1)  // Select t2 if (t2^2) == x
+8.  t2 = CMOV(t4, t3, e2)  // Select t3 if (t3^2) == x
+9.  e3 = (t2^2) == x
+10.  s = CMOV(t1, t2, e3)  // Select the sqrt from t1 and t2
+11. return s
+~~~
+
+## Constant-time Tonelli-Shanks algorithm {#sqrt-ts}
+
+This algorithm is a constant-time version of the classic Tonelli-Shanks algorithm
+({{C93}}, Algorithm 1.5.1) due to Sean Bowe, Jack Grigg, and Eirik Ogilvie-Wigley,
+adapted and optimized by Michael Scott.
+
+This algorithm applies to GF(p) for any p.
+Note, however, that the special-purpose algorithms given in the prior sections are
+faster, when they apply.
+
+~~~
+sqrt_ts_ct(x)
+
+Parameters:
+- F, a finite field of order p
+- p, the characteristic of F (see immediately above)
+
+Input x, an element of F.
+Output: r, an element of F such that (r^2) == 2.
+
+Constants (see discussion below):
+1. c1, the largest integer such that 2^c1 divides p - 1.
+2. c2 = (p - 1) / (2^c1)        // Integer arithmetic
+3. c3 = (c2 - 1) / 2            // Integer arithmetic
+4. c4, a non-square value in F
+5. c5 = c4^c2 in F
+
+Procedure:
+1.  r = x^c3
+2.  t = r * r * x
+3.  r = r * x
+4.  b = t
+5.  c = c5
+6.  for k in (m, m - 1, ..., 2):
+7.      for j in (1, 2, ..., k - 1):
+8.           b = b * b
+9.      b_is_good = b != 1
+10.     tmp = r * c
+11.     r = CMOV(r, tmp, e)
+12.     c = c * c
+13.     tmp = t * c
+14.     t = CMOV(t, tmp, e)
+15.     b = t
+16. return r
+~~~
+
+The constants used in this procedure can be computed as follows:
+
+~~~
+precompute_ts(p)
+
+Input: p, a prime
+Output: the required constants c1, ..., c5
+
+Procedure:
+1.  c1 = 0
+2.  c2 = p - 1
+3.  while c2 is even:
+4.      c2 = c2 / 2             // Integer arithmetic
+5.      c1 = c1 + 1
+6.  c3 = (c2 - 1) / 2           // Integer arithmetic
+7.  c4 = 1
+8.  while c4 is square mod p:
+9.      c4 = c4 + 1
+10. c5 = c4^c2 mod p
+11. return (c1, c2, c3, c4, c5)
 ~~~
