@@ -2,9 +2,9 @@
 
 This is the working area for the individual Internet-Draft, "Hashing to Elliptic Curves".
 
-* [Editor's Copy](https://chris-wood.github.io/draft-irtf-cfrg-hash-to-curve/#go.draft-irtf-cfrg-hash-to-curve.html)
+* [Editor's Copy](https://cfrg.github.io/draft-irtf-cfrg-hash-to-curve/#go.draft-irtf-cfrg-hash-to-curve.html)
 * [Individual Draft](https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve)
-* [Compare Editor's Copy to Individual Draft](https://chris-wood.github.io/draft-irtf-cfrg-hash-to-curve/#go.draft-irtf-cfrg-hash-to-curve.diff)
+* [Compare Editor's Copy to Individual Draft](https://cfrg.github.io/draft-irtf-cfrg-hash-to-curve/#go.draft-irtf-cfrg-hash-to-curve.diff)
 
 ## Building the Draft
 
@@ -21,4 +21,4 @@ This requires that you have the necessary software installed.  See
 ## Contributing
 
 See the
-[guidelines for contributions](https://github.com/chris-wood/draft-irtf-cfrg-hash-to-curve/blob/master/CONTRIBUTING.md).
+[guidelines for contributions](https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/blob/master/CONTRIBUTING.md).
