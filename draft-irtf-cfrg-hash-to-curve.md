@@ -1132,7 +1132,7 @@ Steps:
 2. u1 = hash_to_base(alpha, 1)
 3. Q0 = map_to_curve(u0)
 4. Q1 = map_to_curve(u1)
-5. R = Q0 + Q1      // point addition
+5. R = Q0 + Q1 // Point addition
 6. P = clear_cofactor(R)
 7. return P
 ~~~
@@ -1279,10 +1279,10 @@ Procedure:
 4.  t4 = c3 * t1
 5.  e1 = (t2^2) == x
 6.  e2 = (t3^2) == x
-7.  t1 = CMOV(t1, t2, e1)  // select t2 if (t2^2) == x
-8.  t2 = CMOV(t4, t3, e2)  // select t3 if (t3^2) == x
+7.  t1 = CMOV(t1, t2, e1)  // Select t2 if (t2^2) == x
+8.  t2 = CMOV(t4, t3, e2)  // Select t3 if (t3^2) == x
 9.  e3 = (t2^2) == x
-10.  s = CMOV(t1, t2, e3)  // select the sqrt from t1 and t2
+10.  s = CMOV(t1, t2, e3)  // Select the sqrt from t1 and t2
 11. return s
 ~~~
 
@@ -1309,7 +1309,7 @@ Steps:
 3.   sign_i = CMOV(1, -1, x_i > ((p - 1) / 2))
 4.   sign_i = CMOV(sign_i, 0, x_i == 0)
 5.   sign = CMOV(sign, sign_i, sign == 0)
-6. return CMOV(sign, 1, sign == 0)    // regard x == 0 as positive
+6. return CMOV(sign, 1, sign == 0)    // Regard x == 0 as positive
 ~~~
 
 -   abs(x): The absolute value of x is defined in terms of sgn0
@@ -1604,7 +1604,7 @@ Steps:
 18. gx2 = gx2 + A
 19. gx2 = gx2 * x2
 20. gx2 = gx2 + B
-21.  e2 = is_square(gx2) AND NOT e1     // avoid short-circuit logic ops
+21.  e2 = is_square(gx2) AND NOT e1     // Avoid short-circuit logic ops
 22.  x3 = t2^2
 23.  x3 = x3 * t3
 24.  x3 = x3^2
@@ -1618,7 +1618,7 @@ Steps:
 32.  gx = gx + B
 33.   y = sqrt(gx)
 34.  e3 = sgn0(u) == sgn0(y)
-35.   y = CMOV(-y, y, e3)       // select correct sign of y
+35.   y = CMOV(-y, y, e3)       // Select correct sign of y
 36. return (x, y)
 ~~~
 
@@ -1692,7 +1692,7 @@ Steps:
 4.   x1 = inv0(x1)
 5.   e1 = x1 == 0
 6.   x1 = x1 + 1
-7.   x1 = CMOV(x1, c2, e1)    // if (t1 + t2) == 0, set x1 = -1 / Z
+7.   x1 = CMOV(x1, c2, e1)    // If (t1 + t2) == 0, set x1 = -1 / Z
 8.   x1 = x1 * c1      // x1 = (-B / A) * (1 + (1 / (Z^2 * u^4 + Z * u^2)))
 9.  gx1 = x1^2
 10. gx1 = gx1 + A
@@ -1705,7 +1705,7 @@ Steps:
 17.   x = CMOV(x2, x1, e2)    // If is_square(gx1), x = x1, else x = x2
 18.  y2 = CMOV(gx2, gx1, e2)  // If is_square(gx1), y2 = gx1, else y2 = gx2
 19.   y = sqrt(y2)
-20.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
+20.  e3 = sgn0(u) == sgn0(y)  // Fix sign of y
 21.   y = CMOV(-y, y, e3)
 22. return (x, y)
 ~~~
@@ -1798,15 +1798,14 @@ Steps:
 15.   x = CMOV(x2, x1, e2)    // If is_square(gx1), x = x1, else x = x2
 16.  y2 = CMOV(gx2, gx1, e2)  // If is_square(gx1), y2 = gx1, else y2 = gx2
 17.   y = sqrt(y2)
-18.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
+18.  e3 = sgn0(u) == sgn0(y)  // Fix sign of y
 19.   y = CMOV(-y, y, e3)
 20. return (x, y)
 ~~~
 
 ## Mappings for Twisted Edwards curves
 
-Twisted Edwards curves
-(a class of curves that includes Edwards curves)
+Twisted Edwards curves (a class of curves that includes Edwards curves)
 are closely related to Montgomery
 curves ({{montgomery}}): every twisted Edwards curve is birationally equivalent
 to a Montgomery curve ({{BBJLP08}}, Theorem 3.2).
@@ -2023,7 +2022,7 @@ Steps:
 3. gx1 = x1^2
 4. gx1 = gx1 + B
 5. gx1 = gx1 * x1           // gx1 = x1^3 + B * x1
-6.   y = gx1^c1             // this is either sqrt(gx1) or sqrt(gx2)
+6.   y = gx1^c1             // This is either sqrt(gx1) or sqrt(gx2)
 7.  e1 = (y^2) == gx1
 8.   x = CMOV(x2, x1, e1)
 9.  e2 = sgn0(u) == sgn0(y)
@@ -2908,7 +2907,7 @@ Steps:
 29.  e2 = t2 == gx1
 30.  xn = CMOV(x2n, x1n, e2)  // If e2, x = x1, else x = x2
 31.   y = CMOV(y2, y1, e2)    // If e2, y = y1, else y = y2
-32.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
+32.  e3 = sgn0(u) == sgn0(y)  // Fix sign of y
 33.   y = CMOV(-y, y, e3)
 34. return (xn, xd, y, 1)
 ~~~
@@ -2933,7 +2932,7 @@ Constants:
 Steps:
 1.   t1 = u^2
 2.   t1 = 2 * t1
-3.   xd = t1 + 1              // nonzero: -1 is square mod p, xd is not
+3.   xd = t1 + 1              // Nonzero: -1 is square mod p, xd is not
 4.  x1n = -486662             // x1 = x1n / xd = -486662 / (1 + 2 * u^2)
 5.   t2 = xd^2
 6.  gxd = t2 * xd             // gxd = xd^3
@@ -2966,9 +2965,9 @@ Steps:
 33.  t2 = y1^2
 34.  t2 = t2 * gxd
 35.  e3 = t2 == gx1
-36.  xn = CMOV(x2n, x1n, e3)  // if e3, x = x1, else x = x2
-37.   y = CMOV(y2, y1, e3)    // if e3, y = y1, else y = y2
-38.  e4 = sgn0(u) == sgn0(y)  // fix sign of y
+36.  xn = CMOV(x2n, x1n, e3)  // If e3, x = x1, else x = x2
+37.   y = CMOV(y2, y1, e3)    // If e3, y = y1, else y = y2
+38.  e4 = sgn0(u) == sgn0(y)  // Fix sign of y
 39.   y = CMOV(-y, y, e4)
 40. return (xn, xd, y, 1)
 ~~~
@@ -3038,7 +3037,7 @@ Steps:
 22.  e2 = t2 == gx1
 23.  xn = CMOV(x2n, x1n, e2)  // If e2, x = x1, else x = x2
 24.   y = CMOV(y2, y1, e2)    // If e2, y = y1, else y = y2
-25.  e3 = sgn0(u) == sgn0(y)  // fix sign of y
+25.  e3 = sgn0(u) == sgn0(y)  // Fix sign of y
 26.   y = CMOV(-y, y, e3)
 27. return (xn, xd, y, 1)
 ~~~
@@ -3130,7 +3129,7 @@ The below function outputs an appropriate Z for the Simplified SWU map ({{simple
 # - F, a field object, e.g., F = GF(2^521 - 1)
 # - A and B, the coefficients of the curve equation y^2 = x^3 + A * x + B
 def find_z_sswu(F, A, B):
-    R.<xx> = F[]                        # polynomial ring over F
+    R.<xx> = F[]                        # Polynomial ring over F
     g = xx ** 3 + F(A) * xx + F(B)      # y^2 = g(x) = x^3 + A x + B
     ctr = F.gen()
     while True:
