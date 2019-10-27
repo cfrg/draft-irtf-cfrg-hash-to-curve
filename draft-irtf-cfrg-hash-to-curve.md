@@ -1495,33 +1495,29 @@ Steps:
 The hash\_to\_base function is suitable for use with a wide range of hash functions,
 including SHA-2 {{FIPS180-4}}, SHA-3 {{FIPS202}}, BLAKE2 {{!RFC7963}}, and others.
 In some cases, however, implementors may wish to replace the HKDF-based function
-defined in this section with one that uses a different pseudorandom generator,
-e.g., a function based on an extendable-output function like cSHAKE {{SP.800-185}}
-or BLAKE2X {{BLAKE2X}}.
+defined in this section with one built on a different pseudorandom function.
 This section briefly describes the REQUIRED way of doing so.
 
 The security considerations of {{hashtobase-sec}} continue to apply.
-In particular:
+In particular, an alternative hash\_to\_base function:
 
-- The alternative hash\_to\_base function MUST give collision resistance
-  commensurate with the security level of the target elliptic curve.
+- MUST give collision resistance commensurate with the security level of the target elliptic curve.
 
-- The alternative hash\_to\_base function MUST NOT use rejection sampling,
-  and it MUST output an element of F whose statistical distance from uniform
-  is commensurate with the security level of the target elliptic curve.
-  It is RECOMMENDED to follow the guidelines for controlling bias
-  given in {{hashtobase-sec}}.
+- MUST be built on a pseudorandom function that is designed for use in
+  applications requiring cryptographic randomness.
 
-- The alternative hash\_to\_base function MUST support domain separation
-  via a supplied domain separation tag (DST).
-  For example, a hash\_to\_base function based on cSHAKE might set S,
-  the cSHAKE customization bit string argument, to the DST value.
+- MUST NOT use rejection sampling.
 
-- The underlying pseudorandom generator MUST be designed for use in applications
-  where cryptographic randomness is required.
-  For example, an extendable-output function proved indifferentiable from a
-  random oracle (under some reasonable assumption) would be an appropriate
-  choice, as would a secure stream cipher.
+- MUST output an element of F whose statistical distance from uniform is commensurate
+  with the security level of the target elliptic curve.
+  It is RECOMMENDED to follow the guidelines for controlling bias in {{hashtobase-sec}}.
+
+- MUST give independent output values for distinct (msg, ctr) inputs.
+
+- MUST support domain separation via a supplied domain separation tag (DST).
+  Care is required when implementing domain separation: this document
+  assumes that instantiating hash\_to\_base with distinct DSTs yields
+  independent hash functions.
 
 The efficiency considerations of {{hashtobase-perf}} should also be followed.
 In particular, it SHOULD be possible to hash one msg with multiple ctr values
@@ -2294,9 +2290,9 @@ Fields MUST be chosen as follows:
   a short descriptive name MUST be chosen for that function using only the
   allowed characters listed above.
   That name MUST be appended to the HASH\_ID field, separated by a colon.
-  For example, a hash\_to\_base function based on cSHAKE-128 might use the
-  short name "h2b/cshake128", and a reasonable value for the HASH\_ID field
-  would be "SHA3/256:h2b/cshake128".
+  For example, a hash\_to\_base function based on KMAC128 {{SP.800-185}} might
+  use the short name "h2b/kmac128", and a reasonable value for the HASH\_ID field
+  would be "SHA3/256:h2b/kmac128".
 
 - MAP\_ID: a human-readable representation of the map\_to\_curve function
   ({{mappings}}).
