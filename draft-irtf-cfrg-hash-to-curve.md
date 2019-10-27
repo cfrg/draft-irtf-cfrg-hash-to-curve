@@ -1224,7 +1224,7 @@ is_square(x) := { True,  if x^((q - 1) / 2) is 0 or 1 in F;
     algorithm particular to F. We give algorithms for the three most common
     cases immediately below; other cases are analogous.
 
-    Note that Case 3 below applies to GF(p^2) when p = 3 mod 8.
+    Note that Case 3 below applies to GF(p^2) when p = 3 (mod 8).
     {{AR13}} and {{S85}} describe methods that work for other field extensions.
     Regardless of the method chosen, the sqrt function MUST be performed in
     constant time.
@@ -2574,18 +2574,18 @@ fraction of the points on almost any curve.
 Ulas {{U07}} describes a simpler version of this map, and Brier et
 al. {{BCIMRT10}} give a further simplification, which the authors call the
 "simplified SWU" map.
-The simplified map applies only to fields of characteristic p = 3 mod 4;
+The simplified map applies only to fields of characteristic p = 3 (mod 4);
 Wahby and Boneh {{WB19}} generalize to fields of any characteristic.
 
 Boneh and Franklin give a deterministic algorithm mapping to certain
-supersingular curves over fields of characteristic p = 2 mod 3 {{BF01}}.
+supersingular curves over fields of characteristic p = 2 (mod 3) {{BF01}}.
 Icart gives another deterministic algorithm which maps to any curve
-over a field of characteristic p = 2 mod 3 {{Icart09}}.
+over a field of characteristic p = 2 (mod 3) {{Icart09}}.
 Several extensions and generalizations follow this work, including
 {{FSV09}}, {{FT10}}, {{KLR10}}, {{F11}}, and {{CK11}}.
 
 Following the work of Farashahi {{F11}}, Fouque et al. {{FJT13}} describe a
-mapping to curves of characteristic p = 3 mod 4 having a number of points
+mapping to curves of characteristic p = 3 (mod 4) having a number of points
 divisible by 4.  Bernstein et al. {{BHKL13}} optimize this mapping and
 describe a related mapping that they call "Elligator 2," which applies to
 any curve over a field of odd characteristic having a point of order 2.
