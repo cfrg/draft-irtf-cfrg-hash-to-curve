@@ -1436,7 +1436,7 @@ Steps:
 3. for i in (1, ..., m):
 4.   info = info_pfx || I2OSP(i, 1)
 5.   t = HKDF-Expand(msg_prime, info, L)
-6.   e_i = OS2IP(t) mod p
+6.   e_i = OS2IP(t) (mod p)
 7. u = (e_1, ..., e_m)
 8. return u
 ~~~
@@ -1831,7 +1831,7 @@ For both of these curves, {{RFC7748}} lists both the Montgomery and twisted Edwa
 forms and gives the corresponding rational maps.
 
 The rational map for edwards25519 ({{RFC7748}}, Section 4.1)
-uses the constant sqrt\_neg\_486664 = sqrt(-486664) mod 2^255 - 19.
+uses the constant sqrt\_neg\_486664 = sqrt(-486664) (mod 2^255 - 19).
 To ensure compatibility, this constant MUST be chosen such that
 sgn0(sqrt\_neg\_486664) == 1.
 Analogous ambiguities in other standardized rational maps MUST be
@@ -2932,7 +2932,7 @@ Constants:
 Steps:
 1.   t1 = u^2
 2.   t1 = 2 * t1
-3.   xd = t1 + 1              // Nonzero: -1 is square mod p, t1 is not
+3.   xd = t1 + 1              // Nonzero: -1 is square (mod p), t1 is not
 4.  x1n = -486662             // x1 = x1n / xd = -486662 / (1 + 2 * u^2)
 5.   t2 = xd^2
 6.  gxd = t2 * xd             // gxd = xd^3
