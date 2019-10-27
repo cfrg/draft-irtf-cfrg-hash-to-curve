@@ -1281,17 +1281,17 @@ is_square(x) := { True,  if x^((q - 1) / 2) is 0 or 1 in F;
 
 This section defines two ways of determining the "sign" of an element of F.
 The variant that should be used is a matter of convention.
-Other sgn0 variants are possible, but the two given below appear to cover
-all commonly used notions of sign.
+Other sgn0 variants are possible, but the two given below cover
+commonly used notions of sign.
 
-It is recommended to select the variant that matches the point decompression
+It is RECOMMENDED to select the variant that matches the point decompression
 method of the target curve.
 In particular, since point decompression requires computing a square root
 and then choosing the sign of the resulting point, all decompression methods
 specify, implicitly or explicitly, a method for determining the sign of an
 element of F.
 It is convenient for hash-to-curve and decompression to agree on a notion of
-sign, since this potentially allows for simpler implementations.
+sign, since this may permit simpler implementations.
 
 See {{bg-curves}} for a discussion of representing x as a vector; this
 representation is used in both of the variants immediately below.
