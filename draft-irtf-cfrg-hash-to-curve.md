@@ -1299,10 +1299,10 @@ as vectors; this representation is used in both of the sgn0 variants below.
 Note that any valid sgn0 function for field extensions must iterate over
 the entire vector representation of the input element.
 To see why, imagine a function sgn0\* that ignores the final entry in its
-input vector, and consider a field element x = (0, 0, 0, 0, x\_5).
-Since sgn0\* ignores x\_5, sgn0\*(x) == sgn0\*(-x) == 1, which is incorrect
-when x\_5 != 0.
-The same argument applies to all entries of x, establishing the claim.
+input vector, and consider a field element x = (0, x\_2).
+Since sgn0\* ignores x\_2, sgn0\*(x) == sgn0\*(-x), which is incorrect
+when x\_2 != 0.
+The same argument applies to all entries of any x, establishing the claim.
 
 ### Big endian variant {#sgn0-be}
 
