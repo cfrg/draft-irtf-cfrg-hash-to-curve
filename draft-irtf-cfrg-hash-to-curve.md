@@ -1709,6 +1709,61 @@ Steps:
 22. return (x, y)
 ~~~
 
+### Simplified SWU for AB == 0 {#simple-swu-AB0}
+
+Wahby and Boneh {{WB19}} show how to adapt the simplified SWU mapping to
+Weierstrass curves having A == 0 or B == 0 (which the mapping of
+{{simple-swu}} does not support).
+This method applies to curves like secp256k1 {{SEC2}} and to pairing-friendly
+curves in the Barreto-Lynn-Scott {{BLS03}}, Barreto-Naehrig {{BN05}}, and other families.
+
+This method requires finding another elliptic curve
+
+~~~
+E': y^2 = g'(x) = x^3 + A' * x + B'
+~~~
+
+that is isogenous to E and has A' != 0 and B' != 0.
+(One might do this, for example, using {{SAGE}}; for details, see {{WB19}}, Appendix A.)
+This isogeny defines a map iso\_map(x', y') that takes as input a point
+on E' and produces as output a point on E.
+
+Once E' and iso\_map are identified, this mapping works as follows: on input
+u, first apply the simplified SWU mapping to get a point on E', then apply
+the isogeny map to that point to get a point on E.
+
+Note that iso\_map is a group homomorphism, meaning that point addition
+commutes with iso\_map.
+Thus, when using this mapping in the hash\_to\_curve construction of {{roadmap}},
+one can effect a small optimization by first mapping u0 and u1 to E', adding
+the resulting points on E', and then applying iso\_map to the sum.
+This gives the same result while requiring only one evaluation of iso\_map.
+
+Preconditions: An elliptic curve E' with A' != 0 and B' != 0 that is
+isogenous to the target curve E with isogeny map iso\_map(x, y) from
+E' to E.
+
+Helper functions:
+
+- map\_to\_curve\_simple\_swu is the mapping of {{simple-swu}} to E'
+- iso\_map is the isogeny map from E' to E
+
+Sign of y: for this map, the sign is determined by map\_to\_curve\_simple\_swu.
+No further sign adjustments are necessary.
+
+Exceptions: map\_to\_curve\_simple\_swu handles its exceptional cases.
+Exceptional cases of iso\_map MUST return the identity point on E.
+
+Operations:
+
+~~~
+1. (x', y') = map_to_curve_simple_swu(u)    // (x', y') is on E'
+2.   (x, y) = iso_map(x', y')               // (x, y) is on E
+3. return (x, y)
+~~~
+
+See {{hash2curve-repo}} or {{WB19}} for details on implementing the isogeny map.
+
 ## Mappings for Montgomery curves {#montgomery}
 
 The mapping defined in {{elligator2}} implements Elligator 2 {{BHKL13}} for
@@ -2029,63 +2084,6 @@ Steps:
 11. return (x, y)
 ~~~
 
-## Mappings for Pairing-Friendly curves
-
-### Simplified SWU for Pairing-Friendly Curves {#simple-swu-pairing-friendly}
-
-Wahby and Boneh {{WB19}} show how to adapt the simplified SWU mapping to
-certain Weierstrass curves having either A = 0 or B = 0, one of which is
-almost always true for pairing-friendly curves. Note that neither case is
-supported by the mapping of {{simple-swu}}.
-
-This method requires finding another elliptic curve
-
-~~~
-E': y^2 = g'(x) = x^3 + A' * x + B'
-~~~
-
-that is isogenous to E and has A' != 0 and B' != 0.
-(One might do this, for example, using {{SAGE}}; details are beyond the scope of this document.)
-This isogeny defines a map iso\_map(x', y') that takes as input a point
-on E' and produces as output a point on E.
-
-Once E' and iso\_map are identified, this mapping works as follows: on input
-u, first apply the simplified SWU mapping to get a point on E', then apply
-the isogeny map to that point to get a point on E.
-
-Note that iso\_map is a group homomorphism, meaning that point addition
-commutes with iso\_map.
-Thus, when using this mapping in the hash\_to\_curve construction of {{roadmap}},
-one can effect a small optimization by first mapping u0 and u1 to E', adding
-the resulting points on E', and then applying iso\_map to the sum.
-This gives the same result while requiring only one evaluation of iso\_map.
-
-Preconditions: An elliptic curve E' with A' != 0 and B' != 0 that is
-isogenous to the target curve E with isogeny map iso\_map(x, y) from
-E' to E.
-
-Helper functions:
-
-- map\_to\_curve\_simple\_swu is the mapping of {{simple-swu}} to E'
-- iso\_map is the isogeny map from E' to E
-
-Sign of y: for this map, the sign is determined by map\_to\_curve_elligator2.
-No further sign adjustments are necessary.
-
-Exceptions: map\_to\_curve\_simple\_swu handles its exceptional cases.
-Exceptional cases of iso\_map should return the identity point on E.
-
-Operations:
-
-~~~
-1. (x', y') = map_to_curve_simple_swu(u)    // (x', y') is on E'
-2.   (x, y) = iso_map(x', y')               // (x, y) is on E
-3. return (x, y)
-~~~
-
-We do not repeat the sample implementation of {{simple-swu}} here.
-See {{hash2curve-repo}} or {{WB19}} for details on implementing the isogeny map.
-
 # Clearing the cofactor {#cofactor-clearing}
 
 The mappings of {{mappings}} always output a point on the elliptic curve,
@@ -2176,7 +2174,7 @@ the subsection that gives the corresponding parameters.
 | NIST P-521                | {{suites-p521}}      |
 | curve25519 / edwards25519 | {{suites-25519}}     |
 | curve448 / edwards448     | {{suites-448}}       |
-| SECP256k1                 | {{suites-secp256k1}} |
+| secp256k1                 | {{suites-secp256k1}} |
 | BLS12-381                 | {{suites-bls12381}}  |
 
 ## Suite ID naming conventions {#suiteIDformat}
@@ -2371,21 +2369,21 @@ The common parameters for all of the above suites are:
 Optimized example implementations of the above mappings are given in
 {{map-to-curve448}} and {{map-to-edwards448}}.
 
-## Suites for SECP256K1 {#suites-secp256k1}
+## Suites for secp256k1 {#suites-secp256k1}
 
-This section defines ciphersuites for the SECP256K1 elliptic curve {{SEC2}}.
+This section defines ciphersuites for the secp256k1 elliptic curve {{SEC2}}.
 
-The suites SECP256K1-SHA256-SSWU-RO- and SECP256K1-SHA256-SSWU-NU-
+The suites secp256k1-SHA256-SSWU-RO- and secp256k1-SHA256-SSWU-NU-
 share the following parameters, in addition to the common parameters below.
 
-- f: Simplified SWU method, {{simple-swu}}
+- f: Simplified SWU for AB == 0, {{simple-swu-AB0}}
 - Z: -11
 - E': y'^2 = x'^3 + A' * x' + B', where
   - A': 0x3f8731abdd661adca08a5558f0f5d272e953d363cb6f0e5d405447c01a444533
   - B': 1771
 - iso\_map: the 3-isogeny map from E' to E given in {{appx-iso-secp256k1}}
 
-The suites SECP256K1-SHA256-SVDW-RO- and SECP256K1-SHA256-SVDW-NU-
+The suites secp256k1-SHA256-SVDW-RO- and secp256k1-SHA256-SVDW-NU-
 share the following parameters, in addition to the common parameters below.
 
 - f: Shallue-van de Woestijne method, {{svdw}}
@@ -2410,7 +2408,7 @@ the BLS12-381 elliptic curve {{draft-yonezawa-pfc-01}}.
 The suites BLS12381G1-SHA256-SSWU-RO- and BLS12381G1-SHA256-SSWU-NU-
 share the following parameters, in addition to the common parameters below.
 
-- f: Simplified SWU for pairing-friendly curves, {{simple-swu-pairing-friendly}}
+- f: Simplified SWU for AB == 0, {{simple-swu-AB0}}
 - Z: 11
 - E': y'^2 = x'^3 + A' * x' + B', where
   - A' = 0x144698a3b8e9433d693a02c96d4982b0ea985383ee66a8d8e8981aefd881ac98936f8da0e0f97f5cf428082d584c1d
@@ -2446,7 +2444,7 @@ Group G2 of BLS12-381 is defined over a field F = GF(p^m) defined as:
 The suites BLS12381G2-SHA256-SSWU-RO- and BLS12381G2-SHA256-SSWU-NU-
 share the following parameters, in addition to the common parameters below.
 
-- f: Simplified SWU for pairing-friendly curves, {{simple-swu-pairing-friendly}}
+- f: Simplified SWU for AB == 0, {{simple-swu-AB0}}
 - Z: -(2 + I)
 - E': y'^2 = x'^3 + A' * x' + B', where
   - A' = 240 * I
@@ -2649,7 +2647,7 @@ following rational map ({{BBJLP08}}, Theorem 3.2):
 
 # Isogeny maps for Suites {#appx-iso}
 
-This section specifies the isogeny maps for the SECP256k1 and BLS12-381
+This section specifies the isogeny maps for the secp256k1 and BLS12-381
 suites listed in {{suites}}.
 
 These maps are given in terms of affine coordinates.
@@ -2660,9 +2658,9 @@ modular inversions.
 Refer to the draft repository {{hash2curve-repo}} for a Sage {{SAGE}} script
 that constructs these isogenies.
 
-## 3-isogeny map for SECP256k1 {#appx-iso-secp256k1}
+## 3-isogeny map for secp256k1 {#appx-iso-secp256k1}
 
-This section specifies the isogeny map for the SECP256k1 suite listed in {{suites-secp256k1}}.
+This section specifies the isogeny map for the secp256k1 suite listed in {{suites-secp256k1}}.
 
 The 3-isogeny map from (x', y') on E' to (x, y) on E is given by the following rational functions:
 
