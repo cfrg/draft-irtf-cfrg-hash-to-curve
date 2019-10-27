@@ -477,6 +477,10 @@ informative:
     title: Hashing to Elliptic Curves - GitHub repository
     target: https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve
     date: 2019
+  jubjub-fq:
+    title: zkcrypto/jubjub - fq.rs
+    target: https://github.com/zkcrypto/jubjub/blob/master/src/fq.rs
+    date: 2019
   L13:
     title: Implementing Elligator for Curve25519
     target: https://www.imperialviolet.org/2013/12/25/elligator.html
@@ -3314,7 +3318,7 @@ Procedure:
 ## Constant-time Tonelli-Shanks algorithm {#sqrt-ts}
 
 This algorithm is a constant-time version of the classic Tonelli-Shanks algorithm
-({{C93}}, Algorithm 1.5.1) due to Sean Bowe, Jack Grigg, and Eirik Ogilvie-Wigley,
+({{C93}}, Algorithm 1.5.1) due to Sean Bowe, Jack Grigg, and Eirik Ogilvie-Wigley {{jubjub-fq}},
 adapted and optimized by Michael Scott.
 
 This algorithm applies to GF(p) for any p.
