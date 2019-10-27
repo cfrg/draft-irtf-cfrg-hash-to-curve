@@ -1809,11 +1809,10 @@ Operations:
 
 #### Implementation
 
-The following procedure implements the simplified SWU mapping in a
-straight-line fashion.
+The following procedure implements the simplified SWU mapping in a straight-line fashion.
 {{samplecode}} gives an optimized straight-line procedure for P-256 {{FIPS186-4}}.
-For discussion of how to generalize to q = 1 (mod 4), see
-{{WB19}} (Section 4) or the example code found at {{hash2curve-repo}}.
+For more information on optimizing this mapping, see
+{{WB19}} Section 4 or the example code found at {{hash2curve-repo}}.
 
 ~~~
 map_to_curve_simple_swu(u)
