@@ -1224,7 +1224,7 @@ is_square(x) := { True,  if x^((q - 1) / 2) is 0 or 1 in F;
     algorithm particular to F. We give algorithms for the three most common
     cases immediately below; other cases are analogous.
 
-    Note that Case 3 below applies to GF(p^2) when p = 3 mod 8.
+    Note that Case 3 below applies to GF(p^2) when p = 3 (mod 8).
     {{AR13}} and {{S85}} describe methods that work for other field extensions.
     Regardless of the method chosen, the sqrt function MUST be performed in
     constant time.
@@ -1436,7 +1436,7 @@ Steps:
 3. for i in (1, ..., m):
 4.   info = info_pfx || I2OSP(i, 1)
 5.   t = HKDF-Expand(msg_prime, info, L)
-6.   e_i = OS2IP(t) mod p
+6.   e_i = OS2IP(t) (mod p)
 7. u = (e_1, ..., e_m)
 8. return u
 ~~~
@@ -1831,7 +1831,7 @@ For both of these curves, {{RFC7748}} lists both the Montgomery and twisted Edwa
 forms and gives the corresponding rational maps.
 
 The rational map for edwards25519 ({{RFC7748}}, Section 4.1)
-uses the constant sqrt\_neg\_486664 = sqrt(-486664) mod 2^255 - 19.
+uses the constant sqrt\_neg\_486664 = sqrt(-486664) (mod 2^255 - 19).
 To ensure compatibility, this constant MUST be chosen such that
 sgn0(sqrt\_neg\_486664) == 1.
 Analogous ambiguities in other standardized rational maps MUST be
@@ -2574,18 +2574,18 @@ fraction of the points on almost any curve.
 Ulas {{U07}} describes a simpler version of this map, and Brier et
 al. {{BCIMRT10}} give a further simplification, which the authors call the
 "simplified SWU" map.
-The simplified map applies only to fields of characteristic p = 3 mod 4;
+The simplified map applies only to fields of characteristic p = 3 (mod 4);
 Wahby and Boneh {{WB19}} generalize to fields of any characteristic.
 
 Boneh and Franklin give a deterministic algorithm mapping to certain
-supersingular curves over fields of characteristic p = 2 mod 3 {{BF01}}.
+supersingular curves over fields of characteristic p = 2 (mod 3) {{BF01}}.
 Icart gives another deterministic algorithm which maps to any curve
-over a field of characteristic p = 2 mod 3 {{Icart09}}.
+over a field of characteristic p = 2 (mod 3) {{Icart09}}.
 Several extensions and generalizations follow this work, including
 {{FSV09}}, {{FT10}}, {{KLR10}}, {{F11}}, and {{CK11}}.
 
 Following the work of Farashahi {{F11}}, Fouque et al. {{FJT13}} describe a
-mapping to curves of characteristic p = 3 mod 4 having a number of points
+mapping to curves of characteristic p = 3 (mod 4) having a number of points
 divisible by 4.  Bernstein et al. {{BHKL13}} optimize this mapping and
 describe a related mapping that they call "Elligator 2," which applies to
 any curve over a field of odd characteristic having a point of order 2.
@@ -2932,7 +2932,7 @@ Constants:
 Steps:
 1.   t1 = u^2
 2.   t1 = 2 * t1
-3.   xd = t1 + 1              // Nonzero: -1 is square mod p, t1 is not
+3.   xd = t1 + 1              // Nonzero: -1 is square (mod p), t1 is not
 4.  x1n = -486662             // x1 = x1n / xd = -486662 / (1 + 2 * u^2)
 5.   t2 = xd^2
 6.  gxd = t2 * xd             // gxd = xd^3
