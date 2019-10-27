@@ -2932,7 +2932,7 @@ Constants:
 Steps:
 1.   t1 = u^2
 2.   t1 = 2 * t1
-3.   xd = t1 + 1              // Nonzero: -1 is square mod p, xd is not
+3.   xd = t1 + 1              // Nonzero: -1 is square mod p, t1 is not
 4.  x1n = -486662             // x1 = x1n / xd = -486662 / (1 + 2 * u^2)
 5.   t2 = xd^2
 6.  gxd = t2 * xd             // gxd = xd^3
