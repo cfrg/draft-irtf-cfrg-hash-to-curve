@@ -2874,18 +2874,18 @@ Constants:
 1.   B = 0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b
 2.  c1 = B / 3
 3.  c2 = (p - 3) / 4          // Integer arithmetic
-4.  c3 = sqrt(8)
+4.  c3 = sqrt(1000)
 
 Steps:
 1.   t1 = u^2
-2.   t3 = -2 * t1
+2.   t3 = -10 * t1            // Z * u^2
 3.   t2 = t3^2
 4.   xd = t2 + t3
 5.  x1n = xd + 1
 6.  x1n = x1n * B
 7.   xd = xd * 3
 8.   e1 = xd == 0
-9.   xd = CMOV(xd, 6, e1)     // If xd == 0, set xd = Z * A == 6
+9.   xd = CMOV(xd, 30, e1)    // If xd == 0, set xd = Z * A == 30
 10.  t2 = xd^2
 11. gxd = t2 * xd             // gxd == xd^3
 12.  t2 = -3 * t2
@@ -2899,8 +2899,8 @@ Steps:
 20.  t4 = t4 * t2             // gx1 * gxd^3
 21.  y1 = t4^c2               // (gx1 * gxd^3)^((p - 3) / 4)
 22.  y1 = y1 * t2             // gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
-23. x2n = t3 * x1n            // x2 = x2n / xd = -2 * u^2 * x1n / xd
-24.  y2 = y1 * c3
+23. x2n = t3 * x1n            // x2 = x2n / xd = -10 * u^2 * x1n / xd
+24.  y2 = y1 * c3             // y2 = y1 * sqrt(-Z^3)
 25.  y2 = y2 * t1
 26.  y2 = y2 * u
 27.  t2 = y1^2
