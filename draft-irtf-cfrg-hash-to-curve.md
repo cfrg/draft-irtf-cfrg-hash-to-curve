@@ -957,10 +957,10 @@ an integer m > 1. This document writes elements of field extensions
 in a primitive element or polynomial basis, i.e., as a vector
 of m elements of GF(p) written in ascending order by degree.
 The entries of this vector are indexed in ascending order starting from 1,
-i.e., x = (x_1, x_2, ..., x_m).
+i.e., x = (x\_1, x\_2, ..., x\_m).
 For example, if q = p^2 and the primitive element basis is (1, i),
 then x = (a, b) corresponds to the element a + b * i, where
-x_1 = a and x_2 = b.
+x\_1 = a and x\_2 = b.
 
 An elliptic curve E is specified by an equation in two variables and a
 finite field F. An elliptic curve equation takes one of several standard forms,
@@ -1293,8 +1293,16 @@ element of F.
 It is convenient for hash-to-curve and decompression to agree on a notion of
 sign, since this may permit simpler implementations.
 
-See {{bg-curves}} for a discussion of representing x as a vector; this
-representation is used in both of the variants immediately below.
+See {{bg-curves}} for a discussion of representing elements of field extensions
+as vectors; this representation is used in both of the sgn0 variants below.
+
+Note that any valid sgn0 function for field extensions must iterate over
+the entire vector representation of the input element.
+To see why, imagine a function sgn0\* that ignores the final entry in its
+input vector, and consider a field element x = (0, 0, 0, 0, x\_5).
+Since sgn0\* ignores x\_5, sgn0\*(x) == sgn0\*(-x) == 1, which is incorrect
+when x\_5 != 0.
+The same argument applies to all entries of x, establishing the claim.
 
 ### Big endian variant {#sgn0-be}
 
@@ -2111,7 +2119,7 @@ Helper functions:
 - map\_to\_curve\_simple\_swu is the mapping of {{simple-swu}} to E'
 - iso\_map is the isogeny map from E' to E
 
-Sign of y: for this map, the sign is determined by map\_to\_curve_elligator2.
+Sign of y: for this map, the sign is determined by map\_to\_curve\_elligator2.
 No further sign adjustments are necessary.
 
 Exceptions: map\_to\_curve\_simple\_swu handles its exceptional cases.
