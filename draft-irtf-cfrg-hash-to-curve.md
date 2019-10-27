@@ -3339,14 +3339,11 @@ Procedure:
 6.  for k in (m, m - 1, ..., 2):
 7.      for j in (1, 2, ..., k - 1):
 8.           b = b * b
-9.      b_is_good = b != 1
-10.     tmp = r * c
-11.     r = CMOV(r, tmp, e)
-12.     c = c * c
-13.     tmp = t * c
-14.     t = CMOV(t, tmp, e)
-15.     b = t
-16. return r
+9.      r = CMOV(r, r * c, b != 1)
+10.     c = c * c
+11.     t = CMOV(t, t * c, b != 1)
+12.     b = t
+13. return r
 ~~~
 
 The constants used in this procedure can be computed as follows:
