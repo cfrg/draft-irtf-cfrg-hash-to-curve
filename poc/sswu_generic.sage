@@ -10,6 +10,8 @@ class GenericSSWU(GenericMap):
         self.F = F
         self.A = F(A)
         self.B = F(B)
+        assert self.A != 0, "S-SWU requires A != 0"
+        assert self.B != 0, "S-SWU requires B != 0"
         self.Z = find_z_sswu(F, F(A), F(B))
         self.g = lambda x: F(x)**3 + F(A) * F(x) + F(B)
         self.E = EllipticCurve(F, [F(A), F(B)])
@@ -78,7 +80,3 @@ class GenericSSWU(GenericMap):
         e3 = sgn0(u) == sgn0(y)         #// Fix sign of y
         y = CMOV(-y, y, e3)
         return (x, y)
-
-if __name__ == "__main__":
-    for _ in range(0, 32):
-        GenericSSWU.test_random()

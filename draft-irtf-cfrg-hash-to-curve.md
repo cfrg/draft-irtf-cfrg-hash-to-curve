@@ -2394,7 +2394,7 @@ The common parameters for the above suites are:
 - h\_eff: 1
 
 An optimized example implementation of the Simplified SWU mapping
-for P-256 is given in {{map-to-p256}}.
+for P-256 is given in {{map-to-nist}}.
 
 ## Suites for NIST P-384 {#suites-p384}
 
@@ -2424,6 +2424,9 @@ The common parameters for the above suites are:
 - L: 72
 - h\_eff: 1
 
+An optimized example implementation of the Simplified SWU mapping
+for P-384 is given in {{map-to-nist}}.
+
 ## Suites for NIST P-521 {#suites-p521}
 
 This section defines ciphersuites for the NIST P-521 elliptic curve {{FIPS186-4}}.
@@ -2451,6 +2454,9 @@ The common parameters for the above suites are:
 - H: SHA-512
 - L: 96
 - h\_eff: 1
+
+An optimized example implementation of the Simplified SWU mapping
+for P-521 is given in {{map-to-nist}}.
 
 ## Suites for curve25519 and edwards25519 {#suites-25519}
 
@@ -3011,56 +3017,65 @@ and the corresponding conversions:
   To convert (xn, xd, yn, yd) to Jacobian projective coordinates,
   compute (X', Y', Z') = (xn * xd * yd^2, yn * yd^2 * xd^3, xd * yd).
 
-## P-256 (Simplified SWU) {#map-to-p256}
+## Simplified SWU for P-256, P-384, and P-521 {#map-to-nist}
 
 The following is a straight-line implementation of the Simplified SWU
-mapping for P-256 {{FIPS186-4}} as specified in {{suites-p256}}.
+mappings for the NIST curves P-256, P-384, and P-521 {{FIPS186-4}},
+as specified in {{suites}}.
+
+The implementations for these curves differ only in the constants
+and the base field.
+The constants below are given in terms of the parameters for the
+Simplified SWU ciphersuites given in
+{{suites-p256}} (P-256),
+{{suites-p384}} (P-384), and
+{{suites-p521}} (P-521).
 
 ~~~
-map_to_curve_simple_swu_p256(u)
+map_to_curve_simple_swu_nist(u)
+
 Input: u, an element of F.
 Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
-        point on P-256.
+        point on the target curve.
 
-Constants:
-1.   B = 0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b
-2.  c1 = B / 3
-3.  c2 = (p - 3) / 4          // Integer arithmetic
-4.  c3 = sqrt(1000)
+Constants: defined per curve; see above.
+1.  c1 = B / 3
+2.  c2 = (p - 3) / 4           // Integer arithmetic
+3.  c3 = sqrt(-Z^3)
 
 Steps:
 1.   t1 = u^2
-2.   t3 = -10 * t1            // Z * u^2
+2.   t3 = Z * t1
 3.   t2 = t3^2
 4.   xd = t2 + t3
 5.  x1n = xd + 1
 6.  x1n = x1n * B
 7.   xd = xd * 3
 8.   e1 = xd == 0
-9.   xd = CMOV(xd, 30, e1)    // If xd == 0, set xd = Z * A == 30
+9.   xd = CMOV(xd, Z * A, e1)  // If xd == 0, set xd = Z * A
 10.  t2 = xd^2
-11. gxd = t2 * xd             // gxd == xd^3
+11. gxd = t2 * xd              // gxd == xd^3
 12.  t2 = -3 * t2
 13. gx1 = x1n^2
-14. gx1 = gx1 + t2            // x1n^2 + A * xd^2
-15. gx1 = gx1 * x1n           // x1n^3 + A * x1n * xd^2
+14. gx1 = gx1 + t2             // x1n^2 + A * xd^2
+15. gx1 = gx1 * x1n            // x1n^3 + A * x1n * xd^2
 16.  t2 = B * gxd
-17. gx1 = gx1 + t2            // x1n^3 + A * x1n * xd^2 + B * xd^3
+17. gx1 = gx1 + t2             // x1n^3 + A * x1n * xd^2 + B * xd^3
 18.  t4 = gxd^2
 19.  t2 = gx1 * gxd
-20.  t4 = t4 * t2             // gx1 * gxd^3
-21.  y1 = t4^c2               // (gx1 * gxd^3)^((p - 3) / 4)
-22.  y1 = y1 * t2             // gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
-23. x2n = t3 * x1n            // x2 = x2n / xd = -10 * u^2 * x1n / xd
-24.  y2 = y1 * c3             // y2 = y1 * sqrt(-Z^3)
+20.  t4 = t4 * t2              // gx1 * gxd^3
+21.  y1 = t4^c2                // (gx1 * gxd^3)^((p - 3) / 4)
+22.  y1 = y1 * t2              // gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
+23. x2n = t3 * x1n             // x2 = x2n / xd = -10 * u^2 * x1n / xd
+24.  y2 = y1 * c3              // y2 = y1 * sqrt(-Z^3)
 25.  y2 = y2 * t1
 26.  y2 = y2 * u
 27.  t2 = y1^2
 28.  t2 = t2 * gxd
 29.  e2 = t2 == gx1
-30.  xn = CMOV(x2n, x1n, e2)  // If e2, x = x1, else x = x2
-31.   y = CMOV(y2, y1, e2)    // If e2, y = y1, else y = y2
-32.  e3 = sgn0(u) == sgn0(y)  // Fix sign of y
+30.  xn = CMOV(x2n, x1n, e2)   // If e2, x = x1, else x = x2
+31.   y = CMOV(y2, y1, e2)     // If e2, y = y1, else y = y2
+32.  e3 = sgn0(u) == sgn0(y)   // Fix sign of y
 33.   y = CMOV(-y, y, e3)
 34. return (xn, xd, y, 1)
 ~~~
@@ -3072,6 +3087,7 @@ for curve25519 {{RFC7748}} as specified in {{suites-25519}}.
 
 ~~~
 map_to_curve_elligator2_curve25519(u)
+
 Input: u, an element of F.
 Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on curve25519.
@@ -3134,6 +3150,7 @@ is defined in {{map-to-curve25519}}.
 
 ~~~
 map_to_curve_elligator2_edwards25519(u)
+
 Input: u, an element of F.
 Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on edwards25519.
@@ -3158,6 +3175,7 @@ for curve448 {{RFC7748}} as specified in {{suites-448}}.
 
 ~~~
 map_to_curve_elligator2_curve448(u)
+
 Input: u, an element of F.
 Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on curve448.
@@ -3204,6 +3222,7 @@ is defined in {{map-to-curve448}}.
 
 ~~~
 map_to_curve_elligator2_edwards448(u)
+
 Input: u, an element of F.
 Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on edwards448.
