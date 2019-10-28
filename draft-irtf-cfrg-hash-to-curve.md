@@ -2394,7 +2394,7 @@ The common parameters for the above suites are:
 - h\_eff: 1
 
 An optimized example implementation of the Simplified SWU mapping
-for P-256 is given in {{map-to-nist}}.
+for P-256 is given in {{map-to-3mod4}}.
 
 ## Suites for NIST P-384 {#suites-p384}
 
@@ -2425,7 +2425,7 @@ The common parameters for the above suites are:
 - h\_eff: 1
 
 An optimized example implementation of the Simplified SWU mapping
-for P-384 is given in {{map-to-nist}}.
+for P-384 is given in {{map-to-3mod4}}.
 
 ## Suites for NIST P-521 {#suites-p521}
 
@@ -2456,7 +2456,7 @@ The common parameters for the above suites are:
 - h\_eff: 1
 
 An optimized example implementation of the Simplified SWU mapping
-for P-521 is given in {{map-to-nist}}.
+for P-521 is given in {{map-to-3mod4}}.
 
 ## Suites for curve25519 and edwards25519 {#suites-25519}
 
@@ -2557,6 +2557,9 @@ The common parameters for all of the above suites are:
 - H: SHA-256
 - L: 48
 - h\_eff: 1
+
+An optimized example implementation of the Simplified SWU mapping
+for secp256k1 is given in {{map-to-3mod4}}.
 
 ## Suites for BLS12-381 {#suites-bls12381}
 
@@ -3017,22 +3020,24 @@ and the corresponding conversions:
   To convert (xn, xd, yn, yd) to Jacobian projective coordinates,
   compute (X', Y', Z') = (xn * xd * yd^2, yn * yd^2 * xd^3, xd * yd).
 
-## Simplified SWU for P-256, P-384, and P-521 {#map-to-nist}
+## Simplified SWU for p = 3 (mod 4) {#map-to-3mod4}
 
 The following is a straight-line implementation of the Simplified SWU
-mappings for the NIST curves P-256, P-384, and P-521 {{FIPS186-4}},
-as specified in {{suites}}.
+mappings that applies to any curve over GF(p) for p = 3 (mod 4).
+This applies to the ciphersuites for NIST curves P-256, P-384, and P-521 {{FIPS186-4}} given in {{suites}}.
+It also applies to the curve isogenous to secp256k1 {{SEC2}} described in {{suites-secp256k1}}.
 
 The implementations for these curves differ only in the constants
 and the base field.
 The constants below are given in terms of the parameters for the
-Simplified SWU ciphersuites given in
+Simplified SWU mapping; for parameter values, see
 {{suites-p256}} (P-256),
-{{suites-p384}} (P-384), and
-{{suites-p521}} (P-521).
+{{suites-p384}} (P-384),
+{{suites-p521}} (P-521), and
+{{suites-secp256k1}} (secp256k1---specifically, the isogenous curve E').
 
 ~~~
-map_to_curve_simple_swu_nist(u)
+map_to_curve_simple_swu_3mod4(u)
 
 Input: u, an element of F.
 Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
@@ -3050,12 +3055,12 @@ Steps:
 4.   xd = t2 + t3
 5.  x1n = xd + 1
 6.  x1n = x1n * B
-7.   xd = xd * 3
+7.   xd = -A * xd
 8.   e1 = xd == 0
 9.   xd = CMOV(xd, Z * A, e1)  // If xd == 0, set xd = Z * A
 10.  t2 = xd^2
 11. gxd = t2 * xd              // gxd == xd^3
-12.  t2 = -3 * t2
+12.  t2 = A * t2
 13. gx1 = x1n^2
 14. gx1 = gx1 + t2             // x1n^2 + A * xd^2
 15. gx1 = gx1 * x1n            // x1n^3 + A * x1n * xd^2
