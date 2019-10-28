@@ -25,7 +25,8 @@ class GenericSSWU(GenericMap):
         # which is at u = 0 and when Z * u^2 = -1
         self.undefs = [F(0)]
         if self.c2.is_square():
-            self.undefs.append(self.c2.sqrt())
+            ex = self.c2.sqrt()
+            self.undefs += [ex, -ex]
 
     def not_straight_line(self, u):
         u = self.F(u)
