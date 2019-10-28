@@ -2394,7 +2394,7 @@ The common parameters for the above suites are:
 - h\_eff: 1
 
 An optimized example implementation of the Simplified SWU mapping
-for P-256 is given in {{map-to-3mod4}}.
+to P-256 is given in {{sswu-map-to-3mod4}}.
 
 ## Suites for NIST P-384 {#suites-p384}
 
@@ -2425,7 +2425,7 @@ The common parameters for the above suites are:
 - h\_eff: 1
 
 An optimized example implementation of the Simplified SWU mapping
-for P-384 is given in {{map-to-3mod4}}.
+to P-384 is given in {{sswu-map-to-3mod4}}.
 
 ## Suites for NIST P-521 {#suites-p521}
 
@@ -2456,7 +2456,7 @@ The common parameters for the above suites are:
 - h\_eff: 1
 
 An optimized example implementation of the Simplified SWU mapping
-for P-521 is given in {{map-to-3mod4}}.
+to P-521 is given in {{sswu-map-to-3mod4}}.
 
 ## Suites for curve25519 and edwards25519 {#suites-25519}
 
@@ -2559,7 +2559,7 @@ The common parameters for all of the above suites are:
 - h\_eff: 1
 
 An optimized example implementation of the Simplified SWU mapping
-for secp256k1 is given in {{map-to-3mod4}}.
+to the curve E' isogenous to secp256k1 is given in {{sswu-map-to-3mod4}}.
 
 ## Suites for BLS12-381 {#suites-bls12381}
 
@@ -2598,7 +2598,7 @@ Note that this h\_eff value is chosen for compatibility
 with the fast cofactor clearing method described by Scott ({{WB19}} Section 5).
 
 An optimized example implementation of the Simplified SWU mapping
-for BLS12-381 G1 is given in {{map-to-3mod4}}.
+to the curve E' isogenous to BLS12-381 G1 is given in {{sswu-map-to-3mod4}}.
 
 ### BLS12-381 G2 {#suites-bls12381-g2}
 
@@ -3023,17 +3023,17 @@ and the corresponding conversions:
   To convert (xn, xd, yn, yd) to Jacobian projective coordinates,
   compute (X', Y', Z') = (xn * xd * yd^2, yn * yd^2 * xd^3, xd * yd).
 
-## Simplified SWU for p = 3 (mod 4) {#map-to-3mod4}
+## Simplified SWU for p = 3 (mod 4) {#sswu-map-to-3mod4}
 
 The following is a straight-line implementation of the Simplified SWU
-mappings that applies to any curve over GF(p) for p = 3 (mod 4).
-This applies to the ciphersuites for NIST curves P-256, P-384, and P-521 {{FIPS186-4}} given in {{suites}}.
-It also applies to the curves isogenous to secp256k1 ({{suites-secp256k1}}) and BLS12-381 G1 ({{suites-bls12381-g1}}).
+mapping that applies to any curve over GF(p) for p = 3 (mod 4).
+This includes the ciphersuites for NIST curves P-256, P-384, and P-521 {{FIPS186-4}} given in {{suites}}.
+It also includes the curves isogenous to secp256k1 ({{suites-secp256k1}}) and BLS12-381 G1 ({{suites-bls12381-g1}}).
 
 The implementations for these curves differ only in the constants
 and the base field.
-The constants below are given in terms of the parameters for the
-Simplified SWU mapping; for parameter values, see
+The constant definitions below are given in terms of the parameters for the
+Simplified SWU mapping; for parameter values for the curves listed above, see
 {{suites-p256}} (P-256),
 {{suites-p384}} (P-384),
 {{suites-p521}} (P-521),
