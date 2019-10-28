@@ -2597,6 +2597,9 @@ The common parameters for the above suites are:
 Note that this h\_eff value is chosen for compatibility
 with the fast cofactor clearing method described by Scott ({{WB19}} Section 5).
 
+An optimized example implementation of the Simplified SWU mapping
+for BLS12-381 G1 is given in {{map-to-3mod4}}.
+
 ### BLS12-381 G2 {#suites-bls12381-g2}
 
 Group G2 of BLS12-381 is defined over a field F = GF(p^m) defined as:
@@ -3025,7 +3028,7 @@ and the corresponding conversions:
 The following is a straight-line implementation of the Simplified SWU
 mappings that applies to any curve over GF(p) for p = 3 (mod 4).
 This applies to the ciphersuites for NIST curves P-256, P-384, and P-521 {{FIPS186-4}} given in {{suites}}.
-It also applies to the curve isogenous to secp256k1 {{SEC2}} described in {{suites-secp256k1}}.
+It also applies to the curves isogenous to secp256k1 ({{suites-secp256k1}}) and BLS12-381 G1 ({{suites-bls12381-g1}}).
 
 The implementations for these curves differ only in the constants
 and the base field.
@@ -3033,8 +3036,9 @@ The constants below are given in terms of the parameters for the
 Simplified SWU mapping; for parameter values, see
 {{suites-p256}} (P-256),
 {{suites-p384}} (P-384),
-{{suites-p521}} (P-521), and
-{{suites-secp256k1}} (secp256k1---specifically, the isogenous curve E').
+{{suites-p521}} (P-521),
+{{suites-secp256k1}} (E' isogenous to secp256k1), and
+{{suites-bls12381-g1}} (E' isogenous to BLS12-381 G1).
 
 ~~~
 map_to_curve_simple_swu_3mod4(u)

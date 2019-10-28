@@ -113,6 +113,13 @@ Bp_secp256k1 = 1771
 test_secp256k1 = OptimizedSSWU(p_secp256k1, Ap_secp256k1, Bp_secp256k1)
 assert test_secp256k1.Z == GF(p_secp256k1)(-11)
 
+# curve isogenous to BLS12-381 G1
+p_bls12381 = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
+Ap_bls12381g1 = 0x144698a3b8e9433d693a02c96d4982b0ea985383ee66a8d8e8981aefd881ac98936f8da0e0f97f5cf428082d584c1d
+Bp_bls12381g1 = 0x12e2908d11688030018b12e8753eee3b2016c1f0f24f4070a0b9c14fcef35ef55a23215a316ceaa5d1cc48e98e172be0
+test_bls12381g1 = OptimizedSSWU(p_bls12381, Ap_bls12381g1, Bp_bls12381g1)
+assert test_bls12381g1.Z == GF(p_bls12381)(11)
+
 if __name__ == "__main__":
     print("Testing P-256")
     test_p256.test()
@@ -122,3 +129,5 @@ if __name__ == "__main__":
     test_p521.test()
     print("Testing secp256k1 isogeny")
     test_secp256k1.test()
+    print("Testing BLS12-381 G1 isogeny")
+    test_bls12381g1.test()
