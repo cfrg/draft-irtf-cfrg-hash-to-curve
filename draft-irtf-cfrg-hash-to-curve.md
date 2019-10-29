@@ -1851,8 +1851,10 @@ Steps:
 ### Simplified SWU for AB == 0 {#simple-swu-AB0}
 
 Wahby and Boneh {{WB19}} show how to adapt the simplified SWU mapping to
-Weierstrass curves having A == 0 or B == 0 (which the mapping of
-{{simple-swu}} does not support).
+Weierstrass curves having A == 0 or B == 0, which the mapping of
+{{simple-swu}} does not support.
+(The case A == B == 0 is excluded because y^2 = x^3 is not an elliptic curve.)
+
 This method applies to curves like secp256k1 {{SEC2}} and to pairing-friendly
 curves in the Barreto-Lynn-Scott {{BLS03}}, Barreto-Naehrig {{BN05}}, and other families.
 
