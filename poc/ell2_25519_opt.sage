@@ -1,56 +1,13 @@
 #!/usr/bin/sage
 # vim: syntax=python
-load("common.sage")
+
+load("ell2_generic.sage")
 
 p = 2^255 - 19
 F = GF(p)
-
-def sqrt(x):
-    assert F(x).is_square()
-    return F(x).sqrt()
-
-def is_square(x):
-    return F(x).is_square()
-
-def inv0(x):
-    if x == 0:
-        return 0
-    return 1 / F(x)
-
-def ell2_curve25519(u):
-    A = F(486662)
-    B = F(1)
-
-    den = F(1 + 2 * u^2)
-    if den == 0:
-        den = F(1)
-    x1 = -A / den
-    gx1 = x1^3 + A * x1^2 + B * x1
-    x2 = -x1 - A
-    gx2 = x2^3 + A * x2^2 + B * x2
-
-    if F(gx1).is_square():
-        x = x1
-        y = sqrt(gx1)
-    else:
-        x = x2
-        y = sqrt(gx2)
-
-    if sgn0(u) != sgn0(y):
-        y = -y
-    assert sgn0(u) == sgn0(y)
-
-    return (x, y)
-
-def curve25519_to_edwards25519(u, v):
-    c1 = sqrt(F(-486664))
-    c1 = sgn0(c1) * c1
-    assert sgn0(c1) == 1
-
-    x = c1 * u / v
-    y = (u - 1) / (u + 1)
-
-    return (x, y)
+A = F(486662)
+B = F(1)
+ref_map = GenericEll2(F, A, B)
 
 def map_to_curve_elligator2_curve25519(u):
     c1 = (p + 3) // 8
@@ -99,33 +56,6 @@ def map_to_curve_elligator2_curve25519(u):
     y = CMOV(-y, y, e4)
     return (xn, xd, y, 1)
 
-def map_to_curve_elligator2(u):
-    A = 486662
-    B = 1
-    Z = 2
-
-    t1 = u^2
-    t1 = Z * t1
-    x1 = t1 + 1
-    x1 = inv0(x1)
-    e1 = x1 == 0
-    x1 = CMOV(x1, 1, e1)
-    x1 = -A * x1
-    gx1 = x1 + A
-    gx1 = gx1 * x1
-    gx1 = gx1 + B
-    gx1 = gx1 * x1
-    x2 = -x1 - A
-    gx2 = t1 * gx1
-    e2 = is_square(gx1)
-    x = CMOV(x2, x1, e2)
-    y2 = CMOV(gx2, gx1, e2)
-    y = sqrt(y2)
-    e3 = sgn0(u) == sgn0(y)
-    y = CMOV(-y, y, e3)
-    return (x, y)
-
-
 def map_to_curve_elligator2_edwards25519(u):
     c1 = sqrt(F(-486664))
     c1 = sgn0(c1) * c1
@@ -137,36 +67,57 @@ def map_to_curve_elligator2_edwards25519(u):
     xd = xMd * yMn
     yn = xMn - xMd
     yd = xMn + xMd
+    t1 = xd * yd
+    e = t1 == 0
+    xn = CMOV(xn, 0, e)
+    xd = CMOV(xd, 1, e)
+    yn = CMOV(yn, 1, e)
+    yd = CMOV(yd, 1, e)
     return (xn, xd, yn, yd)
 
-def test_curve25519():
-    u = F.random_element()
+def test_curve25519(u=None):
+    if u is None:
+        u = F.random_element()
     (xn, xd, yn, yd) = map_to_curve_elligator2_curve25519(u)
     x = xn / xd
     y = yn / yd
-    A = F(486662)
-    B = F(1)
     assert B * y^2 == x^3 + A * x^2 + x
-    (xp, yp) = ell2_curve25519(u)
+    (xp, yp, _) = ref_map.map_to_curve(u)
     assert xp == x
     assert yp == y
-    (xpp, ypp) = map_to_curve_elligator2(u)
-    assert xpp == x
-    assert ypp == y
 
-def test_edwards25519():
-    u = F.random_element()
+def curve25519_to_edwards25519(u, v, _):
+    c1 = sqrt(F(-486664))
+    c1 = sgn0(c1) * c1
+    assert sgn0(c1) == 1
+
+    if v == 0 or u == -1:
+        return (F(0), F(1))
+    x = c1 * u / v
+    y = (u - 1) / (u + 1)
+
+    return (x, y)
+
+def test_edwards25519(u=None):
+    a = F(-1)
+    d = -F(121665) / F(121666)
+
+    if u is None:
+        u = F.random_element()
     (xn, xd, yn, yd) = map_to_curve_elligator2_edwards25519(u)
     x = xn / xd
     y = yn / yd
-    a = F(-1)
-    d = -F(121665) / F(121666)
     assert a * x^2 + y^2 == 1 + d * x^2 * y^2
-    (xp, yp) = curve25519_to_edwards25519(*ell2_curve25519(u))
+    (xp, yp) = curve25519_to_edwards25519(*ref_map.map_to_curve(u))
     assert xp == x
     assert yp == y
 
 def test_25519():
+    test_curve25519(F(0))
+    test_edwards25519(F(0))
+    for und in ref_map.undefs:
+        test_curve25519(und)
+        test_edwards25519(und)
     for _ in range(0, 1024):
         test_curve25519()
         test_edwards25519()

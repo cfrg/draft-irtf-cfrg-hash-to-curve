@@ -3168,13 +3168,19 @@ Constants:
 1. c1 = sqrt(-486664)   // sgn0(c1) MUST equal 1
 
 Steps:
-1. (xMn, xMd, yMn, yMd) = map_to_curve_elligator2_curve25519(u)
-2. xn = xMn * yMd
-3. xn = xn * c1
-4. xd = xMd * yMn       // xn / xd = c1 * xM / yM
-5. yn = xMn - xMd
-6. yd = xMn + xMd       // (n / d - 1) / (n / d + 1) = (n - d) / (n + d)
-7. return (xn, xd, yn, yd)
+1.  (xMn, xMd, yMn, yMd) = map_to_curve_elligator2_curve25519(u)
+2.  xn = xMn * yMd
+3.  xn = xn * c1
+4.  xd = xMd * yMn       // xn / xd = c1 * xM / yM
+5.  yn = xMn - xMd
+6.  yd = xMn + xMd       // (n / d - 1) / (n / d + 1) = (n - d) / (n + d)
+7.  t1 = xd * yd
+8.   e = t1 == 0
+9.  xn = CMOV(xn, 0, e)
+10. xd = CMOV(xd, 1, e)
+11. yn = CMOV(yn, 1, e)
+12. yd = CMOV(yd, 1, e)
+13. return (xn, xd, yn, yd)
 ~~~
 
 ## curve448 (Elligator 2) {#map-to-curve448}

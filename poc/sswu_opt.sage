@@ -2,7 +2,6 @@
 # vim: syntax=python
 
 load("sswu_generic.sage")
-load("z_selection.sage")
 
 class OptimizedSSWU(object):
     def __init__(self, p, A, B):
