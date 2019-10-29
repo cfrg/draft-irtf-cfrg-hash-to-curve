@@ -2,8 +2,8 @@
 # vim: syntax=python
 
 class GenericMap(object):
+    undefs = []
     F = None
-    undefs = None
     straight_line = None
     not_straight_line = None
 
