@@ -2001,7 +2001,10 @@ Steps:
 ## Mappings for Twisted Edwards curves
 
 Twisted Edwards curves (a class of curves that includes Edwards curves)
-are closely related to Montgomery
+are given by the equation
+a * x^2 + y^2 = 1 + d * x^2 * y^2, with a != 0, d != 0, and a != d. {{BBJLP08}}.
+
+These curves are closely related to Montgomery
 curves ({{montgomery}}): every twisted Edwards curve is birationally equivalent
 to a Montgomery curve ({{BBJLP08}}, Theorem 3.2).
 This equivalence yields an efficient way of hashing to a twisted Edwards curve:
@@ -2061,10 +2064,9 @@ to the point (x, y) on the twisted Edwards curve is given by
 For completeness, we give the inverse map in {{rational-map-inverse}}.
 Note that the inverse map is not used when hashing to a twisted Edwards curve.
 
-Rational maps may be undefined, for example, when the denominator of one
-of the rational functions is zero.
-For example, in the map described above, the exceptional cases are
-y' == 0 or B' * x' == -1.
+Rational maps may be undefined on certain inputs, e.g., when the
+denominator of one of the rational functions is zero.
+In the map described above, the exceptional cases are y' == 0 or B' * x' == -1.
 Implementations MUST detect exceptional cases and return the value
 (x, y) = (0, 1), which is a valid point on all twisted Edwards curves
 given by the equation above.
@@ -2079,15 +2081,15 @@ rational_map(x', y')
 Input: (x', y'), a point on the curve y'^2 = x'^3 + A * x'^2 + B * x'.
 Output: (x, y), a point on the equivalent twisted Edwards curve.
 
-1. t1 = y' * B'
-2. t2 = x' + 1
-3. t3 = t1 * t2
+1. t1 = x' * B'
+2. t2 = t1 + 1
+3. t3 = y' * t2
 4. t3 = inv0(t3)
 5.  x = t2 * t3
 6.  x = x * x'
-7.  y = x' - 1
-8.  y = y * t3
-9.  y = y * t1
+7.  y = t1 - 1
+8.  y = y * yp
+9.  y = y * t3
 10. e = y == 0
 11. y = CMOV(y, 1, e)
 12. return (x, y)
