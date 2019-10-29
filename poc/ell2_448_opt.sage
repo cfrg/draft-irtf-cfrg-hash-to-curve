@@ -1,52 +1,22 @@
 #!/usr/bin/sage
 # vim: syntax=python
-load("common.sage")
+
+load("ell2_generic.sage")
 
 p = 2^448 - 2^224 - 1
 F = GF(p)
-
-def sqrt(x):
-    assert F(x).is_square()
-    return F(x).sqrt()
-
-def ell2_curve448(u):
-    A = F(156326)
-    B = F(1)
-
-    den = F(1 - u^2)
-    if den == 0:
-        den = F(1)
-    x1 = -A / den
-    gx1 = x1^3 + A * x1^2 + B * x1
-    x2 = -x1 - A
-    gx2 = x2^3 + A * x2^2 + B * x2
-
-    if F(gx1).is_square():
-        x = x1
-        y = sqrt(gx1)
-    else:
-        x = x2
-        y = sqrt(gx2)
-
-    if sgn0(u) != sgn0(y):
-        y = -y
-    assert sgn0(u) == sgn0(y)
-
-    return (x, y)
-
-def curve448_to_edwards448(u, v):
-    x = 4 * v * (u^2 - 1) / (u^4 - 2 * u^2 + 4 * v^2 + 1)
-    y = -(u^5 - 2 * u^3 - 4 * u * v^2 + u) / (u^5 - 2 * u^2 * v^2 - 2 * u^3 - 2 * v^2 + u)
-    return (x, y)
+A = F(156326)
+B = F(1)
+ref_map = GenericEll2(F, A, B)
 
 def map_to_curve_elligator2_curve448(u):
-    c1 = (p - 3) / 4
+    c1 = (p - 3) // 4
 
     t1 = u^2
+    e1 = t1 == 1
+    t1 = CMOV(t1, 0, e1)
     xd = 1 - t1
-    e1 = xd == 0
-    xd = CMOV(xd, 1, e1)
-    x1n = CMOV(-156326, 1, e1)
+    x1n = -156326
     t2 = xd^2
     gxd = t2 * xd
     gx1 = 156326 * xd
@@ -61,6 +31,7 @@ def map_to_curve_elligator2_curve448(u):
     y1 = y1 * t2
     x2n = -t1 * x1n
     y2 = y1 * u
+    y2 = CMOV(y2, 0, e1)
     t2 = y1^2
     t2 = t2 * gxd
     e2 = t2 == gx1
@@ -68,7 +39,6 @@ def map_to_curve_elligator2_curve448(u):
     y = CMOV(y2, y1, e2)
     e3 = sgn0(u) == sgn0(y)
     y = CMOV(-y, y, e3)
-
     return (xn, xd, y, 1)
 
 def map_to_curve_elligator2_edwards448(u):
@@ -103,33 +73,54 @@ def map_to_curve_elligator2_edwards448(u):
     yEd = t2 + t1
     t4 = t4 * yd2
     yEd = yEd + t4
+    t1 = xEd * yEd
+    e = t1 == 0
+    xEn = CMOV(xEn, 0, e)
+    xEd = CMOV(xEd, 1, e)
+    yEn = CMOV(yEn, 1, e)
+    yEd = CMOV(yEd, 1, e)
     return (xEn, xEd, yEn, yEd)
 
-def test_curve448():
-    u = F.random_element()
+def test_curve448(u=None):
+    if u is None:
+        u = F.random_element()
     (xn, xd, yn, yd) = map_to_curve_elligator2_curve448(u)
     x = xn / xd
     y = yn / yd
-    A = F(156326)
-    B = F(1)
     assert B * y^2 == x^3 + A * x^2 + x
-    (xp, yp) = ell2_curve448(u)
+    (xp, yp, _) = ref_map.map_to_curve(u)
     assert xp == x
     assert yp == y
 
-def test_edwards448():
-    u = F.random_element()
+def curve448_to_edwards448(u, v, _):
+    xn = 4 * v * (u^2 - 1)
+    xd = (u^4 - 2 * u^2 + 4 * v^2 + 1)
+    yn = -(u^5 - 2 * u^3 - 4 * u * v^2 + u)
+    yd = (u^5 - 2 * u^2 * v^2 - 2 * u^3 - 2 * v^2 + u)
+    if xd * yd == 0:
+        return (0, 1)
+    return (xn / xd, yn / yd)
+
+def test_edwards448(u=None):
+    a = F(1)
+    d = F(-39081)
+
+    if u is None:
+        u = F.random_element()
     (xn, xd, yn, yd) = map_to_curve_elligator2_edwards448(u)
     x = xn / xd
     y = yn / yd
-    a = F(1)
-    d = F(-39081)
     assert a * x^2 + y^2 == 1 + d * x^2 * y^2
-    (xp, yp) = curve448_to_edwards448(*ell2_curve448(u))
+    (xp, yp) = curve448_to_edwards448(*ref_map.map_to_curve(u))
     assert xp == x
     assert yp == y
 
 def test_448():
+    test_curve448(F(0))
+    test_edwards448(F(0))
+    for und in ref_map.undefs:
+        test_curve448(und)
+        test_edwards448(und)
     for _ in range(0, 1024):
         test_curve448()
         test_edwards448()

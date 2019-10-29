@@ -3200,10 +3200,10 @@ Constants:
 
 Steps:
 1.   t1 = u^2
-2.   xd = 1 - t1
-3.   e1 = xd == 0
-4.   xd = CMOV(xd, 1, e1)       // If xd == 0, set xd = 1
-5.  x1n = CMOV(-156326, 1, e1)  // If xd == 0, x1n = 1, else x1n = -A
+2.   e1 = t1 == 1
+3.   t1 = CMOV(t1, 0, e1)     // If Z * u^2 == -1, set t1 = 0
+4.   xd = 1 - t1
+5.  x1n = -156326
 6.   t2 = xd^2
 7.  gxd = t2 * xd             // gxd = xd^3
 8.  gx1 = 156326 * xd         // 156326 * xd
@@ -3218,14 +3218,15 @@ Steps:
 17.  y1 = y1 * t2             // gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
 18. x2n = -t1 * x1n           // x2 = x2n / xd = -1 * u^2 * x1n / xd
 19.  y2 = y1 * u
-20.  t2 = y1^2
-21.  t2 = t2 * gxd
-22.  e2 = t2 == gx1
-23.  xn = CMOV(x2n, x1n, e2)  // If e2, x = x1, else x = x2
-24.   y = CMOV(y2, y1, e2)    // If e2, y = y1, else y = y2
-25.  e3 = sgn0(u) == sgn0(y)  // Fix sign of y
-26.   y = CMOV(-y, y, e3)
-27. return (xn, xd, y, 1)
+20.  y2 = CMOV(y2, 0, e1)
+21.  t2 = y1^2
+22.  t2 = t2 * gxd
+23.  e2 = t2 == gx1
+24.  xn = CMOV(x2n, x1n, e2)  // If e2, x = x1, else x = x2
+25.   y = CMOV(y2, y1, e2)    // If e2, y = y1, else y = y2
+26.  e3 = sgn0(u) == sgn0(y)  // Fix sign of y
+27.   y = CMOV(-y, y, e3)
+28. return (xn, xd, y, 1)
 ~~~
 
 ## edwards448 (Elligator 2) {#map-to-edwards448}
@@ -3274,7 +3275,13 @@ Steps:
 29. yEd = t2 + t1
 30.  t4 = t4 * yd2
 31. yEd = yEd + t4
-32. return (xEn, xEd, yEn, yEd)
+32.  t1 = xEd * yEd
+33.   e = t1 == 0
+34. xEn = CMOV(xEn, 0, e)
+35. xEd = CMOV(xEd, 1, e)
+36. yEn = CMOV(yEn, 1, e)
+37. yEd = CMOV(yEd, 1, e)
+38. return (xEn, xEd, yEn, yEd)
 ~~~
 
 # Scripts for parameter generation {#paramgen}
