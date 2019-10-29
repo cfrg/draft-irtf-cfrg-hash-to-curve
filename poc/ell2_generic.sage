@@ -13,11 +13,10 @@ class GenericEll2(GenericMap):
         assert A != 0, "Ell2 requires A != 0"
         assert B != 0, "Ell2 requires B != 0"
         test = A**2 - 4 * B
-        assert test != 0 and not test.is_square()
+        assert test != 0 and not test.is_square(), "Ell2 requires A^2 - 4B != 0 and nonsquare"
         self.A = A
         self.B = B
         self.Z = find_z_ell2(F)
-        self.g = lambda x: F(x)**3 + A * F(x)**2 + B * F(x)
         self.E = EllipticCurve(F, [0, A, 0, B, 0])
 
         # values at which the map is undefined

@@ -13,7 +13,6 @@ class GenericSSWU(GenericMap):
         assert self.A != 0, "S-SWU requires A != 0"
         assert self.B != 0, "S-SWU requires B != 0"
         self.Z = find_z_sswu(F, F(A), F(B))
-        self.g = lambda x: F(x)**3 + F(A) * F(x) + F(B)
         self.E = EllipticCurve(F, [F(A), F(B)])
 
         # constants for straight-line impl
