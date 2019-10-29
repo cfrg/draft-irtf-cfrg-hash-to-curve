@@ -41,7 +41,7 @@ class GenericSSWU(GenericMap):
         gx1 = x1^3 + A * x1 + B
         x2 = Z * u^2 * x1
         gx2 = x2^3 + A * x2 + B
-        if is_square(gx1):
+        if self.is_square(gx1):
             x = x1
             y = sqrt(gx1)
         else:

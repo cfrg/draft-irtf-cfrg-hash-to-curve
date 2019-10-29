@@ -1957,7 +1957,7 @@ Operations:
 4.  x2 = -x1 - A
 5. gx2 = x2^3 + A * x2^2 + B * x2
 6.  If is_square(gx1), set x = x1 and y = sqrt(gx1)
-7.  Else if is_square(gx2), set x = x2 and y = sqrt(gx2)
+7.  Else set x = x2 and y = sqrt(gx2)
 8.  If sgn0(u) != sgn0(y), set y = -y
 9.  return (x, y)
 ~~~
@@ -1976,10 +1976,10 @@ Output: (x, y), a point on E.
 Steps:
 1.   t1 = u^2
 2.   t1 = Z * t1              // Z * u^2
-3.   x1 = t1 + 1
-4.   x1 = inv0(x1)
-5.   e1 = x1 == 0
-6.   x1 = CMOV(x1, 1, e1)     // if x1 == 0, set x1 = 1
+3.   e1 = t1 == -1            // exceptional case: Z * u^2 == -1
+4.   t1 = CMOV(t1, 0, e1)     // if t1 == -1, set t1 = 0
+5.   x1 = t1 + 1
+6.   x1 = inv0(x1)
 7.   x1 = -A * x1             // x1 = -A / (1 + Z * u^2)
 8.  gx1 = x1 + A
 9.  gx1 = gx1 * x1
