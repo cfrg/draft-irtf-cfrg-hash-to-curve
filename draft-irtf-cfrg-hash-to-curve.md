@@ -2292,7 +2292,7 @@ Fields MUST be chosen as follows:
   That name MUST be appended to the HASH\_ID field, separated by a colon.
   For example, a hash\_to\_base function based on KMAC128 {{SP.800-185}} might
   use the short name "h2b/kmac128", and a reasonable value for the HASH\_ID field
-  would be "SHA3/256:h2b/kmac128".
+  would be "SHA3:h2b/kmac128".
 
 - MAP\_ID: a human-readable representation of the map\_to\_curve function
   ({{mappings}}).
