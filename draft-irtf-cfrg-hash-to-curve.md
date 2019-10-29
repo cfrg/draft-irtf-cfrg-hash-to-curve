@@ -1903,7 +1903,7 @@ Operations:
 3. return (x, y)
 ~~~
 
-See {{hash2curve-repo}} or {{WB19}} for details on implementing the isogeny map.
+See {{hash2curve-repo}} or {{WB19}}, Section 4.3 for details on implementing the isogeny map.
 
 ## Mappings for Montgomery curves {#montgomery}
 
@@ -2194,16 +2194,16 @@ Operations:
 2. gx1 = x1^3 + B * x1
 3.  x2 = -x1
 4. gx2 = -gx1
-5. If gx1 is square, x = x1 and y = sqrt(gx1)
-6. Else x = x2 and y = sqrt(gx2)
+5. If is_square(gx1), set x = x1 and y = sqrt(gx1)
+6. Else set x = x2 and y = sqrt(gx2)
 7. If sgn0(u) != sgn0(y), set y = -y.
 8. return (x, y)
 ~~~
 
 #### Implementation
 
-The following procedure implements the Elligator 2 mapping for supersingular
-curves in a straight-line fashion.
+The following procedure implements the Elligator 2 mapping for A == 0
+in a straight-line fashion.
 
 ~~~
 map_to_curve_ell2A0(u)
