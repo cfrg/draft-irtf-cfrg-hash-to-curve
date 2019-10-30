@@ -1227,9 +1227,9 @@ algorithms.
 
 ## Domain separation requirements {#domain-separation}
 
-When invoking hash\_to\_curve or encode\_to\_curve from a higher-level protocol,
-implementors MUST always use domain separation ({{term-domain-separation}}) to
-avoid interfering with other protocols that also use the same functionality.
+All uses of the encoding functions defined in this document MUST include
+domain separation ({{term-domain-separation}}) to avoid interfering with
+other uses of similar functionality.
 
 Protocols that instantiate multiple, independent hash functions based on
 either hash\_to\_curve or encode\_to\_curve MUST enforce domain separation
@@ -1239,23 +1239,25 @@ curve and in the case of multiple hashes to different curves.
 (This is because the hash\_to\_base primitive ({{hashtobase}}) requires
 domain separation to guarantee independent outputs.)
 
-Care is required when choosing a domain separation tag.
-Implementors MUST observe the following guidelines:
+Care is required when selecting and using a domain separation tag.
+The following requirements apply:
 
-1. Tags must be supplied as the DST parameter to hash\_to\_base, as
+1. Tags MUST be supplied as the DST parameter to hash\_to\_base, as
    described in {{hashtobase}}.
 
-2. Tags must begin with a fixed protocol identification string.
+2. Tags MUST begin with a fixed protocol identification string.
    This identification string should be unique to the protocol.
 
-3. Tags must include a protocol version number.
+3. Tags SHOULD include a protocol version number.
 
 4. For protocols that define multiple ciphersuites, each ciphersuite's
-   tag must be different. For this purpose, it is recommended to
+   tag MUST be different. For this purpose, it is RECOMMENDED to
    include a ciphersuite identifier in each tag.
 
 5. For protocols that use multiple encodings, either to the same curve
-   or to different curves, each encoding must use a different tag.
+   or to different curves, each encoding MUST use a different tag.
+   For this purpose, it is RECOMMENDED to include the encoding's
+   Suite ID ({{suites}}) in the domain separation tag.
 
 As an example, consider a fictional key exchange protocol named Quux
 that defines several different ciphersuites.
