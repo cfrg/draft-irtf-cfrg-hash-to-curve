@@ -90,6 +90,13 @@ informative:
     author:
       -
         org: Standards for Efficient Cryptography Group (SECG)
+  FIPS180-4:
+    title: "Secure Hash Standard (SHS)"
+    target: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf
+    date: Aug, 2015
+    author:
+      -
+        org: National Institute of Standards and Technology (NIST)
   FIPS186-4:
     title: "FIPS Publication 186-4: Digital Signature Standard"
     target: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf
@@ -97,6 +104,47 @@ informative:
     author:
       -
         org: National Institute of Standards and Technology (NIST)
+  FIPS202:
+    title: "SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions"
+    target: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf
+    date: Aug, 2015
+    author:
+      -
+        org: National Institute of Standards and Technology (NIST)
+  SP.800-185:
+    title: "SHA-3 Derived Functions: cSHAKE, KMAC, TupleHash and ParallelHash"
+    target: https://doi.org/10.6028/NIST.SP.800-185
+    date: Dec, 2016
+    author:
+      -
+        ins: J. Kelsey
+        name: John Kelsey
+        org: NIST Computer Security Division
+      -
+        ins: S. Chang
+        name: Shu-jen Chang
+        org: NIST Computer Security Division
+      -
+        ins: R. Perlner
+        name: Ray Perlner
+        org: NIST Computer Security Division
+  BLAKE2X:
+    title: BLAKE2X
+    target: https://blake2.net/blake2x.pdf
+    date: Dec, 2016
+    author:
+      -
+        ins: J-P. Aumasson
+        name: Jean-Philippe Aumasson
+      -
+        ins: S. Neves
+        name: Samuel Neves
+      -
+        ins: Z. Wilcox-O'Hearn
+        name: Zooko Wilcox-O'Hearn
+      -
+        ins: C. Winnerlein
+        name: Christian Winnerlein
   Icart09:
     title: How to Hash into Elliptic Curves
     seriesinfo:
@@ -1331,6 +1379,12 @@ The hash\_to\_base function hashes a string msg of any length into an element of
 field F. This function is parametrized by the field F ({{bg-curves}}) and by H,
 a cryptographic hash function that outputs b bits.
 
+Implementors MUST NOT use rejection sampling to generate a uniformly
+random element of F.
+The reason is that these procedures are difficult to implement in constant time,
+and later well-meaning "optimizations" may silently render an implementation
+non-constant-time.
+
 ## Security considerations {#hashtobase-sec}
 
 For security, hash\_to\_base should be collision resistant and its output distribution
@@ -1341,7 +1395,8 @@ a cryptographic hash function H which satisfies the following properties:
 resistance, where k is the target security level in bits. (This is needed for a
 birthday bound of approximately 2^(-k).)
 2. H is modeled as a random oracle, so care should be taken when instantiating it.
-Hash functions in the SHA-2 and SHA-3 families are typical and RECOMMENDED choices.
+Hash functions in the SHA-2 {{FIPS180-4}} and SHA-3 {{FIPS202}} families are
+typical and RECOMMENDED choices.
 
 For example, for 128-bit security, b >= 256 bits; in this case, SHA256 would
 be an appropriate choice for H.
@@ -1373,12 +1428,6 @@ function takes such a tag as a parameter, DST; this is the REQUIRED
 method for applying domain separation.
 
 {{hashtobase-impl}} details the hash\_to\_base procedure.
-
-Note that implementors SHOULD NOT use rejection sampling to generate a uniformly
-random element of F.
-The reason is that these procedures are difficult to implement in constant time,
-and later well-meaning "optimizations" may silently render an implementation
-non-constant-time.
 
 ## Performance considerations {#hashtobase-perf}
 
@@ -1441,7 +1490,44 @@ Steps:
 8. return u
 ~~~
 
-# Deterministic Mappings  {#mappings}
+## Alternative hash\_to\_base functions {#hashtobase-alt}
+
+The hash\_to\_base function is suitable for use with a wide range of hash functions,
+including SHA-2 {{FIPS180-4}}, SHA-3 {{FIPS202}}, BLAKE2 {{!RFC7963}}, and others.
+In some cases, however, implementors may wish to replace the HKDF-based function
+defined in this section with one built on a different pseudorandom function.
+This section briefly describes the REQUIRED way of doing so.
+
+The security considerations of {{hashtobase-sec}} continue to apply.
+In particular, an alternative hash\_to\_base function:
+
+- MUST give collision resistance commensurate with the security level of the target elliptic curve.
+
+- MUST be built on a pseudorandom function that is designed for use in
+  applications requiring cryptographic randomness.
+
+- MUST NOT use rejection sampling.
+
+- MUST output an element of F whose statistical distance from uniform is commensurate
+  with the security level of the target elliptic curve.
+  It is RECOMMENDED to follow the guidelines for controlling bias in {{hashtobase-sec}}.
+
+- MUST give independent output values for distinct (msg, ctr) inputs.
+
+- MUST support domain separation via a supplied domain separation tag (DST).
+  Care is required when implementing domain separation: this document
+  assumes that instantiating hash\_to\_base with distinct DSTs yields
+  independent hash functions.
+
+The efficiency considerations of {{hashtobase-perf}} should also be followed.
+In particular, it SHOULD be possible to hash one msg with multiple ctr values
+without requiring multiple passes over msg.
+
+Finally, the Suite ID value MUST be modified to indicate that an alternative
+hash\_to\_base function is being used.
+{{suiteIDformat}} gives details.
+
+# Deterministic Mappings {#mappings}
 
 The mappings in this section are suitable for constructing either nonuniform
 or random oracle encodings using the constructions of {{roadmap}}.
@@ -2199,6 +2285,14 @@ Fields MUST be chosen as follows:
 
 - HASH\_ID: a human-readable representation of the hash function used in
   hash\_to\_base ({{hashtobase}}).
+
+  If a suite uses an alternative hash\_to\_base function ({{hashtobase-alt}}),
+  a short descriptive name MUST be chosen for that function using only the
+  allowed characters listed above.
+  That name MUST be appended to the HASH\_ID field, separated by a colon.
+  For example, a hash\_to\_base function based on KMAC128 {{SP.800-185}} might
+  use the short name "h2b/kmac128", and a reasonable value for the HASH\_ID field
+  would be "SHA3:h2b/kmac128".
 
 - MAP\_ID: a human-readable representation of the map\_to\_curve function
   ({{mappings}}).
