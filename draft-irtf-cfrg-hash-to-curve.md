@@ -2688,7 +2688,7 @@ should be chosen according to the guidelines listed in {{hashtobase-sec}}.
 The authors would like to thank Adam Langley for his detailed writeup of Elligator 2 with
 Curve25519 {{L13}};
 Christopher Patton and Benjamin Lipp for educational discussions; and
-Sean Devlin, Justin Drake, Dan Harkins, Thomas Icart, Leo Reyzin, Michael Scott,
+Sean Devlin, Justin Drake, Dan Harkins, Thomas Icart, Leonid Reyzin, Michael Scott,
 and Mathy Vanhoef for helpful feedback.
 
 # Contributors
