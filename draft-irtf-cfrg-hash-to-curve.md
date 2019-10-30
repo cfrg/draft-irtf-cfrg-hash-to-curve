@@ -76,7 +76,7 @@ informative:
         ins: T. Saito
         name: Tsunekazu Saito
         org: NTT
-  SECG1:
+  SEC1:
     title: "SEC 1: Elliptic Curve Cryptography"
     target: http://www.secg.org/sec1-v2.pdf
     date: May, 2009
@@ -525,6 +525,10 @@ informative:
     title: Hashing to Elliptic Curves - GitHub repository
     target: https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve
     date: 2019
+  jubjub-fq:
+    title: zkcrypto/jubjub - fq.rs
+    target: https://github.com/zkcrypto/jubjub/blob/master/src/fq.rs
+    date: 2019
   L13:
     title: Implementing Elligator for Curve25519
     target: https://www.imperialviolet.org/2013/12/25/elligator.html
@@ -754,6 +758,17 @@ informative:
       -
         ins: L. C. Washington
         name: Lawrence C. Washington
+  C93:
+    title: "A Course in Computational Algebraic Number Theory"
+    seriesinfo:
+        publisher: Springer-Verlag
+        ISBN: 9783642081422
+    target: https://doi.org/10.1007/978-3-662-02945-9
+    date: 1993
+    author:
+      -
+        ins: H. Cohen
+        name: Henri Cohen
   CFADLNV05:
     title: Handbook of Elliptic and Hyperelliptic Curve Cryptography
     seriesinfo:
@@ -786,9 +801,13 @@ informative:
   WB19:
     title: Fast and simple constant-time hashing to the BLS12-381 elliptic curve
     seriesinfo:
-        "Technical report": ePrint 2019/403
+        "In": IACR Trans. CHES
+        "volume": 2019
+        "issue": 4
+        DOI: 10.13154/tches.v2019.i4.154-179
+        "ePrint": 2019/403
     target: https://eprint.iacr.org/2019/403
-    date: 2019
+    date: Aug, 2019
     author:
       -
         ins: R. S. Wahby
@@ -919,6 +938,21 @@ informative:
         ins: R. S. Wahby
         name: Riad S. Wahby
         org: Stanford University
+  p1363a:
+    title: "IEEE Standard Specifications for Public-Key Cryptography---Amendment 1: Additional Techniques"
+    target: https://standards.ieee.org/standard/1363a-2004.html
+    date: March, 2004
+    author:
+      -
+        org: IEEE Computer Society
+  x9.62:
+    title: "Public Key Cryptography for the Financial Services Industry: the Elliptic Curve Digital Signature Algorithm (ECDSA)"
+    date: Sep, 1998
+    seriesinfo:
+      "ANSI": X9.62-1998
+    author:
+      -
+        org: ANSI
 
 --- abstract
 
@@ -971,11 +1005,14 @@ For further reference on elliptic curves, consult {{CFADLNV05}} or {{W08}}.
 
 Let F be the finite field GF(q) of prime characteristic p. In most cases F
 is a prime field, so q = p. Otherwise, F is a field extension, so q = p^m for
-an integer m > 1. This document assumes that elements of field extensions
-are written in a primitive element or polynomial basis, i.e., as
-of m elements of GF(p) written in ascending order
-by degree. For example, if q = p^2 and the primitive element basis is {1, i},
-then the vector (a, b) corresponds to the element a + b * i.
+an integer m > 1. This document writes elements of field extensions
+in a primitive element or polynomial basis, i.e., as a vector
+of m elements of GF(p) written in ascending order by degree.
+The entries of this vector are indexed in ascending order starting from 1,
+i.e., x = (x\_1, x\_2, ..., x\_m).
+For example, if q = p^2 and the primitive element basis is (1, i),
+then x = (a, b) corresponds to the element a + b * i, where
+x\_1 = a and x\_2 = b.
 
 An elliptic curve E is specified by an equation in two variables and a
 finite field F. An elliptic curve equation takes one of several standard forms,
@@ -1088,9 +1125,8 @@ That construction is described in {{roadmap}}.
 
 A procedure related to encoding is the conversion of an elliptic curve point to a bit string.
 This is called serialization, and is typically used for compactly storing or transmitting points.
-For example, {{SECG1}} gives a standard method for serializing points.
-The reverse operation, deserialization, converts a bit string to an elliptic
-curve point.
+The reverse operation, deserialization, converts a bit string to an elliptic curve point.
+For example, {{SEC1}} and {{p1363a}} give standard methods for serialization and deserialization.
 
 Deserialization is different from encoding in that only certain strings
 (namely, those output by the serialization procedure) can be deserialized.
@@ -1269,82 +1305,74 @@ is_square(x) := { True,  if x^((q - 1) / 2) is 0 or 1 in F;
     of the result.
 
     The preferred way of computing square roots is to fix a deterministic
-    algorithm particular to F. We give algorithms for the three most common
-    cases immediately below; other cases are analogous.
-
-    Note that Case 3 below applies to GF(p^2) when p = 3 (mod 8).
-    {{AR13}} and {{S85}} describe methods that work for other field extensions.
-    Regardless of the method chosen, the sqrt function MUST be performed in
-    constant time.
-
-~~~
-s = sqrt(x)
-
-Parameters:
-- F, a finite field of characteristic p and order q = p^m, m >= 1.
-
-Input: x, an element of F.
-Output: s, an element of F such that (s^2) == x.
-
-======
-
-Case 1: q = 3 (mod 4)
-
-Constants:
-1. c1 = (q + 1) / 4     // Integer arithmetic
-
-Procedure:
-1. return x^c1
-
-======
-
-Case 2: q = 5 (mod 8)
-
-Constants:
-1. c1 = sqrt(-1) in F, i.e., (c1^2) == -1 in F
-2. c2 = (q + 3) / 8     // Integer arithmetic
-
-Procedure:
-1. t1 = x^c2
-2.  e = (t1^2) == x
-3.  s = CMOV(t1 * c1, t1, e)
-3. return s
-
-======
-
-Case 3: q = 9 (mod 16)
-
-Constants:
-1. c1 = sqrt(-1) in F, i.e., (c1^2) == -1 in F
-2. c2 = sqrt(c1) in F, i.e., (c2^2) == c1 in F
-3. c3 = sqrt(-c1) in F, i.e., (c3^2) == -c1 in F
-4. c4 = (q + 7) / 16    // Integer arithmetic
-
-Procedure:
-1.  t1 = x^c4
-2.  t2 = c1 * t1
-3.  t3 = c2 * t1
-4.  t4 = c3 * t1
-5.  e1 = (t2^2) == x
-6.  e2 = (t3^2) == x
-7.  t1 = CMOV(t1, t2, e1)  // Select t2 if (t2^2) == x
-8.  t2 = CMOV(t4, t3, e2)  // Select t3 if (t3^2) == x
-9.  e3 = (t2^2) == x
-10.  s = CMOV(t1, t2, e3)  // Select the sqrt from t1 and t2
-11. return s
-~~~
+    algorithm particular to F. We give several algorithms in {{appx-sqrt}}.
+    Regardless of the method chosen, the sqrt function should be implemented
+    in a way that resists timing side channels, i.e., in constant time.
 
 -   sgn0(x): This function returns either +1 or -1 indicating the "sign" of x,
-    where sgn0(x) == -1 just when x is lexically greater than -x.
-    Thus, this function considers 0 to be positive.
-    The following procedure implements sgn0(x) in constant time.
-    See {{bg-curves}} for a discussion of representing x as a vector.
+    where sgn0(x) == -1 just when x is "negative".
+    In other words, this function always considers 0 to be positive.
+    This function may be implemented in multiple ways; {{sgn0-variants}} defines two variants.
+    Throughout the document, sgn0 is used generically to mean either of these variants.
+    Each suite in {{suites}} specifies the sgn0 variant to be used.
+
+-   abs(x): The absolute value of x is defined in terms of sgn0
+    in the natural way, namely, abs(x) := sgn0(x) * x.
+
+-   inv0(x): This function returns the multiplicative inverse of x in F,
+    extended to all of F by fixing inv0(0) == 0.
+    To implement inv0 in constant time, compute inv0(x) := x^(q - 2).
+    Notice on input 0, the output is 0 as required.
+
+-   I2OSP and OS2IP: These functions are used to convert an octet string to
+    and from a non-negative integer as described in {{RFC8017}}.
+
+-   a \|\| b: denotes the concatenation of bit strings a and b.
+
+## sgn0 variants {#sgn0-variants}
+
+This section defines two ways of determining the "sign" of an element of F.
+The variant that should be used is a matter of convention.
+Other sgn0 variants are possible, but the two given below cover
+commonly used notions of sign.
+
+It is RECOMMENDED to select the variant that matches the point decompression
+method of the target curve.
+In particular, since point decompression requires computing a square root
+and then choosing the sign of the resulting point, all decompression methods
+specify, implicitly or explicitly, a method for determining the sign of an
+element of F.
+It is convenient for hash-to-curve and decompression to agree on a notion of
+sign, since this may permit simpler implementations.
+
+See {{bg-curves}} for a discussion of representing elements of field extensions
+as vectors; this representation is used in both of the sgn0 variants below.
+
+Note that any valid sgn0 function for field extensions must iterate over
+the entire vector representation of the input element.
+To see why, imagine a function sgn0\* that ignores the final entry in its
+input vector, and consider a field element x = (0, x\_2).
+Since sgn0\* ignores x\_2, sgn0\*(x) == sgn0\*(-x), which is incorrect
+when x\_2 != 0.
+The same argument applies to all entries of any x, establishing the claim.
+
+### Big endian variant {#sgn0-be}
+
+The following sgn0 variant is defined such that sgn0\_be(x) = -1
+just when the big-endian encoding of x is lexically greater than
+the encoding of -x.
+
+This variant SHOULD be used when points on the target elliptic curve
+are serialized using the SORT compression method given in
+IEEE 1363a-2004 {{p1363a}}, Section 5.5.6.1.2, and other similar methods.
 
 ~~~
-sgn0(x)
+sgn0_be(x)
 
 Parameters:
-- F, a finite field of characteristic p and order q = p^m, m >= 1.
+- F, a finite field of characteristic p and order q = p^m.
+- p, the characteristic of F (see immediately above).
+- m, the extension degree of F, m >= 1 (see immediately above).
 
 Input: x, an element of F.
 Output: -1 or 1 (an integer).
@@ -1360,18 +1388,43 @@ Steps:
 6. return CMOV(sign, 1, sign == 0)    // Regard x == 0 as positive
 ~~~
 
--   abs(x): The absolute value of x is defined in terms of sgn0
-    in the natural way, namely, abs(x) := sgn0(x) * x.
+### Little endian variant {#sgn0-le}
 
--   inv0(x): This function returns the multiplicative inverse of x in F,
-    extended to all of F by fixing inv0(0) == 0.
-    To implement inv0 in constant time, compute inv0(x) := x^(q - 2).
-    Notice on input 0, the output is 0 as required.
+The following sgn0 variant is defined such that sgn0\_le(x) = -1
+just when x != 0 and the parity of the least significant nonzero
+entry of the vector representation of x is 1.
 
--   I2OSP and OS2IP: These functions are used to convert an octet string to
-    and from a non-negative integer as described in {{RFC8017}}.
+This variant SHOULD be used when points on the target elliptic curve are serialized
+using any of the following methods:
 
--   a \|\| b: denotes the concatenation of bit strings a and b.
+- the LSB compression method given in IEEE 1363a-2004 {{p1363a}}, Section 5.5.6.1.1,
+- the method given in {{SEC1}} Section 2.3.3, or
+- the method given in ANSI X9.62-1998 {{x9.62}}, Section 4.2.1.
+
+This variant is also compatible with the compression method specified for the
+Ed25519 and Ed448 elliptic curves {{!RFC8032}}.
+
+~~~
+sgn0_le(x)
+
+Parameters:
+- F, a finite field of characteristic p and order q = p^m.
+- p, the characteristic of F (see immediately above).
+- m, the extension degree of F, m >= 1 (see immediately above).
+
+Input: x, an element of F.
+Output: -1 or 1 (an integer).
+
+Notation: x_i is the i^th element of the vector representation of x.
+
+Steps:
+1. sign = 0
+2. for i in (1, 2, ..., m):
+3.   sign_i = CMOV(1, -1, x_i mod 2 == 1)
+4.   sign_i = CMOV(sign_i, 0, x_i == 0)
+5.   sign = CMOV(sign, sign_i, sign == 0)
+6. return CMOV(sign, 1, sign == 0)     // regard x == 0 as positive
+~~~
 
 # Hashing to a Finite Field {#hashtobase}
 
@@ -1464,7 +1517,7 @@ Parameters:
 - H, a cryptographic hash function.
 - F, a finite field of characteristic p and order q = p^m.
 - p, the characteristic of F (see immediately above).
-- m, the extension degree of F (see immediately above).
+- m, the extension degree of F, m >= 1 (see immediately above).
 - L = ceil((ceil(log2(p)) + k) / 8), where k is the security
   parameter of the cryptosystem (e.g., k = 128).
 - HKDF-Extract and HKDF-Expand are as defined in RFC5869,
@@ -1485,7 +1538,7 @@ Steps:
 3. for i in (1, ..., m):
 4.   info = info_pfx || I2OSP(i, 1)
 5.   t = HKDF-Expand(msg_prime, info, L)
-6.   e_i = OS2IP(t) (mod p)
+6.   e_i = OS2IP(t) mod p
 7. u = (e_1, ..., e_m)
 8. return u
 ~~~
@@ -2156,7 +2209,7 @@ Helper functions:
 - map\_to\_curve\_simple\_swu is the mapping of {{simple-swu}} to E'
 - iso\_map is the isogeny map from E' to E
 
-Sign of y: for this map, the sign is determined by map\_to\_curve_elligator2.
+Sign of y: for this map, the sign is determined by map\_to\_curve\_elligator2.
 No further sign adjustments are necessary.
 
 Exceptions: map\_to\_curve\_simple\_swu handles its exceptional cases.
@@ -2235,6 +2288,7 @@ Each suite comprises the following parameters:
 - E, the target elliptic curve over a field F.
 - p, the characteristic of the field F.
 - m, the extension degree of the field F.
+- sgn0, one of the variants specified in {{sgn0-variants}}.
 - H, the hash function used by hash\_to\_base ({{hashtobase-sec}}).
 - L, the length of HKDF-Expand output in hash\_to\_base ({{hashtobase-sec}}).
 - f, a mapping function from {{mappings}}.
@@ -2337,6 +2391,7 @@ The common parameters for the above suites are:
    - B = 0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b
 - p: 2^256 - 2^224 + 2^192 + 2^96 - 1
 - m: 1
+- sgn0: sgn0\_le ({{sgn0-le}})
 - H: SHA-256
 - L: 48
 - h\_eff: 1
@@ -2367,6 +2422,7 @@ The common parameters for the above suites are:
   - B = 0xb3312fa7e23ee7e4988e056be3f82d19181d9c6efe8141120314088f5013875ac656398d8a2ed19d2a85c8edd3ec2aef
 - p: 2^384 - 2^128 - 2^96 + 2^32 - 1
 - m: 1
+- sgn0: sgn0\_le ({{sgn0-le}})
 - H: SHA-512
 - L: 72
 - h\_eff: 1
@@ -2394,6 +2450,7 @@ The common parameters for the above suites are:
   - B = 0x51953eb9618e1c9a1f929a21a0b68540eea2da725b99b315f3b8b489918ef109e156193951ec7e937b1652c0bd3bb1bf073573df883d2c34f1ef451fd46b503f00
 - p: 2^521 - 1
 - m: 1
+- sgn0: sgn0\_le ({{sgn0-le}})
 - H: SHA-512
 - L: 96
 - h\_eff: 1
@@ -2424,6 +2481,7 @@ The common parameters for all of the above suites are:
 
 - p: 2^255 - 19
 - m: 1
+- sgn0: sgn0\_le ({{sgn0-le}})
 - H: SHA-256
 - L: 48
 - Z: 2
@@ -2458,6 +2516,7 @@ The common parameters for all of the above suites are:
 
 - p: 2^448 - 2^224 - 1
 - m: 1
+- sgn0: sgn0\_le ({{sgn0-le}})
 - H: SHA-512
 - L: 84
 - Z: -1
@@ -2491,6 +2550,7 @@ The common parameters for all of the above suites are:
 - E: y^2 = x^3 + 7
 - p: 2^256 - 2^32 - 2^9 - 2^8 - 2^7 - 2^6 - 2^4 - 1
 - m: 1
+- sgn0: sgn0\_le ({{sgn0-le}})
 - H: SHA-256
 - L: 48
 - h\_eff: 1
@@ -2523,6 +2583,7 @@ The common parameters for the above suites are:
 - E: y^2 = x^3 + 4
 - p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
 - m: 1
+- sgn0: sgn0\_be ({{sgn0-be}})
 - H: SHA-256
 - L: 64
 - h\_eff: 0xd201000000010001
@@ -2558,6 +2619,7 @@ The common parameters for the above suites are:
 
 - E: y^2 = x^3 + 4 * (1 + I)
 - p, m, F: defined above
+- sgn0: sgn0\_be ({{sgn0-be}})
 - H: SHA-256
 - L: 64
 - h\_eff: 0xbc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff031508ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689f6a359894c0adebbf6b4e8020005aaa95551
@@ -2613,8 +2675,8 @@ should be chosen according to the guidelines listed in {{hashtobase-sec}}.
 The authors would like to thank Adam Langley for his detailed writeup of Elligator 2 with
 Curve25519 {{L13}};
 Christopher Patton and Benjamin Lipp for educational discussions; and
-Sean Devlin, Justin Drake, Dan Harkins, Thomas Icart, Michael Scott, and Mathy Vanhoef
-for helpful feedback.
+Sean Devlin, Justin Drake, Dan Harkins, Thomas Icart, Leo Reyzin, Michael Scott,
+and Mathy Vanhoef for helpful feedback.
 
 # Contributors
 
@@ -3194,8 +3256,8 @@ The below function outputs an appropriate Z for the Shallue and van de Woestijne
 
 ~~~sage
 def find_z_svdw(F, A, B):
-    g = lambda x: F(x) ** 3 + F(A) * F(x) + F(B)
-    h = lambda Z: -(F(3) * Z ** 2 + F(4) * A) / (F(4) * g(Z))
+    g = lambda x: F(x)^3 + F(A) * F(x) + F(B)
+    h = lambda Z: -(F(3) * Z^2 + F(4) * A) / (F(4) * g(Z))
     ctr = F.gen()
     while True:
         for Z_cand in (F(ctr), F(-ctr)):
@@ -3224,7 +3286,7 @@ The below function outputs an appropriate Z for the Simplified SWU map ({{simple
 # - A and B, the coefficients of the curve equation y^2 = x^3 + A * x + B
 def find_z_sswu(F, A, B):
     R.<xx> = F[]                        # Polynomial ring over F
-    g = xx ** 3 + F(A) * xx + F(B)      # y^2 = g(x) = x^3 + A x + B
+    g = xx^3 + F(A) * xx + F(B)         # y^2 = g(x) = x^3 + A * x + B
     ctr = F.gen()
     while True:
         for Z_cand in (F(ctr), F(-ctr)):
@@ -3259,4 +3321,155 @@ def find_z_ell2(F):
                 continue
             return Z_cand
         ctr += 1
+~~~
+
+# sqrt functions {#appx-sqrt}
+
+This section defines special-purpose sqrt functions for the three most common cases,
+p = 3 (mod 4), p = 5 (mod 8), and p = 9 (mod 16).
+In addition, it gives a generic constant-time algorithm that works for any prime modulus.
+
+## p = 3 (mod 4) {#sqrt-3mod4}
+
+~~~
+sqrt_3mod4(x)
+
+Parameters:
+- F, a finite field of characteristic p and order q = p^m.
+- p, the characteristic of F (see immediately above).
+- m, the extension degree of F, m >= 1 (see immediately above).
+
+Input: x, an element of F.
+Output: s, an element of F such that (s^2) == x.
+
+Constants:
+1. c1 = (q + 1) / 4     // Integer arithmetic
+
+Procedure:
+1. return x^c1
+~~~
+
+## p = 5 (mod 8) {#sqrt-5mod8}
+
+~~~
+sqrt_5mod8(x)
+
+Parameters:
+- F, a finite field of characteristic p and order q = p^m.
+- p, the characteristic of F (see immediately above).
+- m, the extension degree of F, m >= 1 (see immediately above).
+
+Input: x, an element of F.
+Output: s, an element of F such that (s^2) == x.
+
+Constants:
+1. c1 = sqrt(-1) in F, i.e., (c1^2) == -1 in F
+2. c2 = (q + 3) / 8     // Integer arithmetic
+
+Procedure:
+1. t1 = x^c2
+2.  e = (t1^2) == x
+3.  s = CMOV(t1 * c1, t1, e)
+3. return s
+~~~
+
+## p = 9 (mod 16) {#sqrt-9mod16}
+
+Note that this case also applies to GF(p^2) when p = 3 (mod 8).
+{{AR13}} and {{S85}} describe methods that work for other field extensions.
+
+~~~
+sqrt_9mod16(x)
+
+Parameters:
+- F, a finite field of characteristic p and order q = p^m.
+- p, the characteristic of F (see immediately above).
+- m, the extension degree of F, m >= 1 (see immediately above).
+
+Input: x, an element of F.
+Output: s, an element of F such that (s^2) == x.
+
+Constants:
+1. c1 = sqrt(-1) in F, i.e., (c1^2) == -1 in F
+2. c2 = sqrt(c1) in F, i.e., (c2^2) == c1 in F
+3. c3 = sqrt(-c1) in F, i.e., (c3^2) == -c1 in F
+4. c4 = (q + 7) / 16    // Integer arithmetic
+
+Procedure:
+1.  t1 = x^c4
+2.  t2 = c1 * t1
+3.  t3 = c2 * t1
+4.  t4 = c3 * t1
+5.  e1 = (t2^2) == x
+6.  e2 = (t3^2) == x
+7.  t1 = CMOV(t1, t2, e1)  // Select t2 if (t2^2) == x
+8.  t2 = CMOV(t4, t3, e2)  // Select t3 if (t3^2) == x
+9.  e3 = (t2^2) == x
+10.  s = CMOV(t1, t2, e3)  // Select the sqrt from t1 and t2
+11. return s
+~~~
+
+## Constant-time Tonelli-Shanks algorithm {#sqrt-ts}
+
+This algorithm is a constant-time version of the classic Tonelli-Shanks algorithm
+({{C93}}, Algorithm 1.5.1) due to Sean Bowe, Jack Grigg, and Eirik Ogilvie-Wigley {{jubjub-fq}},
+adapted and optimized by Michael Scott.
+
+This algorithm applies to GF(p) for any p.
+Note, however, that the special-purpose algorithms given in the prior sections are
+faster, when they apply.
+
+~~~
+sqrt_ts_ct(x)
+
+Parameters:
+- F, a finite field of order p
+- p, the characteristic of F (see immediately above)
+
+Input x, an element of F.
+Output: r, an element of F such that (r^2) == 2.
+
+Constants (see discussion below):
+1. c1, the largest integer such that 2^c1 divides p - 1.
+2. c2 = (p - 1) / (2^c1)        // Integer arithmetic
+3. c3 = (c2 - 1) / 2            // Integer arithmetic
+4. c4, a non-square value in F
+5. c5 = c4^c2 in F
+
+Procedure:
+1.  r = x^c3
+2.  t = r * r * x
+3.  r = r * x
+4.  b = t
+5.  c = c5
+6.  for k in (m, m - 1, ..., 2):
+7.      for j in (1, 2, ..., k - 1):
+8.           b = b * b
+9.      r = CMOV(r, r * c, b != 1)
+10.     c = c * c
+11.     t = CMOV(t, t * c, b != 1)
+12.     b = t
+13. return r
+~~~
+
+The constants used in this procedure can be computed as follows:
+
+~~~
+precompute_ts(p)
+
+Input: p, a prime
+Output: the required constants c1, ..., c5
+
+Procedure:
+1.  c1 = 0
+2.  c2 = p - 1
+3.  while c2 is even:
+4.      c2 = c2 / 2             // Integer arithmetic
+5.      c1 = c1 + 1
+6.  c3 = (c2 - 1) / 2           // Integer arithmetic
+7.  c4 = 1
+8.  while c4 is square mod p:
+9.      c4 = c4 + 1
+10. c5 = c4^c2 mod p
+11. return (c1, c2, c3, c4, c5)
 ~~~

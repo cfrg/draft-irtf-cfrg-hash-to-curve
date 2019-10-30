@@ -1,3 +1,5 @@
+#!/usr/bin/sage
+# vim: syntax=python
 
 bnPrime = lambda x : 36*x**4 + 36*x**3 + 24*x**2 + 6*x + 1
 blsPrime = lambda x : (x-1)**2*(x**4-x**2+1)//3 + x
@@ -69,17 +71,16 @@ def is_QR(x, p):
     """
     Returns True if x is a quadratic residue; otherwise returns False
     """
-    z = x**((p-1)//2)
-    if z == (-1%p):
-        return False
-    else:
-        return True
+    z = pow(int(x), (p-1)//2, p)
+    is_qr = z != (p - 1)
+    assert is_qr == GF(p)(x).is_square()
+    return is_qr
 
 def mult_inv(x, p):
     """
     Returns the inverse of x modulo p. If x is zero, returns 0.
     """
-    return x**(p-2)
+    return pow(int(x), p-2, p)
 
 def absolute(x, _):
     """
@@ -87,18 +88,78 @@ def absolute(x, _):
     """
     return CMOV(x, -x, sgn0(x) == -1)
 
+sqrt_cache = {}
 def sq_root(x, p):
     """
     Returns the principal square root defined through fixed formulas.
     (non-constant-time)
     """
-    if p%4 == 3:
-        return x**((p+1)//4)
-    elif p%8 == 5:
-        z = x**((p+3)//8)
-        if z**2 == -x:
-            sqrt_of_minusone = sqrt(F(-1))
-            z = z*sqrt_of_minusone
-        return absolute(z, p)
-    else:
-        raise("cannot handle this square root")
+    if p % 16 == 1:
+        tonelli_shanks_ct(x, p)
+
+    F = GF(p)
+    if p % 4 == 3:
+        if sqrt_cache.get(p) is None:
+            sqrt_cache[p] = (F(1),)
+        z = x ** ((p + 1) // 4)
+
+    if p % 8 == 5:
+        if sqrt_cache.get(p) is None:
+            sqrt_cache[p] = (F(1), F(-1).sqrt())
+        z = x ** ((p + 3) // 8)
+
+    elif p % 16 == 9:
+        if sqrt_cache.get(p) is None:
+            sqrt_m1 = F(-1).sqrt()
+            sqrt_cache[p] = (F(1), sqrt_m1, sqrt_m1.sqrt(), -sqrt_m1.sqrt())
+        z = x ** ((p + 7) // 16)
+
+    for mul in sqrt_cache[p]:
+        sqrt_cand = z * mul
+        if sqrt_cand ** 2 == x:
+            return sqrt_cand
+
+    return None
+
+# constant-time Tonelli-Shanks
+# Adapted from https://github.com/zkcrypto/jubjub/blob/master/src/fq.rs by Michael Scott.
+# See also Cohen, "A Course in Computational # Algebraic Number Theory," Algorithm 1.5.1.
+def tonelli_shanks_ct(x, p):
+    F = GF(p)
+    x = F(x)
+    if sqrt_cache.get(p) is None:
+        ts_precompute(p, F)
+
+    (q, m, z, c) = sqrt_cache[p]
+    r = x ** ((q - 1) // 2)
+    t = r * r * x
+    r *= x
+    b = t
+    for k in range(m, 1, -1):
+        for _ in range(1, k - 1):
+            b *= b
+        b_is_good = b != F(1)
+        r = CMOV(r, r * c, b_is_good)
+        c *= c
+        t = CMOV(t, t * c, b_is_good)
+        b = t
+
+    if r ** 2 == x:
+        assert r == x.sqrt() or -r == x.sqrt()
+        return r
+    assert not x.is_square()
+    return None
+
+# cache pre-computable values -- no need for CT here
+def ts_precompute(p, F):
+    q = p - 1
+    m = 0
+    while q % 2 == 0:
+        q //= 2
+        m += 1
+    z = F(1)
+    while z.is_square():
+        z += 1
+    c = z ** q
+    assert p == q * 2**m + 1
+    sqrt_cache[p] = (q, m, z, c)
