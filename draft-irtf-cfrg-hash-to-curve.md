@@ -2002,7 +2002,7 @@ Steps:
 
 Twisted Edwards curves (a class of curves that includes Edwards curves)
 are given by the equation
-a * x^2 + y^2 = 1 + d * x^2 * y^2, with a != 0, d != 0, and a != d. {{BBJLP08}}.
+a * x^2 + y^2 = 1 + d * x^2 * y^2, with a != 0, d != 0, and a != d {{BBJLP08}}.
 
 These curves are closely related to Montgomery
 curves ({{montgomery}}): every twisted Edwards curve is birationally equivalent
