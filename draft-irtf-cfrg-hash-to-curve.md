@@ -981,7 +981,7 @@ its constituent subroutines ({{hashtobase}}, {{mappings}}, {{cofactor-clearing}}
 a few utility functions ({{utility}}).
 
 Correspondingly, designers specifying a protocol that requires hashing to an elliptic curve
-should either choose an existing hash-to-curve suite or specify a new one (see {{suites}}).
+should either choose an existing hash-to-curve suite or specify a new one (see {{new-suite}}).
 In addition, designers should choose a domain separation tag following the guidelines in
 {{domain-separation}}.
 Finally, it is recommended that protocol designers provide test vectors particular
@@ -1919,20 +1919,20 @@ curves defined by the Weierstrass equation y^2 = x^3 + A * x^2 + B * x,
 where A * B * (A^2 - 4 * B) != 0 and A^2 - 4 * B is non-square in F.
 
 Such a Weierstrass curve is related to the Montgomery curve
-B' * y'^2 = x'^3 + A' * x'^2 + x' by the following change of variables:
+B' * t^2 = s^3 + A' * s^2 + s by the following change of variables:
 
 - A = A' / B'
 - B = 1 / B'^2
-- x = x' / B'
-- y = y' / B'
+- x = s / B'
+- y = t / B'
 
 The Elligator 2 mapping given below returns a point (x, y) on the
 Weierstrass curve defined above.
-This point can be converted to a point (x', y') on the original
+This point can be converted to a point (s, t) on the original
 Montgomery curve by computing
 
-- x' = B' * x
-- y' = B' * y
+- s = B' * x
+- t = B' * y
 
 Note that when B and B' are equal to 1, the above two curve equations
 are identical and no conversion is necessary.
@@ -2009,7 +2009,7 @@ Steps:
 
 Twisted Edwards curves (a class of curves that includes Edwards curves)
 are given by the equation
-a * x^2 + y^2 = 1 + d * x^2 * y^2, with a != 0, d != 0, and a != d {{BBJLP08}}.
+a * v^2 + w^2 = 1 + d * v^2 * w^2, with a != 0, d != 0, and a != d {{BBJLP08}}.
 
 These curves are closely related to Montgomery
 curves ({{montgomery}}): every twisted Edwards curve is birationally equivalent
@@ -2053,29 +2053,29 @@ unambiguously.
 When hashing to a twisted Edwards curve that does not have a standardized
 Montgomery form or rational map, the following procedure MUST be
 used to derive them.
-For a twisted Edwards curve given by a * x^2 + y^2 = 1 + d * x^2 * y^2,
-first compute A and B, the parameters of the equivalent curve given by
-y'^2 = x'^3 + A * x'^2 + B * x', as follows:
+For a twisted Edwards curve given by a * v^2 + w^2 = 1 + d * v^2 * w^2,
+first compute A and B, the parameters of the equivalent Weierstrass
+curve given by y^2 = x^3 + A * x^2 + B * x, as follows:
 
 - A = (a + d) / 2
 - B = (a - d)^2 / 16
 
 Note that the above curve is given in the Weierstrass form required
 by the Elligator 2 mapping of {{elligator2}}.
-The rational map from the point (x', y') on this Weierstrass curve
-to the point (x, y) on the twisted Edwards curve is given by
+The rational map from the point (x, y) on this Weierstrass curve
+to the point (v, w) on the twisted Edwards curve is given by
 
-- x = x' / y'
-- y = (B' * x' - 1) / (B' * x' + 1), where B' = 1 / sqrt(B) = 4 / (a - d)
+- v = x / y
+- w = (B' * x - 1) / (B' * x + 1), where B' = 1 / sqrt(B) = 4 / (a - d)
 
 For completeness, we give the inverse map in {{appx-rational-map-edw}}.
 Note that the inverse map is not used when hashing to a twisted Edwards curve.
 
 Rational maps may be undefined on certain inputs, e.g., when the
 denominator of one of the rational functions is zero.
-In the map described above, the exceptional cases are y' == 0 or B' * x' == -1.
+In the map described above, the exceptional cases are y == 0 or B' * x == -1.
 Implementations MUST detect exceptional cases and return the value
-(x, y) = (0, 1), which is a valid point on all twisted Edwards curves
+(v, w) = (0, 1), which is a valid point on all twisted Edwards curves
 given by the equation above.
 
 The following straight-line implementation of the above rational map
@@ -2084,22 +2084,22 @@ Implementations of other rational maps (e.g., the ones give in {{RFC7748}})
 are analogous.
 
 ~~~
-rational_map(x', y')
-Input: (x', y'), a point on the curve y'^2 = x'^3 + A * x'^2 + B * x'.
- Output: (x, y), a point on an equivalent twisted Edwards curve.
+rational_map(x, y)
+Input: (x, y), a point on the curve y^2 = x^3 + A * x^2 + B * x.
+Output: (v, w), a point on an equivalent twisted Edwards curve.
 
-1. t1 = x' * B'
+1. t1 = x * B'
 2. t2 = t1 + 1
-3. t3 = y' * t2
+3. t3 = y * t2
 4. t3 = inv0(t3)
-5.  x = t2 * t3
-6.  x = x * x'
-7.  y = t1 - 1
-8.  y = y * y'
-9.  y = y * t3
-10. e = y == 0
-11. y = CMOV(y, 1, e)
-12. return (x, y)
+5.  v = t2 * t3
+6.  v = v * x
+7.  w = t1 - 1
+8.  w = w * y
+9.  w = w * t3
+10. e = w == 0
+11. w = CMOV(w, 1, e)
+12. return (v, w)
 ~~~
 
 ### Elligator 2 Method {#ell2edwards}
@@ -2110,10 +2110,10 @@ meeting the requirements in {{rational-map}}.
 Helper functions:
 
 - map\_to\_curve\_elligator2 is the mapping of {{elligator2}} to the curve M.
-- rational\_map is a function that takes a point (x', y') on M and
-  returns a point (x, y) on E, as defined in {{rational-map}}.
+- rational\_map is a function that takes a point (x, y) on M and
+  returns a point (v, w) on E, as defined in {{rational-map}}.
 
-Sign of y: for this map, the sign is determined by map\_to\_curve\_elligator2.
+Sign of y and w: for this map, the sign is determined by map\_to\_curve\_elligator2.
 No further sign adjustments are required.
 
 Exceptions: The exceptions for the Elligator 2 mapping are as given in
@@ -2127,11 +2127,11 @@ Edwards curve.
 ~~~
 map_to_curve_elligator2_edwards(u)
 Input: u, an element of F.
-Output: (x, y), a point on E.
+Output: (v, w), a point on E.
 
-1. (x', y') = map_to_curve_elligator2(u)    // (x', y') is on M
-2.   (x, y) = rational_map(x', y')          // (x, y) is on E
-3. return (x, y)
+1. (x, y) = map_to_curve_elligator2(u)      // (x, y) is on M
+2. (v, w) = rational_map(x, y)              // (v, w) is on E
+3. return (v, w)
 ~~~
 
 ## Mappings for Supersingular curves
@@ -2858,14 +2858,14 @@ This section gives several useful rational maps.
 ## Twisted Edwards to Weierstrass and Montgomery curves {#appx-rational-map-edw}
 
 The inverse of the rational map specified in {{rational-map}}, i.e.,
-the map from the point (x', y') on the Weierstrass curve
-y'^2 = x'^3 + A * x'^2 + B * x'
-to the point (x, y) on the twisted Edwards curve
-a * x^2 + y^2 = 1 + d * x^2 * y^2
+the map from the point (v, w) on the twisted Edwards curve
+a * v^2 + w^2 = 1 + d * v^2 * w^2
+to the point (x, y) on the Weierstrass curve
+y^2 = x^3 + A * x^2 + B * x
 is given by:
 
-- x' = (1 + y) / (B' * (1 - y))
-- y' = (1 + y) / (B' * x * (1 - y))
+- x = (1 + w) / (B' * (1 - w))
+- y = (1 + w) / (B' * v * (1 - w))
 
 where
 
@@ -2873,23 +2873,23 @@ where
 - B = (a - d)^2 / 16
 - B' = 1 / sqrt(B) = 4 / (a - d)
 
-This map is undefined when y == 1 or x == 0.
-In this case, return the point (0, 0).
+This map is undefined when w == 1 or v == 0.
+In this case, return the point (x, y) = (0, 0).
 
 It may also be useful to map to a Montgomery curve
-of the form B'' * y''^2 = x''^3 + A'' * x''^2 + x''.
+of the form B' * t^2 = s^3 + A' * s^2 + s.
 This curve is equivalent to the twisted Edwards curve above via the
 following rational map ({{BBJLP08}}, Theorem 3.2):
 
-- A'' = 2 * (a + d) / (a - d)
-- B'' = 4 / (a - d)
-- x'' = (1 + y) / (1 - y)
-- y'' = (1 + y) / (x * (1 - y))
+- A' = 2 * (a + d) / (a - d)
+- B' = 4 / (a - d)
+- s = (1 + y) / (1 - y)
+- t = (1 + y) / (x * (1 - y))
 
 whose inverse is given by:
 
-- x = x'' / y''
-- y = (x'' - 1) / (x'' + 1)
+- x = s / t
+- y = (s - 1) / (s + 1)
 
 Composing the mapping immediately above with the mapping from
 Montgomery to Weierstrass curves in {{appx-rational-map-mont}}
@@ -2898,21 +2898,21 @@ of the form required by the mappings in {{weierstrass}}.
 
 ## Montgomery to Weierstrass curves {#appx-rational-map-mont}
 
-The rational map from the point (x'', y'') on the Montgomery curve
-B'' * y''^2 = x''^3 + A'' * x''^2 + x''
-to the point (x', y') on the Weierstrass curve
-y'^2 = x'^3 + A' * x' + B'
+The rational map from the point (s, t) on the Montgomery curve
+B' * t^2 = s^3 + A' * s^2 + s
+to the point (x, y) on the Weierstrass curve
+y^2 = x^3 + C * x + D
 is given by:
 
-- A' = (3 - A''^2) / (3 * B''^2)
-- B' = (2 * A''^3 - 9 * A'') / (27 * B''^3)
-- x' = (3 * x'' - A'') / (3 * B'')
-- y' = y'' / B''
+- C = (3 - A'^2) / (3 * B'^2)
+- D = (2 * A'^3 - 9 * A') / (27 * B'^3)
+- x = (3 * s - A') / (3 * B')
+- y = t / B'
 
-The inverse map, from the point (x', y') to the point (x'', y''), is given by
+The inverse map, from the point (x, y) to the point (s, t), is given by
 
-- x'' = (3 * B'' * x' + A'') / 3
-- y'' = y' * B''
+- s = (3 * B' * x + A') / 3
+- t = y * B'
 
 # Isogeny maps for Suites {#appx-iso}
 

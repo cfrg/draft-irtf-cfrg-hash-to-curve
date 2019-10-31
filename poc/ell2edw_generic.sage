@@ -56,21 +56,21 @@ class GenericEll2Edw(GenericMap):
         (xp, yp) = self.ell2_map.straight_line(u)
         return self.sl_map(xp, yp)
 
-    def sl_map(self, xp, yp):
+    def sl_map(self, x, y):
         Bp = self.Bp
 
-        t1 = xp * Bp
+        t1 = x * Bp
         t2 = t1 + 1
-        t3 = yp * t2
+        t3 = y * t2
         t3 = self.inv0(t3)
-        x = t2 * t3
-        x = x * xp
-        y = t1 - 1
-        y = y * yp
-        y = y * t3
-        e = y == 0
-        y = CMOV(y, 1, e)
-        return (x, y)
+        v = t2 * t3
+        v = v * x
+        w = t1 - 1
+        w = w * y
+        w = w * t3
+        e = w == 0
+        w = CMOV(w, 1, e)
+        return (v, w)
 
     def map_to_curve(self, u):
         (x1, y1) = self.straight_line(u)
