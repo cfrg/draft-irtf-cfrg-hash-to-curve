@@ -2002,7 +2002,7 @@ Steps:
 20. return (x, y)
 ~~~
 
-## Mappings for Twisted Edwards curves
+## Mappings for Twisted Edwards curves {#twisted-edwards}
 
 Twisted Edwards curves (a class of curves that includes Edwards curves)
 are given by the equation
@@ -2133,7 +2133,7 @@ Output: (x, y), a point on E.
 
 ## Mappings for Supersingular curves
 
-### Boneh-Franklin Method {#supersingular}
+### Boneh-Franklin Method {#bfmap}
 
 The function map\_to\_curve\_bf(u) implements the Boneh-Franklin method {{BF01}} which
 covers the supersingular curves defined by y^2 = x^3 + B over a field F such
@@ -2230,6 +2230,31 @@ Steps:
 10.  y = CMOV(-y, y, e2)
 11. return (x, y)
 ~~~
+
+## Choosing a mapping function {#choosing-mapping}
+
+This section gives brief guidelines on choosing a mapping function
+for a target elliptic curve.
+
+If the target elliptic curve is a supersingular curve supported by either the
+Boneh-Franklin method ({{bfmap}}) or the Elligator 2 method for A == 0 ({{ell2a0}}),
+that mapping is the recommended one.
+
+Otherwise, if the target elliptic curve is a Montgomery curve ({{montgomery}}),
+the Elligator 2 method ({{elligator2}}) is recommended.
+Similarly, if the target elliptic curve is a Twisted Edwards curve ({{twisted-edwards}}),
+the Twisted Edwards Elligator 2 method ({{ell2edwards}}) is recommended.
+
+The remaining cases are Weierstrass curves.
+For curves supported by the Simplified SWU method ({{simple-swu}}),
+i.e., with A != 0 and B != 0, that mapping is the recommended one.
+Otherwise, the Simplified SWU method for AB == 0 ({{simple-swu-AB0}})
+is recommended if the goal is best performance, while
+the Shallue-van de Woestijne method ({{svdw}}) is recommended
+if simplicity of implementation is more important.
+(In more detail, the Simplified SWU method for AB == 0 requires implementing
+an isogeny map in addition to the mapping function, while the Shallue-van de
+Woestijne method does not.)
 
 # Clearing the cofactor {#cofactor-clearing}
 
