@@ -1,7 +1,7 @@
 #!/usr/bin/sage
 # vim: syntax=python
 
-load("common.py")
+load("common.sage")
 load("z_selection.sage")
 
 def print_neg(x):
