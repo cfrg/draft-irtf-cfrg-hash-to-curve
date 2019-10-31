@@ -968,6 +968,27 @@ algorithms that can plausibly be made constant time. Use of these rejection
 methods is NOT RECOMMENDED, because they have been a perennial cause of
 side-channel vulnerabilities.
 
+## How to use this document {#howto}
+
+This document is intended for use by both implementors and protocol designers.
+
+For implementors, the necessary and sufficient level of specification is
+a hash-to-curve suite, which fixes all of the parameters listed in {{suites}},
+plus a domain separation tag ({{domain-separation}}).
+Starting from working operations on the target elliptic curve and its base field,
+a hash-to-curve suite requires implementing the specified encoding function ({{roadmap}}),
+its constituent subroutines ({{hashtobase}}, {{mappings}}, {{cofactor-clearing}}), and
+a few utility functions ({{utility}}).
+
+Correspondingly, designers specifying a protocol that requires hashing to an elliptic curve
+should either choose an existing hash-to-curve suite or specify a new one (see {{suites}}).
+In addition, designers should choose a domain separation tag following the guidelines in
+{{domain-separation}}.
+Finally, it is recommended that protocol designers provide test vectors particular
+to their protocol's instantiation of the hash-to-curve suite.
+(This is because domain separation ensures orthogonality between different
+instantiations, meaning that each instantiation's test vectors will be distinct.)
+
 ## Requirements
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
