@@ -348,27 +348,6 @@ informative:
         ins: M. Naehrig
         name: Michael Naehrig
         org: Lehrstuhl fur Theoretische Informationstechnik, Rheinisch-Westfalische Technische Hochschule Aachen, Aachen, Germany
-  KSS08:
-    title: Constructing Brezing-Weng Pairing-Friendly Elliptic Curves Using Elements in the Cyclotomic Field
-    seriesinfo:
-        "In": Pairing-Based Cryptography - Pairing 2008
-        "pages": 126-135
-        DOI: 10.1007/978-3-540-85538-5_9
-    target: https://doi.org/10.1007/978-3-540-85538-5_9
-    date: 2008
-    author:
-      -
-        ins: E. J. Kachisa
-        name: Ezekiel J. Kachisa
-        org: School of Computing, Dublin City University, Ireland
-      -
-        ins: E. F. Schaefer
-        name: Edward F. Schaefer
-        org: Department of Mathematics and Computer Science of Santa Clara University, USA
-      -
-        ins: M. Scott
-        name: Michael Scott
-        org: School of Computing, Dublin City University, Ireland
   AFQTZ14:
     title: Binary Elligator squared
     seriesinfo:
@@ -1546,7 +1525,7 @@ Steps:
 ## Alternative hash\_to\_base functions {#hashtobase-alt}
 
 The hash\_to\_base function is suitable for use with a wide range of hash functions,
-including SHA-2 {{FIPS180-4}}, SHA-3 {{FIPS202}}, BLAKE2 {{!RFC7963}}, and others.
+including SHA-2 {{FIPS180-4}}, SHA-3 {{FIPS202}}, BLAKE2 {{?RFC7693}}, and others.
 In some cases, however, implementors may wish to replace the HKDF-based function
 defined in this section with one built on a different pseudorandom function.
 This section briefly describes the REQUIRED way of doing so.
