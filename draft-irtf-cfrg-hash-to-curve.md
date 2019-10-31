@@ -1218,6 +1218,8 @@ curve and in the case of multiple hashes to different curves.
 (This is because the hash\_to\_base primitive ({{hashtobase}}) requires
 domain separation to guarantee independent outputs.)
 
+Domain separation is enforced with a domain separation tag (DST),
+an octet string that MUST be at least 8 octets in length.
 Care is required when selecting and using a domain separation tag.
 The following requirements apply:
 
@@ -1237,6 +1239,8 @@ The following requirements apply:
    or to different curves, each encoding MUST use a different tag.
    For this purpose, it is RECOMMENDED to include the encoding's
    Suite ID ({{suites}}) in the domain separation tag.
+   For independent encodings based on the same suite, each tag should
+   also include a distinct identifier, e.g., "ENC1" and "ENC2".
 
 As an example, consider a fictional key exchange protocol named Quux
 that defines several different ciphersuites.
