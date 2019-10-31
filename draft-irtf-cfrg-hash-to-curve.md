@@ -1160,8 +1160,6 @@ they ensure that queries to R1 and R2 cannot result in identical
 queries to R.
 Thus, it is safe to treat R1 and R2 as independent oracles.
 
-<!-- TODO(RSW) harmonize with S5 and S3 -->
-
 # Roadmap {#roadmap}
 
 This section presents a general framework for encoding bit strings to points
