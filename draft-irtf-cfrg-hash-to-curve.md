@@ -2350,9 +2350,6 @@ guidelines of {{domain-separation}}.
 In addition, applications whose security requires a random oracle MUST use
 a suite specifying hash\_to\_curve ({{roadmap}}); see {{suiteIDformat}}.
 
-When standardizing a new elliptic curve, corresponding hash-to-curve
-suites SHOULD be specified.
-
 The below table lists the curves for which suites are defined and
 the subsection that gives the corresponding parameters.
 
@@ -2365,6 +2362,29 @@ the subsection that gives the corresponding parameters.
 | curve448 / edwards448     | {{suites-448}}       |
 | secp256k1                 | {{suites-secp256k1}} |
 | BLS12-381                 | {{suites-bls12381}}  |
+
+## Defining a new hash-to-curve suite {#new-suite}
+
+The RECOMMENDED way to define a new hash-to-curve suite is:
+
+1. E, F, p, and m are determined by the elliptic curve and the base field.
+
+2. Choose a sgn0 variant following the guidelines in {{sgn0-variants}}.
+
+3. Choose hash function H meeting the requirements in {{hashtobase-sec}},
+   and compute L as described in that section.
+
+4. Choose a mapping following the guidelines in {{choosing-mapping}},
+   and select any required parameters for that mapping.
+
+5. Choose h\_eff to be either the cofactor of E or, if a fast cofactor
+   clearing method is to be used, a value appropriate to that method
+   as discussed in {{cofactor-clearing}}.
+
+6. Choose a Suite ID following the guidelines in {{suiteIDformat}}.
+
+Note that when standardizing a new elliptic curve, corresponding hash-to-curve
+suites SHOULD be specified as described in this section.
 
 ## Suite ID naming conventions {#suiteIDformat}
 
