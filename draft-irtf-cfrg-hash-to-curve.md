@@ -2268,6 +2268,9 @@ maps given in {{appx-rational-map}}:
 first evaluate the Shallue-van de Woestijne mapping to the equivalent Weierstrass
 curve, then map that point to the target Montgomery or twisted Edwards curve
 using the corresponding rational map.
+Note that while it may be convenient to use a single mapping function for all
+curves, this mapping is almost always more computationally expensive than the
+recommendations above.
 
 # Clearing the cofactor {#cofactor-clearing}
 
