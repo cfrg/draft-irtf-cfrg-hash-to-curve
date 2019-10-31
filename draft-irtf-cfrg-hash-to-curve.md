@@ -348,27 +348,6 @@ informative:
         ins: M. Naehrig
         name: Michael Naehrig
         org: Lehrstuhl fur Theoretische Informationstechnik, Rheinisch-Westfalische Technische Hochschule Aachen, Aachen, Germany
-  KSS08:
-    title: Constructing Brezing-Weng Pairing-Friendly Elliptic Curves Using Elements in the Cyclotomic Field
-    seriesinfo:
-        "In": Pairing-Based Cryptography - Pairing 2008
-        "pages": 126-135
-        DOI: 10.1007/978-3-540-85538-5_9
-    target: https://doi.org/10.1007/978-3-540-85538-5_9
-    date: 2008
-    author:
-      -
-        ins: E. J. Kachisa
-        name: Ezekiel J. Kachisa
-        org: School of Computing, Dublin City University, Ireland
-      -
-        ins: E. F. Schaefer
-        name: Edward F. Schaefer
-        org: Department of Mathematics and Computer Science of Santa Clara University, USA
-      -
-        ins: M. Scott
-        name: Michael Scott
-        org: School of Computing, Dublin City University, Ireland
   AFQTZ14:
     title: Binary Elligator squared
     seriesinfo:
@@ -1548,7 +1527,7 @@ Steps:
 ## Alternative hash\_to\_base functions {#hashtobase-alt}
 
 The hash\_to\_base function is suitable for use with a wide range of hash functions,
-including SHA-2 {{FIPS180-4}}, SHA-3 {{FIPS202}}, BLAKE2 {{!RFC7963}}, and others.
+including SHA-2 {{FIPS180-4}}, SHA-3 {{FIPS202}}, BLAKE2 {{?RFC7693}}, and others.
 In some cases, however, implementors may wish to replace the HKDF-based function
 defined in this section with one built on a different pseudorandom function.
 This section briefly describes the REQUIRED way of doing so.
@@ -1811,11 +1790,10 @@ Operations:
 
 #### Implementation
 
-The following procedure implements the simplified SWU mapping in a
-straight-line fashion.
+The following procedure implements the simplified SWU mapping in a straight-line fashion.
 {{samplecode}} gives an optimized straight-line procedure for P-256 {{FIPS186-4}}.
-For discussion of how to generalize to q = 1 (mod 4), see
-{{WB19}} (Section 4) or the example code found at {{hash2curve-repo}}.
+For more information on optimizing this mapping, see
+{{WB19}} Section 4 or the example code found at {{hash2curve-repo}}.
 
 ~~~
 map_to_curve_simple_swu(u)
@@ -1850,6 +1828,63 @@ Steps:
 21.   y = CMOV(-y, y, e3)
 22. return (x, y)
 ~~~
+
+### Simplified SWU for AB == 0 {#simple-swu-AB0}
+
+Wahby and Boneh {{WB19}} show how to adapt the simplified SWU mapping to
+Weierstrass curves having A == 0 or B == 0, which the mapping of
+{{simple-swu}} does not support.
+(The case A == B == 0 is excluded because y^2 = x^3 is not an elliptic curve.)
+
+This method applies to curves like secp256k1 {{SEC2}} and to pairing-friendly
+curves in the Barreto-Lynn-Scott {{BLS03}}, Barreto-Naehrig {{BN05}}, and other families.
+
+This method requires finding another elliptic curve
+
+~~~
+E': y^2 = g'(x) = x^3 + A' * x + B'
+~~~
+
+that is isogenous to E and has A' != 0 and B' != 0.
+(One might do this, for example, using {{SAGE}}; for details, see {{WB19}}, Appendix A.)
+This isogeny defines a map iso\_map(x', y') that takes as input a point
+on E' and produces as output a point on E.
+
+Once E' and iso\_map are identified, this mapping works as follows: on input
+u, first apply the simplified SWU mapping to get a point on E', then apply
+the isogeny map to that point to get a point on E.
+
+Note that iso\_map is a group homomorphism, meaning that point addition
+commutes with iso\_map.
+Thus, when using this mapping in the hash\_to\_curve construction of {{roadmap}},
+one can effect a small optimization by first mapping u0 and u1 to E', adding
+the resulting points on E', and then applying iso\_map to the sum.
+This gives the same result while requiring only one evaluation of iso\_map.
+
+Preconditions: An elliptic curve E' with A' != 0 and B' != 0 that is
+isogenous to the target curve E with isogeny map iso\_map(x, y) from
+E' to E.
+
+Helper functions:
+
+- map\_to\_curve\_simple\_swu is the mapping of {{simple-swu}} to E'
+- iso\_map is the isogeny map from E' to E
+
+Sign of y: for this map, the sign is determined by map\_to\_curve\_simple\_swu.
+No further sign adjustments are necessary.
+
+Exceptions: map\_to\_curve\_simple\_swu handles its exceptional cases.
+Exceptional cases of iso\_map MUST return the identity point on E.
+
+Operations:
+
+~~~
+1. (x', y') = map_to_curve_simple_swu(u)    // (x', y') is on E'
+2.   (x, y) = iso_map(x', y')               // (x, y) is on E
+3. return (x, y)
+~~~
+
+See {{hash2curve-repo}} or {{WB19}}, Section 4.3 for details on implementing the isogeny map.
 
 ## Mappings for Montgomery curves {#montgomery}
 
@@ -1905,7 +1940,7 @@ Operations:
 4.  x2 = -x1 - A
 5. gx2 = x2^3 + A * x2^2 + B * x2
 6.  If is_square(gx1), set x = x1 and y = sqrt(gx1)
-7.  Else if is_square(gx2), set x = x2 and y = sqrt(gx2)
+7.  Else set x = x2 and y = sqrt(gx2)
 8.  If sgn0(u) != sgn0(y), set y = -y
 9.  return (x, y)
 ~~~
@@ -1924,10 +1959,10 @@ Output: (x, y), a point on E.
 Steps:
 1.   t1 = u^2
 2.   t1 = Z * t1              // Z * u^2
-3.   x1 = t1 + 1
-4.   x1 = inv0(x1)
-5.   e1 = x1 == 0
-6.   x1 = CMOV(x1, 1, e1)     // if x1 == 0, set x1 = 1
+3.   e1 = t1 == -1            // exceptional case: Z * u^2 == -1
+4.   t1 = CMOV(t1, 0, e1)     // if t1 == -1, set t1 = 0
+5.   x1 = t1 + 1
+6.   x1 = inv0(x1)
 7.   x1 = -A * x1             // x1 = -A / (1 + Z * u^2)
 8.  gx1 = x1 + A
 9.  gx1 = gx1 * x1
@@ -1947,7 +1982,10 @@ Steps:
 ## Mappings for Twisted Edwards curves
 
 Twisted Edwards curves (a class of curves that includes Edwards curves)
-are closely related to Montgomery
+are given by the equation
+a * x^2 + y^2 = 1 + d * x^2 * y^2, with a != 0, d != 0, and a != d {{BBJLP08}}.
+
+These curves are closely related to Montgomery
 curves ({{montgomery}}): every twisted Edwards curve is birationally equivalent
 to a Montgomery curve ({{BBJLP08}}, Theorem 3.2).
 This equivalence yields an efficient way of hashing to a twisted Edwards curve:
@@ -2007,10 +2045,9 @@ to the point (x, y) on the twisted Edwards curve is given by
 For completeness, we give the inverse map in {{rational-map-inverse}}.
 Note that the inverse map is not used when hashing to a twisted Edwards curve.
 
-Rational maps may be undefined, for example, when the denominator of one
-of the rational functions is zero.
-For example, in the map described above, the exceptional cases are
-y' == 0 or B' * x' == -1.
+Rational maps may be undefined on certain inputs, e.g., when the
+denominator of one of the rational functions is zero.
+In the map described above, the exceptional cases are y' == 0 or B' * x' == -1.
 Implementations MUST detect exceptional cases and return the value
 (x, y) = (0, 1), which is a valid point on all twisted Edwards curves
 given by the equation above.
@@ -2023,17 +2060,17 @@ are analogous.
 ~~~
 rational_map(x', y')
 Input: (x', y'), a point on the curve y'^2 = x'^3 + A * x'^2 + B * x'.
-Output: (x, y), a point on the equivalent twisted Edwards curve.
+ Output: (x, y), a point on an equivalent twisted Edwards curve.
 
-1. t1 = y' * B'
-2. t2 = x' + 1
-3. t3 = t1 * t2
+1. t1 = x' * B'
+2. t2 = t1 + 1
+3. t3 = y' * t2
 4. t3 = inv0(t3)
 5.  x = t2 * t3
 6.  x = x * x'
-7.  y = x' - 1
-8.  y = y * t3
-9.  y = y * t1
+7.  y = t1 - 1
+8.  y = y * y'
+9.  y = y * t3
 10. e = y == 0
 11. y = CMOV(y, 1, e)
 12. return (x, y)
@@ -2138,16 +2175,16 @@ Operations:
 2. gx1 = x1^3 + B * x1
 3.  x2 = -x1
 4. gx2 = -gx1
-5. If gx1 is square, x = x1 and y = sqrt(gx1)
-6. Else x = x2 and y = sqrt(gx2)
+5. If is_square(gx1), set x = x1 and y = sqrt(gx1)
+6. Else set x = x2 and y = sqrt(gx2)
 7. If sgn0(u) != sgn0(y), set y = -y.
 8. return (x, y)
 ~~~
 
 #### Implementation
 
-The following procedure implements the Elligator 2 mapping for supersingular
-curves in a straight-line fashion.
+The following procedure implements the Elligator 2 mapping for A == 0
+in a straight-line fashion.
 
 ~~~
 map_to_curve_ell2A0(u)
@@ -2170,63 +2207,6 @@ Steps:
 10.  y = CMOV(-y, y, e2)
 11. return (x, y)
 ~~~
-
-## Mappings for Pairing-Friendly curves
-
-### Simplified SWU for Pairing-Friendly Curves {#simple-swu-pairing-friendly}
-
-Wahby and Boneh {{WB19}} show how to adapt the simplified SWU mapping to
-certain Weierstrass curves having either A = 0 or B = 0, one of which is
-almost always true for pairing-friendly curves. Note that neither case is
-supported by the mapping of {{simple-swu}}.
-
-This method requires finding another elliptic curve
-
-~~~
-E': y^2 = g'(x) = x^3 + A' * x + B'
-~~~
-
-that is isogenous to E and has A' != 0 and B' != 0.
-(One might do this, for example, using {{SAGE}}; details are beyond the scope of this document.)
-This isogeny defines a map iso\_map(x', y') that takes as input a point
-on E' and produces as output a point on E.
-
-Once E' and iso\_map are identified, this mapping works as follows: on input
-u, first apply the simplified SWU mapping to get a point on E', then apply
-the isogeny map to that point to get a point on E.
-
-Note that iso\_map is a group homomorphism, meaning that point addition
-commutes with iso\_map.
-Thus, when using this mapping in the hash\_to\_curve construction of {{roadmap}},
-one can effect a small optimization by first mapping u0 and u1 to E', adding
-the resulting points on E', and then applying iso\_map to the sum.
-This gives the same result while requiring only one evaluation of iso\_map.
-
-Preconditions: An elliptic curve E' with A' != 0 and B' != 0 that is
-isogenous to the target curve E with isogeny map iso\_map(x, y) from
-E' to E.
-
-Helper functions:
-
-- map\_to\_curve\_simple\_swu is the mapping of {{simple-swu}} to E'
-- iso\_map is the isogeny map from E' to E
-
-Sign of y: for this map, the sign is determined by map\_to\_curve\_elligator2.
-No further sign adjustments are necessary.
-
-Exceptions: map\_to\_curve\_simple\_swu handles its exceptional cases.
-Exceptional cases of iso\_map should return the identity point on E.
-
-Operations:
-
-~~~
-1. (x', y') = map_to_curve_simple_swu(u)    // (x', y') is on E'
-2.   (x, y) = iso_map(x', y')               // (x, y) is on E
-3. return (x, y)
-~~~
-
-We do not repeat the sample implementation of {{simple-swu}} here.
-See {{hash2curve-repo}} or {{WB19}} for details on implementing the isogeny map.
 
 # Clearing the cofactor {#cofactor-clearing}
 
@@ -2319,7 +2299,7 @@ the subsection that gives the corresponding parameters.
 | NIST P-521                | {{suites-p521}}      |
 | curve25519 / edwards25519 | {{suites-25519}}     |
 | curve448 / edwards448     | {{suites-448}}       |
-| SECP256k1                 | {{suites-secp256k1}} |
+| secp256k1                 | {{suites-secp256k1}} |
 | BLS12-381                 | {{suites-bls12381}}  |
 
 ## Suite ID naming conventions {#suiteIDformat}
@@ -2399,7 +2379,7 @@ The common parameters for the above suites are:
 - h\_eff: 1
 
 An optimized example implementation of the Simplified SWU mapping
-for P-256 is given in {{map-to-p256}}.
+to P-256 is given in {{sswu-map-to-3mod4}}.
 
 ## Suites for NIST P-384 {#suites-p384}
 
@@ -2429,6 +2409,9 @@ The common parameters for the above suites are:
 - L: 72
 - h\_eff: 1
 
+An optimized example implementation of the Simplified SWU mapping
+to P-384 is given in {{sswu-map-to-3mod4}}.
+
 ## Suites for NIST P-521 {#suites-p521}
 
 This section defines ciphersuites for the NIST P-521 elliptic curve {{FIPS186-4}}.
@@ -2456,6 +2439,9 @@ The common parameters for the above suites are:
 - H: SHA-512
 - L: 96
 - h\_eff: 1
+
+An optimized example implementation of the Simplified SWU mapping
+to P-521 is given in {{sswu-map-to-3mod4}}.
 
 ## Suites for curve25519 and edwards25519 {#suites-25519}
 
@@ -2527,21 +2513,21 @@ The common parameters for all of the above suites are:
 Optimized example implementations of the above mappings are given in
 {{map-to-curve448}} and {{map-to-edwards448}}.
 
-## Suites for SECP256K1 {#suites-secp256k1}
+## Suites for secp256k1 {#suites-secp256k1}
 
-This section defines ciphersuites for the SECP256K1 elliptic curve {{SEC2}}.
+This section defines ciphersuites for the secp256k1 elliptic curve {{SEC2}}.
 
-The suites SECP256K1-SHA256-SSWU-RO- and SECP256K1-SHA256-SSWU-NU-
+The suites secp256k1-SHA256-SSWU-RO- and secp256k1-SHA256-SSWU-NU-
 share the following parameters, in addition to the common parameters below.
 
-- f: Simplified SWU method, {{simple-swu}}
+- f: Simplified SWU for AB == 0, {{simple-swu-AB0}}
 - Z: -11
 - E': y'^2 = x'^3 + A' * x' + B', where
   - A': 0x3f8731abdd661adca08a5558f0f5d272e953d363cb6f0e5d405447c01a444533
   - B': 1771
 - iso\_map: the 3-isogeny map from E' to E given in {{appx-iso-secp256k1}}
 
-The suites SECP256K1-SHA256-SVDW-RO- and SECP256K1-SHA256-SVDW-NU-
+The suites secp256k1-SHA256-SVDW-RO- and secp256k1-SHA256-SVDW-NU-
 share the following parameters, in addition to the common parameters below.
 
 - f: Shallue-van de Woestijne method, {{svdw}}
@@ -2557,6 +2543,9 @@ The common parameters for all of the above suites are:
 - L: 48
 - h\_eff: 1
 
+An optimized example implementation of the Simplified SWU mapping
+to the curve E' isogenous to secp256k1 is given in {{sswu-map-to-3mod4}}.
+
 ## Suites for BLS12-381 {#suites-bls12381}
 
 This section defines ciphersuites for groups G1 and G2 of
@@ -2567,7 +2556,7 @@ the BLS12-381 elliptic curve {{draft-yonezawa-pfc-01}}.
 The suites BLS12381G1-SHA256-SSWU-RO- and BLS12381G1-SHA256-SSWU-NU-
 share the following parameters, in addition to the common parameters below.
 
-- f: Simplified SWU for pairing-friendly curves, {{simple-swu-pairing-friendly}}
+- f: Simplified SWU for AB == 0, {{simple-swu-AB0}}
 - Z: 11
 - E': y'^2 = x'^3 + A' * x' + B', where
   - A' = 0x144698a3b8e9433d693a02c96d4982b0ea985383ee66a8d8e8981aefd881ac98936f8da0e0f97f5cf428082d584c1d
@@ -2593,6 +2582,9 @@ The common parameters for the above suites are:
 Note that this h\_eff value is chosen for compatibility
 with the fast cofactor clearing method described by Scott ({{WB19}} Section 5).
 
+An optimized example implementation of the Simplified SWU mapping
+to the curve E' isogenous to BLS12-381 G1 is given in {{sswu-map-to-3mod4}}.
+
 ### BLS12-381 G2 {#suites-bls12381-g2}
 
 Group G2 of BLS12-381 is defined over a field F = GF(p^m) defined as:
@@ -2604,7 +2596,7 @@ Group G2 of BLS12-381 is defined over a field F = GF(p^m) defined as:
 The suites BLS12381G2-SHA256-SSWU-RO- and BLS12381G2-SHA256-SSWU-NU-
 share the following parameters, in addition to the common parameters below.
 
-- f: Simplified SWU for pairing-friendly curves, {{simple-swu-pairing-friendly}}
+- f: Simplified SWU for AB == 0, {{simple-swu-AB0}}
 - Z: -(2 + I)
 - E': y'^2 = x'^3 + A' * x' + B', where
   - A' = 240 * I
@@ -2677,7 +2669,7 @@ should be chosen according to the guidelines listed in {{hashtobase-sec}}.
 The authors would like to thank Adam Langley for his detailed writeup of Elligator 2 with
 Curve25519 {{L13}};
 Christopher Patton and Benjamin Lipp for educational discussions; and
-Sean Devlin, Justin Drake, Dan Harkins, Thomas Icart, Leo Reyzin, Michael Scott,
+Sean Devlin, Justin Drake, Dan Harkins, Thomas Icart, Leonid Reyzin, Michael Scott,
 and Mathy Vanhoef for helpful feedback.
 
 # Contributors
@@ -2808,7 +2800,7 @@ following rational map ({{BBJLP08}}, Theorem 3.2):
 
 # Isogeny maps for Suites {#appx-iso}
 
-This section specifies the isogeny maps for the SECP256k1 and BLS12-381
+This section specifies the isogeny maps for the secp256k1 and BLS12-381
 suites listed in {{suites}}.
 
 These maps are given in terms of affine coordinates.
@@ -2819,9 +2811,9 @@ modular inversions.
 Refer to the draft repository {{hash2curve-repo}} for a Sage {{SAGE}} script
 that constructs these isogenies.
 
-## 3-isogeny map for SECP256k1 {#appx-iso-secp256k1}
+## 3-isogeny map for secp256k1 {#appx-iso-secp256k1}
 
-This section specifies the isogeny map for the SECP256k1 suite listed in {{suites-secp256k1}}.
+This section specifies the isogeny map for the secp256k1 suite listed in {{suites-secp256k1}}.
 
 The 3-isogeny map from (x', y') on E' to (x, y) on E is given by the following rational functions:
 
@@ -3016,56 +3008,68 @@ and the corresponding conversions:
   To convert (xn, xd, yn, yd) to Jacobian projective coordinates,
   compute (X', Y', Z') = (xn * xd * yd^2, yn * yd^2 * xd^3, xd * yd).
 
-## P-256 (Simplified SWU) {#map-to-p256}
+## Simplified SWU for p = 3 (mod 4) {#sswu-map-to-3mod4}
 
 The following is a straight-line implementation of the Simplified SWU
-mapping for P-256 {{FIPS186-4}} as specified in {{suites-p256}}.
+mapping that applies to any curve over GF(p) for p = 3 (mod 4).
+This includes the ciphersuites for NIST curves P-256, P-384, and P-521 {{FIPS186-4}} given in {{suites}}.
+It also includes the curves isogenous to secp256k1 ({{suites-secp256k1}}) and BLS12-381 G1 ({{suites-bls12381-g1}}).
+
+The implementations for these curves differ only in the constants
+and the base field.
+The constant definitions below are given in terms of the parameters for the
+Simplified SWU mapping; for parameter values for the curves listed above, see
+{{suites-p256}} (P-256),
+{{suites-p384}} (P-384),
+{{suites-p521}} (P-521),
+{{suites-secp256k1}} (E' isogenous to secp256k1), and
+{{suites-bls12381-g1}} (E' isogenous to BLS12-381 G1).
 
 ~~~
-map_to_curve_simple_swu_p256(u)
+map_to_curve_simple_swu_3mod4(u)
+
 Input: u, an element of F.
 Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
-        point on P-256.
+        point on the target curve.
 
-Constants:
-1.   B = 0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b
-2.  c1 = B / 3
-3.  c2 = (p - 3) / 4          // Integer arithmetic
-4.  c3 = sqrt(1000)
+Constants: defined per curve; see above.
+1.  c1 = B / 3
+2.  c2 = (p - 3) / 4           // Integer arithmetic
+3.  c3 = sqrt(-Z^3)
 
 Steps:
 1.   t1 = u^2
-2.   t3 = -10 * t1            // Z * u^2
+2.   t3 = Z * t1
 3.   t2 = t3^2
 4.   xd = t2 + t3
 5.  x1n = xd + 1
 6.  x1n = x1n * B
-7.   xd = xd * 3
+7.   xd = -A * xd
 8.   e1 = xd == 0
-9.   xd = CMOV(xd, 30, e1)    // If xd == 0, set xd = Z * A == 30
+9.   xd = CMOV(xd, Z * A, e1)  // If xd == 0, set xd = Z * A
 10.  t2 = xd^2
-11. gxd = t2 * xd             // gxd == xd^3
-12.  t2 = -3 * t2
+11. gxd = t2 * xd              // gxd == xd^3
+12.  t2 = A * t2
 13. gx1 = x1n^2
-14. gx1 = gx1 + t2            // x1n^2 + A * xd^2
-15. gx1 = gx1 * x1n           // x1n^3 + A * x1n * xd^2
+14. gx1 = gx1 + t2             // x1n^2 + A * xd^2
+15. gx1 = gx1 * x1n            // x1n^3 + A * x1n * xd^2
 16.  t2 = B * gxd
-17. gx1 = gx1 + t2            // x1n^3 + A * x1n * xd^2 + B * xd^3
+17. gx1 = gx1 + t2             // x1n^3 + A * x1n * xd^2 + B * xd^3
 18.  t4 = gxd^2
 19.  t2 = gx1 * gxd
-20.  t4 = t4 * t2             // gx1 * gxd^3
-21.  y1 = t4^c2               // (gx1 * gxd^3)^((p - 3) / 4)
-22.  y1 = y1 * t2             // gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
-23. x2n = t3 * x1n            // x2 = x2n / xd = -10 * u^2 * x1n / xd
-24.  y2 = y1 * c3             // y2 = y1 * sqrt(-Z^3)
+20.  t4 = t4 * t2              // gx1 * gxd^3
+21.  y1 = t4^c2                // (gx1 * gxd^3)^((p - 3) / 4)
+22.  y1 = y1 * t2              // gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
+23. x2n = t3 * x1n             // x2 = x2n / xd = -10 * u^2 * x1n / xd
+24.  y2 = y1 * c3              // y2 = y1 * sqrt(-Z^3)
 25.  y2 = y2 * t1
 26.  y2 = y2 * u
 27.  t2 = y1^2
 28.  t2 = t2 * gxd
 29.  e2 = t2 == gx1
-30.  xn = CMOV(x2n, x1n, e2)  // If e2, x = x1, else x = x2
-31.   y = CMOV(y2, y1, e2)    // If e2, y = y1, else y = y2
-32.  e3 = sgn0(u) == sgn0(y)  // Fix sign of y
+30.  xn = CMOV(x2n, x1n, e2)   // If e2, x = x1, else x = x2
+31.   y = CMOV(y2, y1, e2)     // If e2, y = y1, else y = y2
+32.  e3 = sgn0(u) == sgn0(y)   // Fix sign of y
 33.   y = CMOV(-y, y, e3)
 34. return (xn, xd, y, 1)
 ~~~
@@ -3077,6 +3081,7 @@ for curve25519 {{RFC7748}} as specified in {{suites-25519}}.
 
 ~~~
 map_to_curve_elligator2_curve25519(u)
+
 Input: u, an element of F.
 Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on curve25519.
@@ -3139,6 +3144,7 @@ is defined in {{map-to-curve25519}}.
 
 ~~~
 map_to_curve_elligator2_edwards25519(u)
+
 Input: u, an element of F.
 Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on edwards25519.
@@ -3147,13 +3153,19 @@ Constants:
 1. c1 = sqrt(-486664)   // sgn0(c1) MUST equal 1
 
 Steps:
-1. (xMn, xMd, yMn, yMd) = map_to_curve_elligator2_curve25519(u)
-2. xn = xMn * yMd
-3. xn = xn * c1
-4. xd = xMd * yMn       // xn / xd = c1 * xM / yM
-5. yn = xMn - xMd
-6. yd = xMn + xMd       // (n / d - 1) / (n / d + 1) = (n - d) / (n + d)
-7. return (xn, xd, yn, yd)
+1.  (xMn, xMd, yMn, yMd) = map_to_curve_elligator2_curve25519(u)
+2.  xn = xMn * yMd
+3.  xn = xn * c1
+4.  xd = xMd * yMn       // xn / xd = c1 * xM / yM
+5.  yn = xMn - xMd
+6.  yd = xMn + xMd       // (n / d - 1) / (n / d + 1) = (n - d) / (n + d)
+7.  t1 = xd * yd
+8.   e = t1 == 0
+9.  xn = CMOV(xn, 0, e)
+10. xd = CMOV(xd, 1, e)
+11. yn = CMOV(yn, 1, e)
+12. yd = CMOV(yd, 1, e)
+13. return (xn, xd, yn, yd)
 ~~~
 
 ## curve448 (Elligator 2) {#map-to-curve448}
@@ -3163,6 +3175,7 @@ for curve448 {{RFC7748}} as specified in {{suites-448}}.
 
 ~~~
 map_to_curve_elligator2_curve448(u)
+
 Input: u, an element of F.
 Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on curve448.
@@ -3172,10 +3185,10 @@ Constants:
 
 Steps:
 1.   t1 = u^2
-2.   xd = 1 - t1
-3.   e1 = xd == 0
-4.   xd = CMOV(xd, 1, e1)       // If xd == 0, set xd = 1
-5.  x1n = CMOV(-156326, 1, e1)  // If xd == 0, x1n = 1, else x1n = -A
+2.   e1 = t1 == 1
+3.   t1 = CMOV(t1, 0, e1)     // If Z * u^2 == -1, set t1 = 0
+4.   xd = 1 - t1
+5.  x1n = -156326
 6.   t2 = xd^2
 7.  gxd = t2 * xd             // gxd = xd^3
 8.  gx1 = 156326 * xd         // 156326 * xd
@@ -3190,14 +3203,15 @@ Steps:
 17.  y1 = y1 * t2             // gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
 18. x2n = -t1 * x1n           // x2 = x2n / xd = -1 * u^2 * x1n / xd
 19.  y2 = y1 * u
-20.  t2 = y1^2
-21.  t2 = t2 * gxd
-22.  e2 = t2 == gx1
-23.  xn = CMOV(x2n, x1n, e2)  // If e2, x = x1, else x = x2
-24.   y = CMOV(y2, y1, e2)    // If e2, y = y1, else y = y2
-25.  e3 = sgn0(u) == sgn0(y)  // Fix sign of y
-26.   y = CMOV(-y, y, e3)
-27. return (xn, xd, y, 1)
+20.  y2 = CMOV(y2, 0, e1)
+21.  t2 = y1^2
+22.  t2 = t2 * gxd
+23.  e2 = t2 == gx1
+24.  xn = CMOV(x2n, x1n, e2)  // If e2, x = x1, else x = x2
+25.   y = CMOV(y2, y1, e2)    // If e2, y = y1, else y = y2
+26.  e3 = sgn0(u) == sgn0(y)  // Fix sign of y
+27.   y = CMOV(-y, y, e3)
+28. return (xn, xd, y, 1)
 ~~~
 
 ## edwards448 (Elligator 2) {#map-to-edwards448}
@@ -3209,6 +3223,7 @@ is defined in {{map-to-curve448}}.
 
 ~~~
 map_to_curve_elligator2_edwards448(u)
+
 Input: u, an element of F.
 Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on edwards448.
@@ -3245,7 +3260,13 @@ Steps:
 29. yEd = t2 + t1
 30.  t4 = t4 * yd2
 31. yEd = yEd + t4
-32. return (xEn, xEd, yEn, yEd)
+32.  t1 = xEd * yEd
+33.   e = t1 == 0
+34. xEn = CMOV(xEn, 0, e)
+35. xEd = CMOV(xEd, 1, e)
+36. yEn = CMOV(yEn, 1, e)
+37. yEd = CMOV(yEd, 1, e)
+38. return (xEn, xEd, yEn, yEd)
 ~~~
 
 # Scripts for parameter generation {#paramgen}
