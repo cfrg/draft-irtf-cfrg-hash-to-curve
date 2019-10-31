@@ -1589,6 +1589,9 @@ hash\_to\_base function is being used.
 The mappings in this section are suitable for constructing either nonuniform
 or random oracle encodings using the constructions of {{roadmap}}.
 
+Note that mappings in this section are mutually incompatible: the point that
+results from a given input depends on the mapping being used.
+
 ## Interface
 
 The generic interface shared by all mappings in this section is as follows:
@@ -1648,7 +1651,7 @@ how to handle them in constant time. Note that all implementations SHOULD use
 inv0 ({{utility}}) to compute multiplicative inverses, to avoid exceptional
 cases that result from attempting to compute the inverse of 0.
 
-## Mappings for Weierstrass curves
+## Mappings for Weierstrass curves {#weierstrass}
 
 The following mappings apply to elliptic curves defined by the equation
 E: y^2 = g(x) = x^3 + A * x + B, where 4 * A^3 + 27 * B^2 != 0.
@@ -2065,7 +2068,7 @@ to the point (x, y) on the twisted Edwards curve is given by
 - x = x' / y'
 - y = (B' * x' - 1) / (B' * x' + 1), where B' = 1 / sqrt(B) = 4 / (a - d)
 
-For completeness, we give the inverse map in {{rational-map-inverse}}.
+For completeness, we give the inverse map in {{appx-rational-map-edw}}.
 Note that the inverse map is not used when hashing to a twisted Edwards curve.
 
 Rational maps may be undefined on certain inputs, e.g., when the
@@ -2234,7 +2237,9 @@ Steps:
 ## Choosing a mapping function {#choosing-mapping}
 
 This section gives brief guidelines on choosing a mapping function
-for a target elliptic curve.
+for a given elliptic curve.
+Note that the suites given in {{suites}} are recommended mappings
+for the respective curves.
 
 If the target elliptic curve is a supersingular curve supported by either the
 Boneh-Franklin method ({{bfmap}}) or the Elligator 2 method for A == 0 ({{ell2a0}}),
@@ -2242,8 +2247,8 @@ that mapping is the recommended one.
 
 Otherwise, if the target elliptic curve is a Montgomery curve ({{montgomery}}),
 the Elligator 2 method ({{elligator2}}) is recommended.
-Similarly, if the target elliptic curve is a Twisted Edwards curve ({{twisted-edwards}}),
-the Twisted Edwards Elligator 2 method ({{ell2edwards}}) is recommended.
+Similarly, if the target elliptic curve is a twisted Edwards curve ({{twisted-edwards}}),
+the twisted Edwards Elligator 2 method ({{ell2edwards}}) is recommended.
 
 The remaining cases are Weierstrass curves.
 For curves supported by the Simplified SWU method ({{simple-swu}}),
@@ -2251,10 +2256,18 @@ i.e., with A != 0 and B != 0, that mapping is the recommended one.
 Otherwise, the Simplified SWU method for AB == 0 ({{simple-swu-AB0}})
 is recommended if the goal is best performance, while
 the Shallue-van de Woestijne method ({{svdw}}) is recommended
-if simplicity of implementation is more important.
-(In more detail, the Simplified SWU method for AB == 0 requires implementing
+if the goal is simplicity of implementation.
+(This is because the Simplified SWU method for AB == 0 requires implementing
 an isogeny map in addition to the mapping function, while the Shallue-van de
 Woestijne method does not.)
+
+Alternatively, if one mapping function that works with any curve is desirable,
+the Shallue-van de Woestijne method ({{svdw}}) is recommended.
+In this case, Montgomery and twisted Edwards curves are supported via the rational
+maps given in {{appx-rational-map}}:
+first evaluate the Shallue-van de Woestijne mapping to the equivalent Weierstrass
+curve, then map that point to the target Montgomery or twisted Edwards curve
+using the corresponding rational map.
 
 # Clearing the cofactor {#cofactor-clearing}
 
@@ -2815,7 +2828,11 @@ curves including Montgomery and twisted Edwards curves.
 Tibouchi {{T14}} and Aranha et al. {{AFQTZ14}} generalize these results.
 This document does not deal with this complementary problem.
 
-# Rational maps from twisted Edwards to Weierstrass and Montgomery curves {#rational-map-inverse}
+# Rational maps {#appx-rational-map}
+
+This section gives several useful rational maps.
+
+## Twisted Edwards to Weierstrass and Montgomery curves {#appx-rational-map-edw}
 
 The inverse of the rational map specified in {{rational-map}}, i.e.,
 the map from the point (x', y') on the Weierstrass curve
@@ -2837,14 +2854,42 @@ This map is undefined when y == 1 or x == 0.
 In this case, return the point (0, 0).
 
 It may also be useful to map to a Montgomery curve
-of the form B' * y''^2 = x''^3 + A' * x''^2 + x''.
+of the form B'' * y''^2 = x''^3 + A'' * x''^2 + x''.
 This curve is equivalent to the twisted Edwards curve above via the
 following rational map ({{BBJLP08}}, Theorem 3.2):
 
-- A' = 2 * (a + d) / (a - d)
-- B' = 4 / (a - d)
+- A'' = 2 * (a + d) / (a - d)
+- B'' = 4 / (a - d)
 - x'' = (1 + y) / (1 - y)
 - y'' = (1 + y) / (x * (1 - y))
+
+whose inverse is given by:
+
+- x = x'' / y''
+- y = (x'' - 1) / (x'' + 1)
+
+Composing the mapping immediately above with the mapping from
+Montgomery to Weierstrass curves in {{appx-rational-map-mont}}
+yields a mapping from twisted Edwards curves to Weierstrass curves
+of the form required by the mappings in {{weierstrass}}.
+
+## Montgomery to Weierstrass curves {#appx-rational-map-mont}
+
+The rational map from the point (x'', y'') on the Montgomery curve
+B'' * y''^2 = x''^3 + A'' * x''^2 + x''
+to the point (x', y') on the Weierstrass curve
+y'^2 = x'^3 + A' * x' + B'
+is given by:
+
+- A' = (3 - A''^2) / (3 * B''^2)
+- B' = (2 * A''^3 - 9 * A'') / (27 * B''^3)
+- x' = (3 * x'' - A'') / (3 * B'')
+- y' = y'' / B''
+
+The inverse map, from the point (x', y') to the point (x'', y''), is given by
+
+- x'' = (3 * B'' * x' + A'') / 3
+- y'' = y' * B''
 
 # Isogeny maps for Suites {#appx-iso}
 
