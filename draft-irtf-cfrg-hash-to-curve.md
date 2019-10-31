@@ -2058,7 +2058,7 @@ are analogous.
 ~~~
 rational_map(x', y')
 Input: (x', y'), a point on the curve y'^2 = x'^3 + A * x'^2 + B * x'.
-Output: (x, y), a point on the equivalent twisted Edwards curve.
+ Output: (x, y), a point on an equivalent twisted Edwards curve.
 
 1. t1 = x' * B'
 2. t2 = t1 + 1
@@ -2067,7 +2067,7 @@ Output: (x, y), a point on the equivalent twisted Edwards curve.
 5.  x = t2 * t3
 6.  x = x * x'
 7.  y = t1 - 1
-8.  y = y * yp
+8.  y = y * y'
 9.  y = y * t3
 10. e = y == 0
 11. y = CMOV(y, 1, e)
