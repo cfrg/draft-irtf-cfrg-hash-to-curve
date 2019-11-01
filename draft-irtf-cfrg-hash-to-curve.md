@@ -1692,14 +1692,15 @@ E: y^2 = g(x) = x^3 + A * x + B, where 4 * A^3 + 27 * B^2 != 0.
 
 Shallue and van de Woestijne {{SW06}} describe a mapping that applies to
 essentially any elliptic curve.
-This generality, however, comes at a price: this mapping is strictly
-more expensive to evaluate than the other mappings in this document.
+(Note, however, that this mapping is more expensive to evaluate than
+the other mappings in this document.)
 
-The parameterization given below works for essentially any Weierstrass curve;
+The parameterization given below is for Weierstrass curves;
 its derivation is detailed in {{W19}}.
-It also works for Montgomery ({{montgomery}}) and twisted Edwards ({{twisted-edwards}})
-curves via the rational maps given in {{appx-rational-map}}:
-first evaluate the Shallue-van de Woestijne mapping to the equivalent Weierstrass
+This parameterization also works for Montgomery ({{montgomery}}) and
+twisted Edwards ({{twisted-edwards}}) curves via the rational maps
+given in {{appx-rational-map}}:
+first evaluate the Shallue-van de Woestijne mapping to an equivalent Weierstrass
 curve, then map that point to the target Montgomery or twisted Edwards curve
 using the corresponding rational map.
 
@@ -2891,12 +2892,14 @@ Composing the mapping immediately above with the mapping from
 Montgomery to Weierstrass curves in {{appx-rational-map-mont}}
 yields a mapping from twisted Edwards curves to Weierstrass curves
 of the form required by the mappings in {{weierstrass}}.
+This mapping can be used to apply the Shallue-van de Woestijne method
+({{svdw}}) to twisted Edwards curves.
 
 ## Montgomery to Weierstrass curves {#appx-rational-map-mont}
 
 The rational map from the point (s, t) on the Montgomery curve
 B' * t^2 = s^3 + A' * s^2 + s
-to the point (x, y) on the Weierstrass curve
+to the point (x, y) on the equivalent Weierstrass curve
 y^2 = x^3 + C * x + D
 is given by:
 
@@ -2909,6 +2912,9 @@ The inverse map, from the point (x, y) to the point (s, t), is given by
 
 - s = (3 * B' * x + A') / 3
 - t = y * B'
+
+This mapping can be used to apply the Shallue-van de Woestijne method
+({{svdw}}) to Montgomery curves.
 
 # Isogeny maps for Suites {#appx-iso}
 
