@@ -984,10 +984,6 @@ Correspondingly, designers specifying a protocol that requires hashing to an ell
 should either choose an existing hash-to-curve suite or specify a new one (see {{new-suite}}).
 In addition, designers should choose a domain separation tag following the guidelines in
 {{domain-separation}}.
-Finally, it is recommended that protocol designers provide test vectors particular
-to their protocol's instantiation of the hash-to-curve suite.
-(This is because domain separation ensures orthogonality between different
-instantiations, meaning that each instantiation's test vectors will be distinct.)
 
 ## Requirements
 
@@ -1238,7 +1234,7 @@ curve and in the case of multiple hashes to different curves.
 domain separation to guarantee independent outputs.)
 
 Domain separation is enforced with a domain separation tag (DST),
-an octet string that MUST be at least 8 octets in length.
+which is an octet string.
 Care is required when selecting and using a domain separation tag.
 The following requirements apply:
 
@@ -1589,8 +1585,8 @@ hash\_to\_base function is being used.
 The mappings in this section are suitable for constructing either nonuniform
 or random oracle encodings using the constructions of {{roadmap}}.
 
-Note that mappings in this section are mutually incompatible: the point that
-results from a given input depends on the mapping being used.
+Note that mappings in this section are not interchangeable: different mappings
+will almost certainly output different points when evaluated on the same input.
 
 ## Interface
 
