@@ -1663,12 +1663,11 @@ more expensive to evaluate than the other mappings in this document.
 
 The parameterization given below works for essentially any Weierstrass curve;
 its derivation is detailed in {{W19}}.
-Fouque and Tibouchi {{FT12}} give a different parameterization of this mapping
-that works for Barreto-Naehrig pairing-friendly curves {{BN05}}, i.e.,
-curves y^2 = x^3 + B over fields of characteristic q = 1 (mod 3).
-Wahby and Boneh {{WB19}} suggest a small modification to the Fouque-Tibouchi
-parameters that results in a uniform method for handling exceptional cases;
-that method is the one used below.
+It also works for Montgomery ({{montgomery}}) and twisted Edwards ({{twisted-edwards}})
+curves via the rational maps given in {{appx-rational-map}}:
+first evaluate the Shallue-van de Woestijne mapping to the equivalent Weierstrass
+curve, then map that point to the target Montgomery or twisted Edwards curve
+using the corresponding rational map.
 
 Preconditions: A Weierstrass curve y^2 = x^3 + A * x + B over F = GF(p^m)
 where p > 5 and odd.
@@ -2259,16 +2258,10 @@ if the goal is simplicity of implementation.
 an isogeny map in addition to the mapping function, while the Shallue-van de
 Woestijne method does not.)
 
-Alternatively, if one mapping function that works with any curve is desirable,
-the Shallue-van de Woestijne method ({{svdw}}) is recommended.
-In this case, Montgomery and twisted Edwards curves are supported via the rational
-maps given in {{appx-rational-map}}:
-first evaluate the Shallue-van de Woestijne mapping to the equivalent Weierstrass
-curve, then map that point to the target Montgomery or twisted Edwards curve
-using the corresponding rational map.
-Note that while it may be convenient to use a single mapping function for all
-curves, this mapping is almost always more computationally expensive than the
-recommendations above.
+The Shallue-van de Woestijne method ({{svdw}}) works with any curve,
+and may be used in cases where a generic mapping is required.
+Note, however, that this mapping is almost always more computationally
+expensive than the curve-specific recommendations above.
 
 # Clearing the cofactor {#cofactor-clearing}
 
@@ -2803,11 +2796,15 @@ on those curves.
 Shallue and van de Woestijne {{SW06}} further generalize and simplify
 Skalba's construction, yielding concretely efficient maps to a constant
 fraction of the points on almost any curve.
-Ulas {{U07}} describes a simpler version of this map, and Brier et
-al. {{BCIMRT10}} give a further simplification, which the authors call the
-"simplified SWU" map.
-The simplified map applies only to fields of characteristic p = 3 (mod 4);
-Wahby and Boneh {{WB19}} generalize to fields of any characteristic.
+Fouque and Tibouchi {{FT12}} give a parameterization of this mapping
+for Barreto-Naehrig pairing-friendly curves {{BN05}}.
+
+Ulas {{U07}} describes a simpler version of the Shallue-van de Woestijne map,
+and Brier et al. {{BCIMRT10}} give a further simplification, which the authors
+call the "simplified SWU" map.
+That simplified map applies only to fields of characteristic p = 3 (mod 4);
+Wahby and Boneh {{WB19}} generalize to fields of any characteristic, and
+give further optimizations.
 
 Boneh and Franklin give a deterministic algorithm mapping to certain
 supersingular curves over fields of characteristic p = 2 (mod 3) {{BF01}}.
