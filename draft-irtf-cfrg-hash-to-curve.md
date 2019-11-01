@@ -2880,13 +2880,13 @@ following rational map ({{BBJLP08}}, Theorem 3.2):
 
 - A' = 2 * (a + d) / (a - d)
 - B' = 4 / (a - d)
-- s = (1 + y) / (1 - y)
-- t = (1 + y) / (x * (1 - y))
+- s = (1 + w) / (1 - w)
+- t = (1 + w) / (v * (1 - w))
 
 whose inverse is given by:
 
-- x = s / t
-- y = (s - 1) / (s + 1)
+- v = s / t
+- w = (s - 1) / (s + 1)
 
 Composing the mapping immediately above with the mapping from
 Montgomery to Weierstrass curves in {{appx-rational-map-mont}}
@@ -2905,12 +2905,12 @@ is given by:
 
 - C = (3 - A'^2) / (3 * B'^2)
 - D = (2 * A'^3 - 9 * A') / (27 * B'^3)
-- x = (3 * s - A') / (3 * B')
+- x = (3 * s + A') / (3 * B')
 - y = t / B'
 
 The inverse map, from the point (x, y) to the point (s, t), is given by
 
-- s = (3 * B' * x + A') / 3
+- s = (3 * B' * x - A') / 3
 - t = y * B'
 
 This mapping can be used to apply the Shallue-van de Woestijne method
