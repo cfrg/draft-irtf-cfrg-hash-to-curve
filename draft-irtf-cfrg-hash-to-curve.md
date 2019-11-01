@@ -1257,7 +1257,7 @@ The following requirements apply:
    For independent encodings based on the same suite, each tag should
    also include a distinct identifier, e.g., "ENC1" and "ENC2".
 
-As an example, consider a fictional key exchange protocol named Quux
+ As an example, consider a fictional protocol named Quux
 that defines several different ciphersuites.
 A reasonable choice of tag is "QUUX-V\<xx\>-CS\<yy\>", where \<xx\> and \<yy\>
 are two-digit numbers indicating the version and ciphersuite, respectively.
@@ -1583,7 +1583,9 @@ hash\_to\_base function is being used.
 # Deterministic Mappings {#mappings}
 
 The mappings in this section are suitable for constructing either nonuniform
-or random oracle encodings using the constructions of {{roadmap}}.
+ or random oracle encodings using the constructions of {{roadmap}}.
+ Certain mappings restrict the form of the curve or its parameters.
+ For each mapping presented, this document lists the relevant restrictions.
 
 Note that mappings in this section are not interchangeable: different mappings
 will almost certainly output different points when evaluated on the same input.
@@ -2363,11 +2365,11 @@ the subsection that gives the corresponding parameters.
 
 The RECOMMENDED way to define a new hash-to-curve suite is:
 
-1. E, F, p, and m are determined by the elliptic curve and the base field.
+1. E, F, p, and m are determined by the elliptic curve and the field.
 
 2. Choose a sgn0 variant following the guidelines in {{sgn0-variants}}.
 
-3. Choose hash function H meeting the requirements in {{hashtobase-sec}},
+3. Choose a hash function H meeting the requirements in {{hashtobase-sec}},
    and compute L as described in that section.
 
 4. Choose a mapping following the guidelines in {{choosing-mapping}},
@@ -2377,7 +2379,7 @@ The RECOMMENDED way to define a new hash-to-curve suite is:
    clearing method is to be used, a value appropriate to that method
    as discussed in {{cofactor-clearing}}.
 
-6. Choose a Suite ID following the guidelines in {{suiteIDformat}}.
+6. Construct a Suite ID following the guidelines in {{suiteIDformat}}.
 
 Note that when standardizing a new elliptic curve, corresponding hash-to-curve
 suites SHOULD be specified as described in this section.
