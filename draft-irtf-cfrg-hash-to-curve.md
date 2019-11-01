@@ -2154,6 +2154,8 @@ No other exceptions are possible.
 
 The following procedure implements the Elligator 2 mapping for a twisted
 Edwards curve.
+(Note that the output point is denoted (v, w) because it is a point on
+the target twisted Edwards curve.)
 
 ~~~
 map_to_curve_elligator2_edwards(u)
