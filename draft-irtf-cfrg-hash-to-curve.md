@@ -2095,8 +2095,9 @@ by the Elligator 2 mapping of {{elligator2}}.
 The rational map from the point (x, y) on this Weierstrass curve
 to the point (v, w) on the twisted Edwards curve is given by
 
+- B' = 1 / sqrt(B) = 4 / (a - d)
 - v = x / y
-- w = (B' * x - 1) / (B' * x + 1), where B' = 1 / sqrt(B) = 4 / (a - d)
+- w = (B' * x - 1) / (B' * x + 1)
 
 For completeness, we give the inverse map in {{appx-rational-map-edw}}.
 Note that the inverse map is not used when hashing to a twisted Edwards curve.
@@ -2862,14 +2863,11 @@ to the point (x, y) on the Weierstrass curve
 y^2 = x^3 + A * x^2 + B * x
 is given by:
 
-- x = (1 + w) / (B' * (1 - w))
-- y = (1 + w) / (B' * v * (1 - w))
-
-where
-
 - A = (a + d) / 2
 - B = (a - d)^2 / 16
 - B' = 1 / sqrt(B) = 4 / (a - d)
+- x = (1 + w) / (B' * (1 - w))
+- y = (1 + w) / (B' * v * (1 - w))
 
 This map is undefined when w == 1 or v == 0.
 In this case, return the point (x, y) = (0, 0).
