@@ -1590,6 +1590,40 @@ The mappings in this section are suitable for constructing either nonuniform
 Note that mappings in this section are not interchangeable: different mappings
 will almost certainly output different points when evaluated on the same input.
 
+
+## Choosing a mapping function {#choosing-mapping}
+
+This section gives brief guidelines on choosing a mapping function
+for a given elliptic curve.
+Note that the suites given in {{suites}} are recommended mappings
+for the respective curves.
+
+If the target elliptic curve is a supersingular curve supported by either the
+Boneh-Franklin method ({{bfmap}}) or the Elligator 2 method for A == 0 ({{ell2a0}}),
+that mapping is the recommended one.
+
+Otherwise, if the target elliptic curve is a Montgomery curve ({{montgomery}}),
+the Elligator 2 method ({{elligator2}}) is recommended.
+Similarly, if the target elliptic curve is a twisted Edwards curve ({{twisted-edwards}}),
+the twisted Edwards Elligator 2 method ({{ell2edwards}}) is recommended.
+
+The remaining cases are Weierstrass curves.
+For curves supported by the Simplified SWU method ({{simple-swu}}),
+that mapping is the recommended one.
+Otherwise, the Simplified SWU method for AB == 0 ({{simple-swu-AB0}})
+is recommended if the goal is best performance, while
+the Shallue-van de Woestijne method ({{svdw}}) is recommended
+if the goal is simplicity of implementation.
+(The reason for this distinction is that the Simplified SWU method for AB == 0
+requires implementing an isogeny map in addition to the mapping function, while
+the Shallue-van de Woestijne method does not.)
+
+The Shallue-van de Woestijne method ({{svdw}}) works with any curve,
+and may be used in cases where a generic mapping is required.
+Note, however, that this mapping is almost always more computationally
+expensive than the curve-specific recommendations above.
+
+
 ## Interface
 
 The generic interface shared by all mappings in this section is as follows:
@@ -2110,7 +2144,7 @@ Helper functions:
 - rational\_map is a function that takes a point (x, y) on M and
   returns a point (v, w) on E, as defined in {{rational-map}}.
 
-Sign of y and w: for this map, the sign is determined by map\_to\_curve\_elligator2.
+Sign of y (and w): for this map, the sign is determined by map\_to\_curve\_elligator2.
 No further sign adjustments are required.
 
 Exceptions: The exceptions for the Elligator 2 mapping are as given in
@@ -2230,38 +2264,6 @@ Steps:
 10.  y = CMOV(-y, y, e2)
 11. return (x, y)
 ~~~
-
-## Choosing a mapping function {#choosing-mapping}
-
-This section gives brief guidelines on choosing a mapping function
-for a given elliptic curve.
-Note that the suites given in {{suites}} are recommended mappings
-for the respective curves.
-
-If the target elliptic curve is a supersingular curve supported by either the
-Boneh-Franklin method ({{bfmap}}) or the Elligator 2 method for A == 0 ({{ell2a0}}),
-that mapping is the recommended one.
-
-Otherwise, if the target elliptic curve is a Montgomery curve ({{montgomery}}),
-the Elligator 2 method ({{elligator2}}) is recommended.
-Similarly, if the target elliptic curve is a twisted Edwards curve ({{twisted-edwards}}),
-the twisted Edwards Elligator 2 method ({{ell2edwards}}) is recommended.
-
-The remaining cases are Weierstrass curves.
-For curves supported by the Simplified SWU method ({{simple-swu}}),
-i.e., with A != 0 and B != 0, that mapping is the recommended one.
-Otherwise, the Simplified SWU method for AB == 0 ({{simple-swu-AB0}})
-is recommended if the goal is best performance, while
-the Shallue-van de Woestijne method ({{svdw}}) is recommended
-if the goal is simplicity of implementation.
-(This is because the Simplified SWU method for AB == 0 requires implementing
-an isogeny map in addition to the mapping function, while the Shallue-van de
-Woestijne method does not.)
-
-The Shallue-van de Woestijne method ({{svdw}}) works with any curve,
-and may be used in cases where a generic mapping is required.
-Note, however, that this mapping is almost always more computationally
-expensive than the curve-specific recommendations above.
 
 # Clearing the cofactor {#cofactor-clearing}
 
