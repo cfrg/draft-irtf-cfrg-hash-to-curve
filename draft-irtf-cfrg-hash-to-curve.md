@@ -1946,8 +1946,7 @@ See {{hash2curve-repo}} or {{WB19}}, Section 4.3 for details on implementing the
 ## Mappings for Montgomery curves {#montgomery}
 
 The mapping defined in {{elligator2}} implements Elligator 2 {{BHKL13}} for
-curves defined by the Weierstrass equation y^2 = x^3 + A * x^2 + B * x,
-where A * B * (A^2 - 4 * B) != 0 and A^2 - 4 * B is non-square in F.
+curves defined by the Weierstrass equation y^2 = x^3 + A * x^2 + B * x.
 
 Such a Weierstrass curve is related to the Montgomery curve
 B' * t^2 = s^3 + A' * s^2 + s by the following change of variables:
