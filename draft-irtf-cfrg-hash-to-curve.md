@@ -2378,8 +2378,8 @@ The RECOMMENDED way to define a new hash-to-curve suite is:
 
 6. Construct a Suite ID following the guidelines in {{suiteIDformat}}.
 
-Note that when standardizing a new elliptic curve, corresponding hash-to-curve
-suites SHOULD be specified as described in this section.
+When hashing to an elliptic curve not listed in this section, corresponding
+hash-to-curve suites SHOULD be specified as described in this section.
 
 ## Suite ID naming conventions {#suiteIDformat}
 
