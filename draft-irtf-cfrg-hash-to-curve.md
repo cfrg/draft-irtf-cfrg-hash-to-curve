@@ -968,6 +968,23 @@ algorithms that can plausibly be made constant time. Use of these rejection
 methods is NOT RECOMMENDED, because they have been a perennial cause of
 side-channel vulnerabilities.
 
+## How to use this document {#howto}
+
+This document is intended for use by both implementors and protocol designers.
+
+For implementors, the necessary and sufficient level of specification is
+a hash-to-curve suite, which fixes all of the parameters listed in {{suites}},
+plus a domain separation tag ({{domain-separation}}).
+Starting from working operations on the target elliptic curve and its base field,
+a hash-to-curve suite requires implementing the specified encoding function ({{roadmap}}),
+its constituent subroutines ({{hashtobase}}, {{mappings}}, {{cofactor-clearing}}), and
+a few utility functions ({{utility}}).
+
+Correspondingly, designers specifying a protocol that requires hashing to an elliptic curve
+should either choose an existing hash-to-curve suite or specify a new one (see {{new-suite}}).
+In addition, designers should choose a domain separation tag following the guidelines in
+{{domain-separation}}.
+
 ## Requirements
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
@@ -1139,8 +1156,6 @@ they ensure that queries to R1 and R2 cannot result in identical
 queries to R.
 Thus, it is safe to treat R1 and R2 as independent oracles.
 
-<!-- TODO(RSW) harmonize with S5 and S3 -->
-
 # Roadmap {#roadmap}
 
 This section presents a general framework for encoding bit strings to points
@@ -1218,6 +1233,8 @@ curve and in the case of multiple hashes to different curves.
 (This is because the hash\_to\_base primitive ({{hashtobase}}) requires
 domain separation to guarantee independent outputs.)
 
+Domain separation is enforced with a domain separation tag (DST),
+which is an octet string.
 Care is required when selecting and using a domain separation tag.
 The following requirements apply:
 
@@ -1237,8 +1254,10 @@ The following requirements apply:
    or to different curves, each encoding MUST use a different tag.
    For this purpose, it is RECOMMENDED to include the encoding's
    Suite ID ({{suites}}) in the domain separation tag.
+   For independent encodings based on the same suite, each tag should
+   also include a distinct identifier, e.g., "ENC1" and "ENC2".
 
-As an example, consider a fictional key exchange protocol named Quux
+ As an example, consider a fictional protocol named Quux
 that defines several different ciphersuites.
 A reasonable choice of tag is "QUUX-V\<xx\>-CS\<yy\>", where \<xx\> and \<yy\>
 are two-digit numbers indicating the version and ciphersuite, respectively.
@@ -1564,7 +1583,46 @@ hash\_to\_base function is being used.
 # Deterministic Mappings {#mappings}
 
 The mappings in this section are suitable for constructing either nonuniform
-or random oracle encodings using the constructions of {{roadmap}}.
+ or random oracle encodings using the constructions of {{roadmap}}.
+ Certain mappings restrict the form of the curve or its parameters.
+ For each mapping presented, this document lists the relevant restrictions.
+
+Note that mappings in this section are not interchangeable: different mappings
+will almost certainly output different points when evaluated on the same input.
+
+
+## Choosing a mapping function {#choosing-mapping}
+
+This section gives brief guidelines on choosing a mapping function
+for a given elliptic curve.
+Note that the suites given in {{suites}} are recommended mappings
+for the respective curves.
+
+If the target elliptic curve is a supersingular curve supported by either the
+Boneh-Franklin method ({{bfmap}}) or the Elligator 2 method for A == 0 ({{ell2a0}}),
+that mapping is the recommended one.
+
+Otherwise, if the target elliptic curve is a Montgomery curve ({{montgomery}}),
+the Elligator 2 method ({{elligator2}}) is recommended.
+Similarly, if the target elliptic curve is a twisted Edwards curve ({{twisted-edwards}}),
+the twisted Edwards Elligator 2 method ({{ell2edwards}}) is recommended.
+
+The remaining cases are Weierstrass curves.
+For curves supported by the Simplified SWU method ({{simple-swu}}),
+that mapping is the recommended one.
+Otherwise, the Simplified SWU method for AB == 0 ({{simple-swu-AB0}})
+is recommended if the goal is best performance, while
+the Shallue-van de Woestijne method ({{svdw}}) is recommended
+if the goal is simplicity of implementation.
+(The reason for this distinction is that the Simplified SWU method for AB == 0
+requires implementing an isogeny map in addition to the mapping function, while
+the Shallue-van de Woestijne method does not.)
+
+The Shallue-van de Woestijne method ({{svdw}}) works with any curve,
+and may be used in cases where a generic mapping is required.
+Note, however, that this mapping is almost always more computationally
+expensive than the curve-specific recommendations above.
+
 
 ## Interface
 
@@ -1625,7 +1683,7 @@ how to handle them in constant time. Note that all implementations SHOULD use
 inv0 ({{utility}}) to compute multiplicative inverses, to avoid exceptional
 cases that result from attempting to compute the inverse of 0.
 
-## Mappings for Weierstrass curves
+## Mappings for Weierstrass curves {#weierstrass}
 
 The following mappings apply to elliptic curves defined by the equation
 E: y^2 = g(x) = x^3 + A * x + B, where 4 * A^3 + 27 * B^2 != 0.
@@ -1634,17 +1692,17 @@ E: y^2 = g(x) = x^3 + A * x + B, where 4 * A^3 + 27 * B^2 != 0.
 
 Shallue and van de Woestijne {{SW06}} describe a mapping that applies to
 essentially any elliptic curve.
-This generality, however, comes at a price: this mapping is strictly
-more expensive to evaluate than the other mappings in this document.
+(Note, however, that this mapping is more expensive to evaluate than
+the other mappings in this document.)
 
-The parameterization given below works for essentially any Weierstrass curve;
+The parameterization given below is for Weierstrass curves;
 its derivation is detailed in {{W19}}.
-Fouque and Tibouchi {{FT12}} give a different parameterization of this mapping
-that works for Barreto-Naehrig pairing-friendly curves {{BN05}}, i.e.,
-curves y^2 = x^3 + B over fields of characteristic q = 1 (mod 3).
-Wahby and Boneh {{WB19}} suggest a small modification to the Fouque-Tibouchi
-parameters that results in a uniform method for handling exceptional cases;
-that method is the one used below.
+This parameterization also works for Montgomery ({{montgomery}}) and
+twisted Edwards ({{twisted-edwards}}) curves via the rational maps
+given in {{appx-rational-map}}:
+first evaluate the Shallue-van de Woestijne mapping to an equivalent Weierstrass
+curve, then map that point to the target Montgomery or twisted Edwards curve
+using the corresponding rational map.
 
 Preconditions: A Weierstrass curve y^2 = x^3 + A * x + B over F = GF(p^m)
 where p > 5 and odd.
@@ -1889,24 +1947,23 @@ See {{hash2curve-repo}} or {{WB19}}, Section 4.3 for details on implementing the
 ## Mappings for Montgomery curves {#montgomery}
 
 The mapping defined in {{elligator2}} implements Elligator 2 {{BHKL13}} for
-curves defined by the Weierstrass equation y^2 = x^3 + A * x^2 + B * x,
-where A * B * (A^2 - 4 * B) != 0 and A^2 - 4 * B is non-square in F.
+curves defined by the Weierstrass equation y^2 = x^3 + A * x^2 + B * x.
 
 Such a Weierstrass curve is related to the Montgomery curve
-B' * y'^2 = x'^3 + A' * x'^2 + x' by the following change of variables:
+B' * t^2 = s^3 + A' * s^2 + s by the following change of variables:
 
 - A = A' / B'
 - B = 1 / B'^2
-- x = x' / B'
-- y = y' / B'
+- x = s / B'
+- y = t / B'
 
 The Elligator 2 mapping given below returns a point (x, y) on the
 Weierstrass curve defined above.
-This point can be converted to a point (x', y') on the original
+This point can be converted to a point (s, t) on the original
 Montgomery curve by computing
 
-- x' = B' * x
-- y' = B' * y
+- s = B' * x
+- t = B' * y
 
 Note that when B and B' are equal to 1, the above two curve equations
 are identical and no conversion is necessary.
@@ -1979,11 +2036,11 @@ Steps:
 20. return (x, y)
 ~~~
 
-## Mappings for Twisted Edwards curves
+## Mappings for Twisted Edwards curves {#twisted-edwards}
 
 Twisted Edwards curves (a class of curves that includes Edwards curves)
 are given by the equation
-a * x^2 + y^2 = 1 + d * x^2 * y^2, with a != 0, d != 0, and a != d {{BBJLP08}}.
+a * v^2 + w^2 = 1 + d * v^2 * w^2, with a != 0, d != 0, and a != d {{BBJLP08}}.
 
 These curves are closely related to Montgomery
 curves ({{montgomery}}): every twisted Edwards curve is birationally equivalent
@@ -2027,29 +2084,30 @@ unambiguously.
 When hashing to a twisted Edwards curve that does not have a standardized
 Montgomery form or rational map, the following procedure MUST be
 used to derive them.
-For a twisted Edwards curve given by a * x^2 + y^2 = 1 + d * x^2 * y^2,
-first compute A and B, the parameters of the equivalent curve given by
-y'^2 = x'^3 + A * x'^2 + B * x', as follows:
+For a twisted Edwards curve given by a * v^2 + w^2 = 1 + d * v^2 * w^2,
+first compute A and B, the parameters of the equivalent Weierstrass
+curve given by y^2 = x^3 + A * x^2 + B * x, as follows:
 
 - A = (a + d) / 2
 - B = (a - d)^2 / 16
 
 Note that the above curve is given in the Weierstrass form required
 by the Elligator 2 mapping of {{elligator2}}.
-The rational map from the point (x', y') on this Weierstrass curve
-to the point (x, y) on the twisted Edwards curve is given by
+The rational map from the point (x, y) on this Weierstrass curve
+to the point (v, w) on the twisted Edwards curve is given by
 
-- x = x' / y'
-- y = (B' * x' - 1) / (B' * x' + 1), where B' = 1 / sqrt(B) = 4 / (a - d)
+- B' = 1 / sqrt(B) = 4 / (a - d)
+- v = x / y
+- w = (B' * x - 1) / (B' * x + 1)
 
-For completeness, we give the inverse map in {{rational-map-inverse}}.
+For completeness, we give the inverse map in {{appx-rational-map-edw}}.
 Note that the inverse map is not used when hashing to a twisted Edwards curve.
 
 Rational maps may be undefined on certain inputs, e.g., when the
 denominator of one of the rational functions is zero.
-In the map described above, the exceptional cases are y' == 0 or B' * x' == -1.
+In the map described above, the exceptional cases are y == 0 or B' * x == -1.
 Implementations MUST detect exceptional cases and return the value
-(x, y) = (0, 1), which is a valid point on all twisted Edwards curves
+(v, w) = (0, 1), which is a valid point on all twisted Edwards curves
 given by the equation above.
 
 The following straight-line implementation of the above rational map
@@ -2058,22 +2116,22 @@ Implementations of other rational maps (e.g., the ones give in {{RFC7748}})
 are analogous.
 
 ~~~
-rational_map(x', y')
-Input: (x', y'), a point on the curve y'^2 = x'^3 + A * x'^2 + B * x'.
- Output: (x, y), a point on an equivalent twisted Edwards curve.
+rational_map(x, y)
+Input: (x, y), a point on the curve y^2 = x^3 + A * x^2 + B * x.
+Output: (v, w), a point on an equivalent twisted Edwards curve.
 
-1. t1 = x' * B'
+1. t1 = x * B'
 2. t2 = t1 + 1
-3. t3 = y' * t2
+3. t3 = y * t2
 4. t3 = inv0(t3)
-5.  x = t2 * t3
-6.  x = x * x'
-7.  y = t1 - 1
-8.  y = y * y'
-9.  y = y * t3
-10. e = y == 0
-11. y = CMOV(y, 1, e)
-12. return (x, y)
+5.  v = t2 * t3
+6.  v = v * x
+7.  w = t1 - 1
+8.  w = w * y
+9.  w = w * t3
+10. e = w == 0
+11. w = CMOV(w, 1, e)
+12. return (v, w)
 ~~~
 
 ### Elligator 2 Method {#ell2edwards}
@@ -2084,10 +2142,10 @@ meeting the requirements in {{rational-map}}.
 Helper functions:
 
 - map\_to\_curve\_elligator2 is the mapping of {{elligator2}} to the curve M.
-- rational\_map is a function that takes a point (x', y') on M and
-  returns a point (x, y) on E, as defined in {{rational-map}}.
+- rational\_map is a function that takes a point (x, y) on M and
+  returns a point (v, w) on E, as defined in {{rational-map}}.
 
-Sign of y: for this map, the sign is determined by map\_to\_curve\_elligator2.
+Sign of y (and w): for this map, the sign is determined by map\_to\_curve\_elligator2.
 No further sign adjustments are required.
 
 Exceptions: The exceptions for the Elligator 2 mapping are as given in
@@ -2097,20 +2155,22 @@ No other exceptions are possible.
 
 The following procedure implements the Elligator 2 mapping for a twisted
 Edwards curve.
+(Note that the output point is denoted (v, w) because it is a point on
+the target twisted Edwards curve.)
 
 ~~~
 map_to_curve_elligator2_edwards(u)
 Input: u, an element of F.
-Output: (x, y), a point on E.
+Output: (v, w), a point on E.
 
-1. (x', y') = map_to_curve_elligator2(u)    // (x', y') is on M
-2.   (x, y) = rational_map(x', y')          // (x, y) is on E
-3. return (x, y)
+1. (x, y) = map_to_curve_elligator2(u)      // (x, y) is on M
+2. (v, w) = rational_map(x, y)              // (v, w) is on E
+3. return (v, w)
 ~~~
 
 ## Mappings for Supersingular curves
 
-### Boneh-Franklin Method {#supersingular}
+### Boneh-Franklin Method {#bfmap}
 
 The function map\_to\_curve\_bf(u) implements the Boneh-Franklin method {{BF01}} which
 covers the supersingular curves defined by y^2 = x^3 + B over a field F such
@@ -2286,9 +2346,6 @@ guidelines of {{domain-separation}}.
 In addition, applications whose security requires a random oracle MUST use
 a suite specifying hash\_to\_curve ({{roadmap}}); see {{suiteIDformat}}.
 
-When standardizing a new elliptic curve, corresponding hash-to-curve
-suites SHOULD be specified.
-
 The below table lists the curves for which suites are defined and
 the subsection that gives the corresponding parameters.
 
@@ -2301,6 +2358,29 @@ the subsection that gives the corresponding parameters.
 | curve448 / edwards448     | {{suites-448}}       |
 | secp256k1                 | {{suites-secp256k1}} |
 | BLS12-381                 | {{suites-bls12381}}  |
+
+## Defining a new hash-to-curve suite {#new-suite}
+
+The RECOMMENDED way to define a new hash-to-curve suite is:
+
+1. E, F, p, and m are determined by the elliptic curve and the field.
+
+2. Choose a sgn0 variant following the guidelines in {{sgn0-variants}}.
+
+3. Choose a hash function H meeting the requirements in {{hashtobase-sec}},
+   and compute L as described in that section.
+
+4. Choose a mapping following the guidelines in {{choosing-mapping}},
+   and select any required parameters for that mapping.
+
+5. Choose h\_eff to be either the cofactor of E or, if a fast cofactor
+   clearing method is to be used, a value appropriate to that method
+   as discussed in {{cofactor-clearing}}.
+
+6. Construct a Suite ID following the guidelines in {{suiteIDformat}}.
+
+When hashing to an elliptic curve not listed in this section, corresponding
+hash-to-curve suites SHOULD be specified as described in this section.
 
 ## Suite ID naming conventions {#suiteIDformat}
 
@@ -2721,11 +2801,15 @@ on those curves.
 Shallue and van de Woestijne {{SW06}} further generalize and simplify
 Skalba's construction, yielding concretely efficient maps to a constant
 fraction of the points on almost any curve.
-Ulas {{U07}} describes a simpler version of this map, and Brier et
-al. {{BCIMRT10}} give a further simplification, which the authors call the
-"simplified SWU" map.
-The simplified map applies only to fields of characteristic p = 3 (mod 4);
-Wahby and Boneh {{WB19}} generalize to fields of any characteristic.
+Fouque and Tibouchi {{FT12}} give a parameterization of this mapping
+for Barreto-Naehrig pairing-friendly curves {{BN05}}.
+
+Ulas {{U07}} describes a simpler version of the Shallue-van de Woestijne map,
+and Brier et al. {{BCIMRT10}} give a further simplification, which the authors
+call the "simplified SWU" map.
+That simplified map applies only to fields of characteristic p = 3 (mod 4);
+Wahby and Boneh {{WB19}} generalize to fields of any characteristic, and
+give further optimizations.
 
 Boneh and Franklin give a deterministic algorithm mapping to certain
 supersingular curves over fields of characteristic p = 2 (mod 3) {{BF01}}.
@@ -2767,36 +2851,70 @@ curves including Montgomery and twisted Edwards curves.
 Tibouchi {{T14}} and Aranha et al. {{AFQTZ14}} generalize these results.
 This document does not deal with this complementary problem.
 
-# Rational maps from twisted Edwards to Weierstrass and Montgomery curves {#rational-map-inverse}
+# Rational maps {#appx-rational-map}
+
+This section gives several useful rational maps.
+
+## Twisted Edwards to Weierstrass and Montgomery curves {#appx-rational-map-edw}
 
 The inverse of the rational map specified in {{rational-map}}, i.e.,
-the map from the point (x', y') on the Weierstrass curve
-y'^2 = x'^3 + A * x'^2 + B * x'
-to the point (x, y) on the twisted Edwards curve
-a * x^2 + y^2 = 1 + d * x^2 * y^2
+the map from the point (v, w) on the twisted Edwards curve
+a * v^2 + w^2 = 1 + d * v^2 * w^2
+to the point (x, y) on the Weierstrass curve
+y^2 = x^3 + A * x^2 + B * x
 is given by:
-
-- x' = (1 + y) / (B' * (1 - y))
-- y' = (1 + y) / (B' * x * (1 - y))
-
-where
 
 - A = (a + d) / 2
 - B = (a - d)^2 / 16
 - B' = 1 / sqrt(B) = 4 / (a - d)
+- x = (1 + w) / (B' * (1 - w))
+- y = (1 + w) / (B' * v * (1 - w))
 
-This map is undefined when y == 1 or x == 0.
-In this case, return the point (0, 0).
+This map is undefined when w == 1 or v == 0.
+In this case, return the point (x, y) = (0, 0).
 
 It may also be useful to map to a Montgomery curve
-of the form B' * y''^2 = x''^3 + A' * x''^2 + x''.
+of the form B' * t^2 = s^3 + A' * s^2 + s.
 This curve is equivalent to the twisted Edwards curve above via the
 following rational map ({{BBJLP08}}, Theorem 3.2):
 
 - A' = 2 * (a + d) / (a - d)
 - B' = 4 / (a - d)
-- x'' = (1 + y) / (1 - y)
-- y'' = (1 + y) / (x * (1 - y))
+- s = (1 + y) / (1 - y)
+- t = (1 + y) / (x * (1 - y))
+
+whose inverse is given by:
+
+- x = s / t
+- y = (s - 1) / (s + 1)
+
+Composing the mapping immediately above with the mapping from
+Montgomery to Weierstrass curves in {{appx-rational-map-mont}}
+yields a mapping from twisted Edwards curves to Weierstrass curves
+of the form required by the mappings in {{weierstrass}}.
+This mapping can be used to apply the Shallue-van de Woestijne method
+({{svdw}}) to twisted Edwards curves.
+
+## Montgomery to Weierstrass curves {#appx-rational-map-mont}
+
+The rational map from the point (s, t) on the Montgomery curve
+B' * t^2 = s^3 + A' * s^2 + s
+to the point (x, y) on the equivalent Weierstrass curve
+y^2 = x^3 + C * x + D
+is given by:
+
+- C = (3 - A'^2) / (3 * B'^2)
+- D = (2 * A'^3 - 9 * A') / (27 * B'^3)
+- x = (3 * s - A') / (3 * B')
+- y = t / B'
+
+The inverse map, from the point (x, y) to the point (s, t), is given by
+
+- s = (3 * B' * x + A') / 3
+- t = y * B'
+
+This mapping can be used to apply the Shallue-van de Woestijne method
+({{svdw}}) to Montgomery curves.
 
 # Isogeny maps for Suites {#appx-iso}
 
