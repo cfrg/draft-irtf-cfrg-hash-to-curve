@@ -103,6 +103,24 @@ def check_m2w():
     y = t / Bp
     assert 0 == M((y^2 - (x^3 + A * x + B)).numerator())
 
+def check_e2w():
+    A = (a-d)^2/16 - (a+d)^2/12
+    B = (a+d)^3/108 - 2*(a+d)*(a-d)^2/192
+    x = (1 + w) * (a - d) / (4 * (1 - w)) + (a + d) / 6
+    y = (1 + w) * (a - d) / (4 * v * (1 - w))
+    assert 0 == E((y^2 - (x^3 + A * x + B)).numerator())
+
+def check_aw2w():
+    BB = sqrtBB^2
+    A = BB - AA^2 / 3
+    B = (2 * AA^3 - 9 * AA * BB) / 27
+    x = xx + AA / 3
+    y = yy
+    assert 0 == AW((y^2 - (x^3 + A * x + B)).numerator())
+
+# NOTE: no w2aw, w2m, or w2e in the general case, because not all Weierstrass
+#       curves can be converted to a Montgomery or twisted Edwards curve
+
 if __name__ == "__main__":
     check_m2aw()
     check_aw2m()
@@ -114,5 +132,7 @@ if __name__ == "__main__":
     check_m2e()
 
     check_m2w()
+    check_e2w()
+    check_aw2w()
 
     check_edwards()
