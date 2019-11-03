@@ -54,6 +54,12 @@ def sgn0_le(x):
         sign = CMOV(sign, sign_i, sign == 0)
     return CMOV(sign, 1, sign == 0)
 
+def square_root_random_sign(x):
+    a = square_root(x)
+    if randint(0, 1) == 1:
+        return -a
+    return a
+
 # cache for per-p values
 sqrt_cache = {}
 def square_root(x):

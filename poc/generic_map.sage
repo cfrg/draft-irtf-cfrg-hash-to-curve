@@ -9,13 +9,13 @@ class GenericMap(object):
     straight_line = None
     not_straight_line = None
     sgn0 = staticmethod(sgn0_le)
-
-    def set_sgn0_help(self):
-        pass
+    sqrt = staticmethod(square_root)
 
     def set_sgn0(self, fn):
         self.sgn0 = fn
-        self.set_sgn0_help()
+
+    def set_sqrt(self, fn):
+        self.sqrt = fn
 
     def map_to_curve(self, u):
         (x1, y1) = self.straight_line(u)
@@ -53,6 +53,8 @@ class GenericMap(object):
                     A = None
             try:
                 ret = cls(F, A, B)
+                # sign of sqrt shouldn't matter --- make sure by returning random sign
+                ret.set_sqrt(square_root_random_sign)
                 # randomly pick sgn0_le or sgn0_be
                 if randint(0, 1) == 1:
                     ret.set_sgn0(sgn0_be)

@@ -31,6 +31,7 @@ class GenericSSWU(GenericMap):
         inv0 = self.inv0
         is_square = self.is_square
         sgn0 = self.sgn0
+        sqrt = self.sqrt
         u = self.F(u)
         A = self.A
         B = self.B
@@ -57,6 +58,7 @@ class GenericSSWU(GenericMap):
         inv0 = self.inv0
         is_square = self.is_square
         sgn0 = self.sgn0
+        sqrt = self.sqrt
         u = self.F(u)
         A = self.A
         B = self.B

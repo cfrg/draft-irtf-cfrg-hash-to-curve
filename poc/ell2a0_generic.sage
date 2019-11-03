@@ -24,6 +24,7 @@ class GenericEll2A0(GenericMap):
     def not_straight_line(self, u):
         is_square = self.is_square
         sgn0 = self.sgn0
+        sqrt = self.sqrt
         u = self.F(u)
         B = self.B
 

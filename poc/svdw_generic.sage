@@ -31,7 +31,8 @@ class GenericSvdW(GenericMap):
                 sqrt_zz = zz.sqrt()
                 self.undefs += [sqrt_zz, -sqrt_zz]
 
-    def set_sgn0_help(self):
+    def set_sgn0(self, fn):
+        super(GenericSvdW, self).set_sgn0(fn)
         self.c3 *= self.sgn0(self.c3)
 
     def straight_line(self, u):
@@ -39,6 +40,7 @@ class GenericSvdW(GenericMap):
         inv0 = self.inv0
         is_square = self.is_square
         sgn0 = self.sgn0
+        sqrt = self.sqrt
         c1 = self.c1
         c2 = self.c2
         c3 = self.c3
@@ -91,6 +93,7 @@ class GenericSvdW(GenericMap):
         inv0 = self.inv0
         is_square = self.is_square
         sgn0 = self.sgn0
+        sqrt = self.sqrt
         u = self.F(u)
 
         t1 = u^2 * g(Z)

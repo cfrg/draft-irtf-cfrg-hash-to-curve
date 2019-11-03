@@ -26,9 +26,10 @@ class GenericEll2(GenericMap):
             self.undefs += [ex, -ex]
 
     def not_straight_line(self, u):
-        sgn0 = self.sgn0
-        inv0 = self.inv0
         is_square = self.is_square
+        inv0 = self.inv0
+        sgn0 = self.sgn0
+        sqrt = self.sqrt
         u = self.F(u)
         A = self.A
         B = self.B
@@ -53,6 +54,7 @@ class GenericEll2(GenericMap):
     def straight_line(self, u):
         inv0 = self.inv0
         sgn0 = self.sgn0
+        sqrt = self.sqrt
         u = self.F(u)
         A = self.A
         B = self.B
