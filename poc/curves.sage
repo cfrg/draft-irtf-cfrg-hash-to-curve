@@ -16,6 +16,9 @@ class PointBase(object):
     def __mul__(self, scalar):
         return self.E.mul(self, scalar)
 
+    def __rmul__(self, scalar):
+        return self.E.mul(self, scalar)
+
     def __iter__(self):
         yield self.x
         yield self.y

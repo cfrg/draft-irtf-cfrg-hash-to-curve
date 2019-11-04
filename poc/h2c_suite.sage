@@ -13,7 +13,7 @@ except ImportError:
 
 BasicH2CSuiteDef = namedtuple("BasicH2CSuiteDef", "F Aa Bd sgn0 H L MapT h_eff is_ro dst")
 IsoH2CSuiteDef = namedtuple("IsoH2CSuiteDef", "base Ap Bp iso_map")
-MontyH2CSuiteDef = namedtuple("EdwH2CSuiteDef", "base rational_map")
+EdwH2CSuiteDef = namedtuple("EdwH2CSuiteDef", "base rational_map")
 
 class BasicH2CSuite(object):
     def __init__(self, sdef):
@@ -39,32 +39,69 @@ class BasicH2CSuite(object):
         self.is_ro = sdef.is_ro
         self.dst = sdef.dst
 
-    def hash_to_base(self, msg, ctr):
+    @staticmethod
+    def to_self(x):
+        return x
+
+    def __call__(self, msg):
+        return self.hash(msg)
+
+    def _hash_to_base(self, msg, ctr):
         xi = hash_to_base(msg, ctr, self.dst, self.p, self.m, self.L, self.H)
         return sum( a * b for (a, b) in zip(xi, self.field_gens) )
 
-    def hash(self, msg):
-        if self.is_ro:
-            return self.hash_to_curve(msg)
-        return self.encode_to_curve(msg)
+    # overridden in descendents
+    hash_to_base = _hash_to_base
 
-    def clear_cofactor(self, P):
+    def map_to_curve(self, u):
+        return self.to_self(self.m2c.map_to_curve(u))
+
+    def _hash(self, msg):
+        if self.is_ro:
+            return self._hash_to_curve(msg)
+        return self._encode_to_curve(msg)
+
+    # in descendents, test direct vs indirect hash to curve
+    def hash(self, msg):
+        res = self.to_self(self._hash(msg))
+        # double check correctness
+        if self.is_ro:
+            res2 = self.hash_to_curve(msg)
+        else:
+            res2 = self.encode_to_curve(msg)
+        assert res == res2
+        return res
+
+    def _clear_cofactor(self, P):
         return P * self.h_eff
 
-    def encode_to_curve(self, msg):
-        hash_to_base = self.hash_to_base
-        map_to_curve = self.m2c.map_to_curve
-        clear_cofactor = self.clear_cofactor
+    # may be overridden in descendents
+    clear_cofactor = _clear_cofactor
+
+    def _encode_to_curve(self, msg, hash_to_base=None, map_to_curve=None, clear_cofactor=None):
+        if hash_to_base is None:
+            hash_to_base = self._hash_to_base
+        if map_to_curve is None:
+            map_to_curve = self.m2c.map_to_curve
+        if clear_cofactor is None:
+            clear_cofactor = self._clear_cofactor
 
         u = hash_to_base(msg, 2)
         Q = map_to_curve(u)
         P = clear_cofactor(Q)
         return P
 
-    def hash_to_curve(self, msg):
-        hash_to_base = self.hash_to_base
-        map_to_curve = self.m2c.map_to_curve
-        clear_cofactor = self.clear_cofactor
+    # in descendents, automatically overrides with overridden hash_to_base, map_to_curve, clear_cofactor methods
+    def encode_to_curve(self, msg):
+        return self._encode_to_curve(msg, self.hash_to_base, self.map_to_curve, self.clear_cofactor)
+
+    def _hash_to_curve(self, msg, hash_to_base=None, map_to_curve=None, clear_cofactor=None):
+        if hash_to_base is None:
+            hash_to_base = self._hash_to_base
+        if map_to_curve is None:
+            map_to_curve = self.m2c.map_to_curve
+        if clear_cofactor is None:
+            clear_cofactor = self._clear_cofactor
 
         u0 = hash_to_base(msg, 0)
         u1 = hash_to_base(msg, 1)
@@ -73,107 +110,36 @@ class BasicH2CSuite(object):
         R = Q0 + Q1
         P = clear_cofactor(R)
         return P
+
+    # in descendents, automatically overrides with overridden hash_to_base, map_to_curve, clear_cofactor methods
+    def hash_to_curve(self, msg):
+        return self._hash_to_curve(msg, self.hash_to_base, self.map_to_curve, self.clear_cofactor)
 
 class IsoH2CSuite(BasicH2CSuite):
     def __init__(self, sdef):
         assert isinstance(sdef, IsoH2CSuiteDef)
         assert isinstance(sdef.base, BasicH2CSuiteDef)
-
-        # initialize base class
-        self.super = super(IsoH2CSuite, self)
-        self.super.__init__(sdef.base._replace(Aa=sdef.Ap, Bd=sdef.Bp))
+        super(IsoH2CSuite, self).__init__(sdef.base._replace(Aa=sdef.Ap, Bd=sdef.Bp))
 
         # check that we got a reasonable isogeny map
         self.iso_map = sdef.iso_map
         assert self.iso_map.domain() == EllipticCurve(self.F, [sdef.Ap, sdef.Bp]), "isogeny map domain mismatch"
         assert self.iso_map.codomain() == EllipticCurve(self.F, [sdef.base.Aa, sdef.base.Bd]), "isogeny map codomain mismatch"
-
-    def hash(self, msg):
-        res = self.iso_map(self.super.hash(msg))
-        # double check correctness
-        if self.is_ro:
-            res2 = self.hash_to_curve(msg)
-        else:
-            res2 = self.encode_to_curve(msg)
-        assert res == res2
-        return res
-
-    def map_to_curve(self, u):
-        return self.iso_map(self.m2c.map_to_curve(u))
-
-    def encode_to_curve(self, msg):
-        hash_to_base = self.hash_to_base
-        map_to_curve = self.map_to_curve
-        clear_cofactor = self.clear_cofactor
-
-        u = hash_to_base(msg, 2)
-        Q = map_to_curve(u)
-        P = clear_cofactor(Q)
-        return P
-
-    def hash_to_curve(self, msg):
-        hash_to_base = self.hash_to_base
-        map_to_curve = self.map_to_curve
-        clear_cofactor = self.clear_cofactor
-
-        u0 = hash_to_base(msg, 0)
-        u1 = hash_to_base(msg, 1)
-        Q0 = map_to_curve(u0)
-        Q1 = map_to_curve(u1)
-        R = Q0 + Q1
-        P = clear_cofactor(R)
-        return P
+        self.to_self = self.iso_map
 
 class MontyH2CSuite(BasicH2CSuite):
     def __init__(self, sdef):
-        assert isinstance(sdef, MontyH2CSuiteDef)
-        assert isinstance(sdef.base, BasicH2CSuiteDef)
+        assert isinstance(sdef, BasicH2CSuiteDef)
 
         # figure out mapping to required Weierstrass form and init base class
-        F = sdef.base.F
-        Ap = F(sdef.base.Aa)
-        Bp = F(sdef.base.Bd)
+        F = sdef.F
+        Ap = F(sdef.Aa)
+        Bp = F(sdef.Bd)
         A = Ap / Bp
         B = 1 / Bp^2
         self.Bp = Bp
-        self.super = super(MontyH2CSuite, self)
-        self.super.__init__(sdef.base._replace(Aa=A, Bd=B))
+        super(MontyH2CSuite, self).__init__(sdef._replace(Aa=A, Bd=B))
 
-        # set up the helper class to do point ops directly on the Monty repr
+        # helper: do point ops directly on the Monty repr
         self.monty = MontgomeryCurve(F, Ap, Bp)
-
-    def hash(self, msg):
-        res = self.monty.to_self(self.super.hash(msg))
-        # double check correctness
-        if self.is_ro:
-            res2 = self.hash_to_curve(msg)
-        else:
-            res2 = self.encode_to_curve(msg)
-        assert res == res2
-        return res
-
-    def map_to_curve(self, u):
-        return self.monty.to_self(self.m2c.map_to_curve(u))
-
-    def encode_to_curve(self, msg):
-        hash_to_base = self.hash_to_base
-        map_to_curve = self.map_to_curve
-        clear_cofactor = self.clear_cofactor
-
-        u = hash_to_base(msg, 2)
-        Q = map_to_curve(u)
-        P = clear_cofactor(Q)
-        return P
-
-    def hash_to_curve(self, msg):
-        hash_to_base = self.hash_to_base
-        map_to_curve = self.map_to_curve
-        clear_cofactor = self.clear_cofactor
-
-        u0 = hash_to_base(msg, 0)
-        u1 = hash_to_base(msg, 1)
-        Q0 = map_to_curve(u0)
-        Q1 = map_to_curve(u1)
-        R = Q0 + Q1
-        P = clear_cofactor(R)
-        return P
+        self.to_self = self.monty.to_self
