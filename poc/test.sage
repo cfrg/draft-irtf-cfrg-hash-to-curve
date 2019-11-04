@@ -13,7 +13,7 @@ try:
     from sagelib.ell2_448_opt import test_448
     from sagelib.sswu_opt import test_sswu
     from sagelib.map_check import map_check
-    from sagelib.montgomery_curve import test_montgomery_curve
+    from sagelib.curves import MontgomeryCurve, EdwardsCurve
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
@@ -22,7 +22,10 @@ if __name__ == "__main__":
     map_check()
 
     print "Testing 'native' Montgomery curve impl"
-    test_montgomery_curve()
+    MontgomeryCurve.test()
+
+    print "Testing 'native' Edwards curve impl"
+    EdwardsCurve.test()
 
     print "Testing optimized Elligator2"
     print "Testing Curve25519"

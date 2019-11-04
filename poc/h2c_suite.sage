@@ -7,7 +7,7 @@ import sys
 from hash_to_base import hash_to_base
 
 try:
-    from sagelib.montgomery_curve import MontgomeryCurve
+    from sagelib.curves import MontgomeryCurve
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
@@ -143,7 +143,7 @@ class MontyH2CSuite(BasicH2CSuite):
         self.monty = MontgomeryCurve(F, Ap, Bp)
 
     def hash(self, msg):
-        res = self.monty.to_montgomery(self.super.hash(msg))
+        res = self.monty.to_self(self.super.hash(msg))
         # double check correctness
         if self.is_ro:
             res2 = self.hash_to_curve(msg)
@@ -153,7 +153,7 @@ class MontyH2CSuite(BasicH2CSuite):
         return res
 
     def map_to_curve(self, u):
-        return self.monty.to_montgomery(self.m2c.map_to_curve(u))
+        return self.monty.to_self(self.m2c.map_to_curve(u))
 
     def encode_to_curve(self, msg):
         hash_to_base = self.hash_to_base
