@@ -1,12 +1,16 @@
 #!/usr/bin/sage
 # vim: syntax=python
 
-load("sswu_generic.sage")
-load("svdw_generic.sage")
-load("ell2_generic.sage")
-load("ell2edw_generic.sage")
-load("bf_generic.sage")
-load("ell2a0_generic.sage")
+import sys
+try:
+    from sagelib.bf_generic import GenericBF
+    from sagelib.ell2_generic import GenericEll2
+    from sagelib.ell2a0_generic import GenericEll2A0
+    from sagelib.ell2edw_generic import GenericEll2Edw
+    from sagelib.sswu_generic import GenericSSWU
+    from sagelib.svdw_generic import GenericSvdW
+except ImportError:
+    sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 if __name__ == "__main__":
     for _ in range(0, 32):

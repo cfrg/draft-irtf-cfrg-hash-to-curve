@@ -1,2 +1,4 @@
 *.sage.py
 *.pyc
+__sage__*.py
+sagelib/

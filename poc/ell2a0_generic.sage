@@ -1,8 +1,12 @@
 #!/usr/bin/sage
 # vim: syntax=python
 
-load("z_selection.sage")
-load("generic_map.sage")
+import sys
+try:
+    from sagelib.common import CMOV
+    from sagelib.generic_map import GenericMap
+except ImportError:
+    sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 class GenericEll2A0(GenericMap):
     def __init__(self, F, _, B):
@@ -59,3 +63,7 @@ class GenericEll2A0(GenericMap):
         e2 = sgn0(u) == sgn0(y)
         y = CMOV(-y, y, e2)
         return (x, y)
+
+if __name__ == "__main__":
+    for _ in range(0, 32):
+        GenericEll2A0.test_random()

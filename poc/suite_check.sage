@@ -1,16 +1,19 @@
 #!/usr/bin/sage
 # vim: syntax=python
 
-load("common.sage")
-load("z_selection.sage")
+import sys
+try:
+    from sagelib.common import sgn0_be
+    from sagelib.z_selection import find_z_sswu, find_z_svdw, find_z_ell2
+except ImportError:
+    sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 def print_neg(x):
     sign_str = "" if sgn0_be(x) == 1 else "-"
     x_str = str(min(x, -x))
-    if x.parent().degree() > 1:
+    if x.parent().degree() > 1 and sign_str == "-":
         return "%s(%s)" % (sign_str, x_str)
     return "%s%s" % (sign_str, x_str)
-
 
 # NIST P-256
 F = GF(2^256 - 2^224 + 2^192 + 2^96 - 1)

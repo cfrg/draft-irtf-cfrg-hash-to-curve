@@ -1,7 +1,11 @@
 #!/usr/bin/sage
 # vim: syntax=python
 
-load("common.sage")
+import sys
+try:
+    from sagelib.common import sgn0_be, sgn0_le, square_root, square_root_random_sign
+except ImportError:
+    sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 class GenericMap(object):
     undefs = []

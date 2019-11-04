@@ -1,8 +1,6 @@
 #!/usr/bin/sage
 # vim: syntax=python
 
-#import sage.schemes.elliptic_curves.isogeny_small_degree as isd
-
 ZZR.<XX> = PolynomialRing(ZZ)
 def show_elm(val):
     if val.parent().degree() == 1:
@@ -97,7 +95,6 @@ Bp = 1012 * (1 + II)
 Ep = EllipticCurve(F, [Ap, Bp])
 iso_kernel = [6 * (1 - II), 1]
 iso = EllipticCurveIsogeny(E=Ep, kernel=iso_kernel, codomain=E, degree=3)
-# sign convention is backwards for this isogeny... oops.
 if (- iso.rational_maps()[1])(1, 1) > iso.rational_maps()[1](1, 1):
     iso.switch_sign()
 print "** BLS12-381 G2\n"

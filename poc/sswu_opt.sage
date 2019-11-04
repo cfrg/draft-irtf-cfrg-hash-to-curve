@@ -1,7 +1,13 @@
 #!/usr/bin/sage
 # vim: syntax=python
 
-load("sswu_generic.sage")
+import sys
+try:
+    from sagelib.common import CMOV
+    from sagelib.sswu_generic import GenericSSWU
+    from sagelib.z_selection import find_z_sswu
+except ImportError:
+    sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 class OptimizedSSWU(object):
     def __init__(self, p, A, B):
@@ -24,7 +30,7 @@ class OptimizedSSWU(object):
         self.ref_map = GenericSSWU(F, self.A, self.B)
 
     def map_to_curve(self, u):
-        sgn0 = self.sgn0
+        sgn0 = self.ref_map.sgn0
         A = self.A
         B = self.B
         F = self.F

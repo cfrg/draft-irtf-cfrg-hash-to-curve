@@ -2,9 +2,14 @@
 # vim: syntax=python
 
 from collections import namedtuple
+import sys
+
 from hash_to_base import hash_to_base
 
-load("montgomery_curve.sage")
+try:
+    from sagelib.montgomery_curve import MontgomeryCurve
+except ImportError:
+    sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 BasicH2CSuiteDef = namedtuple("BasicH2CSuiteDef", "F Aa Bd sgn0 H L MapT h_eff is_ro dst")
 IsoH2CSuiteDef = namedtuple("IsoH2CSuiteDef", "base Ap Bp iso_map")

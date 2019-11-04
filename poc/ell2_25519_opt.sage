@@ -1,7 +1,12 @@
 #!/usr/bin/sage
 # vim: syntax=python
 
-load("ell2_generic.sage")
+import sys
+try:
+    from sagelib.common import CMOV, sgn0_le, square_root_random_sign
+    from sagelib.ell2_generic import GenericEll2
+except ImportError:
+    sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 p = 2^255 - 19
 F = GF(p)

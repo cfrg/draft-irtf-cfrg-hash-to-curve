@@ -1,7 +1,13 @@
 #!/usr/bin/sage
 # vim: syntax=python
 
-load("ell2_generic.sage")
+import sys
+try:
+    from sagelib.common import CMOV
+    from sagelib.ell2_generic import GenericEll2
+    from sagelib.generic_map import GenericMap
+except ImportError:
+    sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 class GenericEll2Edw(GenericMap):
     def __init__(self, F, a, d):
@@ -94,3 +100,7 @@ class GenericEll2Edw(GenericMap):
             self.test_map(*undef)
         for undef in self.ell2_map.undefs:
             self.map_to_curve(undef)
+
+if __name__ == "__main__":
+    for _ in range(0, 32):
+        GenericEll2Edw.test_random()
