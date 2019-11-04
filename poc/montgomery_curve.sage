@@ -150,7 +150,7 @@ class MontgomeryCurve(object):
         assert self.to_weierstrass(ret) == self.to_weierstrass(p) * r
         return ret
 
-def test():
+def test_montgomery_curve():
     p = random_prime(1 << 255)
     F = GF(p)
     Ap = Bp = None
@@ -192,3 +192,6 @@ def test():
         QQ = PP * r
         assert EllM.to_weierstrass(QQ) == Q
         assert EllM.to_montgomery(Q) == QQ
+
+if __name__ == "__main__":
+    test_montgomery_curve()
