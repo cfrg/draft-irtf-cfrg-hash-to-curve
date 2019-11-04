@@ -2519,7 +2519,7 @@ This section defines ciphersuites for curve25519 and edwards25519 {{RFC7748}}.
 The suites curve25519-SHA256-ELL2-RO- and curve25519-SHA256-ELL2-NU-
 share the following parameters, in addition to the common parameters below.
 
-- E: B * y^2 = x^3 + A * x^2 + x, where
+- E: B * t^2 = s^3 + A * s^2 + s, where
   - A = 486662
   - B = 1
 - f: Elligator 2 method, {{elligator2}}
@@ -2527,7 +2527,7 @@ share the following parameters, in addition to the common parameters below.
 The suites edwards25519-SHA256-EDELL2-RO- and edwards25519-SHA256-EDELL2-NU-
 share the following parameters, in addition to the common parameters below.
 
-- E: a * x^2 + y^2 = 1 + d * x^2 * y^2, where
+- E: a * v^2 + w^2 = 1 + d * v^2 * w^2, where
   - a = -1
   - d = 0x52036cee2b6ffe738cc740797779e89800700a4d4141d8ab75eb4dca135978a3
 - f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
@@ -2554,7 +2554,7 @@ This section defines ciphersuites for curve448 and edwards448 {{RFC7748}}.
 The suites curve448-SHA512-ELL2-RO- and curve448-SHA512-ELL2-NU-
 share the following parameters, in addition to the common parameters below.
 
-- E: B * y^2 = x^3 + A * x^2 + x, where
+- E: B * t^2 = s^3 + A * s^2 + s, where
   - A = 156326
   - B = 1
 - f: Elligator 2 method, {{elligator2}}
@@ -2562,7 +2562,7 @@ share the following parameters, in addition to the common parameters below.
 The suites edwards448-SHA512-EDELL2-RO- and edwards448-SHA512-EDELL2-NU-
 share the following parameters, in addition to the common parameters below.
 
-- E: a * x^2 + y^2 = 1 + d * x^2 * y^2, where
+- E: a * v^2 + w^2 = 1 + d * v^2 * w^2, where
   - a = 1
   - d = -39081
 - f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
@@ -2888,6 +2888,7 @@ This mapping can be used to apply the Shallue-van de Woestijne method
 
 The rational map from the point (s, t) on the Montgomery curve
 B' * t^2 = s^3 + A' * s^2 + s
+over a field F = GF(p^m), p > 3,
 to the point (x, y) on the equivalent Weierstrass curve
 y^2 = x^3 + C * x + D
 is given by:
