@@ -1008,9 +1008,11 @@ The following is a brief definition of elliptic curves, with an emphasis on
 important parameters and their relation to hashing to curves.
 For further reference on elliptic curves, consult {{CFADLNV05}} or {{W08}}.
 
-Let F be the finite field GF(q) of prime characteristic p. In most cases F
-is a prime field, so q = p. Otherwise, F is an extension field, so q = p^m for
-an integer m > 1. This document writes elements of extension fields
+Let F be the finite field GF(q) of prime characteristic p > 3.
+(This document does not consider elliptic curves over fields of characteristic 2 or 3.)
+In most cases F is a prime field, so q = p.
+Otherwise, F is an extension field, so q = p^m for an integer m > 1.
+This document writes elements of extension fields
 in a primitive element or polynomial basis, i.e., as a vector
 of m elements of GF(p) written in ascending order by degree.
 The entries of this vector are indexed in ascending order starting from 1,
@@ -1719,8 +1721,7 @@ first evaluate the Shallue-van de Woestijne mapping to an equivalent Weierstrass
 curve, then map that point to the target Montgomery or twisted Edwards curve
 using the corresponding rational map.
 
-Preconditions: A Weierstrass curve y^2 = x^3 + A * x + B over F = GF(p^m)
-where p > 5 and odd.
+Preconditions: A Weierstrass curve y^2 = x^3 + A * x + B.
 
 Constants:
 
@@ -1821,10 +1822,10 @@ Steps:
 The function map\_to\_curve\_simple\_swu(u) implements a simplification
 of the Shallue-van de Woestijne-Ulas mapping {{U07}} described by Brier et
 al. {{BCIMRT10}}, which they call the "simplified SWU" map. Wahby and Boneh
-{{WB19}} generalize this mapping to curves over fields of odd characteristic p > 3.
+{{WB19}} generalize and optimize this mapping.
 
-Preconditions: A Weierstrass curve y^2 = x^3 + A * x + B over F = GF(p^m)
-where p > 5 and odd, A != 0, and B != 0.
+Preconditions: A Weierstrass curve y^2 = x^3 + A * x + B,
+where A != 0 and B != 0.
 
 Constants:
 
@@ -2960,7 +2961,6 @@ The rational map from the point (s, t) on the Montgomery curve
     B' * t^2 = s^3 + A' * s^2 + s
 ~~~
 
-over a field F = GF(p^m), p > 3,
 to the point (x, y) on the equivalent Weierstrass curve
 
 ~~~
