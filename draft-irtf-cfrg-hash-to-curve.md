@@ -1125,24 +1125,24 @@ under the assumption that random oracles answer only queries generated
 by that protocol.
 In practice, this assumption does not hold if two protocols query the
 same random oracle.
-Concretely, consider protocols P1 and P2 that query random oracle R:
-if P1 and P2 both query R on the same value x, the security analysis of
+Concretely, consider protocols P1 and P2 that query random oracle RO:
+if P1 and P2 both query RO on the same value x, the security analysis of
 one or both protocols may be invalidated.
 
 A common approach to addressing this issue is called domain separation,
 which allows a single random oracle to simulate multiple, independent oracles.
 This is effected by ensuring that each simulated oracle sees queries that are
 distinct from those seen by all other simulated oracles.
-For example, to simulate two oracles R1 and R2 given a single oracle R,
+For example, to simulate two oracles RO1 and RO2 given a single oracle RO,
 one might define
 
-    R1(x) := R("R1" || x)
-    R2(x) := R("R2" || x)
+    RO1(x) := RO("RO1" || x)
+    RO2(x) := RO("RO2" || x)
 
-In this example, "R1" and "R2" are called domain separation tags;
-they ensure that queries to R1 and R2 cannot result in identical
-queries to R.
-Thus, it is safe to treat R1 and R2 as independent oracles.
+In this example, "RO1" and "RO2" are called domain separation tags;
+they ensure that queries to RO1 and RO2 cannot result in identical
+queries to RO.
+Thus, it is safe to treat RO1 and RO2 as independent oracles.
 
 # Roadmap {#roadmap}
 
@@ -3620,8 +3620,8 @@ Procedure:
 3.  s = s * x
 4.  b = t
 5.  c = c5
-6.  for k in (c1, c1 - 1, ..., 2):
-7.      for j in (1, 2, ..., k - 2):
+6.  for i in (c1, c1 - 1, ..., 2):
+7.      for j in (1, 2, ..., i - 2):
 8.           b = b * b
 9.      s = CMOV(s, s * c, b != 1)
 10.     c = c * c
