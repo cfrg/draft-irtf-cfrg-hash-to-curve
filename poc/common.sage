@@ -5,9 +5,9 @@ def CMOV(x, y, b):
     """
     Returns x if b=False; otherwise returns y
     """
-    return int(not(bool(b)))*x + int(bool(b))*y
+    return int(not bool(b))*x + int(bool(b))*y
 
-ZZR.<XX> = PolynomialRing(ZZ)
+ZZR = PolynomialRing(ZZ, name='XX')
 def sgn0_be(x):
     """
     Returns -1 if x is 'negative', else 1.
@@ -56,7 +56,7 @@ def sgn0_le(x):
 
 def square_root_random_sign(x):
     a = square_root(x)
-    if randint(0, 1) == 1:
+    if a is not None and randint(0, 1) == 1:
         return -a
     return a
 
@@ -106,7 +106,7 @@ def tonelli_shanks_ct(x):
     if sqrt_cache.get(p) is None:
         ts_precompute(p, F)
 
-    (q, m, z, c) = sqrt_cache[p]
+    (q, m, c) = sqrt_cache[p]
     r = x ** ((q - 1) // 2)
     t = r * r * x
     r *= x
@@ -121,8 +121,6 @@ def tonelli_shanks_ct(x):
         b = t
 
     if r ** 2 == x:
-        sqrt_x = x.sqrt()
-        assert r == sqrt_x or r == -sqrt_x
         return r
     assert not x.is_square()
     return None
@@ -139,4 +137,19 @@ def ts_precompute(p, F):
         z += 1
     c = z ** q
     assert p == q * 2**m + 1
-    sqrt_cache[p] = (q, m, z, c)
+    sqrt_cache[p] = (q, m, c)
+
+def test_ts():
+    for _ in range(0, 128):
+        p = random_prime(1 << 256)
+        F = GF(p)
+        for _ in range(0, 256):
+            x = F.random_element()
+            a = tonelli_shanks_ct(x)
+            if not x.is_square():
+                assert a is None
+            else:
+                assert a^2 == x
+
+if __name__ == "__main__":
+    test_ts()

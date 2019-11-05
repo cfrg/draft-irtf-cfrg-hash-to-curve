@@ -4,6 +4,7 @@
 import sys
 try:
     from sagelib.bf_generic import GenericBF
+    from sagelib.common import test_ts
     from sagelib.ell2_generic import GenericEll2
     from sagelib.ell2a0_generic import GenericEll2A0
     from sagelib.ell2edw_generic import GenericEll2Edw
@@ -18,6 +19,9 @@ except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 if __name__ == "__main__":
+    print "Testing Tonelli-Shanks"
+    test_ts()
+
     print "Checking maps"
     map_check()
 
