@@ -57,6 +57,7 @@ class GenericEll2(GenericMap):
 
     def straight_line(self, u):
         inv0 = self.inv0
+        is_square = self.is_square
         sgn0 = self.sgn0
         sqrt = self.sqrt
         u = self.F(u)
