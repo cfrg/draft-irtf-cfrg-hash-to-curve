@@ -1304,9 +1304,6 @@ is_square(x) := { True,  if x^((q - 1) / 2) is 0 or 1 in F;
     Throughout the document, sgn0 is used generically to mean either of these variants.
     Each suite in {{suites}} specifies the sgn0 variant to be used.
 
--   abs(x): The absolute value of x is defined in terms of sgn0
-    in the natural way, namely, abs(x) := sgn0(x) * x.
-
 -   inv0(x): This function returns the multiplicative inverse of x in F,
     extended to all of F by fixing inv0(0) == 0.
     To implement inv0 in constant time, compute inv0(x) := x^(q - 2).
@@ -1617,7 +1614,7 @@ expensive than the curve-specific recommendations above.
 The generic interface shared by all mappings in this section is as follows:
 
 ~~~
-(x, y) = map_to_curve(u)
+    (x, y) = map_to_curve(u)
 ~~~
 
 The input u and outputs x and y are elements of the field F.
@@ -1674,7 +1671,12 @@ cases that result from attempting to compute the inverse of 0.
 ## Mappings for Weierstrass curves {#weierstrass}
 
 The following mappings apply to elliptic curves defined by the equation
-E: y^2 = g(x) = x^3 + A * x + B, where 4 * A^3 + 27 * B^2 != 0.
+
+~~~
+    y^2 = g(x) = x^3 + A * x + B
+~~~
+
+where 4 * A^3 + 27 * B^2 != 0.
 
 ### Shallue-van de Woestijne Method {#svdw}
 
@@ -1886,10 +1888,10 @@ Weierstrass curves having A == 0 or B == 0, which the mapping of
 This method applies to curves like secp256k1 {{SEC2}} and to pairing-friendly
 curves in the Barreto-Lynn-Scott {{BLS03}}, Barreto-Naehrig {{BN05}}, and other families.
 
-This method requires finding another elliptic curve
+This method requires finding another elliptic curve E' given by the equation
 
 ~~~
-E': y^2 = g'(x) = x^3 + A' * x + B'
+    y'^2 = g'(x') = x'^3 + A' * x' + B'
 ~~~
 
 that is isogenous to E and has A' != 0 and B' != 0.
@@ -1909,7 +1911,7 @@ the resulting points on E', and then applying iso\_map to the sum.
 This gives the same result while requiring only one evaluation of iso\_map.
 
 Preconditions: An elliptic curve E' with A' != 0 and B' != 0 that is
-isogenous to the target curve E with isogeny map iso\_map(x, y) from
+isogenous to the target curve E with isogeny map iso\_map from
 E' to E.
 
 Helper functions:
@@ -1936,10 +1938,20 @@ See {{hash2curve-repo}} or {{WB19}}, Section 4.3 for details on implementing the
 ## Mappings for Montgomery curves {#montgomery}
 
 The mapping defined in {{elligator2}} implements Elligator 2 {{BHKL13}} for
-curves defined by the Weierstrass equation y^2 = x^3 + A * x^2 + B * x.
+curves defined by the Weierstrass equation
 
-Such a Weierstrass curve is related to the Montgomery curve
-B' * t^2 = s^3 + A' * s^2 + s by the following change of variables:
+~~~
+    y^2 = x^3 + A * x^2 + B * x
+~~~
+
+(Note that this equation is different from the one used in {{weierstrass}}.)
+This Weierstrass curve is related to the Montgomery curve
+
+~~~
+    B' * t^2 = s^3 + A' * s^2 + s
+~~~
+
+by the following change of variables:
 
 - A = A' / B'
 - B = 1 / B'^2
@@ -2029,13 +2041,18 @@ Steps:
 
 Twisted Edwards curves (a class of curves that includes Edwards curves)
 are given by the equation
-a * v^2 + w^2 = 1 + d * v^2 * w^2, with a != 0, d != 0, and a != d {{BBJLP08}}.
+
+~~~
+    a * v^2 + w^2 = 1 + d * v^2 * w^2
+~~~
+
+with a != 0, d != 0, and a != d {{BBJLP08}}.
 
 These curves are closely related to Montgomery
 curves ({{montgomery}}): every twisted Edwards curve is birationally equivalent
 to a Montgomery curve ({{BBJLP08}}, Theorem 3.2).
 This equivalence yields an efficient way of hashing to a twisted Edwards curve:
-first, hash to the equivalent Montgomery curve, then transform the
+first, hash to an equivalent Montgomery curve, then transform the
 result into a point on the twisted Edwards curve via a rational map.
 This method of hashing to a twisted Edwards curve thus requires identifying a
 corresponding Montgomery curve and rational map.
@@ -2162,12 +2179,17 @@ Output: (v, w), a point on E.
 ### Boneh-Franklin Method {#bfmap}
 
 The function map\_to\_curve\_bf(u) implements the Boneh-Franklin method {{BF01}} which
-covers the supersingular curves defined by y^2 = x^3 + B over a field F such
-that q = 2 (mod 3).
+covers the supersingular curves defined by
 
-Preconditions: A supersingular curve over F such that q = 2 (mod 3).
+~~~
+    y^2 = x^3 + B
+~~~
 
-Constants: B, the parameter of the supersingular curve.
+over a field F = GF(q), q = 2 (mod 3).
+
+Preconditions: A curve whose equation and base field meet the requirements immediately above.
+
+Constants: B, the parameter of the curve.
 
 Sign of y: determined by sign of u. No adjustments are necessary.
 
@@ -2176,9 +2198,9 @@ Exceptions: none.
 Operations:
 
 ~~~
-1. w = (2 * q - 1) / 3    // Integer arithmetic
-2. x = (u^2 - B)^w
-3. y = u
+1. t1 = (2 * q - 1) / 3   // Integer arithmetic
+2.  x = (u^2 - B)^t1
+3.  y = u
 4. return (x, y)
 ~~~
 
@@ -2206,9 +2228,15 @@ Steps:
 ### Elligator 2, A == 0 Method {#ell2a0}
 
 The function map\_to\_curve\_ell2A0(u) implements an adaptation of Elligator 2
-{{BLMP19}} targeting curves given by y^2 = x^3 + B * x over F such that q = 3 (mod 4).
+{{BLMP19}} targeting curves given by
 
-Preconditions: An elliptic curve over F such that q = 3 (mod 4).
+~~~
+    y^2 = x^3 + B * x
+~~~
+
+over F = GF(q), q = 3 (mod 4).
+
+Preconditions: A curve whose equation and base field meet the requirements immediately above.
 
 Constants: B, the parameter of the elliptic curve.
 
@@ -2291,7 +2319,7 @@ The clear\_cofactor function is parameterized by a scalar h\_eff.
 Specifically,
 
 ~~~
-clear_cofactor(P) := h_eff * P
+    clear_cofactor(P) := h_eff * P
 ~~~
 
 where \* represents scalar multiplication.
@@ -2848,9 +2876,17 @@ This section gives several useful rational maps.
 
 The inverse of the rational map specified in {{rational-map}}, i.e.,
 the map from the point (v, w) on the twisted Edwards curve
-a * v^2 + w^2 = 1 + d * v^2 * w^2
+
+~~~
+    a * v^2 + w^2 = 1 + d * v^2 * w^2
+~~~
+
 to the point (x, y) on the Weierstrass curve
-y^2 = x^3 + A * x^2 + B * x
+
+~~~
+    y^2 = x^3 + A * x^2 + B * x
+~~~
+
 is given by:
 
 - A = (a + d) / 2
@@ -2859,11 +2895,18 @@ is given by:
 - x = (1 + w) / (B' * (1 - w))
 - y = (1 + w) / (B' * v * (1 - w))
 
-This map is undefined when w == 1 or v == 0.
-In this case, return the point (x, y) = (0, 0).
+This map is undefined when v == 0 or w == 1.
+If (v, w) = (0, -1), return the point (x, y) = (0, 0).
+Otherwise, return the identity point on the Weierstrass curve.
+(This follows from {{BBJLP08}}, Section 3.)
 
 It may also be useful to map to a Montgomery curve
-of the form B' * t^2 = s^3 + A' * s^2 + s.
+of the form
+
+~~~
+    B' * t^2 = s^3 + A' * s^2 + s
+~~~
+
 This curve is equivalent to the twisted Edwards curve above via the
 following rational map ({{BBJLP08}}, Theorem 3.2):
 
@@ -2887,10 +2930,18 @@ This mapping can be used to apply the Shallue-van de Woestijne method
 ## Montgomery to Weierstrass curves {#appx-rational-map-mont}
 
 The rational map from the point (s, t) on the Montgomery curve
-B' * t^2 = s^3 + A' * s^2 + s
+
+~~~
+    B' * t^2 = s^3 + A' * s^2 + s
+~~~
+
 over a field F = GF(p^m), p > 3,
 to the point (x, y) on the equivalent Weierstrass curve
-y^2 = x^3 + C * x + D
+
+~~~
+    y^2 = x^3 + C * x + D
+~~~
+
 is given by:
 
 - C = (3 - A'^2) / (3 * B'^2)
@@ -3089,7 +3140,7 @@ Specifically, each mapping function in this section has the following
 signature:
 
 ~~~
-(xn, xd, yn, nd) = map_to_curve(u)
+    (xn, xd, yn, nd) = map_to_curve(u)
 ~~~
 
 The resulting point (x, y) is given by (xn / xd, yn / yd).
