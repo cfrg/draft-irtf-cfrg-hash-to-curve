@@ -3141,9 +3141,8 @@ Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on the target curve.
 
 Constants: defined per curve; see above.
-1.  c1 = B / 3
-2.  c2 = (p - 3) / 4           // Integer arithmetic
-3.  c3 = sqrt(-Z^3)
+1.  c1 = (p - 3) / 4           // Integer arithmetic
+2.  c2 = sqrt(-Z^3)
 
 Steps:
 1.   t1 = u^2
@@ -3166,10 +3165,10 @@ Steps:
 18.  t4 = gxd^2
 19.  t2 = gx1 * gxd
 20.  t4 = t4 * t2              // gx1 * gxd^3
-21.  y1 = t4^c2                // (gx1 * gxd^3)^((p - 3) / 4)
+21.  y1 = t4^c1                // (gx1 * gxd^3)^((p - 3) / 4)
 22.  y1 = y1 * t2              // gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
 23. x2n = t3 * x1n             // x2 = x2n / xd = -10 * u^2 * x1n / xd
-24.  y2 = y1 * c3              // y2 = y1 * sqrt(-Z^3)
+24.  y2 = y1 * c2              // y2 = y1 * sqrt(-Z^3)
 25.  y2 = y2 * t1
 26.  y2 = y2 * u
 27.  t2 = y1^2
