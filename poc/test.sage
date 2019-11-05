@@ -15,6 +15,8 @@ try:
     from sagelib.sswu_opt import test_sswu
     from sagelib.map_check import map_check
     from sagelib.curves import MontgomeryCurve, EdwardsCurve
+    from sagelib.suite_25519 import test_suite_25519
+    from sagelib.suite_448 import test_suite_448
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
@@ -45,3 +47,9 @@ if __name__ == "__main__":
         print "Testing %s" % m.__name__
         for _ in range(0, 32):
             m.test_random()
+
+    print "Testing curve25519/edwards25519 suites"
+    test_suite_25519()
+
+    print "Testing curve448/edwards448 suites"
+    test_suite_448()
