@@ -1729,20 +1729,21 @@ to invert this product are exception free.
 Operations:
 
 ~~~
-1. t1 = u^2 * g(Z)
-2. t2 = 1 + t1
-3. t1 = 1 - t1
-4. t3 = inv0(t1 * t2)
-5. t4 = u * t1 * t3 * sqrt(-g(Z) * (3 * Z^2 + 4 * A))
-6. x1 = -Z / 2 - t4
-7. x2 = -Z / 2 + t4
-8. t5 = 2 * t2^2 * t3 * sqrt(-g(Z) / (3 * Z^2 + 4 * A))
-9. x3 = Z + t5^2
-10. If is_square(g(x1)), set x = x1 and y = sqrt(g(x1))
-11. Else If is_square(g(x2)), set x = x2 and y = sqrt(g(x2))
-12. Else set x = x3 and y = sqrt(g(x3))
-13. If sgn0(u) != sgn0(y), set y = -y
-14. return (x, y)
+1.  t1 = u^2 * g(Z)
+2.  t2 = 1 + t1
+3.  t1 = 1 - t1
+4.  t3 = inv0(t1 * t2)
+5.  t4 = sqrt(-g(Z) * (3 * Z^2 + 4 * A))
+6.  t4 = t4 * sgn0(t4)                          // sgn0(t4) MUST equal 1
+7.  t5 = u * t1 * t3 * t4
+8.  x1 = -Z / 2 - t5
+9.  x2 = -Z / 2 + t5
+10. x3 = Z - 4 * g(Z) * (t2^2 * t3)^2 / (3 * Z^2 + 4 * A)
+11. If is_square(g(x1)), set x = x1 and y = sqrt(g(x1))
+12. Else If is_square(g(x2)), set x = x2 and y = sqrt(g(x2))
+13. Else set x = x3 and y = sqrt(g(x3))
+14. If sgn0(u) != sgn0(y), set y = -y
+15. return (x, y)
 ~~~
 
 #### Implementation
