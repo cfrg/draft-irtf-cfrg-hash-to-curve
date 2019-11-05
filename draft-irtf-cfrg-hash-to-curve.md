@@ -55,27 +55,15 @@ normative:
   RFC8017:
   RFC7748:
 informative:
-  draft-yonezawa-pfc-01:
-    title: Pairing-friendly Curves
-    target: https://datatracker.ietf.org/doc/draft-yonezawa-pairing-friendly-curves/
-    date: March 11, 2019
+  BLS12-381:
+    target: https://electriccoin.co/blog/new-snark-curve/
+    title: "BLS12-381: New zk-SNARK Elliptic Curve Construction"
+    date: Mar, 2017
     author:
       -
-        ins: S. Yonezawa
-        name: Shoko Yonezawa
-        org: Lepidum
-      -
-        ins: S. Chikara
-        name: Sakae Chikara
-        org: NTT TechnoCross
-      -
-        ins: T. Kobayashi
-        name: Tetsutaro Kobayashi
-        org: NTT
-      -
-        ins: T. Saito
-        name: Tsunekazu Saito
-        org: NTT
+        ins: S. Bowe
+        name: Sean Bowe
+        org: Electric Coin Company
   SEC1:
     title: "SEC 1: Elliptic Curve Cryptography"
     target: http://www.secg.org/sec1-v2.pdf
@@ -2630,7 +2618,7 @@ to the curve E' isogenous to secp256k1 is given in {{sswu-map-to-3mod4}}.
 ## Suites for BLS12-381 {#suites-bls12381}
 
 This section defines ciphersuites for groups G1 and G2 of
-the BLS12-381 elliptic curve {{draft-yonezawa-pfc-01}}.
+the BLS12-381 elliptic curve {{BLS12-381}}.
 
 ### BLS12-381 G1 {#suites-bls12381-g1}
 
