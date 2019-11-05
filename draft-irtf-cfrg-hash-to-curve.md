@@ -3461,6 +3461,9 @@ This section gives Sage {{SAGE}} scripts used to generate parameters for the map
 The below function outputs an appropriate Z for the Shallue and van de Woestijne map ({{svdw}}).
 
 ~~~sage
+# Arguments:
+# - F, a field object, e.g., F = GF(2^521 - 1)
+# - A and B, the coefficients of the curve equation y^2 = x^3 + A * x + B
 def find_z_svdw(F, A, B):
     g = lambda x: F(x)^3 + F(A) * F(x) + F(B)
     h = lambda Z: -(F(3) * Z^2 + F(4) * A) / (F(4) * g(Z))
