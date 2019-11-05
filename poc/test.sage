@@ -17,6 +17,12 @@ try:
     from sagelib.curves import MontgomeryCurve, EdwardsCurve
     from sagelib.suite_25519 import test_suite_25519
     from sagelib.suite_448 import test_suite_448
+    from sagelib.suite_p256 import test_suite_p256
+    from sagelib.suite_p384 import test_suite_p384
+    from sagelib.suite_p521 import test_suite_p521
+    from sagelib.suite_secp256k1 import test_suite_secp256k1
+    from sagelib.suite_bls12381g1 import test_suite_bls12381g1
+    from sagelib.suite_bls12381g2 import test_suite_bls12381g2
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
@@ -53,3 +59,21 @@ if __name__ == "__main__":
 
     print "Testing curve448/edwards448 suites"
     test_suite_448()
+
+    print "Testing P256 suites"
+    test_suite_p256()
+
+    print "Testing P384 suites"
+    test_suite_p384()
+
+    print "Testing P521 suites"
+    test_suite_p521()
+
+    print "Testing secp256k1 suites"
+    test_suite_secp256k1()
+
+    print "Testing BLS12-381 G1 suites"
+    test_suite_bls12381g1()
+
+    print "Testing BLS12-381 G2 suites"
+    test_suite_bls12381g2()

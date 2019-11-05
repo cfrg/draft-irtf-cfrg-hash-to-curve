@@ -41,6 +41,9 @@ monty_suite = BasicH2CSuiteDef(F, Ap, Bp, sgn0_le, hashlib.sha256, 48, None, 8, 
 edw_suite = EdwH2CSuiteDef(monty_suite._replace(Aa=a, Bd=d), Ap, Bp, m2e_25519)
 edw_hash = EdwH2CSuite(edw_suite)
 monty_hash = MontyH2CSuite(monty_suite)
+assert edw_hash.m2c.Z == 2
+assert monty_hash.m2c.Z == 2
+
 group_order = 2^252 + 0x14def9dea2f79cd65812631a5cf5d3ed
 
 def test_suite_25519():
