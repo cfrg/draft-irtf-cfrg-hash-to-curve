@@ -2958,6 +2958,8 @@ following rational map ({{BBJLP08}}, Theorem 3.2):
 
 whose inverse is given by:
 
+- a = (J + 2) / K
+- d = (J - 2) / K
 - v = V / W
 - w = (V - 1) / (V + 1)
 

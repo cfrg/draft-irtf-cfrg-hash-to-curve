@@ -34,89 +34,88 @@ def check_edwards():
 # https://eprint.iacr.org/2008/013
 
 # Montgomery curve equation
-Rm.<s,t,Ap,Bp> = QQ[]
-Monty = (Bp * t^2) - (s^3 + Ap * s^2 + s)
-M = Rm.quotient(Monty)
+Rm.<V,W,J,K> = QQ[]
+Monty = lambda V, W, J, K: K * W^2 - (V^3 + J * V^2 + V)
+MC = Rm.quotient(Monty(V, W, J, K))
 
-# Weierstrass curve equation
+# Short Weierstrass curve equation
 Rw.<x,y,A,B> = QQ[]
-Weier = y^2 - (x^3 + A * x + B)
-W = Rw.quotient(Weier)
+SWeier = lambda x, y, A, B: y^2 - (x^3 + A * x + B)
+SWC = Rw.quotient(SWeier(x, y, A, B))
 
-# Alt Weierstrass curve equation (used by Elligator)
-Raw.<xx,yy,AA,sqrtBB> = QQ[]
-AWeier = yy^2 - (xx^3 + AA * xx^2 + sqrtBB^2 * xx)
-AW = Raw.quotient(AWeier)
+# Long Weierstrass curve equation (used by Elligator)
+Raw.<X,Y,C,sqrtD> = QQ[]
+LWeier = lambda X, Y, C, sqrtD: Y^2 - (X^3 + C * X^2 + sqrtD^2 * X)
+LWC = Raw.quotient(LWeier(X, Y, C, sqrtD))
 
 # Edwards curve equation
 Re.<v,w,a,d> = QQ[]
-Edw = a * v^2 + w^2 - (1 + d * v^2 * w^2)
-E = Re.quotient(Edw)
+Edw = lambda v, w, a, d: a * v^2 + w^2 - (1 + d * v^2 * w^2)
+TEC = Re.quotient(Edw(v, w, a, d))
 
 def check_m2aw():
-    AA = Ap/Bp
-    sqrtBB = 1/Bp
-    xx = s/Bp
-    yy = t/Bp
-    assert 0 == M((yy^2 - (xx^3 + AA * xx^2 + sqrtBB^2 * xx)).numerator())
+    C = J / K
+    sqrtD = 1 / K
+    X = V / K
+    Y = W / K
+    assert 0 == MC(LWeier(X, Y, C, sqrtD).numerator())
 
 def check_aw2m():
-    Ap = AA / sqrtBB
-    Bp = 1 / sqrtBB
-    s = xx / sqrtBB
-    t = yy / sqrtBB
-    assert 0 == AW((Bp * t^2 - (s^3 + Ap * s^2 + s)).numerator())
+    J = C / sqrtD
+    K = 1 / sqrtD
+    V = X / sqrtD
+    W = Y / sqrtD
+    assert 0 == LWC(Monty(V, W, J, K).numerator())
 
 def check_e2aw():
-    AA = (a + d) / 2
-    sqrtBB = (a - d) / 4
-    Bp = 1 / sqrtBB
-    xx = (1 + w) / (Bp * (1 - w))
-    yy = (1 + w) / (Bp * v * (1 - w))
-    assert 0 == E((yy^2 - (xx^3 + AA * xx^2 + sqrtBB^2 * xx)).numerator())
+    C = (a + d) / 2
+    invSqrtD = 4 / (a - d)
+    X = (1 + w) / (invSqrtD * (1 - w))
+    Y = (1 + w) / (invSqrtD * v * (1 - w))
+    assert 0 == TEC(LWeier(X, Y, C, 1 / invSqrtD).numerator())
 
 def check_aw2e():
-    a = AA + 2 * sqrtBB
-    d = AA - 2 * sqrtBB
-    v = xx / yy
-    w = (xx - sqrtBB) / (xx + sqrtBB)
-    assert 0 == AW((a * v^2 + w^2 - (1 + d * v^2 * w^2)).numerator())
+    a = C + 2 * sqrtD
+    d = C - 2 * sqrtD
+    v = X / Y
+    w = (X / sqrtD - 1) / (X / sqrtD + 1)
+    assert 0 == LWC(Edw(v, w, a, d).numerator())
 
 def check_e2m():
-    Ap = 2 * (a + d) / (a - d)
-    Bp = 4 / (a - d)
-    s = (1 + w) / (1 - w)
-    t = (1 + w) / (v * (1 - w))
-    assert 0 == E((Bp * t^2 - (s^3 + Ap * s^2 + s)).numerator())
+    J = 2 * (a + d) / (a - d)
+    K = 4 / (a - d)
+    V = (1 + w) / (1 - w)
+    W = (1 + w) / (v * (1 - w))
+    assert 0 == TEC(Monty(V, W, J, K).numerator())
 
 def check_m2e():
-    a = (Ap + 2) / Bp
-    d = (Ap - 2) / Bp
-    v = s / t
-    w = (s - 1) / (s + 1)
-    assert 0 == M((a * v^2 + w^2 - (1 + d * v^2 * w^2)).numerator())
+    a = (J + 2) / K
+    d = (J - 2) / K
+    v = V / W
+    w = (V - 1) / (V + 1)
+    assert 0 == MC(Edw(v, w, a, d).numerator())
 
 def check_m2w():
-    A = (3 - Ap^2) / (3 * Bp^2)
-    B = (2 * Ap^3 - 9 * Ap) / (27 * Bp^3)
-    x = (3 * s + Ap) / (3 * Bp)
-    y = t / Bp
-    assert 0 == M((y^2 - (x^3 + A * x + B)).numerator())
+    A = (3 - J^2) / (3 * K^2)
+    B = (2 * J^3 - 9 * J) / (27 * K^3)
+    x = (3 * V + J) / (3 * K)
+    y = W / K
+    assert 0 == MC(SWeier(x, y, A, B).numerator())
 
 def check_e2w():
     A = (a-d)^2/16 - (a+d)^2/12
     B = (a+d)^3/108 - 2*(a+d)*(a-d)^2/192
     x = (1 + w) * (a - d) / (4 * (1 - w)) + (a + d) / 6
     y = (1 + w) * (a - d) / (4 * v * (1 - w))
-    assert 0 == E((y^2 - (x^3 + A * x + B)).numerator())
+    assert 0 == TEC(SWeier(x, y, A, B).numerator())
 
 def check_aw2w():
-    BB = sqrtBB^2
-    A = BB - AA^2 / 3
-    B = (2 * AA^3 - 9 * AA * BB) / 27
-    x = xx + AA / 3
-    y = yy
-    assert 0 == AW((y^2 - (x^3 + A * x + B)).numerator())
+    D = sqrtD^2
+    A = D - C^2 / 3
+    B = (2 * C^3 - 9 * C * D) / 27
+    x = X + C / 3
+    y = Y
+    assert 0 == LWC(SWeier(x, y, A, B).numerator())
 
 # NOTE: no w2aw, w2m, or w2e in the general case, because not all Weierstrass
 #       curves can be converted to a Montgomery or twisted Edwards curve
