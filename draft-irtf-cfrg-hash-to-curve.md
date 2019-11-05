@@ -1611,7 +1611,7 @@ Note that the suites given in {{suites}} are recommended mappings
 for the respective curves.
 
 If the target elliptic curve is a supersingular curve supported by either the
-Boneh-Franklin method ({{bfmap}}) or the Elligator 2 method for A == 0 ({{ell2a0}}),
+Boneh-Franklin method ({{bfmap}}) or the Elligator 2 method for C == 0 ({{ell2c0}}),
 that mapping is the recommended one.
 
 Otherwise, if the target elliptic curve is a Montgomery curve ({{montgomery}}),
@@ -1652,7 +1652,7 @@ used instead.
 
 ## Notation
 
-As a rough style guide the following convention is used:
+As a rough guide, the following conventions are used in pseudocode:
 
 - All arithmetic operations are performed over a field F, unless
   explicitly stated otherwise.
@@ -1660,12 +1660,10 @@ As a rough style guide the following convention is used:
 - u: the input to the mapping function.
   This is an element of F produced by the hash\_to\_base function.
 
-- (x, y): are the affine coordinates of the point output by the mapping.
-  Indexed values are used when the algorithm calculates some candidate values.
+- (x, y): the affine coordinates of the point output by the mapping.
+  Indexed variables (e.g., x1, y2, ...) are used for candidate values.
 
-- t1, t2, ...: are reusable temporary variables. For notable variables,
-    distinct names are used easing the debugging process when correlating with
-    test vectors.
+- t1, t2, ...: are reusable temporary variables.
 
 - c1, c2, ...: are constant values, which can be computed in advance.
 
@@ -1824,8 +1822,7 @@ of the Shallue-van de Woestijne-Ulas mapping {{U07}} described by Brier et
 al. {{BCIMRT10}}, which they call the "simplified SWU" map. Wahby and Boneh
 {{WB19}} generalize and optimize this mapping.
 
-Preconditions: A Weierstrass curve y^2 = x^3 + A * x + B,
-where A != 0 and B != 0.
+Preconditions: A Weierstrass curve y^2 = x^3 + A * x + B where A != 0 and B != 0.
 
 Constants:
 
@@ -1967,62 +1964,62 @@ The mapping defined in {{elligator2}} implements Elligator 2 {{BHKL13}} for
 curves defined by the Weierstrass equation
 
 ~~~
-    y^2 = x^3 + A * x^2 + B * x
+    Y^2 = X^3 + C * X^2 + D * X
 ~~~
 
 (Note that this equation is different from the one used in {{weierstrass}}.)
-This Weierstrass curve is related to the Montgomery curve
+This Weierstrass curve is equivalent to the Montgomery curve
 
 ~~~
-    B' * t^2 = s^3 + A' * s^2 + s
+    K * W^2 = V^3 + J * V^2 + V
 ~~~
 
 by the following change of variables:
 
-- A = A' / B'
-- B = 1 / B'^2
-- x = s / B'
-- y = t / B'
+- C = J / K
+- D = 1 / K^2
+- X = V / K
+- Y = W / K
 
-The Elligator 2 mapping given below returns a point (x, y) on the
+The Elligator 2 mapping given below returns a point (X, Y) on the
 Weierstrass curve defined above.
-This point can be converted to a point (s, t) on the original
+This point can be converted to a point (V, W) on the equivalent
 Montgomery curve by computing
 
-- s = B' * x
-- t = B' * y
+- V = K * X
+- W = K * Y
 
-Note that when B and B' are equal to 1, the above two curve equations
+Note that when D == K == 1, the above two curve equations
 are identical and no conversion is necessary.
 This is the case, for example, for Curve25519 and Curve448 {{RFC7748}}.
 
 ### Elligator 2 Method {#elligator2}
 
-Preconditions: A Weierstrass curve y^2 = x^3 + A * x^2 + B * x
-where A != 0, B != 0, and A^2 - 4 * B is non-zero and non-square in F.
+Preconditions: A Weierstrass curve Y^2 = X^3 + C * X^2 + D * X
+where C != 0, D != 0, and C^2 - 4 * D is non-zero and non-square in F.
 
 Constants:
 
-- A and B, the parameters of the elliptic curve.
+- C and D, the parameters of the elliptic curve.
 
 - Z, a non-square element of F.
   {{elligator-z-code}} gives a Sage {{SAGE}} script that outputs the RECOMMENDED Z.
 
-Sign of y: Inputs u and -u give the same x-coordinate.
-Thus, we set sgn0(y) == sgn0(u).
+Sign of Y: Inputs u and -u give the same x-coordinate.
+Thus, we set sgn0(Y) == sgn0(u).
 
 Exceptions: The exceptional case is Z * u^2 == -1, i.e., 1 + Z * u^2 == 0.
-Implementations must detect this case and set x1 = -A.
+Implementations must detect this case and set x1 = -C.
 Note that this can only happen when q = 3 (mod 4).
 
 Operations:
 
 ~~~
-1.  x1 = -A * inv0(1 + Z * u^2)
-2.  If x1 == 0, set x1 = -A.
-3. gx1 = x1^3 + A * x1^2 + B * x1
-4.  x2 = -x1 - A
-5. gx2 = x2^3 + A * x2^2 + B * x2
+1.  x1 = -C * inv0(1 + Z * u^2)
+2.  If x1 == 0, set x1 = -C.
+3. gx1 = x1^3 + C * x1^2 + D * x1
+4.  x2 = -x1 - C
+5. gx2 = x2^3 + C * x2^2 + D * x2
 6.  If is_square(gx1), set x = x1 and y = sqrt(gx1)
 7.  Else set x = x2 and y = sqrt(gx2)
 8.  If sgn0(u) != sgn0(y), set y = -y
@@ -2047,12 +2044,12 @@ Steps:
 4.   t1 = CMOV(t1, 0, e1)     // if t1 == -1, set t1 = 0
 5.   x1 = t1 + 1
 6.   x1 = inv0(x1)
-7.   x1 = -A * x1             // x1 = -A / (1 + Z * u^2)
-8.  gx1 = x1 + A
+7.   x1 = -C * x1             // x1 = -C / (1 + Z * u^2)
+8.  gx1 = x1 + C
 9.  gx1 = gx1 * x1
-10. gx1 = gx1 + B
-11. gx1 = gx1 * x1            // gx1 = x1^3 + A * x1^2 + B * x1
-12.  x2 = -x1 - A
+10. gx1 = gx1 + D
+11. gx1 = gx1 * x1            // gx1 = x1^3 + C * x1^2 + D * x1
+12.  x2 = -x1 - C
 13. gx2 = t1 * gx1
 14.  e2 = is_square(gx1)
 15.   x = CMOV(x2, x1, e2)    // If is_square(gx1), x = x1, else x = x2
@@ -2116,31 +2113,42 @@ unambiguously.
 When hashing to a twisted Edwards curve that does not have a standardized
 Montgomery form or rational map, the following procedure MUST be
 used to derive them.
-For a twisted Edwards curve given by a * v^2 + w^2 = 1 + d * v^2 * w^2,
-first compute A and B, the parameters of the equivalent Weierstrass
-curve given by y^2 = x^3 + A * x^2 + B * x, as follows:
+For a twisted Edwards curve given by
 
-- A = (a + d) / 2
-- B = (a - d)^2 / 16
+~~~
+    a * v^2 + w^2 = 1 + d * v^2 * w^2
+~~~
 
-Note that the above curve is given in the Weierstrass form required
-by the Elligator 2 mapping of {{elligator2}}.
-The rational map from the point (x, y) on this Weierstrass curve
+first compute C and D, the parameters of the equivalent Weierstrass
+curve given by
+
+~~~
+    Y^2 = X^3 + C * X^2 + D * X
+~~~
+
+as follows:
+
+- C = (a + d) / 2
+- D = (a - d)^2 / 16
+
+(Note that the above curve is given in the Weierstrass form required
+by the Elligator 2 mapping of {{elligator2}}.)
+The rational map from the point (X, Y) on this Weierstrass curve
 to the point (v, w) on the twisted Edwards curve is given by
 
-- B' = 1 / sqrt(B) = 4 / (a - d)
-- v = x / y
-- w = (B' * x - 1) / (B' * x + 1)
+- invSqrtD = 4 / (a - d)
+- v = X / Y
+- w = (invSqrtD * X - 1) / (invSqrtD * X + 1)
 
-For completeness, we give the inverse map in {{appx-rational-map-edw}}.
-Note that the inverse map is not used when hashing to a twisted Edwards curve.
+(For completeness, we give the inverse map in {{appx-rational-map-edw}}.
+Note that the inverse map is not used when hashing to a twisted Edwards curve.)
 
 Rational maps may be undefined on certain inputs, e.g., when the
 denominator of one of the rational functions is zero.
-In the map described above, the exceptional cases are y == 0 or B' * x == -1.
+In the map described above, the exceptional cases are Y == 0 or invSqrtD * X == -1.
 Implementations MUST detect exceptional cases and return the value
-(v, w) = (0, 1), which is a valid point on all twisted Edwards curves
-given by the equation above.
+(v, w) = (0, 1), which is a valid point (in fact, the identity point {{BBJLP08}})
+on all twisted Edwards curves given by the equation above.
 
 The following straight-line implementation of the above rational map
 handles the exceptional cases.
@@ -2149,10 +2157,10 @@ are analogous.
 
 ~~~
 rational_map(x, y)
-Input: (x, y), a point on the curve y^2 = x^3 + A * x^2 + B * x.
+Input: (x, y), a point on the curve Y^2 = X^3 + C * X^2 + D * X.
 Output: (v, w), a point on an equivalent twisted Edwards curve.
 
-1. t1 = x * B'
+1. t1 = x * invSqrtD
 2. t2 = t1 + 1
 3. t3 = y * t2
 4. t3 = inv0(t3)
@@ -2174,10 +2182,10 @@ meeting the requirements in {{rational-map}}.
 Helper functions:
 
 - map\_to\_curve\_elligator2 is the mapping of {{elligator2}} to the curve M.
-- rational\_map is a function that takes a point (x, y) on M and
+- rational\_map is a function that takes a point (X, Y) on M and
   returns a point (v, w) on E, as defined in {{rational-map}}.
 
-Sign of y (and w): for this map, the sign is determined by map\_to\_curve\_elligator2.
+Sign of Y (and v): for this map, the sign is determined by map\_to\_curve\_elligator2.
 No further sign adjustments are required.
 
 Exceptions: The exceptions for the Elligator 2 mapping are as given in
@@ -2251,20 +2259,27 @@ Steps:
 5. return (x, y)
 ~~~
 
-### Elligator 2, A == 0 Method {#ell2a0}
+### Elligator 2, C == 0 Method {#ell2c0}
 
 The function map\_to\_curve\_ell2A0(u) implements an adaptation of Elligator 2
-{{BLMP19}} targeting curves given by
+{{BLMP19}} targeting curves given by the Weierstrass equation
 
 ~~~
-    y^2 = x^3 + B * x
+    Y^2 = X^3 + D * X
 ~~~
 
 over F = GF(q), q = 3 (mod 4).
+This method also works for curves given by the Montgomery equation
+
+~~~
+    K * W^2 = V^3 + V
+~~~
+
+via the change of variables given in {{montgomery}}.
 
 Preconditions: A curve whose equation and base field meet the requirements immediately above.
 
-Constants: B, the parameter of the elliptic curve.
+Constants: D, the parameter of the elliptic curve.
 
 Sign of y: Inputs u and -u give the same x-coordinate.
 Thus, we set sgn0(y) == sgn0(u).
@@ -2275,7 +2290,7 @@ Operations:
 
 ~~~
 1.  x1 = u
-2. gx1 = x1^3 + B * x1
+2. gx1 = x1^3 + D * x1
 3.  x2 = -x1
 4. gx2 = -gx1
 5. If is_square(gx1), set x = x1 and y = sqrt(gx1)
@@ -2286,11 +2301,11 @@ Operations:
 
 #### Implementation
 
-The following procedure implements the Elligator 2 mapping for A == 0
+The following procedure implements the Elligator 2 mapping for C == 0
 in a straight-line fashion.
 
 ~~~
-map_to_curve_ell2A0(u)
+map_to_curve_ell2C0(u)
 Input: u, an element of F.
 Output: (x, y), a point on E.
 
@@ -2301,8 +2316,8 @@ Steps:
 1.  x1 = u
 2.  x2 = -x1
 3. gx1 = x1^2
-4. gx1 = gx1 + B
-5. gx1 = gx1 * x1           // gx1 = x1^3 + B * x1
+4. gx1 = gx1 + D
+5. gx1 = gx1 * x1           // gx1 = x1^3 + D * x1
 6.   y = gx1^c1             // This is either sqrt(gx1) or sqrt(gx2)
 7.  e1 = (y^2) == gx1
 8.   x = CMOV(x2, x1, e1)
@@ -2573,9 +2588,9 @@ This section defines ciphersuites for curve25519 and edwards25519 {{RFC7748}}.
 The suites curve25519-SHA256-ELL2-RO- and curve25519-SHA256-ELL2-NU-
 share the following parameters, in addition to the common parameters below.
 
-- E: B * t^2 = s^3 + A * s^2 + s, where
-  - A = 486662
-  - B = 1
+- E: K * W^2 = V^3 + J * V^2 + V, where
+  - J = 486662
+  - K = 1
 - f: Elligator 2 method, {{elligator2}}
 
 The suites edwards25519-SHA256-EDELL2-RO- and edwards25519-SHA256-EDELL2-NU-
@@ -2608,9 +2623,9 @@ This section defines ciphersuites for curve448 and edwards448 {{RFC7748}}.
 The suites curve448-SHA512-ELL2-RO- and curve448-SHA512-ELL2-NU-
 share the following parameters, in addition to the common parameters below.
 
-- E: B * t^2 = s^3 + A * s^2 + s, where
-  - A = 156326
-  - B = 1
+- E: K * W^2 = V^3 + J * V^2 + V, where
+  - J = 156326
+  - K = 1
 - f: Elligator 2 method, {{elligator2}}
 
 The suites edwards448-SHA512-EDELL2-RO- and edwards448-SHA512-EDELL2-NU-
@@ -2907,22 +2922,22 @@ the map from the point (v, w) on the twisted Edwards curve
     a * v^2 + w^2 = 1 + d * v^2 * w^2
 ~~~
 
-to the point (x, y) on the Weierstrass curve
+to the point (X, Y) on the Weierstrass curve
 
 ~~~
-    y^2 = x^3 + A * x^2 + B * x
+    Y^2 = X^3 + C * X^2 + D * X
 ~~~
 
 is given by:
 
-- A = (a + d) / 2
-- B = (a - d)^2 / 16
-- B' = 1 / sqrt(B) = 4 / (a - d)
-- x = (1 + w) / (B' * (1 - w))
-- y = (1 + w) / (B' * v * (1 - w))
+- C = (a + d) / 2
+- D = (a - d)^2 / 16
+- invSqrtD = 4 / (a - d)
+- X = (1 + w) / (invSqrtD * (1 - w))
+- Y = (1 + w) / (invSqrtD * v * (1 - w))
 
 This map is undefined when v == 0 or w == 1.
-If (v, w) = (0, -1), return the point (x, y) = (0, 0).
+If (v, w) = (0, -1), return the point (X, Y) = (0, 0).
 Otherwise, return the identity point on the Weierstrass curve.
 (This follows from {{BBJLP08}}, Section 3.)
 
@@ -2930,21 +2945,21 @@ It may also be useful to map to a Montgomery curve
 of the form
 
 ~~~
-    B' * t^2 = s^3 + A' * s^2 + s
+    K * W^2 = V^3 + J * V^2 + V
 ~~~
 
 This curve is equivalent to the twisted Edwards curve above via the
 following rational map ({{BBJLP08}}, Theorem 3.2):
 
-- A' = 2 * (a + d) / (a - d)
-- B' = 4 / (a - d)
-- s = (1 + w) / (1 - w)
-- t = (1 + w) / (v * (1 - w))
+- J = 2 * (a + d) / (a - d)
+- K = 4 / (a - d)
+- V = (1 + w) / (1 - w)
+- W = (1 + w) / (v * (1 - w))
 
 whose inverse is given by:
 
-- v = s / t
-- w = (s - 1) / (s + 1)
+- v = V / W
+- w = (V - 1) / (V + 1)
 
 Composing the mapping immediately above with the mapping from
 Montgomery to Weierstrass curves in {{appx-rational-map-mont}}
@@ -2955,29 +2970,29 @@ This mapping can be used to apply the Shallue-van de Woestijne method
 
 ## Montgomery to Weierstrass curves {#appx-rational-map-mont}
 
-The rational map from the point (s, t) on the Montgomery curve
+The rational map from the point (V, W) on the Montgomery curve
 
 ~~~
-    B' * t^2 = s^3 + A' * s^2 + s
+    K * W^2 = V^3 + J * V^2 + V
 ~~~
 
 to the point (x, y) on the equivalent Weierstrass curve
 
 ~~~
-    y^2 = x^3 + C * x + D
+    y^2 = x^3 + A * x + B
 ~~~
 
 is given by:
 
-- C = (3 - A'^2) / (3 * B'^2)
-- D = (2 * A'^3 - 9 * A') / (27 * B'^3)
-- x = (3 * s + A') / (3 * B')
-- y = t / B'
+- A = (3 - J^2) / (3 * K^2)
+- B = (2 * J^3 - 9 * J) / (27 * K^3)
+- x = (3 * V + J) / (3 * K)
+- y = W / K
 
-The inverse map, from the point (x, y) to the point (s, t), is given by
+The inverse map, from the point (x, y) to the point (V, W), is given by
 
-- s = (3 * B' * x - A') / 3
-- t = y * B'
+- V = (3 * K * x - J) / 3
+- W = y * K
 
 This mapping can be used to apply the Shallue-van de Woestijne method
 ({{svdw}}) to Montgomery curves.
