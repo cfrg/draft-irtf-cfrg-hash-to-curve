@@ -1,11 +1,21 @@
 #!/usr/bin/sage
 # vim: syntax=python
 
+load("common.sage")
+
 class GenericMap(object):
     undefs = []
     F = None
     straight_line = None
     not_straight_line = None
+    sgn0 = staticmethod(sgn0_le)
+
+    def set_sgn0_help(self):
+        pass
+
+    def set_sgn0(self, fn):
+        self.sgn0 = fn
+        self.set_sgn0_help()
 
     def map_to_curve(self, u):
         (x1, y1) = self.straight_line(u)
@@ -43,6 +53,9 @@ class GenericMap(object):
                     A = None
             try:
                 ret = cls(F, A, B)
+                # randomly pick sgn0_le or sgn0_be
+                if randint(0, 1) == 1:
+                    ret.set_sgn0(sgn0_be)
             except:
                 # constructor threw exception
                 continue

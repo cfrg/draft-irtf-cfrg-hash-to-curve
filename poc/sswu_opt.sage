@@ -24,6 +24,7 @@ class OptimizedSSWU(object):
         self.ref_map = GenericSSWU(F, self.A, self.B)
 
     def map_to_curve(self, u):
+        sgn0 = self.sgn0
         A = self.A
         B = self.B
         F = self.F

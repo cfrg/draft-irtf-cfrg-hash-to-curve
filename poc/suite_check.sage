@@ -5,7 +5,7 @@ load("common.sage")
 load("z_selection.sage")
 
 def print_neg(x):
-    sign_str = "" if sgn0(x) == 1 else "-"
+    sign_str = "" if sgn0_be(x) == 1 else "-"
     x_str = str(min(x, -x))
     if x.parent().degree() > 1:
         return "%s(%s)" % (sign_str, x_str)

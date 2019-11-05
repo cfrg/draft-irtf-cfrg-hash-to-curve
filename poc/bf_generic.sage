@@ -1,7 +1,6 @@
 #!/usr/bin/sage
 # vim: syntax=python
 
-load("common.sage")
 load("z_selection.sage")
 load("generic_map.sage")
 

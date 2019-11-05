@@ -58,11 +58,12 @@ class GenericEll2Edw(GenericMap):
 
     def sl_map(self, x, y):
         Bp = self.Bp
+        inv0 = self.inv0
 
         t1 = x * Bp
         t2 = t1 + 1
         t3 = y * t2
-        t3 = self.inv0(t3)
+        t3 = inv0(t3)
         v = t2 * t3
         v = v * x
         w = t1 - 1

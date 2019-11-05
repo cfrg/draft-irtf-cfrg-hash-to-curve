@@ -8,6 +8,8 @@ F = GF(p)
 A = F(486662)
 B = F(1)
 ref_map = GenericEll2(F, A, B)
+sgn0 = sgn0_le
+ref_map.set_sgn0(sgn0)
 
 def map_to_curve_elligator2_curve25519(u):
     c1 = (p + 3) // 8

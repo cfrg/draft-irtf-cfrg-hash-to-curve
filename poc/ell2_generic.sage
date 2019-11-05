@@ -26,17 +26,21 @@ class GenericEll2(GenericMap):
             self.undefs += [ex, -ex]
 
     def not_straight_line(self, u):
+        sgn0 = self.sgn0
+        inv0 = self.inv0
+        is_square = self.is_square
         u = self.F(u)
         A = self.A
         B = self.B
         Z = self.Z
-        x1 = -A * self.inv0(1 + Z * u^2)
+
+        x1 = -A * inv0(1 + Z * u^2)
         if x1 == 0:
             x1 = -A
         gx1 = x1^3 + A * x1^2 + B * x1
         x2 = -x1 - A
         gx2 = x2^3 + A * x2^2 + B * x2
-        if self.is_square(gx1):
+        if is_square(gx1):
             x = x1
             y = sqrt(gx1)
         else:
@@ -47,6 +51,8 @@ class GenericEll2(GenericMap):
         return (x, y)
 
     def straight_line(self, u):
+        inv0 = self.inv0
+        sgn0 = self.sgn0
         u = self.F(u)
         A = self.A
         B = self.B
@@ -57,7 +63,7 @@ class GenericEll2(GenericMap):
         e1 = t1 == -1               # detect exceptional case
         t1 = CMOV(t1, 0, e1)        # if t1 == -1, set t1 = 0
         x1 = t1 + 1
-        x1 = self.inv0(x1)
+        x1 = inv0(x1)
         x1 = -A * x1                # x1 = -A / (1 + Z * u^2)
         gx1 = x1 + A
         gx1 = gx1 * x1
@@ -65,7 +71,7 @@ class GenericEll2(GenericMap):
         gx1 = gx1 * x1              # gx1 = x1^3 + A * x1^2 + B * x1
         x2 = -x1 - A
         gx2 = t1 * gx1
-        e2 = self.is_square(gx1)
+        e2 = is_square(gx1)
         x = CMOV(x2, x1, e2)        # If is_square(gx1), x = x1, else x = x2
         y2 = CMOV(gx2, gx1, e2)     # If is_square(gx1), y2 = gx1, else y2 = gx2
         y = sqrt(y2)
