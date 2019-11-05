@@ -994,8 +994,8 @@ in a primitive element or polynomial basis, i.e., as a vector
 of m elements of GF(p) written in ascending order by degree.
 The entries of this vector are indexed in ascending order starting from 1,
 i.e., x = (x\_1, x\_2, ..., x\_m).
-For example, if q = p^2 and the primitive element basis is (1, i),
-then x = (a, b) corresponds to the element a + b * i, where
+For example, if q = p^2 and the primitive element basis is (1, I),
+then x = (a, b) corresponds to the element a + b * I, where
 x\_1 = a and x\_2 = b.
 
 An elliptic curve E is specified by an equation in two variables and a
