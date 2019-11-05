@@ -2,6 +2,9 @@
 # vim: syntax=python
 
 import sys
+
+from hash_to_base import test_hkdf
+
 try:
     from sagelib.bf_generic import GenericBF
     from sagelib.common import test_ts
@@ -27,6 +30,9 @@ except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 if __name__ == "__main__":
+    print "Testing hkdf"
+    test_hkdf()
+
     print "Testing Tonelli-Shanks"
     test_ts()
 

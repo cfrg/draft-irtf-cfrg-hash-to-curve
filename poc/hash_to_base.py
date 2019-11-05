@@ -55,7 +55,7 @@ def hkdf_expand(prk, info, length, hash_fn):
         okm += last
     return okm[:length]
 
-# from draft-irtf-cfrg-hash-to-curve
+# from draft-irtf-cfrg-hash-to-curve-05
 def hash_to_base(msg, ctr, dst, modulus, degree, blen, hash_fn):
     rets = [None] * degree
     msg_prime = hkdf_extract(dst, msg + '\x00', hash_fn)
@@ -66,7 +66,7 @@ def hash_to_base(msg, ctr, dst, modulus, degree, blen, hash_fn):
         rets[i] = OS2IP(t) % modulus
     return rets
 
-def test():
+def test_hkdf():
     # test cases from RFC5869
     test_cases = [ ( hashlib.sha256
                    , '\x0b' * 22
@@ -132,4 +132,4 @@ def test():
         assert op == o, "okm mismatch"
 
 if __name__ == "__main__":
-    test()
+    test_hkdf()
