@@ -813,6 +813,27 @@ informative:
         ins: J. F. Voloch
         name: J. Felipe Voloch
         org: University of Texas
+  MRH04:
+    title: "Indifferentiability, impossibility results on reductions, and applications to the random oracle methodology"
+    seriesinfo:
+      "In": "TCC 2004: Theory of Cryptography"
+      "pages": 21-39
+      DOI: 10.1007/978-3-540-24638-1_2
+    target: https://doi.org/10.1007/978-3-540-24638-1_2
+    date: Feb, 2004
+    author:
+      -
+        ins: U. Maurer
+        name: Ueli Maurer
+        org: ETH Zurich
+      -
+        ins: R. Renner
+        name: Renato Renner
+        org: ETH Zurich
+      -
+        ins: C. Holenstein
+        name: Clemens Holenstein
+        org: ETH Zurich
   S85:
     title: Elliptic Curves Over Finite Fields and the Computation of Square Roots mod p
     seriesinfo:
@@ -1098,12 +1119,16 @@ Because in general the mapping is not surjective, the output of this
 construction is distinguishable from uniformly random, i.e., it does
 not behave like a random oracle.
 
-Brier et al. {{BCIMRT10}} describe two generic constructions whose outputs are
-indifferentiable from a random oracle when the constructions are instantiated
-with appropriate hash functions modeled as random oracles.
+Brier et al. {{BCIMRT10}} describe two generic methods for constructing
+random oracle encodings.
 Farashahi et al. {{FFSTV13}} and Tibouchi and Kim {{TK17}} refine the analysis
 of one of these constructions.
 That construction is described in {{roadmap}}.
+
+(In more detail: both constructions are
+indifferentiable from a random oracle {{MRH04}} when instantiated
+with appropriate hash functions modeled as random oracles.
+See {{security-considerations}} for further discussion.)
 
 ### Serialization {#term-serialization}
 
@@ -2723,7 +2748,7 @@ Budroni and Pintore ({{BP18}}, Section 4.1).
 
 This document has no IANA actions.
 
-# Security Considerations
+# Security Considerations {#security-considerations}
 
 When constant-time implementations are required, all basic operations and
 utility functions must be implemented in constant time, as discussed in
@@ -2743,7 +2768,7 @@ for random oracle encodings.
 
 When the hash\_to\_curve function ({{roadmap}}) is instantiated
 with hash\_to\_base ({{hashtobase}}), the resulting function is
-indifferentiable from a random oracle.
+indifferentiable from a random oracle ({{FFSTV13}}, {{LBB19}}, {{MRH04}}).
 In most cases such a function can be safely used in protocols whose security
 analysis assumes a random oracle that outputs points on an elliptic curve.
 As Ristenpart et al. discuss in {{RSS11}}, however, not all security proofs
