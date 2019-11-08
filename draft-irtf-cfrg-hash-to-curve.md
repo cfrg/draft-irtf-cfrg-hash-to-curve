@@ -3478,7 +3478,6 @@ sqrt_3mod4(x)
 Parameters:
 - F, a finite field of characteristic p and order q = p^m.
 - p, the characteristic of F (see immediately above).
-- m, the extension degree of F, m >= 1 (see immediately above).
 
 Input: x, an element of F.
 Output: s, an element of F such that (s^2) == x.
@@ -3498,7 +3497,6 @@ sqrt_5mod8(x)
 Parameters:
 - F, a finite field of characteristic p and order q = p^m.
 - p, the characteristic of F (see immediately above).
-- m, the extension degree of F, m >= 1 (see immediately above).
 
 Input: x, an element of F.
 Output: s, an element of F such that (s^2) == x.
@@ -3525,7 +3523,6 @@ sqrt_9mod16(x)
 Parameters:
 - F, a finite field of characteristic p and order q = p^m.
 - p, the characteristic of F (see immediately above).
-- m, the extension degree of F, m >= 1 (see immediately above).
 
 Input: x, an element of F.
 Output: s, an element of F such that (s^2) == x.
@@ -3583,7 +3580,7 @@ Procedure:
 3.  r = r * x
 4.  b = t
 5.  c = c5
-6.  for k in (m, m - 1, ..., 2):
+6.  for k in (c1, c1 - 1, ..., 2):
 7.      for j in (1, 2, ..., k - 1):
 8.           b = b * b
 9.      r = CMOV(r, r * c, b != 1)
