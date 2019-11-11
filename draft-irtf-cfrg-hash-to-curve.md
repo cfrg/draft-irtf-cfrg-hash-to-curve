@@ -3565,7 +3565,7 @@ Parameters:
 - p, the characteristic of F (see immediately above)
 
 Input x, an element of F.
-Output: r, an element of F such that (r^2) == 2.
+Output: s, an element of F such that s^2 == x, if x is a square in F.
 
 Constants (see discussion below):
 1. c1, the largest integer such that 2^c1 divides p - 1.
@@ -3575,19 +3575,19 @@ Constants (see discussion below):
 5. c5 = c4^c2 in F
 
 Procedure:
-1.  r = x^c3
-2.  t = r * r * x
-3.  r = r * x
+1.  s = x^c3
+2.  t = s * s * x
+3.  s = s * x
 4.  b = t
 5.  c = c5
 6.  for k in (c1, c1 - 1, ..., 2):
 7.      for j in (1, 2, ..., k - 1):
 8.           b = b * b
-9.      r = CMOV(r, r * c, b != 1)
+9.      s = CMOV(s, s * c, b != 1)
 10.     c = c * c
 11.     t = CMOV(t, t * c, b != 1)
 12.     b = t
-13. return r
+13. return s
 ~~~
 
 The constants used in this procedure can be computed as follows:
