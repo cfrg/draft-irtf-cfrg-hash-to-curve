@@ -3581,7 +3581,7 @@ Procedure:
 4.  b = t
 5.  c = c5
 6.  for k in (c1, c1 - 1, ..., 2):
-7.      for j in (1, 2, ..., k - 1):
+7.      for j in (1, 2, ..., k - 2):
 8.           b = b * b
 9.      s = CMOV(s, s * c, b != 1)
 10.     c = c * c
