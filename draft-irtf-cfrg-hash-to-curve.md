@@ -1391,7 +1391,7 @@ Steps:
 ### Little endian variant {#sgn0-le}
 
 The following sgn0 variant is defined such that sgn0\_le(x) = -1
-just when x != 0 and the parity of the smallest-degree nonzero
+just when x != 0 and the parity of the least significant nonzero
 entry of the vector representation of x is 1.
 
 This variant SHOULD be used when points on the target elliptic curve are serialized
