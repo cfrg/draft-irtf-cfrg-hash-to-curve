@@ -1346,10 +1346,10 @@ It is convenient for hash-to-curve and decompression to agree on a notion of
 sign, since this may permit simpler implementations.
 
 See {{bg-curves}} for a discussion of representing elements of extension fields
-in polynomial basis; this representation is used in both of the sgn0 variants below.
+as vectors; this representation is used in both of the sgn0 variants below.
 
 Note that any valid sgn0 function for extension fields must iterate over
-all vector entries of the input element.
+the entire vector representation of the input element.
 To see why, imagine a function sgn0\* that ignores the final entry in its
 input vector, and consider a field element x = (0, x\_2).
 Since sgn0\* ignores x\_2, sgn0\*(x) == sgn0\*(-x), which is incorrect
@@ -1377,7 +1377,7 @@ Parameters:
 Input: x, an element of F.
 Output: -1 or 1 (an integer).
 
-Notation: x_i is the i^th element of the polynomial representation of x.
+Notation: x_i is the i^th element of the vector representation of x.
 
 Steps:
 1. sign = 0
@@ -1392,7 +1392,7 @@ Steps:
 
 The following sgn0 variant is defined such that sgn0\_le(x) = -1
 just when x != 0 and the parity of the smallest-degree nonzero
-entry of the polynomial representation of x is 1.
+entry of the vector representation of x is 1.
 
 This variant SHOULD be used when points on the target elliptic curve are serialized
 using any of the following methods:
@@ -1415,7 +1415,7 @@ Parameters:
 Input: x, an element of F.
 Output: -1 or 1 (an integer).
 
-Notation: x_i is the i^th element of the polynomial representation of x.
+Notation: x_i is the i^th element of the vector representation of x.
 
 Steps:
 1. sign = 0
