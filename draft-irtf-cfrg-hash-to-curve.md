@@ -1971,23 +1971,23 @@ curves defined by the Weierstrass equation
 This Weierstrass curve is equivalent to the Montgomery curve
 
 ~~~
-    K * W^2 = V^3 + J * V^2 + V
+    K * t^2 = s^3 + J * s^2 + s
 ~~~
 
 by the following change of variables:
 
 - C = J / K
 - D = 1 / K^2
-- X = V / K
-- Y = W / K
+- X = s / K
+- Y = t / K
 
 The Elligator 2 mapping given below returns a point (X, Y) on the
 Weierstrass curve defined above.
-This point can be converted to a point (V, W) on the equivalent
+This point can be converted to a point (s, t) on the equivalent
 Montgomery curve by computing
 
-- V = K * X
-- W = K * Y
+- s = K * X
+- t = K * Y
 
 Note that when D == K == 1, the above two curve equations
 are identical and no conversion is necessary.
@@ -2272,7 +2272,7 @@ over F = GF(q), q = 3 (mod 4).
 This method also works for curves given by the Montgomery equation
 
 ~~~
-    K * W^2 = V^3 + V
+    K * t^2 = s^3 + s
 ~~~
 
 via the change of variables given in {{montgomery}}.
@@ -2588,7 +2588,7 @@ This section defines ciphersuites for curve25519 and edwards25519 {{RFC7748}}.
 The suites curve25519-SHA256-ELL2-RO- and curve25519-SHA256-ELL2-NU-
 share the following parameters, in addition to the common parameters below.
 
-- E: K * W^2 = V^3 + J * V^2 + V, where
+- E: K * t^2 = s^3 + J * s^2 + s, where
   - J = 486662
   - K = 1
 - f: Elligator 2 method, {{elligator2}}
@@ -2623,7 +2623,7 @@ This section defines ciphersuites for curve448 and edwards448 {{RFC7748}}.
 The suites curve448-SHA512-ELL2-RO- and curve448-SHA512-ELL2-NU-
 share the following parameters, in addition to the common parameters below.
 
-- E: K * W^2 = V^3 + J * V^2 + V, where
+- E: K * t^2 = s^3 + J * s^2 + s, where
   - J = 156326
   - K = 1
 - f: Elligator 2 method, {{elligator2}}
@@ -2945,7 +2945,7 @@ It may also be useful to map to a Montgomery curve
 of the form
 
 ~~~
-    K * W^2 = V^3 + J * V^2 + V
+    K * t^2 = s^3 + J * s^2 + s
 ~~~
 
 This curve is equivalent to the twisted Edwards curve above via the
@@ -2953,15 +2953,15 @@ following rational map ({{BBJLP08}}, Theorem 3.2):
 
 - J = 2 * (a + d) / (a - d)
 - K = 4 / (a - d)
-- V = (1 + w) / (1 - w)
-- W = (1 + w) / (v * (1 - w))
+- s = (1 + w) / (1 - w)
+- t = (1 + w) / (v * (1 - w))
 
 whose inverse is given by:
 
 - a = (J + 2) / K
 - d = (J - 2) / K
-- v = V / W
-- w = (V - 1) / (V + 1)
+- v = s / t
+- w = (s - 1) / (s + 1)
 
 Composing the mapping immediately above with the mapping from
 Montgomery to Weierstrass curves in {{appx-rational-map-mont}}
@@ -2972,10 +2972,10 @@ This mapping can be used to apply the Shallue-van de Woestijne method
 
 ## Montgomery to Weierstrass curves {#appx-rational-map-mont}
 
-The rational map from the point (V, W) on the Montgomery curve
+The rational map from the point (s, t) on the Montgomery curve
 
 ~~~
-    K * W^2 = V^3 + J * V^2 + V
+    K * t^2 = s^3 + J * s^2 + s
 ~~~
 
 to the point (x, y) on the equivalent Weierstrass curve
@@ -2988,13 +2988,13 @@ is given by:
 
 - A = (3 - J^2) / (3 * K^2)
 - B = (2 * J^3 - 9 * J) / (27 * K^3)
-- x = (3 * V + J) / (3 * K)
-- y = W / K
+- x = (3 * s + J) / (3 * K)
+- y = t / K
 
-The inverse map, from the point (x, y) to the point (V, W), is given by
+The inverse map, from the point (x, y) to the point (s, t), is given by
 
-- V = (3 * K * x - J) / 3
-- W = y * K
+- s = (3 * K * x - J) / 3
+- t = y * K
 
 This mapping can be used to apply the Shallue-van de Woestijne method
 ({{svdw}}) to Montgomery curves.
