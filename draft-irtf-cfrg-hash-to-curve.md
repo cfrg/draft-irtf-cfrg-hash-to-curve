@@ -3552,20 +3552,21 @@ def find_z_ell2(F):
 # sqrt functions {#appx-sqrt}
 
 This section defines special-purpose sqrt functions for the three most common cases,
-p = 3 (mod 4), p = 5 (mod 8), and p = 9 (mod 16).
+q = 3 (mod 4), q = 5 (mod 8), and q = 9 (mod 16).
 In addition, it gives a generic constant-time algorithm that works for any prime modulus.
 
-## p = 3 (mod 4) {#sqrt-3mod4}
+{{AR13}} and {{S85}} describe optimized methods for extension fields.
+
+## q = 3 (mod 4) {#sqrt-3mod4}
 
 ~~~
 sqrt_3mod4(x)
 
 Parameters:
 - F, a finite field of characteristic p and order q = p^m.
-- p, the characteristic of F (see immediately above).
 
 Input: x, an element of F.
-Output: s, an element of F such that (s^2) == x.
+Output: z, an element of F such that (z^2) == x, if x is square in F.
 
 Constants:
 1. c1 = (q + 1) / 4     // Integer arithmetic
@@ -3574,17 +3575,16 @@ Procedure:
 1. return x^c1
 ~~~
 
-## p = 5 (mod 8) {#sqrt-5mod8}
+## q = 5 (mod 8) {#sqrt-5mod8}
 
 ~~~
 sqrt_5mod8(x)
 
 Parameters:
 - F, a finite field of characteristic p and order q = p^m.
-- p, the characteristic of F (see immediately above).
 
 Input: x, an element of F.
-Output: s, an element of F such that (s^2) == x.
+Output: z, an element of F such that (z^2) == x, if x is square in F.
 
 Constants:
 1. c1 = sqrt(-1) in F, i.e., (c1^2) == -1 in F
@@ -3593,24 +3593,20 @@ Constants:
 Procedure:
 1. t1 = x^c2
 2.  e = (t1^2) == x
-3.  s = CMOV(t1 * c1, t1, e)
-3. return s
+3.  z = CMOV(t1 * c1, t1, e)
+3. return z
 ~~~
 
-## p = 9 (mod 16) {#sqrt-9mod16}
-
-Note that this case also applies to GF(p^2) when p = 3 (mod 8).
-{{AR13}} and {{S85}} describe methods that work for other finite fields.
+## q = 9 (mod 16) {#sqrt-9mod16}
 
 ~~~
 sqrt_9mod16(x)
 
 Parameters:
 - F, a finite field of characteristic p and order q = p^m.
-- p, the characteristic of F (see immediately above).
 
 Input: x, an element of F.
-Output: s, an element of F such that (s^2) == x.
+Output: z, an element of F such that (z^2) == x, if x is square in F.
 
 Constants:
 1. c1 = sqrt(-1) in F, i.e., (c1^2) == -1 in F
@@ -3628,8 +3624,8 @@ Procedure:
 7.  t1 = CMOV(t1, t2, e1)  // Select t2 if (t2^2) == x
 8.  t2 = CMOV(t4, t3, e2)  // Select t3 if (t3^2) == x
 9.  e3 = (t2^2) == x
-10.  s = CMOV(t1, t2, e3)  // Select the sqrt from t1 and t2
-11. return s
+10.  z = CMOV(t1, t2, e3)  // Select the sqrt from t1 and t2
+11. return z
 ~~~
 
 ## Constant-time Tonelli-Shanks algorithm {#sqrt-ts}
@@ -3646,53 +3642,30 @@ faster, when they apply.
 sqrt_ts_ct(x)
 
 Parameters:
-- F, a finite field of order p
-- p, the characteristic of F (see immediately above)
+- F, a finite field of characteristic p and order q = p^m.
 
 Input x, an element of F.
-Output: s, an element of F such that s^2 == x, if x is a square in F.
+Output: z, an element of F such that z^2 == x, if x is square in F.
 
-Constants (see discussion below):
-1. c1, the largest integer such that 2^c1 divides p - 1.
-2. c2 = (p - 1) / (2^c1)        // Integer arithmetic
+Constants:
+1. c1, the largest integer such that 2^c1 divides q - 1.
+2. c2 = (q - 1) / (2^c1)        // Integer arithmetic
 3. c3 = (c2 - 1) / 2            // Integer arithmetic
 4. c4, a non-square value in F
 5. c5 = c4^c2 in F
 
 Procedure:
-1.  s = x^c3
-2.  t = s * s * x
-3.  s = s * x
+1.  z = x^c3
+2.  t = z * z * x
+3.  z = z * x
 4.  b = t
 5.  c = c5
 6.  for i in (c1, c1 - 1, ..., 2):
 7.      for j in (1, 2, ..., i - 2):
 8.           b = b * b
-9.      s = CMOV(s, s * c, b != 1)
+9.      z = CMOV(z, z * c, b != 1)
 10.     c = c * c
 11.     t = CMOV(t, t * c, b != 1)
 12.     b = t
-13. return s
-~~~
-
-The constants used in this procedure can be computed as follows:
-
-~~~
-precompute_ts(p)
-
-Input: p, a prime
-Output: the required constants c1, ..., c5
-
-Procedure:
-1.  c1 = 0
-2.  c2 = p - 1
-3.  while c2 is even:
-4.      c2 = c2 / 2             // Integer arithmetic
-5.      c1 = c1 + 1
-6.  c3 = (c2 - 1) / 2           // Integer arithmetic
-7.  c4 = 1
-8.  while c4 is square mod p:
-9.      c4 = c4 + 1
-10. c5 = c4^c2 mod p
-11. return (c1, c2, c3, c4, c5)
+13. return z
 ~~~
