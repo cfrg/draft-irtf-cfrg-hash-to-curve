@@ -1549,8 +1549,8 @@ Steps:
 2. info_pfx = "H2C" || I2OSP(ctr, 1)   // "H2C" is a 3-byte ASCII string
 3. for i in (1, ..., m):
 4.   info = info_pfx || I2OSP(i, 1)
-5.   t = HKDF-Expand(msg_prime, info, L)
-6.   e_i = OS2IP(t) mod p
+5.   tv = HKDF-Expand(msg_prime, info, L)
+6.   e_i = OS2IP(tv) mod p
 7. u = (e_1, ..., e_m)
 8. return u
 ~~~
@@ -1663,9 +1663,9 @@ As a rough guide, the following conventions are used in pseudocode:
 - (x, y): the affine coordinates of the point output by the mapping.
   Indexed variables (e.g., x1, y2, ...) are used for candidate values.
 
-- t1, t2, ...: are reusable temporary variables.
+- tv1, tv2, ...: reusable temporary variables.
 
-- c1, c2, ...: are constant values, which can be computed in advance.
+- c1, c2, ...: constant values, which can be computed in advance.
 
 
 ## Sign of the resulting point {#point-sign}
@@ -1743,16 +1743,16 @@ to invert this product are exception free.
 Operations:
 
 ~~~
-1.  t1 = u^2 * g(Z)
-2.  t2 = 1 + t1
-3.  t1 = 1 - t1
-4.  t3 = inv0(t1 * t2)
-5.  t4 = sqrt(-g(Z) * (3 * Z^2 + 4 * A))
-6.  t4 = t4 * sgn0(t4)                          // sgn0(t4) MUST equal 1
-7.  t5 = u * t1 * t3 * t4
-8.  x1 = -Z / 2 - t5
-9.  x2 = -Z / 2 + t5
-10. x3 = Z - 4 * g(Z) * (t2^2 * t3)^2 / (3 * Z^2 + 4 * A)
+1. tv1 = u^2 * g(Z)
+2. tv2 = 1 + tv1
+3. tv1 = 1 - tv1
+4. tv3 = inv0(tv1 * tv2)
+5. tv4 = sqrt(-g(Z) * (3 * Z^2 + 4 * A))
+6. tv4 = tv4 * sgn0(tv4)                   // sgn0(tv4) MUST equal 1
+7. tv5 = u * tv1 * tv3 * tv4
+8.  x1 = -Z / 2 - tv5
+9.  x2 = -Z / 2 + tv5
+10. x3 = Z - 4 * g(Z) * (tv2^2 * tv3)^2 / (3 * Z^2 + 4 * A)
 11. If is_square(g(x1)), set x = x1 and y = sqrt(g(x1))
 12. Else If is_square(g(x2)), set x = x2 and y = sqrt(g(x2))
 13. Else set x = x3 and y = sqrt(g(x3))
@@ -1777,29 +1777,29 @@ Constants:
 4. c4 = -4 * g(Z) / (3 * Z^2 + 4 * A)
 
 Steps:
-1.   t1 = u^2
-2.   t1 = t1 * c1
-3.   t2 = 1 + t1
-4.   t1 = 1 - t1
-5.   t3 = t1 * t2
-6.   t3 = inv0(t3)
-7.   t4 = u * t1
-8.   t4 = t4 * t3
-9.   t4 = t4 * c3
-10.  x1 = c2 - t4
+1.  tv1 = u^2
+2.  tv1 = tv1 * c1
+3.  tv2 = 1 + tv1
+4.  tv1 = 1 - tv1
+5.  tv3 = tv1 * tv2
+6.  tv3 = inv0(tv3)
+7.  tv4 = u * tv1
+8.  tv4 = tv4 * tv3
+9.  tv4 = tv4 * c3
+10.  x1 = c2 - tv4
 11. gx1 = x1^2
 12. gx1 = gx1 + A
 13. gx1 = gx1 * x1
 14. gx1 = gx1 + B
 15.  e1 = is_square(gx1)
-16.  x2 = c2 + t4
+16.  x2 = c2 + tv4
 17. gx2 = x2^2
 18. gx2 = gx2 + A
 19. gx2 = gx2 * x2
 20. gx2 = gx2 + B
 21.  e2 = is_square(gx2) AND NOT e1     // Avoid short-circuit logic ops
-22.  x3 = t2^2
-23.  x3 = x3 * t3
+22.  x3 = tv2^2
+23.  x3 = x3 * tv3
 24.  x3 = x3^2
 25.  x3 = x3 * c4
 26.  x3 = x3 + Z
@@ -1848,9 +1848,9 @@ is square by the condition on Z given above.
 Operations:
 
 ~~~
-1.  t1 = inv0(Z^2 * u^4 + Z * u^2)
-2.  x1 = (-B / A) * (1 + t1)
-3.  If t1 == 0, set x1 = B / (Z * A)
+1. tv1 = inv0(Z^2 * u^4 + Z * u^2)
+2.  x1 = (-B / A) * (1 + tv1)
+3.  If tv1 == 0, set x1 = B / (Z * A)
 4. gx1 = x1^3 + A * x1 + B
 5.  x2 = Z * u^2 * x1
 6. gx2 = x2^3 + A * x2 + B
@@ -1877,21 +1877,21 @@ Constants:
 2.  c2 = -1 / Z
 
 Steps:
-1.   t1 = Z * u^2
-2.   t2 = t1^2
-3.   x1 = t1 + t2
+1.  tv1 = Z * u^2
+2.  tv2 = tv1^2
+3.   x1 = tv1 + tv2
 4.   x1 = inv0(x1)
 5.   e1 = x1 == 0
 6.   x1 = x1 + 1
-7.   x1 = CMOV(x1, c2, e1)    // If (t1 + t2) == 0, set x1 = -1 / Z
+7.   x1 = CMOV(x1, c2, e1)    // If (tv1 + tv2) == 0, set x1 = -1 / Z
 8.   x1 = x1 * c1      // x1 = (-B / A) * (1 + (1 / (Z^2 * u^4 + Z * u^2)))
 9.  gx1 = x1^2
 10. gx1 = gx1 + A
 11. gx1 = gx1 * x1
 12. gx1 = gx1 + B             // gx1 = g(x1) = x1^3 + A * x1 + B
-13.  x2 = t1 * x1             // x2 = Z * u^2 * x1
-14.  t2 = t1 * t2
-15. gx2 = gx1 * t2            // gx2 = (Z * u^2)^3 * gx1
+13.  x2 = tv1 * x1            // x2 = Z * u^2 * x1
+14. tv2 = tv1 * tv2
+15. gx2 = gx1 * tv2           // gx2 = (Z * u^2)^3 * gx1
 16.  e2 = is_square(gx1)
 17.   x = CMOV(x2, x1, e2)    // If is_square(gx1), x = x1, else x = x2
 18.  y2 = CMOV(gx2, gx1, e2)  // If is_square(gx1), y2 = gx1, else y2 = gx2
@@ -2038,11 +2038,11 @@ Input: u, an element of F.
 Output: (x, y), a point on E.
 
 Steps:
-1.   t1 = u^2
-2.   t1 = Z * t1              // Z * u^2
-3.   e1 = t1 == -1            // exceptional case: Z * u^2 == -1
-4.   t1 = CMOV(t1, 0, e1)     // if t1 == -1, set t1 = 0
-5.   x1 = t1 + 1
+1.  tv1 = u^2
+2.  tv1 = Z * tv1             // Z * u^2
+3.   e1 = tv1 == -1           // exceptional case: Z * u^2 == -1
+4.  tv1 = CMOV(tv1, 0, e1)    // if tv1 == -1, set tv1 = 0
+5.   x1 = tv1 + 1
 6.   x1 = inv0(x1)
 7.   x1 = -C * x1             // x1 = -C / (1 + Z * u^2)
 8.  gx1 = x1 + C
@@ -2050,7 +2050,7 @@ Steps:
 10. gx1 = gx1 + D
 11. gx1 = gx1 * x1            // gx1 = x1^3 + C * x1^2 + D * x1
 12.  x2 = -x1 - C
-13. gx2 = t1 * gx1
+13. gx2 = tv1 * gx1
 14.  e2 = is_square(gx1)
 15.   x = CMOV(x2, x1, e2)    // If is_square(gx1), x = x1, else x = x2
 16.  y2 = CMOV(gx2, gx1, e2)  // If is_square(gx1), y2 = gx1, else y2 = gx2
@@ -2160,17 +2160,17 @@ rational_map(x, y)
 Input: (x, y), a point on the curve Y^2 = X^3 + C * X^2 + D * X.
 Output: (v, w), a point on an equivalent twisted Edwards curve.
 
-1. t1 = x * invSqrtD
-2. t2 = t1 + 1
-3. t3 = y * t2
-4. t3 = inv0(t3)
-5.  v = t2 * t3
-6.  v = v * x
-7.  w = t1 - 1
-8.  w = w * y
-9.  w = w * t3
-10. e = w == 0
-11. w = CMOV(w, 1, e)
+1. tv1 = x * invSqrtD
+2. tv2 = tv1 + 1
+3. tv3 = y * tv2
+4. tv3 = inv0(tv3)
+5.   v = tv2 * tv3
+6.   v = v * x
+7.   w = tv1 - 1
+8.   w = w * y
+9.   w = w * tv3
+10.  e = w == 0
+11.  w = CMOV(w, 1, e)
 12. return (v, w)
 ~~~
 
@@ -2232,9 +2232,9 @@ Exceptions: none.
 Operations:
 
 ~~~
-1. t1 = (2 * q - 1) / 3   // Integer arithmetic
-2.  x = (u^2 - B)^t1
-3.  y = u
+1. tv1 = (2 * q - 1) / 3   // Integer arithmetic
+2.   x = (u^2 - B)^tv1
+3.   y = u
 4. return (x, y)
 ~~~
 
@@ -2252,10 +2252,10 @@ Constants:
 1. c1 = (2 * q - 1) / 3   // Integer arithmetic
 
 Steps:
-1. t1 = u^2
-2. t1 = t1 - B
-3.  x = t1^c1             // x = (u^2 - B)^((2 * q - 1) / 3)
-4.  y = u
+1. tv1 = u^2
+2. tv1 = tv1 - B
+3.   x = tv1^c1             // x = (u^2 - B)^((2 * q - 1) / 3)
+4.   y = u
 5. return (x, y)
 ~~~
 
@@ -3238,35 +3238,35 @@ Constants: defined per curve; see above.
 2.  c2 = sqrt(-Z^3)
 
 Steps:
-1.   t1 = u^2
-2.   t3 = Z * t1
-3.   t2 = t3^2
-4.   xd = t2 + t3
+1.  tv1 = u^2
+2.  tv3 = Z * tv1
+3.  tv2 = tv3^2
+4.   xd = tv2 + tv3
 5.  x1n = xd + 1
 6.  x1n = x1n * B
 7.   xd = -A * xd
 8.   e1 = xd == 0
 9.   xd = CMOV(xd, Z * A, e1)  // If xd == 0, set xd = Z * A
-10.  t2 = xd^2
-11. gxd = t2 * xd              // gxd == xd^3
-12.  t2 = A * t2
+10. tv2 = xd^2
+11. gxd = tv2 * xd             // gxd == xd^3
+12. tv2 = A * tv2
 13. gx1 = x1n^2
-14. gx1 = gx1 + t2             // x1n^2 + A * xd^2
+14. gx1 = gx1 + tv2            // x1n^2 + A * xd^2
 15. gx1 = gx1 * x1n            // x1n^3 + A * x1n * xd^2
-16.  t2 = B * gxd
-17. gx1 = gx1 + t2             // x1n^3 + A * x1n * xd^2 + B * xd^3
-18.  t4 = gxd^2
-19.  t2 = gx1 * gxd
-20.  t4 = t4 * t2              // gx1 * gxd^3
-21.  y1 = t4^c1                // (gx1 * gxd^3)^((p - 3) / 4)
-22.  y1 = y1 * t2              // gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
-23. x2n = t3 * x1n             // x2 = x2n / xd = -10 * u^2 * x1n / xd
+16. tv2 = B * gxd
+17. gx1 = gx1 + tv2            // x1n^3 + A * x1n * xd^2 + B * xd^3
+18. tv4 = gxd^2
+19. tv2 = gx1 * gxd
+20. tv4 = tv4 * tv2            // gx1 * gxd^3
+21.  y1 = tv4^c1               // (gx1 * gxd^3)^((p - 3) / 4)
+22.  y1 = y1 * tv2             // gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
+23. x2n = tv3 * x1n            // x2 = x2n / xd = -10 * u^2 * x1n / xd
 24.  y2 = y1 * c2              // y2 = y1 * sqrt(-Z^3)
-25.  y2 = y2 * t1
+25.  y2 = y2 * tv1
 26.  y2 = y2 * u
-27.  t2 = y1^2
-28.  t2 = t2 * gxd
-29.  e2 = t2 == gx1
+27. tv2 = y1^2
+28. tv2 = tv2 * gxd
+29.  e2 = tv2 == gx1
 30.  xn = CMOV(x2n, x1n, e2)   // If e2, x = x1, else x = x2
 31.   y = CMOV(y2, y1, e2)     // If e2, y = y1, else y = y2
 32.  e3 = sgn0(u) == sgn0(y)   // Fix sign of y
@@ -3293,41 +3293,41 @@ Constants:
 4. c4 = (p - 5) / 8           // Integer arithmetic
 
 Steps:
-1.   t1 = u^2
-2.   t1 = 2 * t1
-3.   xd = t1 + 1              // Nonzero: -1 is square (mod p), t1 is not
+1.  tv1 = u^2
+2.  tv1 = 2 * tv1
+3.   xd = tv1 + 1             // Nonzero: -1 is square (mod p), tv1 is not
 4.  x1n = -486662             // x1 = x1n / xd = -486662 / (1 + 2 * u^2)
-5.   t2 = xd^2
-6.  gxd = t2 * xd             // gxd = xd^3
+5.  tv2 = xd^2
+6.  gxd = tv2 * xd            // gxd = xd^3
 7.  gx1 = 486662 * xd         // 486662 * xd
 8.  gx1 = gx1 + x1n           // x1n + 486662 * xd
 9.  gx1 = gx1 * x1n           // x1n^2 + 486662 * x1n * xd
-10. gx1 = gx1 + t2            // x1n^2 + 486662 * x1n * xd + xd^2
+10. gx1 = gx1 + tv2           // x1n^2 + 486662 * x1n * xd + xd^2
 11. gx1 = gx1 * x1n           // x1n^3 + 486662 * x1n^2 * xd + x1n * xd^2
-12.  t3 = gxd^2
-13.  t2 = t3^2                // gxd^4
-14.  t3 = t3 * gxd            // gxd^3
-15.  t3 = t3 * gx1            // gx1 * gxd^3
-16.  t2 = t2 * t3             // gx1 * gxd^7
-17. y11 = t2^c4               // (gx1 * gxd^7)^((p - 5) / 8)
-18. y11 = y11 * t3            // gx1 * gxd^3 * (gx1 * gxd^7)^((p - 5) / 8)
+12. tv3 = gxd^2
+13. tv2 = tv3^2               // gxd^4
+14. tv3 = tv3 * gxd           // gxd^3
+15. tv3 = tv3 * gx1           // gx1 * gxd^3
+16. tv2 = tv2 * tv3           // gx1 * gxd^7
+17. y11 = tv2^c4              // (gx1 * gxd^7)^((p - 5) / 8)
+18. y11 = y11 * tv3           // gx1 * gxd^3 * (gx1 * gxd^7)^((p - 5) / 8)
 19. y12 = y11 * c3
-20.  t2 = y11^2
-21.  t2 = t2 * gxd
-22.  e1 = t2 == gx1
+20. tv2 = y11^2
+21. tv2 = tv2 * gxd
+22.  e1 = tv2 == gx1
 23.  y1 = CMOV(y12, y11, e1)  // If g(x1) is square, this is its sqrt
-24. x2n = x1n * t1            // x2 = x2n / xd = 2 * u^2 * x1n / xd
+24. x2n = x1n * tv1           // x2 = x2n / xd = 2 * u^2 * x1n / xd
 25. y21 = y11 * u
 26. y21 = y21 * c2
 27. y22 = y21 * c3
-28. gx2 = gx1 * t1            // g(x2) = gx2 / gxd = 2 * u^2 * g(x1)
-29.  t2 = y21^2
-30.  t2 = t2 * gxd
-31.  e2 = t2 == gx2
+28. gx2 = gx1 * tv1           // g(x2) = gx2 / gxd = 2 * u^2 * g(x1)
+29. tv2 = y21^2
+30. tv2 = tv2 * gxd
+31.  e2 = tv2 == gx2
 32.  y2 = CMOV(y22, y21, e2)  // If g(x2) is square, this is its sqrt
-33.  t2 = y1^2
-34.  t2 = t2 * gxd
-35.  e3 = t2 == gx1
+33. tv2 = y1^2
+34. tv2 = tv2 * gxd
+35.  e3 = tv2 == gx1
 36.  xn = CMOV(x2n, x1n, e3)  // If e3, x = x1, else x = x2
 37.   y = CMOV(y2, y1, e3)    // If e3, y = y1, else y = y2
 38.  e4 = sgn0(u) == sgn0(y)  // Fix sign of y
@@ -3359,8 +3359,8 @@ Steps:
 4.  xd = xMd * yMn       // xn / xd = c1 * xM / yM
 5.  yn = xMn - xMd
 6.  yd = xMn + xMd       // (n / d - 1) / (n / d + 1) = (n - d) / (n + d)
-7.  t1 = xd * yd
-8.   e = t1 == 0
+7. tv1 = xd * yd
+8.   e = tv1 == 0
 9.  xn = CMOV(xn, 0, e)
 10. xd = CMOV(xd, 1, e)
 11. yn = CMOV(yn, 1, e)
@@ -3384,29 +3384,29 @@ Constants:
 1. c1 = (p - 3) / 4           // Integer arithmetic
 
 Steps:
-1.   t1 = u^2
-2.   e1 = t1 == 1
-3.   t1 = CMOV(t1, 0, e1)     // If Z * u^2 == -1, set t1 = 0
-4.   xd = 1 - t1
+1.  tv1 = u^2
+2.   e1 = tv1 == 1
+3.  tv1 = CMOV(tv1, 0, e1)    // If Z * u^2 == -1, set tv1 = 0
+4.   xd = 1 - tv1
 5.  x1n = -156326
-6.   t2 = xd^2
-7.  gxd = t2 * xd             // gxd = xd^3
+6.  tv2 = xd^2
+7.  gxd = tv2 * xd            // gxd = xd^3
 8.  gx1 = 156326 * xd         // 156326 * xd
 9.  gx1 = gx1 + x1n           // x1n + 156326 * xd
 10. gx1 = gx1 * x1n           // x1n^2 + 156326 * x1n * xd
-11. gx1 = gx1 + t2            // x1n^2 + 156326 * x1n * xd + xd^2
+11. gx1 = gx1 + tv2           // x1n^2 + 156326 * x1n * xd + xd^2
 12. gx1 = gx1 * x1n           // x1n^3 + 156326 * x1n^2 * xd + x1n * xd^2
-13.  t3 = gxd^2
-14.  t2 = gx1 * gxd           // gx1 * gxd
-15.  t3 = t3 * t2             // gx1 * gxd^3
-16.  y1 = t3^c1               // (gx1 * gxd^3)^((p - 3) / 4)
-17.  y1 = y1 * t2             // gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
-18. x2n = -t1 * x1n           // x2 = x2n / xd = -1 * u^2 * x1n / xd
+13. tv3 = gxd^2
+14. tv2 = gx1 * gxd           // gx1 * gxd
+15. tv3 = tv3 * tv2           // gx1 * gxd^3
+16.  y1 = tv3^c1              // (gx1 * gxd^3)^((p - 3) / 4)
+17.  y1 = y1 * tv2            // gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
+18. x2n = -tv1 * x1n          // x2 = x2n / xd = -1 * u^2 * x1n / xd
 19.  y2 = y1 * u
 20.  y2 = CMOV(y2, 0, e1)
-21.  t2 = y1^2
-22.  t2 = t2 * gxd
-23.  e2 = t2 == gx1
+21. tv2 = y1^2
+22. tv2 = tv2 * gxd
+23.  e2 = tv2 == gx1
 24.  xn = CMOV(x2n, x1n, e2)  // If e2, x = x1, else x = x2
 25.   y = CMOV(y2, y1, e2)    // If e2, y = y1, else y = y2
 26.  e3 = sgn0(u) == sgn0(y)  // Fix sign of y
@@ -3436,32 +3436,32 @@ Steps:
 5.  yn2 = yn^2
 6.  yd2 = yd^2
 7.  xEn = xn2 - xd2
-8.   t2 = xEn - xd2
+8.  tv2 = xEn - xd2
 9.  xEn = xEn * xd2
 10. xEn = xEn * yd
 11. xEn = xEn * yn
 12. xEn = xEn * 4
-13.  t2 = t2 * xn2
-14.  t2 = t2 * yd2
-15.  t3 = 4 * yn2
-16.  t1 = t3 + yd2
-17.  t1 = t1 * xd4
-18. xEd = t1 + t2
-19.  t2 = t2 * xn
-20.  t4 = xn * xd4
-21. yEn = t3 - yd2
-22. yEn = yEn * t4
-23. yEn = yEn - t2
-24.  t1 = xn2 + xd2
-25.  t1 = t1 * xd2
-26.  t1 = t1 * xd
-27.  t1 = t1 * yn2
-28.  t1 = -2 * t1
-29. yEd = t2 + t1
-30.  t4 = t4 * yd2
-31. yEd = yEd + t4
-32.  t1 = xEd * yEd
-33.   e = t1 == 0
+13. tv2 = tv2 * xn2
+14. tv2 = tv2 * yd2
+15. tv3 = 4 * yn2
+16. tv1 = tv3 + yd2
+17. tv1 = tv1 * xd4
+18. xEd = tv1 + tv2
+19. tv2 = tv2 * xn
+20. tv4 = xn * xd4
+21. yEn = tv3 - yd2
+22. yEn = yEn * tv4
+23. yEn = yEn - tv2
+24. tv1 = xn2 + xd2
+25. tv1 = tv1 * xd2
+26. tv1 = tv1 * xd
+27. tv1 = tv1 * yn2
+28. tv1 = -2 * tv1
+29. yEd = tv2 + tv1
+30. tv4 = tv4 * yd2
+31. yEd = yEd + tv4
+32. tv1 = xEd * yEd
+33.   e = tv1 == 0
 34. xEn = CMOV(xEn, 0, e)
 35. xEd = CMOV(xEd, 1, e)
 36. yEn = CMOV(yEn, 1, e)
@@ -3591,9 +3591,9 @@ Constants:
 2. c2 = (q + 3) / 8     // Integer arithmetic
 
 Procedure:
-1. t1 = x^c2
-2.  e = (t1^2) == x
-3.  z = CMOV(t1 * c1, t1, e)
+1. tv1 = x^c2
+2.   e = (tv1^2) == x
+3.   z = CMOV(tv1 * c1, tv1, e)
 3. return z
 ~~~
 
@@ -3615,16 +3615,16 @@ Constants:
 4. c4 = (q + 7) / 16    // Integer arithmetic
 
 Procedure:
-1.  t1 = x^c4
-2.  t2 = c1 * t1
-3.  t3 = c2 * t1
-4.  t4 = c3 * t1
-5.  e1 = (t2^2) == x
-6.  e2 = (t3^2) == x
-7.  t1 = CMOV(t1, t2, e1)  // Select t2 if (t2^2) == x
-8.  t2 = CMOV(t4, t3, e2)  // Select t3 if (t3^2) == x
-9.  e3 = (t2^2) == x
-10.  z = CMOV(t1, t2, e3)  // Select the sqrt from t1 and t2
+1. tv1 = x^c4
+2. tv2 = c1 * tv1
+3. tv3 = c2 * tv1
+4. tv4 = c3 * tv1
+5.  e1 = (tv2^2) == x
+6.  e2 = (tv3^2) == x
+7. tv1 = CMOV(tv1, tv2, e1)  // Select tv2 if (tv2^2) == x
+8. tv2 = CMOV(tv4, tv3, e2)  // Select tv3 if (tv3^2) == x
+9.  e3 = (tv2^2) == x
+10.  z = CMOV(tv1, tv2, e3)  // Select the sqrt from tv1 and tv2
 11. return z
 ~~~
 
