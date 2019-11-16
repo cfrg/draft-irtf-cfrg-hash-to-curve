@@ -9,13 +9,14 @@ try:
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
+DST = "QUUX-V01-CS02"
 p = 2^255 - 19
 F = GF(p)
-Ap = F(486662)
+Ap = F(486662)  # Bp * y^2 = x^3 + Ap * x^2 + x
 Bp = F(1)
 sqrt486664 = F(-486664).sqrt()
 sqrt486664 *= sgn0_le(sqrt486664)
-a = F(-1)
+a = F(-1)       # a * v^2 + w^2 = 1 + d * v^2 * w^2
 d = F(0x52036cee2b6ffe738cc740797779e89800700a4d4141d8ab75eb4dca135978a3)
 
 def m2e_25519(P):
@@ -37,7 +38,7 @@ def m2e_25519(P):
     assert a * v^2 + w^2 == 1 + d * v^2 * w^2, "bad output point"
     return (v, w, 1)
 
-monty_suite = BasicH2CSuiteDef(F, Ap, Bp, sgn0_le, hashlib.sha256, 48, None, 8, True, "asdf")
+monty_suite = BasicH2CSuiteDef(F, Ap, Bp, sgn0_le, hashlib.sha256, 48, None, 8, True, DST)
 edw_suite = EdwH2CSuiteDef(monty_suite._replace(Aa=a, Bd=d), Ap, Bp, m2e_25519)
 edw_hash = EdwH2CSuite(edw_suite)
 monty_hash = MontyH2CSuite(monty_suite)
@@ -58,3 +59,6 @@ def test_suite_25519():
         accumM += monty_out
     assert (edw_out * group_order).is_zero()
     assert (monty_out * group_order).is_zero()
+
+if __name__ == "__main__":
+    test_suite_25519()

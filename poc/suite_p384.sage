@@ -12,12 +12,13 @@ try:
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
+DST = "QUUX-V01-CS02"
 p = 2^384 - 2^128 - 2^96 + 2^32 - 1
 F = GF(p)
 A = F(-3)
 B = F(0xb3312fa7e23ee7e4988e056be3f82d19181d9c6efe8141120314088f5013875ac656398d8a2ed19d2a85c8edd3ec2aef)
 
-p384_sswu_def = BasicH2CSuiteDef(F, A, B, sgn0_le, hashlib.sha512, 72, GenericSSWU, 1, True, "asdf")
+p384_sswu_def = BasicH2CSuiteDef(F, A, B, sgn0_le, hashlib.sha512, 72, GenericSSWU, 1, True, DST)
 p384_svdw_def = p384_sswu_def._replace(MapT=GenericSvdW)
 p384_sswu = BasicH2CSuite(p384_sswu_def)
 p384_svdw = BasicH2CSuite(p384_svdw_def)

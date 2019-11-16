@@ -13,15 +13,17 @@ try:
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
+DST = "QUUX-V01-CS02"
 p = 2^256 - 2^32 - 2^9 - 2^8 - 2^7 - 2^6 - 2^4 - 1
 F = GF(p)
 A = F(0)
 B = F(7)
+# Ap and Bp define isogenous curve y^2 = x^3 + Ap * x + Bp
 Ap = F(0x3f8731abdd661adca08a5558f0f5d272e953d363cb6f0e5d405447c01a444533)
 Bp = F(1771)
 iso_map = iso_secp256k1()
 
-secp256k1_svdw_def = BasicH2CSuiteDef(F, A, B, sgn0_le, hashlib.sha256, 48, GenericSvdW, 1, True, "asdf")
+secp256k1_svdw_def = BasicH2CSuiteDef(F, A, B, sgn0_le, hashlib.sha256, 48, GenericSvdW, 1, True, DST)
 secp256k1_sswu_def = IsoH2CSuiteDef(secp256k1_svdw_def._replace(MapT=GenericSSWU), Ap, Bp, iso_map)
 secp256k1_svdw = BasicH2CSuite(secp256k1_svdw_def)
 secp256k1_sswu = IsoH2CSuite(secp256k1_sswu_def)

@@ -140,9 +140,7 @@ def ts_precompute(p, F):
     sqrt_cache[p] = (q, m, c)
 
 def test_ts():
-    for _ in range(0, 128):
-        p = random_prime(1 << 256)
-        F = GF(p)
+    def _test(F):
         for _ in range(0, 256):
             x = F.random_element()
             a = tonelli_shanks_ct(x)
@@ -150,6 +148,21 @@ def test_ts():
                 assert a is None
             else:
                 assert a^2 == x
+
+    for _ in range(0, 32):
+        p = random_prime(1 << 256)
+        F = GF(p)
+        _test(F)
+
+    for _ in range(0, 32):
+        p = random_prime(1 << 64)
+        F = GF(p^2)
+        _test(F)
+
+    for _ in range(0, 32):
+        p = random_prime(1 << 32)
+        F = GF(p^3)
+        _test(F)
 
 if __name__ == "__main__":
     test_ts()

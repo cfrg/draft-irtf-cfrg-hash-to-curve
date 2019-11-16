@@ -13,10 +13,12 @@ try:
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
+DST = "QUUX-V01-CS02"
 p = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
 F.<II> = GF(p^2, modulus=[1,0,1])
 A = F(0)
 B = F(4 * (1 + II))
+# Ap and Bp define isogenous curve y^2 = x^3 + Ap * x + Bp
 Ap = F(240 * II)
 Bp = F(1012 * (1 + II))
 h2 = 0x5d543a95414e7f1091d50792876a202cd91de4547085abaa68a205b2e5a7ddfa628f1cb4d9e82ef21537e293a6691ae1616ec6e786f0c70cf1c38e31c7238e5
@@ -24,7 +26,7 @@ ell_u = 0xd201000000010000
 h_eff = h2 * (3 * ell_u^2 - 3)
 iso_map = iso_bls12381g2()
 
-bls12381g2_svdw_def = BasicH2CSuiteDef(F, A, B, sgn0_be, hashlib.sha256, 64, GenericSvdW, h_eff, True, "asdf")
+bls12381g2_svdw_def = BasicH2CSuiteDef(F, A, B, sgn0_be, hashlib.sha256, 64, GenericSvdW, h_eff, True, DST)
 bls12381g2_sswu_def = IsoH2CSuiteDef(bls12381g2_svdw_def._replace(MapT=GenericSSWU), Ap, Bp, iso_map)
 bls12381g2_svdw = BasicH2CSuite(bls12381g2_svdw_def)
 bls12381g2_sswu = IsoH2CSuite(bls12381g2_sswu_def)

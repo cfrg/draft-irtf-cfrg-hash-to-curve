@@ -9,11 +9,12 @@ try:
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
+DST = "QUUX-V01-CS02"
 p = 2^448 - 2^224 - 1
 F = GF(p)
-Ap = F(156326)
+Ap = F(156326)  # Bp * y^2 = x^3 + Ap * x^2 + x
 Bp = F(1)
-a = F(1)
+a = F(1)        # a * v^2 + w^2 = 1 + d * v^2 * w^2
 d = F(-39081)
 
 def m2e_448(P):
@@ -34,7 +35,7 @@ def m2e_448(P):
         return (0, 1, 0)
     return (xn / xd, yn / yd, 1)
 
-monty_suite = BasicH2CSuiteDef(F, Ap, Bp, sgn0_le, hashlib.sha512, 84, None, 4, True, "asdf")
+monty_suite = BasicH2CSuiteDef(F, Ap, Bp, sgn0_le, hashlib.sha512, 84, None, 4, True, DST)
 edw_suite = EdwH2CSuiteDef(monty_suite._replace(Aa=a, Bd=d), Ap, Bp, m2e_448)
 edw_hash = EdwH2CSuite(edw_suite)
 monty_hash = MontyH2CSuite(monty_suite)
@@ -56,3 +57,6 @@ def test_suite_448():
         accumM += monty_out
     assert (edw_out * group_order).is_zero()
     assert (monty_out * group_order).is_zero()
+
+if __name__ == "__main__":
+    test_suite_448()

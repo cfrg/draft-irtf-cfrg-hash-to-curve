@@ -31,7 +31,7 @@ def check_edwards():
 # Bernstein, Birkner, Joyhe, Lange, and Peters,
 # "Twisted Edwards Curves.", AFRICACRYPT 2008,
 # Theorem 3.2
-# https://eprint.iacr.org/2019/013
+# https://eprint.iacr.org/2008/013
 
 # Montgomery curve equation
 Rm.<s,t,Ap,Bp> = QQ[]
