@@ -1000,8 +1000,8 @@ important parameters and their relation to hashing to curves.
 For further reference on elliptic curves, consult {{CFADLNV05}} or {{W08}}.
 
 Let F be the finite field GF(q) of prime characteristic p. In most cases F
-is a prime field, so q = p. Otherwise, F is a field extension, so q = p^m for
-an integer m > 1. This document writes elements of field extensions
+is a prime field, so q = p. Otherwise, F is an extension field, so q = p^m for
+an integer m > 1. This document writes elements of extension fields
 in a primitive element or polynomial basis, i.e., as a vector
 of m elements of GF(p) written in ascending order by degree.
 The entries of this vector are indexed in ascending order starting from 1,
@@ -1345,10 +1345,10 @@ element of F.
 It is convenient for hash-to-curve and decompression to agree on a notion of
 sign, since this may permit simpler implementations.
 
-See {{bg-curves}} for a discussion of representing elements of field extensions
+See {{bg-curves}} for a discussion of representing elements of extension fields
 as vectors; this representation is used in both of the sgn0 variants below.
 
-Note that any valid sgn0 function for field extensions must iterate over
+Note that any valid sgn0 function for extension fields must iterate over
 the entire vector representation of the input element.
 To see why, imagine a function sgn0\* that ignores the final entry in its
 input vector, and consider a field element x = (0, x\_2).
@@ -3515,7 +3515,7 @@ Procedure:
 ## p = 9 (mod 16) {#sqrt-9mod16}
 
 Note that this case also applies to GF(p^2) when p = 3 (mod 8).
-{{AR13}} and {{S85}} describe methods that work for other field extensions.
+{{AR13}} and {{S85}} describe methods that work for other finite fields.
 
 ~~~
 sqrt_9mod16(x)
