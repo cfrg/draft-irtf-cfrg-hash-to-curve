@@ -1,9 +1,13 @@
 #!/usr/bin/sage
 # vim: syntax=python
 
-load("common.sage")
-load("z_selection.sage")
-load("generic_map.sage")
+import sys
+try:
+    from sagelib.common import CMOV
+    from sagelib.generic_map import GenericMap
+    from sagelib.z_selection import find_z_ell2
+except ImportError:
+    sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 class GenericEll2(GenericMap):
     def __init__(self, F, A, B):
@@ -26,17 +30,22 @@ class GenericEll2(GenericMap):
             self.undefs += [ex, -ex]
 
     def not_straight_line(self, u):
+        is_square = self.is_square
+        inv0 = self.inv0
+        sgn0 = self.sgn0
+        sqrt = self.sqrt
         u = self.F(u)
         A = self.A
         B = self.B
         Z = self.Z
-        x1 = -A * self.inv0(1 + Z * u^2)
+
+        x1 = -A * inv0(1 + Z * u^2)
         if x1 == 0:
             x1 = -A
         gx1 = x1^3 + A * x1^2 + B * x1
         x2 = -x1 - A
         gx2 = x2^3 + A * x2^2 + B * x2
-        if self.is_square(gx1):
+        if is_square(gx1):
             x = x1
             y = sqrt(gx1)
         else:
@@ -47,6 +56,10 @@ class GenericEll2(GenericMap):
         return (x, y)
 
     def straight_line(self, u):
+        inv0 = self.inv0
+        is_square = self.is_square
+        sgn0 = self.sgn0
+        sqrt = self.sqrt
         u = self.F(u)
         A = self.A
         B = self.B
@@ -57,7 +70,7 @@ class GenericEll2(GenericMap):
         e1 = t1 == -1               # detect exceptional case
         t1 = CMOV(t1, 0, e1)        # if t1 == -1, set t1 = 0
         x1 = t1 + 1
-        x1 = self.inv0(x1)
+        x1 = inv0(x1)
         x1 = -A * x1                # x1 = -A / (1 + Z * u^2)
         gx1 = x1 + A
         gx1 = gx1 * x1
@@ -65,10 +78,14 @@ class GenericEll2(GenericMap):
         gx1 = gx1 * x1              # gx1 = x1^3 + A * x1^2 + B * x1
         x2 = -x1 - A
         gx2 = t1 * gx1
-        e2 = self.is_square(gx1)
+        e2 = is_square(gx1)
         x = CMOV(x2, x1, e2)        # If is_square(gx1), x = x1, else x = x2
         y2 = CMOV(gx2, gx1, e2)     # If is_square(gx1), y2 = gx1, else y2 = gx2
         y = sqrt(y2)
         e3 = sgn0(u) == sgn0(y)     # Fix sign of y
         y = CMOV(-y, y, e3)
         return (x, y)
+
+if __name__ == "__main__":
+    for _ in range(0, 32):
+        GenericEll2.test_random()

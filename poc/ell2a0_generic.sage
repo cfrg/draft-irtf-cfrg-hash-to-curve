@@ -1,9 +1,12 @@
 #!/usr/bin/sage
 # vim: syntax=python
 
-load("common.sage")
-load("z_selection.sage")
-load("generic_map.sage")
+import sys
+try:
+    from sagelib.common import CMOV
+    from sagelib.generic_map import GenericMap
+except ImportError:
+    sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 class GenericEll2A0(GenericMap):
     def __init__(self, F, _, B):
@@ -23,6 +26,9 @@ class GenericEll2A0(GenericMap):
         self.c1 = (q + 1) // 4
 
     def not_straight_line(self, u):
+        is_square = self.is_square
+        sgn0 = self.sgn0
+        sqrt = self.sqrt
         u = self.F(u)
         B = self.B
 
@@ -30,7 +36,7 @@ class GenericEll2A0(GenericMap):
         gx1 = x1^3 + B * x1
         x2 = -x1
         gx2 = -gx1
-        if self.is_square(gx1):
+        if is_square(gx1):
             x = x1
             y = sqrt(gx1)
         else:
@@ -41,6 +47,7 @@ class GenericEll2A0(GenericMap):
         return (x, y)
 
     def straight_line(self, u):
+        sgn0 = self.sgn0
         u = self.F(u)
         B = self.B
         c1 = self.c1
@@ -56,3 +63,7 @@ class GenericEll2A0(GenericMap):
         e2 = sgn0(u) == sgn0(y)
         y = CMOV(-y, y, e2)
         return (x, y)
+
+if __name__ == "__main__":
+    for _ in range(0, 32):
+        GenericEll2A0.test_random()

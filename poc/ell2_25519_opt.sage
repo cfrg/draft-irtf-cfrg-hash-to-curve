@@ -1,13 +1,22 @@
 #!/usr/bin/sage
 # vim: syntax=python
 
-load("ell2_generic.sage")
+import sys
+try:
+    from sagelib.common import CMOV, sgn0_le, square_root_random_sign
+    from sagelib.ell2_generic import GenericEll2
+except ImportError:
+    sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 p = 2^255 - 19
 F = GF(p)
 A = F(486662)
 B = F(1)
 ref_map = GenericEll2(F, A, B)
+sgn0 = sgn0_le
+ref_map.set_sgn0(sgn0)
+sqrt = square_root_random_sign
+ref_map.set_sqrt(sqrt)
 
 def map_to_curve_elligator2_curve25519(u):
     c1 = (p + 3) // 8

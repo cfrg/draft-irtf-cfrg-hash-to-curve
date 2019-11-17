@@ -1,11 +1,25 @@
 #!/usr/bin/sage
 # vim: syntax=python
 
+import sys
+try:
+    from sagelib.common import sgn0_be, sgn0_le, square_root, square_root_random_sign
+except ImportError:
+    sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
+
 class GenericMap(object):
     undefs = []
     F = None
     straight_line = None
     not_straight_line = None
+    sgn0 = staticmethod(sgn0_le)
+    sqrt = staticmethod(square_root)
+
+    def set_sgn0(self, fn):
+        self.sgn0 = fn
+
+    def set_sqrt(self, fn):
+        self.sqrt = fn
 
     def map_to_curve(self, u):
         (x1, y1) = self.straight_line(u)
@@ -43,6 +57,11 @@ class GenericMap(object):
                     A = None
             try:
                 ret = cls(F, A, B)
+                # sign of sqrt shouldn't matter --- make sure by returning random sign
+                ret.set_sqrt(square_root_random_sign)
+                # randomly pick sgn0_le or sgn0_be
+                if randint(0, 1) == 1:
+                    ret.set_sgn0(sgn0_be)
             except:
                 # constructor threw exception
                 continue

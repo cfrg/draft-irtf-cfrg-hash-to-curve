@@ -1,9 +1,11 @@
 #!/usr/bin/sage
 # vim: syntax=python
 
-load("common.sage")
-load("z_selection.sage")
-load("generic_map.sage")
+import sys
+try:
+    from sagelib.generic_map import GenericMap
+except ImportError:
+    sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 class GenericBF(GenericMap):
     def __init__(self, F, _, B):
@@ -40,3 +42,7 @@ class GenericBF(GenericMap):
         x = t1^c1
         y = u
         return (x, y)
+
+if __name__ == "__main__":
+    for _ in range(0, 32):
+        GenericBF.test_random()

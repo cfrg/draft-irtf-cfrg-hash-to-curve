@@ -1,7 +1,13 @@
 #!/usr/bin/sage
 # vim: syntax=python
 
-load("sswu_generic.sage")
+import sys
+try:
+    from sagelib.common import CMOV
+    from sagelib.sswu_generic import GenericSSWU
+    from sagelib.z_selection import find_z_sswu
+except ImportError:
+    sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 class OptimizedSSWU(object):
     def __init__(self, p, A, B):
@@ -16,21 +22,20 @@ class OptimizedSSWU(object):
         # constants
         Z = find_z_sswu(F, self.A, self.B)
         self.Z = Z
-        self.c1 = F(B) / F(3)
-        self.c2 = (p - 3) // 4
-        self.c3 = sqrt(-Z^3)
+        self.c1 = (p - 3) // 4
+        self.c2 = sqrt(-Z^3)
 
         # map for testing
         self.ref_map = GenericSSWU(F, self.A, self.B)
 
     def map_to_curve(self, u):
+        sgn0 = self.ref_map.sgn0
         A = self.A
         B = self.B
         F = self.F
         Z = self.Z
         c1 = self.c1
         c2 = self.c2
-        c3 = self.c3
         u = F(u)
 
         t1 = u^2
@@ -41,30 +46,30 @@ class OptimizedSSWU(object):
         x1n = x1n * B
         xd = -A * xd
         e1 = xd == 0
-        xd = CMOV(xd, Z * A, e1)        # If xd == 0, set xd = Z * A
+        xd = CMOV(xd, Z * A, e1)    # If xd == 0, set xd = Z * A
         t2 = xd^2
-        gxd = t2 * xd                   # gxd == xd^3
+        gxd = t2 * xd               # gxd == xd^3
         t2 = A * t2
         gx1 = x1n^2
-        gx1 = gx1 + t2                  # x1n^2 + A * xd^2
-        gx1 = gx1 * x1n                 # x1n^3 + A * x1n * xd^2
+        gx1 = gx1 + t2              # x1n^2 + A * xd^2
+        gx1 = gx1 * x1n             # x1n^3 + A * x1n * xd^2
         t2 = B * gxd
-        gx1 = gx1 + t2                  # x1n^3 + A * x1n * xd^2 + B * xd^3
+        gx1 = gx1 + t2              # x1n^3 + A * x1n * xd^2 + B * xd^3
         t4 = gxd^2
         t2 = gx1 * gxd
-        t4 = t4 * t2                    # gx1 * gxd^3
-        y1 = t4^c2                      # (gx1 * gxd^3)^((p - 3) / 4)
-        y1 = y1 * t2                    # gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
-        x2n = t3 * x1n                  # x2 = x2n / xd = -10 * u^2 * x1n / xd
-        y2 = y1 * c3                    # y2 = y1 * sqrt(-Z^3)
+        t4 = t4 * t2                # gx1 * gxd^3
+        y1 = t4^c1                  # (gx1 * gxd^3)^((p - 3) / 4)
+        y1 = y1 * t2                # gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
+        x2n = t3 * x1n              # x2 = x2n / xd = -10 * u^2 * x1n / xd
+        y2 = y1 * c2                # y2 = y1 * sqrt(-Z^3)
         y2 = y2 * t1
         y2 = y2 * u
         t2 = y1^2
         t2 = t2 * gxd
         e2 = t2 == gx1
-        xn = CMOV(x2n, x1n, e2)         # If e2, x = x1, else x = x2
-        y = CMOV(y2, y1, e2)            # If e2, y = y1, else y = y2
-        e3 = sgn0(u) == sgn0(y)         # Fix sign of y
+        xn = CMOV(x2n, x1n, e2)     # If e2, x = x1, else x = x2
+        y = CMOV(y2, y1, e2)        # If e2, y = y1, else y = y2
+        e3 = sgn0(u) == sgn0(y)     # Fix sign of y
         y = CMOV(-y, y, e3)
         return (xn, xd, y, 1)
 
@@ -119,14 +124,17 @@ Bp_bls12381g1 = 0x12e2908d11688030018b12e8753eee3b2016c1f0f24f4070a0b9c14fcef35e
 test_bls12381g1 = OptimizedSSWU(p_bls12381, Ap_bls12381g1, Bp_bls12381g1)
 assert test_bls12381g1.Z == GF(p_bls12381)(11)
 
-if __name__ == "__main__":
-    print("Testing P-256")
+def test_sswu():
+    print "Testing P-256"
     test_p256.test()
-    print("Testing P-384")
+    print "Testing P-384"
     test_p384.test()
-    print("Testing P-521")
+    print "Testing P-521"
     test_p521.test()
-    print("Testing secp256k1 isogeny")
+    print "Testing secp256k1 isogeny"
     test_secp256k1.test()
-    print("Testing BLS12-381 G1 isogeny")
+    print "Testing BLS12-381 G1 isogeny"
     test_bls12381g1.test()
+
+if __name__ == "__main__":
+    test_sswu()

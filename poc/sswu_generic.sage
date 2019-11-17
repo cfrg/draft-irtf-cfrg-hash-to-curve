@@ -1,9 +1,13 @@
 #!/usr/bin/sage
 # vim: syntax=python
 
-load("common.sage")
-load("z_selection.sage")
-load("generic_map.sage")
+import sys
+try:
+    from sagelib.common import CMOV
+    from sagelib.generic_map import GenericMap
+    from sagelib.z_selection import find_z_sswu
+except ImportError:
+    sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 class GenericSSWU(GenericMap):
     def __init__(self, F, A, B):
@@ -28,19 +32,23 @@ class GenericSSWU(GenericMap):
             self.undefs += [ex, -ex]
 
     def not_straight_line(self, u):
+        inv0 = self.inv0
+        is_square = self.is_square
+        sgn0 = self.sgn0
+        sqrt = self.sqrt
         u = self.F(u)
         A = self.A
         B = self.B
         Z = self.Z
 
-        t1 = self.inv0(Z^2 * u^4 + Z * u^2)
+        t1 = inv0(Z^2 * u^4 + Z * u^2)
         x1 = (-B / A) * (1 + t1)
         if t1 == 0:
             x1 = B / (Z * A)
         gx1 = x1^3 + A * x1 + B
         x2 = Z * u^2 * x1
         gx2 = x2^3 + A * x2 + B
-        if self.is_square(gx1):
+        if is_square(gx1):
             x = x1
             y = sqrt(gx1)
         else:
@@ -51,6 +59,10 @@ class GenericSSWU(GenericMap):
         return (x, y)
 
     def straight_line(self, u):
+        inv0 = self.inv0
+        is_square = self.is_square
+        sgn0 = self.sgn0
+        sqrt = self.sqrt
         u = self.F(u)
         A = self.A
         B = self.B
@@ -61,7 +73,7 @@ class GenericSSWU(GenericMap):
         t1 = Z * u^2
         t2 = t1^2
         x1 = t1 + t2
-        x1 = self.inv0(x1)
+        x1 = inv0(x1)
         e1 = x1 == 0
         x1 = x1 + 1
         x1 = CMOV(x1, c2, e1)           #// If (t1 + t2) == 0, set x1 = -1 / Z
@@ -73,10 +85,14 @@ class GenericSSWU(GenericMap):
         x2 = t1 * x1                    #// x2 = Z * u^2 * x1
         t2 = t1 * t2
         gx2 = gx1 * t2                  #// gx2 = (Z * u^2)^3 * gx1
-        e2 = self.is_square(gx1)
+        e2 = is_square(gx1)
         x = CMOV(x2, x1, e2)            #// If is_square(gx1), x = x1, else x = x2
         y2 = CMOV(gx2, gx1, e2)         #// If is_square(gx1), y2 = gx1, else y2 = gx2
         y = sqrt(y2)
         e3 = sgn0(u) == sgn0(y)         #// Fix sign of y
         y = CMOV(-y, y, e3)
         return (x, y)
+
+if __name__ == "__main__":
+    for _ in range(0, 32):
+        GenericSSWU.test_random()

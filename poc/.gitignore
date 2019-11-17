@@ -1,4 +1,4 @@
 *.sage.py
 *.pyc
-common.py
-hash_to_base.py
+__sage__*.py
+sagelib/

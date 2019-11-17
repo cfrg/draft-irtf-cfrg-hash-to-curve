@@ -31,7 +31,7 @@ def check_edwards():
 # Bernstein, Birkner, Joyhe, Lange, and Peters,
 # "Twisted Edwards Curves.", AFRICACRYPT 2008,
 # Theorem 3.2
-# https://eprint.iacr.org/2019/013
+# https://eprint.iacr.org/2008/013
 
 # Montgomery curve equation
 Rm.<s,t,Ap,Bp> = QQ[]
@@ -121,7 +121,7 @@ def check_aw2w():
 # NOTE: no w2aw, w2m, or w2e in the general case, because not all Weierstrass
 #       curves can be converted to a Montgomery or twisted Edwards curve
 
-if __name__ == "__main__":
+def map_check():
     check_m2aw()
     check_aw2m()
 
@@ -136,3 +136,6 @@ if __name__ == "__main__":
     check_aw2w()
 
     check_edwards()
+
+if __name__ == "__main__":
+    map_check()
