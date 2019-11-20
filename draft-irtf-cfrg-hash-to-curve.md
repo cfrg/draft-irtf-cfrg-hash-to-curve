@@ -2310,7 +2310,7 @@ Input: u, an element of F.
 Output: (x, y), a point on E.
 
 Constants:
-1. c1 = (p + 1) / 4         # Integer arithmetic
+1. c1 = (q + 1) / 4         # Integer arithmetic
 
 Steps:
 1.  x1 = u
