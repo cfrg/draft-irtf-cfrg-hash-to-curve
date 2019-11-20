@@ -3592,9 +3592,10 @@ Constants:
 
 Procedure:
 1. tv1 = x^c2
-2.   e = (tv1^2) == x
-3.   z = CMOV(tv1 * c1, tv1, e)
-3. return z
+2. tv2 = tv1 * c1
+3.   e = (tv1^2) == x
+4.   z = CMOV(tv2, tv1, e)
+5. return z
 ~~~
 
 ## q = 9 (mod 16) {#sqrt-9mod16}
