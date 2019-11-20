@@ -1660,7 +1660,7 @@ As a rough guide, the following conventions are used in pseudocode:
 - u: the input to the mapping function.
   This is an element of F produced by the hash\_to\_base function.
 
-- (x, y): the affine coordinates of the point output by the mapping.
+- (x, y), (X, Y), (v, w): the affine coordinates of the point output by the mapping.
   Indexed variables (e.g., x1, y2, ...) are used for candidate values.
 
 - tv1, tv2, ...: reusable temporary variables.
@@ -2005,25 +2005,25 @@ Constants:
 - Z, a non-square element of F.
   {{elligator-z-code}} gives a Sage {{SAGE}} script that outputs the RECOMMENDED Z.
 
-Sign of Y: Inputs u and -u give the same x-coordinate.
+Sign of Y: Inputs u and -u give the same X-coordinate.
 Thus, we set sgn0(Y) == sgn0(u).
 
 Exceptions: The exceptional case is Z * u^2 == -1, i.e., 1 + Z * u^2 == 0.
-Implementations must detect this case and set x1 = -C.
+Implementations must detect this case and set X1 = -C.
 Note that this can only happen when q = 3 (mod 4).
 
 Operations:
 
 ~~~
-1.  x1 = -C * inv0(1 + Z * u^2)
-2.  If x1 == 0, set x1 = -C.
-3. gx1 = x1^3 + C * x1^2 + D * x1
-4.  x2 = -x1 - C
-5. gx2 = x2^3 + C * x2^2 + D * x2
-6.  If is_square(gx1), set x = x1 and y = sqrt(gx1)
-7.  Else set x = x2 and y = sqrt(gx2)
-8.  If sgn0(u) != sgn0(y), set y = -y
-9.  return (x, y)
+1.  X1 = -C * inv0(1 + Z * u^2)
+2.  If X1 == 0, set X1 = -C.
+3. gX1 = X1^3 + C * X1^2 + D * X1
+4.  X2 = -X1 - C
+5. gX2 = X2^3 + C * X2^2 + D * X2
+6.  If is_square(gX1), set X = X1 and Y = sqrt(gX1)
+7.  Else set X = X2 and Y = sqrt(gX2)
+8.  If sgn0(u) != sgn0(Y), set Y = -Y
+9.  return (X, Y)
 ~~~
 
 #### Implementation
@@ -2035,29 +2035,29 @@ curve448 {{RFC7748}}.
 ~~~
 map_to_curve_elligator2(u)
 Input: u, an element of F.
-Output: (x, y), a point on E.
+Output: (X, Y), a point on E.
 
 Steps:
 1.  tv1 = u^2
 2.  tv1 = Z * tv1             # Z * u^2
 3.   e1 = tv1 == -1           # exceptional case: Z * u^2 == -1
 4.  tv1 = CMOV(tv1, 0, e1)    # if tv1 == -1, set tv1 = 0
-5.   x1 = tv1 + 1
-6.   x1 = inv0(x1)
-7.   x1 = -C * x1             # x1 = -C / (1 + Z * u^2)
-8.  gx1 = x1 + C
-9.  gx1 = gx1 * x1
-10. gx1 = gx1 + D
-11. gx1 = gx1 * x1            # gx1 = x1^3 + C * x1^2 + D * x1
-12.  x2 = -x1 - C
-13. gx2 = tv1 * gx1
-14.  e2 = is_square(gx1)
-15.   x = CMOV(x2, x1, e2)    # If is_square(gx1), x = x1, else x = x2
-16.  y2 = CMOV(gx2, gx1, e2)  # If is_square(gx1), y2 = gx1, else y2 = gx2
-17.   y = sqrt(y2)
-18.  e3 = sgn0(u) == sgn0(y)  # Fix sign of y
-19.   y = CMOV(-y, y, e3)
-20. return (x, y)
+5.   X1 = tv1 + 1
+6.   X1 = inv0(X1)
+7.   X1 = -C * X1             # X1 = -C / (1 + Z * u^2)
+8.  gX1 = X1 + C
+9.  gX1 = gX1 * X1
+10. gX1 = gX1 + D
+11. gX1 = gX1 * X1            # gX1 = X1^3 + C * X1^2 + D * X1
+12.  X2 = -X1 - C
+13. gX2 = tv1 * gX1
+14.  e2 = is_square(gX1)
+15.   X = CMOV(X2, X1, e2)    # If is_square(gX1), X = X1, else X = X2
+16.  Y2 = CMOV(gX2, gX1, e2)  # If is_square(gX1), Y2 = gX1, else Y2 = gX2
+17.   Y = sqrt(Y2)
+18.  e3 = sgn0(u) == sgn0(Y)  # Fix sign of Y
+19.   Y = CMOV(-Y, Y, e3)
+20. return (X, Y)
 ~~~
 
 ## Mappings for Twisted Edwards curves {#twisted-edwards}
@@ -2156,18 +2156,18 @@ Implementations of other rational maps (e.g., the ones give in {{RFC7748}})
 are analogous.
 
 ~~~
-rational_map(x, y)
-Input: (x, y), a point on the curve Y^2 = X^3 + C * X^2 + D * X.
+rational_map(X, Y)
+Input: (X, Y), a point on the curve Y^2 = X^3 + C * X^2 + D * X.
 Output: (v, w), a point on an equivalent twisted Edwards curve.
 
-1. tv1 = x * invSqrtD
+1. tv1 = X * invSqrtD
 2. tv2 = tv1 + 1
-3. tv3 = y * tv2
+3. tv3 = Y * tv2
 4. tv3 = inv0(tv3)
 5.   v = tv2 * tv3
-6.   v = v * x
+6.   v = v * X
 7.   w = tv1 - 1
-8.   w = w * y
+8.   w = w * Y
 9.   w = w * tv3
 10.  e = w == 0
 11.  w = CMOV(w, 1, e)
@@ -2203,8 +2203,8 @@ map_to_curve_elligator2_edwards(u)
 Input: u, an element of F.
 Output: (v, w), a point on E.
 
-1. (x, y) = map_to_curve_elligator2(u)      # (x, y) is on M
-2. (v, w) = rational_map(x, y)              # (v, w) is on E
+1. (X, Y) = map_to_curve_elligator2(u)      # (X, Y) is on M
+2. (v, w) = rational_map(X, Y)              # (v, w) is on E
 3. return (v, w)
 ~~~
 
@@ -2261,7 +2261,7 @@ Steps:
 
 ### Elligator 2, C == 0 Method {#ell2c0}
 
-The function map\_to\_curve\_ell2A0(u) implements an adaptation of Elligator 2
+The function map\_to\_curve\_ell2C0(u) implements an adaptation of Elligator 2
 {{BLMP19}} targeting curves given by the Weierstrass equation
 
 ~~~
@@ -2281,22 +2281,22 @@ Preconditions: A curve whose equation and base field meet the requirements immed
 
 Constants: D, the parameter of the elliptic curve.
 
-Sign of y: Inputs u and -u give the same x-coordinate.
-Thus, we set sgn0(y) == sgn0(u).
+Sign of Y: Inputs u and -u give the same X-coordinate.
+Thus, we set sgn0(Y) == sgn0(u).
 
 Exceptions: none.
 
 Operations:
 
 ~~~
-1.  x1 = u
-2. gx1 = x1^3 + D * x1
-3.  x2 = -x1
-4. gx2 = -gx1
-5. If is_square(gx1), set x = x1 and y = sqrt(gx1)
-6. Else set x = x2 and y = sqrt(gx2)
-7. If sgn0(u) != sgn0(y), set y = -y.
-8. return (x, y)
+1.  X1 = u
+2. gX1 = X1^3 + D * X1
+3.  X2 = -X1
+4. gX2 = -gX1
+5. If is_square(gX1), set X = X1 and Y = sqrt(gX1)
+6. Else set X = X2 and Y = sqrt(gX2)
+7. If sgn0(u) != sgn0(Y), set Y = -Y.
+8. return (X, Y)
 ~~~
 
 #### Implementation
@@ -2307,23 +2307,23 @@ in a straight-line fashion.
 ~~~
 map_to_curve_ell2C0(u)
 Input: u, an element of F.
-Output: (x, y), a point on E.
+Output: (X, Y), a point on E.
 
 Constants:
 1. c1 = (q + 1) / 4         # Integer arithmetic
 
 Steps:
-1.  x1 = u
-2.  x2 = -x1
-3. gx1 = x1^2
-4. gx1 = gx1 + D
-5. gx1 = gx1 * x1           # gx1 = x1^3 + D * x1
-6.   y = gx1^c1             # This is either sqrt(gx1) or sqrt(gx2)
-7.  e1 = (y^2) == gx1
-8.   x = CMOV(x2, x1, e1)
-9.  e2 = sgn0(u) == sgn0(y)
-10.  y = CMOV(-y, y, e2)
-11. return (x, y)
+1.  X1 = u
+2.  X2 = -X1
+3. gX1 = X1^2
+4. gX1 = gX1 + D
+5. gX1 = gX1 * X1           # gX1 = X1^3 + D * X1
+6.   Y = gX1^c1             # This is either sqrt(gX1) or sqrt(gX2)
+7.  e1 = (Y^2) == gX1
+8.   X = CMOV(X2, X1, e1)
+9.  e2 = sgn0(u) == sgn0(Y)
+10.  Y = CMOV(-Y, Y, e2)
+11. return (X, Y)
 ~~~
 
 # Clearing the cofactor {#cofactor-clearing}
