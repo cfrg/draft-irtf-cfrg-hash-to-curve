@@ -2147,8 +2147,8 @@ Rational maps may be undefined on certain inputs, e.g., when the
 denominator of one of the rational functions is zero.
 In the map described above, the exceptional cases are Y == 0 or invSqrtD * X == -1.
 Implementations MUST detect exceptional cases and return the value
-(v, w) = (0, 1), which is a valid point (in fact, the identity point {{BBJLP08}})
-on all twisted Edwards curves given by the equation above.
+(v, w) = (0, 1), which is the identity point 
+on all twisted Edwards curves.
 
 The following straight-line implementation of the above rational map
 handles the exceptional cases.
