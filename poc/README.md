@@ -54,7 +54,7 @@ The following files implement the deterministic mappings:
 
 - Boneh-Franklin: `bf_generic.sage`
 
-- Elligator 2, A == 0: `ell2a0_generic.sage`
+- Elligator 2, C == 0: `ell2c0_generic.sage`
 
 All of these have the same interface: they define a class (e.g., `GenericSvdW` for
 the Shallue-van de Woestijne map) that takes as arguments the field `F` (constructed

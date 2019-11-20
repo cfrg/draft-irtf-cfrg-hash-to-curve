@@ -2016,7 +2016,7 @@ Operations:
 
 ~~~
 1.  X1 = -C * inv0(1 + Z * u^2)
-2.  If X1 == 0, set X1 = -C.
+2.  If X1 == 0, set X1 = -C
 3. gX1 = X1^3 + C * X1^2 + D * X1
 4.  X2 = -X1 - C
 5. gX2 = X2^3 + C * X2^2 + D * X2
@@ -2295,7 +2295,7 @@ Operations:
 4. gX2 = -gX1
 5. If is_square(gX1), set X = X1 and Y = sqrt(gX1)
 6. Else set X = X2 and Y = sqrt(gX2)
-7. If sgn0(u) != sgn0(Y), set Y = -Y.
+7. If sgn0(u) != sgn0(Y), set Y = -Y
 8. return (X, Y)
 ~~~
 

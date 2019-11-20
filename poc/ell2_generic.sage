@@ -35,25 +35,25 @@ class GenericEll2(GenericMap):
         sgn0 = self.sgn0
         sqrt = self.sqrt
         u = self.F(u)
-        A = self.A
-        B = self.B
+        C = self.A
+        D = self.B
         Z = self.Z
 
-        x1 = -A * inv0(1 + Z * u^2)
-        if x1 == 0:
-            x1 = -A
-        gx1 = x1^3 + A * x1^2 + B * x1
-        x2 = -x1 - A
-        gx2 = x2^3 + A * x2^2 + B * x2
-        if is_square(gx1):
-            x = x1
-            y = sqrt(gx1)
+        X1 = -C * inv0(1 + Z * u^2)
+        if X1 == 0:
+            X1 = -C
+        gX1 = X1^3 + C * X1^2 + D * X1
+        X2 = -X1 - C
+        gX2 = X2^3 + C * X2^2 + D * X2
+        if is_square(gX1):
+            X = X1
+            Y = sqrt(gX1)
         else:
-            x = x2
-            y = sqrt(gx2)
-        if sgn0(u) != sgn0(y):
-            y = -y
-        return (x, y)
+            X = X2
+            Y = sqrt(gX2)
+        if sgn0(u) != sgn0(Y):
+            Y = -Y
+        return (X, Y)
 
     def straight_line(self, u):
         inv0 = self.inv0
@@ -61,30 +61,30 @@ class GenericEll2(GenericMap):
         sgn0 = self.sgn0
         sqrt = self.sqrt
         u = self.F(u)
-        A = self.A
-        B = self.B
+        C = self.A
+        D = self.B
         Z = self.Z
 
-        t1 = u^2
-        t1 = Z * t1                 # Z * u^2
-        e1 = t1 == -1               # detect exceptional case
-        t1 = CMOV(t1, 0, e1)        # if t1 == -1, set t1 = 0
-        x1 = t1 + 1
-        x1 = inv0(x1)
-        x1 = -A * x1                # x1 = -A / (1 + Z * u^2)
-        gx1 = x1 + A
-        gx1 = gx1 * x1
-        gx1 = gx1 + B
-        gx1 = gx1 * x1              # gx1 = x1^3 + A * x1^2 + B * x1
-        x2 = -x1 - A
-        gx2 = t1 * gx1
-        e2 = is_square(gx1)
-        x = CMOV(x2, x1, e2)        # If is_square(gx1), x = x1, else x = x2
-        y2 = CMOV(gx2, gx1, e2)     # If is_square(gx1), y2 = gx1, else y2 = gx2
-        y = sqrt(y2)
-        e3 = sgn0(u) == sgn0(y)     # Fix sign of y
-        y = CMOV(-y, y, e3)
-        return (x, y)
+        tv1 = u^2
+        tv1 = Z * tv1             # Z * u^2
+        e1 = tv1 == -1           # exceptional case: Z * u^2 == -1
+        tv1 = CMOV(tv1, 0, e1)    # if tv1 == -1, set tv1 = 0
+        X1 = tv1 + 1
+        X1 = inv0(X1)
+        X1 = -C * X1             # X1 = -C / (1 + Z * u^2)
+        gX1 = X1 + C
+        gX1 = gX1 * X1
+        gX1 = gX1 + D
+        gX1 = gX1 * X1            # gX1 = X1^3 + C * X1^2 + D * X1
+        X2 = -X1 - C
+        gX2 = tv1 * gX1
+        e2 = is_square(gX1)
+        X = CMOV(X2, X1, e2)    # If is_square(gX1), X = X1, else X = X2
+        Y2 = CMOV(gX2, gX1, e2)  # If is_square(gX1), Y2 = gX1, else Y2 = gX2
+        Y = sqrt(Y2)
+        e3 = sgn0(u) == sgn0(Y)  # Fix sign of Y
+        Y = CMOV(-Y, Y, e3)
+        return (X, Y)
 
 if __name__ == "__main__":
     for _ in range(0, 32):

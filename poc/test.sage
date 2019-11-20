@@ -9,7 +9,7 @@ try:
     from sagelib.bf_generic import GenericBF
     from sagelib.common import test_ts
     from sagelib.ell2_generic import GenericEll2
-    from sagelib.ell2a0_generic import GenericEll2A0
+    from sagelib.ell2c0_generic import GenericEll2C0
     from sagelib.ell2edw_generic import GenericEll2Edw
     from sagelib.sswu_generic import GenericSSWU
     from sagelib.svdw_generic import GenericSvdW
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     test_sswu()
 
     print "Testing generic maps"
-    for m in (GenericBF, GenericEll2, GenericEll2A0, GenericEll2Edw, GenericSSWU, GenericSvdW):
+    for m in (GenericBF, GenericEll2, GenericEll2C0, GenericEll2Edw, GenericSSWU, GenericSvdW):
         print "Testing %s" % m.__name__
         for _ in range(0, 32):
             m.test_random()

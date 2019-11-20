@@ -27,8 +27,8 @@ class GenericBF(GenericMap):
         u = self.F(u)
         B = self.B
 
-        w = (2 * q - 1) // 3
-        x = (u^2 - B)^w
+        tv1 = (2 * q - 1) // 3    # Integer arithmetic
+        x = (u^2 - B)^tv1
         y = u
         return (x, y)
 
@@ -37,9 +37,9 @@ class GenericBF(GenericMap):
         B = self.B
         c1 = self.c1
 
-        t1 = u^2
-        t1 = t1 - B
-        x = t1^c1
+        tv1 = u^2
+        tv1 = tv1 - B
+        x = tv1^c1             # x = (u^2 - B)^((2 * q - 1) / 3)
         y = u
         return (x, y)
 

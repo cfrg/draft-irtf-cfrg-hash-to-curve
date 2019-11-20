@@ -24,44 +24,44 @@ def map_to_curve_elligator2_curve25519(u):
     c3 = sqrt(F(-1))
     c4 = (p - 5) // 8
 
-    t1 = u^2
-    t1 = 2 * t1
-    xd = t1 + 1
-    x1n = -486662
-    t2 = xd^2
-    gxd = t2 * xd
-    gx1 = 486662 * xd
-    gx1 = gx1 + x1n
-    gx1 = gx1 * x1n
-    gx1 = gx1 + t2
-    gx1 = gx1 * x1n
-    t3 = gxd^2
-    t2 = t3^2
-    t3 = t3 * gxd
-    t3 = t3 * gx1
-    t2 = t2 * t3
-    y11 = t2^c4
-    y11 = y11 * t3
+    tv1 = u^2
+    tv1 = 2 * tv1
+    xd = tv1 + 1             # Nonzero: -1 is square (mod p), tv1 is not
+    x1n = -486662             # x1 = x1n / xd = -486662 / (1 + 2 * u^2)
+    tv2 = xd^2
+    gxd = tv2 * xd            # gxd = xd^3
+    gx1 = 486662 * xd         # 486662 * xd
+    gx1 = gx1 + x1n           # x1n + 486662 * xd
+    gx1 = gx1 * x1n           # x1n^2 + 486662 * x1n * xd
+    gx1 = gx1 + tv2           # x1n^2 + 486662 * x1n * xd + xd^2
+    gx1 = gx1 * x1n           # x1n^3 + 486662 * x1n^2 * xd + x1n * xd^2
+    tv3 = gxd^2
+    tv2 = tv3^2               # gxd^4
+    tv3 = tv3 * gxd           # gxd^3
+    tv3 = tv3 * gx1           # gx1 * gxd^3
+    tv2 = tv2 * tv3           # gx1 * gxd^7
+    y11 = tv2^c4              # (gx1 * gxd^7)^((p - 5) / 8)
+    y11 = y11 * tv3           # gx1 * gxd^3 * (gx1 * gxd^7)^((p - 5) / 8)
     y12 = y11 * c3
-    t2 = y11^2
-    t2 = t2 * gxd
-    e1 = t2 == gx1
-    y1 = CMOV(y12, y11, e1)
-    x2n = x1n * t1
+    tv2 = y11^2
+    tv2 = tv2 * gxd
+    e1 = tv2 == gx1
+    y1 = CMOV(y12, y11, e1)  # If g(x1) is square, this is its sqrt
+    x2n = x1n * tv1           # x2 = x2n / xd = 2 * u^2 * x1n / xd
     y21 = y11 * u
     y21 = y21 * c2
     y22 = y21 * c3
-    gx2 = gx1 * t1
-    t2 = y21^2
-    t2 = t2 * gxd
-    e2 = t2 == gx2
-    y2 = CMOV(y22, y21, e2)
-    t2 = y1^2
-    t2 = t2 * gxd
-    e3 = t2 == gx1
-    xn = CMOV(x2n, x1n, e3)
-    y = CMOV(y2, y1, e3)
-    e4 = sgn0(u) == sgn0(y)
+    gx2 = gx1 * tv1           # g(x2) = gx2 / gxd = 2 * u^2 * g(x1)
+    tv2 = y21^2
+    tv2 = tv2 * gxd
+    e2 = tv2 == gx2
+    y2 = CMOV(y22, y21, e2)  # If g(x2) is square, this is its sqrt
+    tv2 = y1^2
+    tv2 = tv2 * gxd
+    e3 = tv2 == gx1
+    xn = CMOV(x2n, x1n, e3)  # If e3, x = x1, else x = x2
+    y = CMOV(y2, y1, e3)    # If e3, y = y1, else y = y2
+    e4 = sgn0(u) == sgn0(y)  # Fix sign of y
     y = CMOV(-y, y, e4)
     return (xn, xd, y, 1)
 
@@ -73,11 +73,11 @@ def map_to_curve_elligator2_edwards25519(u):
     (xMn, xMd, yMn, yMd) = map_to_curve_elligator2_curve25519(u)
     xn = xMn * yMd
     xn = xn * c1
-    xd = xMd * yMn
+    xd = xMd * yMn       # xn / xd = c1 * xM / yM
     yn = xMn - xMd
-    yd = xMn + xMd
-    t1 = xd * yd
-    e = t1 == 0
+    yd = xMn + xMd       # (n / d - 1) / (n / d + 1) = (n - d) / (n + d)
+    tv1 = xd * yd
+    e = tv1 == 0
     xn = CMOV(xn, 0, e)
     xd = CMOV(xd, 1, e)
     yn = CMOV(yn, 1, e)

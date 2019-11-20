@@ -34,9 +34,9 @@ def check_edwards():
 # https://eprint.iacr.org/2008/013
 
 # Montgomery curve equation
-Rm.<V,W,J,K> = QQ[]
-Monty = lambda V, W, J, K: K * W^2 - (V^3 + J * V^2 + V)
-MC = Rm.quotient(Monty(V, W, J, K))
+Rm.<s,t,J,K> = QQ[]
+Monty = lambda s, t, J, K: K * t^2 - (s^3 + J * s^2 + s)
+MC = Rm.quotient(Monty(s, t, J, K))
 
 # Short Weierstrass curve equation
 Rw.<x,y,A,B> = QQ[]
@@ -56,16 +56,16 @@ TEC = Re.quotient(Edw(v, w, a, d))
 def check_m2aw():
     C = J / K
     sqrtD = 1 / K
-    X = V / K
-    Y = W / K
+    X = s / K
+    Y = t / K
     assert 0 == MC(LWeier(X, Y, C, sqrtD).numerator())
 
 def check_aw2m():
     J = C / sqrtD
     K = 1 / sqrtD
-    V = X / sqrtD
-    W = Y / sqrtD
-    assert 0 == LWC(Monty(V, W, J, K).numerator())
+    s = X / sqrtD
+    t = Y / sqrtD
+    assert 0 == LWC(Monty(s, t, J, K).numerator())
 
 def check_e2aw():
     C = (a + d) / 2
@@ -84,22 +84,22 @@ def check_aw2e():
 def check_e2m():
     J = 2 * (a + d) / (a - d)
     K = 4 / (a - d)
-    V = (1 + w) / (1 - w)
-    W = (1 + w) / (v * (1 - w))
-    assert 0 == TEC(Monty(V, W, J, K).numerator())
+    s = (1 + w) / (1 - w)
+    t = (1 + w) / (v * (1 - w))
+    assert 0 == TEC(Monty(s, t, J, K).numerator())
 
 def check_m2e():
     a = (J + 2) / K
     d = (J - 2) / K
-    v = V / W
-    w = (V - 1) / (V + 1)
+    v = s / t
+    w = (s - 1) / (s + 1)
     assert 0 == MC(Edw(v, w, a, d).numerator())
 
 def check_m2w():
     A = (3 - J^2) / (3 * K^2)
     B = (2 * J^3 - 9 * J) / (27 * K^3)
-    x = (3 * V + J) / (3 * K)
-    y = W / K
+    x = (3 * s + J) / (3 * K)
+    y = t / K
     assert 0 == MC(SWeier(x, y, A, B).numerator())
 
 def check_e2w():
