@@ -17,5 +17,12 @@ sagelib/%.py: %.sage
 	@sage --preparse $<
 	@mv $<.py $@
 
+test: pyfiles
+	sage test.sage
+
+vectors: pyfiles
+	@mkdir -p vectors
+	sage test_vectors.sage
+
 clean:
-	rm -rf sagelib *.pyc *.sage.py *.log
+	rm -rf sagelib *.pyc *.sage.py *.log vectors

@@ -11,6 +11,7 @@ except ImportError:
 
 class GenericSvdW(GenericMap):
     def __init__(self, F, A, B):
+        self.name = "SVDW"
         self.F = F
         A = F(A)
         B = F(B)

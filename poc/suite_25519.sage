@@ -38,27 +38,33 @@ def m2e_25519(P):
     assert a * v^2 + w^2 == 1 + d * v^2 * w^2, "bad output point"
     return (v, w, 1)
 
-monty_suite = BasicH2CSuiteDef(F, Ap, Bp, sgn0_le, hashlib.sha256, 48, None, 8, True, DST)
-edw_suite = EdwH2CSuiteDef(monty_suite._replace(Aa=a, Bd=d), Ap, Bp, m2e_25519)
-edw_hash = EdwH2CSuite(edw_suite)
-monty_hash = MontyH2CSuite(monty_suite)
-assert edw_hash.m2c.Z == 2
-assert monty_hash.m2c.Z == 2
+monty_suite = BasicH2CSuiteDef("curve25519", F, Ap, Bp, sgn0_le, hashlib.sha256, 48, None, 8, True, DST)
+edw_suite = EdwH2CSuiteDef(monty_suite._replace(E="edwards25519",Aa=a, Bd=d), Ap, Bp, m2e_25519)
+edw25519_hash_ro = EdwH2CSuite("edwards25519-SHA256-EDELL2-RO-",edw_suite)
+monty25519_hash_ro = MontyH2CSuite("curve25519-SHA256-ELL2-RO-",monty_suite)
+edw25519_hash_nu = EdwH2CSuite("edwards25519-SHA256-EDELL2-NU-",edw_suite._replace(base=edw_suite.base._replace(is_ro=False)))
+monty25519_hash_nu = MontyH2CSuite("curve25519-SHA256-ELL2-NU-",monty_suite._replace(is_ro=False))
+assert edw25519_hash_ro.m2c.Z == edw25519_hash_nu.m2c.Z == 2
+assert monty25519_hash_ro.m2c.Z == monty25519_hash_nu.m2c.Z == 2
 
 group_order = 2^252 + 0x14def9dea2f79cd65812631a5cf5d3ed
 
-def test_suite_25519():
+def _test_suite(edw_hash, monty_hash, m2e, group_order, nreps=128):
     accumE = edw_hash('asdf')
     accumM = monty_hash('asdf')
     for _ in range(0, 128):
         msg = ''.join( chr(randrange(32, 126)) for _ in range(0, 32) )
         edw_out = edw_hash(msg)
         monty_out = monty_hash(msg)
-        assert tuple(edw_out) == m2e_25519(monty_out)
+        assert tuple(edw_out) == m2e(monty_out)
         accumE += edw_out
         accumM += monty_out
     assert (edw_out * group_order).is_zero()
     assert (monty_out * group_order).is_zero()
+
+def test_suite_25519():
+    _test_suite(edw25519_hash_ro, monty25519_hash_ro, m2e_25519, group_order)
+    _test_suite(edw25519_hash_nu, monty25519_hash_nu, m2e_25519, group_order)
 
 if __name__ == "__main__":
     test_suite_25519()

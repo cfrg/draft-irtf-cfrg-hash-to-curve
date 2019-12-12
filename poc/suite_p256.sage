@@ -3,6 +3,7 @@
 
 import hashlib
 import sys
+
 try:
     from sagelib.common import sgn0_le
     from sagelib.h2c_suite import BasicH2CSuiteDef, BasicH2CSuite
@@ -17,12 +18,14 @@ F = GF(p)
 A = F(-3)
 B = F(0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b)
 
-p256_sswu_def = BasicH2CSuiteDef(F, A, B, sgn0_le, hashlib.sha256, 48, GenericSSWU, 1, True, DST)
+p256_sswu_def = BasicH2CSuiteDef("P256", F, A, B, sgn0_le, hashlib.sha256, 48, GenericSSWU, 1, True, DST)
 p256_svdw_def = p256_sswu_def._replace(MapT=GenericSvdW)
-p256_sswu = BasicH2CSuite(p256_sswu_def)
-p256_svdw = BasicH2CSuite(p256_svdw_def)
-assert p256_sswu.m2c.Z == -10
-assert p256_svdw.m2c.Z == -3
+p256_sswu_ro = BasicH2CSuite("P256-SHA256-SSWU-RO-",p256_sswu_def)
+p256_svdw_ro = BasicH2CSuite("P256-SHA256-SVDW-RO-",p256_svdw_def)
+p256_sswu_nu = BasicH2CSuite("P256-SHA256-SSWU-NU-",p256_sswu_def._replace(is_ro=False))
+p256_svdw_nu = BasicH2CSuite("P256-SHA256-SVDW-NU-",p256_svdw_def._replace(is_ro=False))
+assert p256_sswu_ro.m2c.Z == p256_sswu_nu.m2c.Z == -10
+assert p256_svdw_ro.m2c.Z == p256_svdw_nu.m2c.Z ==  -3
 
 p256_order = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551
 
@@ -34,8 +37,10 @@ def _test_suite(suite, group_order, nreps=128):
     assert (accum * group_order).is_zero()
 
 def test_suite_p256():
-    _test_suite(p256_sswu, p256_order)
-    _test_suite(p256_svdw, p256_order)
+    _test_suite(p256_sswu_ro, p256_order)
+    _test_suite(p256_svdw_ro, p256_order)
+    _test_suite(p256_sswu_nu, p256_order)
+    _test_suite(p256_svdw_nu, p256_order)
 
 if __name__ == "__main__":
     test_suite_p256()
