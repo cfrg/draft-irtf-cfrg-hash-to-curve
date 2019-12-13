@@ -21,32 +21,32 @@ ref_map.set_sqrt(sqrt)
 def map_to_curve_elligator2_curve448(u):
     c1 = (p - 3) // 4
 
-    t1 = u^2
-    e1 = t1 == 1
-    t1 = CMOV(t1, 0, e1)
-    xd = 1 - t1
+    tv1 = u^2
+    e1 = tv1 == 1
+    tv1 = CMOV(tv1, 0, e1)    # If Z * u^2 == -1, set tv1 = 0
+    xd = 1 - tv1
     x1n = -156326
-    t2 = xd^2
-    gxd = t2 * xd
-    gx1 = 156326 * xd
-    gx1 = gx1 + x1n
-    gx1 = gx1 * x1n
-    gx1 = gx1 + t2
-    gx1 = gx1 * x1n
-    t3 = gxd^2
-    t2 = gx1 * gxd
-    t3 = t3 * t2
-    y1 = t3^c1
-    y1 = y1 * t2
-    x2n = -t1 * x1n
+    tv2 = xd^2
+    gxd = tv2 * xd            # gxd = xd^3
+    gx1 = 156326 * xd         # 156326 * xd
+    gx1 = gx1 + x1n           # x1n + 156326 * xd
+    gx1 = gx1 * x1n           # x1n^2 + 156326 * x1n * xd
+    gx1 = gx1 + tv2           # x1n^2 + 156326 * x1n * xd + xd^2
+    gx1 = gx1 * x1n           # x1n^3 + 156326 * x1n^2 * xd + x1n * xd^2
+    tv3 = gxd^2
+    tv2 = gx1 * gxd           # gx1 * gxd
+    tv3 = tv3 * tv2           # gx1 * gxd^3
+    y1 = tv3^c1              # (gx1 * gxd^3)^((p - 3) / 4)
+    y1 = y1 * tv2            # gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
+    x2n = -tv1 * x1n          # x2 = x2n / xd = -1 * u^2 * x1n / xd
     y2 = y1 * u
     y2 = CMOV(y2, 0, e1)
-    t2 = y1^2
-    t2 = t2 * gxd
-    e2 = t2 == gx1
-    xn = CMOV(x2n, x1n, e2)
-    y = CMOV(y2, y1, e2)
-    e3 = sgn0(u) == sgn0(y)
+    tv2 = y1^2
+    tv2 = tv2 * gxd
+    e2 = tv2 == gx1
+    xn = CMOV(x2n, x1n, e2)  # If e2, x = x1, else x = x2
+    y = CMOV(y2, y1, e2)    # If e2, y = y1, else y = y2
+    e3 = sgn0(u) == sgn0(y)  # Fix sign of y
     y = CMOV(-y, y, e3)
     return (xn, xd, y, 1)
 
@@ -58,32 +58,32 @@ def map_to_curve_elligator2_edwards448(u):
     yn2 = yn^2
     yd2 = yd^2
     xEn = xn2 - xd2
-    t2 = xEn - xd2
+    tv2 = xEn - xd2
     xEn = xEn * xd2
     xEn = xEn * yd
     xEn = xEn * yn
     xEn = xEn * 4
-    t2 = t2 * xn2
-    t2 = t2 * yd2
-    t3 = 4 * yn2
-    t1 = t3 + yd2
-    t1 = t1 * xd4
-    xEd = t1 + t2
-    t2 = t2 * xn
-    t4 = xn * xd4
-    yEn = t3 - yd2
-    yEn = yEn * t4
-    yEn = yEn - t2
-    t1 = xn2 + xd2
-    t1 = t1 * xd2
-    t1 = t1 * xd
-    t1 = t1 * yn2
-    t1 = -2 * t1
-    yEd = t2 + t1
-    t4 = t4 * yd2
-    yEd = yEd + t4
-    t1 = xEd * yEd
-    e = t1 == 0
+    tv2 = tv2 * xn2
+    tv2 = tv2 * yd2
+    tv3 = 4 * yn2
+    tv1 = tv3 + yd2
+    tv1 = tv1 * xd4
+    xEd = tv1 + tv2
+    tv2 = tv2 * xn
+    tv4 = xn * xd4
+    yEn = tv3 - yd2
+    yEn = yEn * tv4
+    yEn = yEn - tv2
+    tv1 = xn2 + xd2
+    tv1 = tv1 * xd2
+    tv1 = tv1 * xd
+    tv1 = tv1 * yn2
+    tv1 = -2 * tv1
+    yEd = tv2 + tv1
+    tv4 = tv4 * yd2
+    yEd = yEd + tv4
+    tv1 = xEd * yEd
+    e = tv1 == 0
     xEn = CMOV(xEn, 0, e)
     xEd = CMOV(xEd, 1, e)
     yEn = CMOV(yEn, 1, e)

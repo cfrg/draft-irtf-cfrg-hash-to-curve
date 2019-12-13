@@ -38,38 +38,38 @@ class OptimizedSSWU(object):
         c2 = self.c2
         u = F(u)
 
-        t1 = u^2
-        t3 = Z * t1
-        t2 = t3^2
-        xd = t2 + t3
+        tv1 = u^2
+        tv3 = Z * tv1
+        tv2 = tv3^2
+        xd = tv2 + tv3
         x1n = xd + 1
         x1n = x1n * B
         xd = -A * xd
         e1 = xd == 0
-        xd = CMOV(xd, Z * A, e1)    # If xd == 0, set xd = Z * A
-        t2 = xd^2
-        gxd = t2 * xd               # gxd == xd^3
-        t2 = A * t2
+        xd = CMOV(xd, Z * A, e1)  # If xd == 0, set xd = Z * A
+        tv2 = xd^2
+        gxd = tv2 * xd             # gxd == xd^3
+        tv2 = A * tv2
         gx1 = x1n^2
-        gx1 = gx1 + t2              # x1n^2 + A * xd^2
-        gx1 = gx1 * x1n             # x1n^3 + A * x1n * xd^2
-        t2 = B * gxd
-        gx1 = gx1 + t2              # x1n^3 + A * x1n * xd^2 + B * xd^3
-        t4 = gxd^2
-        t2 = gx1 * gxd
-        t4 = t4 * t2                # gx1 * gxd^3
-        y1 = t4^c1                  # (gx1 * gxd^3)^((p - 3) / 4)
-        y1 = y1 * t2                # gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
-        x2n = t3 * x1n              # x2 = x2n / xd = -10 * u^2 * x1n / xd
-        y2 = y1 * c2                # y2 = y1 * sqrt(-Z^3)
-        y2 = y2 * t1
+        gx1 = gx1 + tv2            # x1n^2 + A * xd^2
+        gx1 = gx1 * x1n            # x1n^3 + A * x1n * xd^2
+        tv2 = B * gxd
+        gx1 = gx1 + tv2            # x1n^3 + A * x1n * xd^2 + B * xd^3
+        tv4 = gxd^2
+        tv2 = gx1 * gxd
+        tv4 = tv4 * tv2            # gx1 * gxd^3
+        y1 = tv4^c1               # (gx1 * gxd^3)^((p - 3) / 4)
+        y1 = y1 * tv2             # gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
+        x2n = tv3 * x1n            # x2 = x2n / xd = -10 * u^2 * x1n / xd
+        y2 = y1 * c2              # y2 = y1 * sqrt(-Z^3)
+        y2 = y2 * tv1
         y2 = y2 * u
-        t2 = y1^2
-        t2 = t2 * gxd
-        e2 = t2 == gx1
-        xn = CMOV(x2n, x1n, e2)     # If e2, x = x1, else x = x2
-        y = CMOV(y2, y1, e2)        # If e2, y = y1, else y = y2
-        e3 = sgn0(u) == sgn0(y)     # Fix sign of y
+        tv2 = y1^2
+        tv2 = tv2 * gxd
+        e2 = tv2 == gx1
+        xn = CMOV(x2n, x1n, e2)   # If e2, x = x1, else x = x2
+        y = CMOV(y2, y1, e2)     # If e2, y = y1, else y = y2
+        e3 = sgn0(u) == sgn0(y)   # Fix sign of y
         y = CMOV(-y, y, e3)
         return (xn, xd, y, 1)
 

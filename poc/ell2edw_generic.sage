@@ -38,22 +38,23 @@ class GenericEll2Edw(GenericMap):
         (xp, yp) = self.ell2_map.not_straight_line(u)
         return self.nsl_map(xp, yp)
 
-    def nsl_map(self, xp, yp):
-        Bp = self.Bp
+    def nsl_map(self, X, Y):
+        invSqrtD = self.Bp
 
-        xnum = xp
-        xden = yp
-        ynum = Bp * xp - 1
-        yden = Bp * xp + 1
+        xnum = X
+        xden = Y
+        ynum = invSqrtD * X - 1
+        yden = invSqrtD * X + 1
         if xden * yden == 0:
             return (0, 1)
         return (xnum / xden, ynum / yden)
 
-    def nsl_map_inv(self, x, y):
-        Bp = self.Bp
-        xnum = ynum = 1 + y
-        xden = Bp * (1 - y)
-        yden = xden * x
+    def nsl_map_inv(self, v, w):
+        invSqrtD = self.Bp
+
+        xnum = ynum = 1 + w
+        xden = invSqrtD * (1 - w)
+        yden = xden * v
         if xden * yden == 0:
             return (0, 0)
         return (xnum / xden, ynum / yden)
@@ -62,19 +63,19 @@ class GenericEll2Edw(GenericMap):
         (xp, yp) = self.ell2_map.straight_line(u)
         return self.sl_map(xp, yp)
 
-    def sl_map(self, x, y):
-        Bp = self.Bp
+    def sl_map(self, X, Y):
+        invSqrtD = self.Bp
         inv0 = self.inv0
 
-        t1 = x * Bp
-        t2 = t1 + 1
-        t3 = y * t2
-        t3 = inv0(t3)
-        v = t2 * t3
-        v = v * x
-        w = t1 - 1
-        w = w * y
-        w = w * t3
+        tv1 = X * invSqrtD
+        tv2 = tv1 + 1
+        tv3 = Y * tv2
+        tv3 = inv0(tv3)
+        v = tv2 * tv3
+        v = v * X
+        w = tv1 - 1
+        w = w * Y
+        w = w * tv3
         e = w == 0
         w = CMOV(w, 1, e)
         return (v, w)

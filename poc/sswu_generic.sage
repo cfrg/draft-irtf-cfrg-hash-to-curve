@@ -41,9 +41,9 @@ class GenericSSWU(GenericMap):
         B = self.B
         Z = self.Z
 
-        t1 = inv0(Z^2 * u^4 + Z * u^2)
-        x1 = (-B / A) * (1 + t1)
-        if t1 == 0:
+        tv1 = inv0(Z^2 * u^4 + Z * u^2)
+        x1 = (-B / A) * (1 + tv1)
+        if tv1 == 0:
             x1 = B / (Z * A)
         gx1 = x1^3 + A * x1 + B
         x2 = Z * u^2 * x1
@@ -70,26 +70,26 @@ class GenericSSWU(GenericMap):
         c1 = self.c1
         c2 = self.c2
 
-        t1 = Z * u^2
-        t2 = t1^2
-        x1 = t1 + t2
+        tv1 = Z * u^2
+        tv2 = tv1^2
+        x1 = tv1 + tv2
         x1 = inv0(x1)
         e1 = x1 == 0
         x1 = x1 + 1
-        x1 = CMOV(x1, c2, e1)           #// If (t1 + t2) == 0, set x1 = -1 / Z
-        x1 = x1 * c1                    #// x1 = (-B / A) * (1 + (1 / (Z^2 * u^4 + Z * u^2)))
+        x1 = CMOV(x1, c2, e1)    # If (tv1 + tv2) == 0, set x1 = -1 / Z
+        x1 = x1 * c1      # x1 = (-B / A) * (1 + (1 / (Z^2 * u^4 + Z * u^2)))
         gx1 = x1^2
         gx1 = gx1 + A
         gx1 = gx1 * x1
-        gx1 = gx1 + B                   #// gx1 = g(x1) = x1^3 + A * x1 + B
-        x2 = t1 * x1                    #// x2 = Z * u^2 * x1
-        t2 = t1 * t2
-        gx2 = gx1 * t2                  #// gx2 = (Z * u^2)^3 * gx1
+        gx1 = gx1 + B             # gx1 = g(x1) = x1^3 + A * x1 + B
+        x2 = tv1 * x1            # x2 = Z * u^2 * x1
+        tv2 = tv1 * tv2
+        gx2 = gx1 * tv2           # gx2 = (Z * u^2)^3 * gx1
         e2 = is_square(gx1)
-        x = CMOV(x2, x1, e2)            #// If is_square(gx1), x = x1, else x = x2
-        y2 = CMOV(gx2, gx1, e2)         #// If is_square(gx1), y2 = gx1, else y2 = gx2
+        x = CMOV(x2, x1, e2)    # If is_square(gx1), x = x1, else x = x2
+        y2 = CMOV(gx2, gx1, e2)  # If is_square(gx1), y2 = gx1, else y2 = gx2
         y = sqrt(y2)
-        e3 = sgn0(u) == sgn0(y)         #// Fix sign of y
+        e3 = sgn0(u) == sgn0(y)  # Fix sign of y
         y = CMOV(-y, y, e3)
         return (x, y)
 

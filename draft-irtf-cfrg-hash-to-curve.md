@@ -55,27 +55,15 @@ normative:
   RFC8017:
   RFC7748:
 informative:
-  draft-yonezawa-pfc-01:
-    title: Pairing-friendly Curves
-    target: https://datatracker.ietf.org/doc/draft-yonezawa-pairing-friendly-curves/
-    date: March 11, 2019
+  BLS12-381:
+    target: https://electriccoin.co/blog/new-snark-curve/
+    title: "BLS12-381: New zk-SNARK Elliptic Curve Construction"
+    date: Mar, 2017
     author:
       -
-        ins: S. Yonezawa
-        name: Shoko Yonezawa
-        org: Lepidum
-      -
-        ins: S. Chikara
-        name: Sakae Chikara
-        org: NTT TechnoCross
-      -
-        ins: T. Kobayashi
-        name: Tetsutaro Kobayashi
-        org: NTT
-      -
-        ins: T. Saito
-        name: Tsunekazu Saito
-        org: NTT
+        ins: S. Bowe
+        name: Sean Bowe
+        org: Electric Coin Company
   SEC1:
     title: "SEC 1: Elliptic Curve Cryptography"
     target: http://www.secg.org/sec1-v2.pdf
@@ -825,6 +813,27 @@ informative:
         ins: J. F. Voloch
         name: J. Felipe Voloch
         org: University of Texas
+  MRH04:
+    title: "Indifferentiability, impossibility results on reductions, and applications to the random oracle methodology"
+    seriesinfo:
+      "In": "TCC 2004: Theory of Cryptography"
+      "pages": 21-39
+      DOI: 10.1007/978-3-540-24638-1_2
+    target: https://doi.org/10.1007/978-3-540-24638-1_2
+    date: Feb, 2004
+    author:
+      -
+        ins: U. Maurer
+        name: Ueli Maurer
+        org: ETH Zurich
+      -
+        ins: R. Renner
+        name: Renato Renner
+        org: ETH Zurich
+      -
+        ins: C. Holenstein
+        name: Clemens Holenstein
+        org: ETH Zurich
   S85:
     title: Elliptic Curves Over Finite Fields and the Computation of Square Roots mod p
     seriesinfo:
@@ -999,15 +1008,17 @@ The following is a brief definition of elliptic curves, with an emphasis on
 important parameters and their relation to hashing to curves.
 For further reference on elliptic curves, consult {{CFADLNV05}} or {{W08}}.
 
-Let F be the finite field GF(q) of prime characteristic p. In most cases F
-is a prime field, so q = p. Otherwise, F is an extension field, so q = p^m for
-an integer m > 1. This document writes elements of extension fields
+Let F be the finite field GF(q) of prime characteristic p > 3.
+(This document does not consider elliptic curves over fields of characteristic 2 or 3.)
+In most cases F is a prime field, so q = p.
+Otherwise, F is an extension field, so q = p^m for an integer m > 1.
+This document writes elements of extension fields
 in a primitive element or polynomial basis, i.e., as a vector
 of m elements of GF(p) written in ascending order by degree.
 The entries of this vector are indexed in ascending order starting from 1,
 i.e., x = (x\_1, x\_2, ..., x\_m).
-For example, if q = p^2 and the primitive element basis is (1, i),
-then x = (a, b) corresponds to the element a + b * i, where
+For example, if q = p^2 and the primitive element basis is (1, I),
+then x = (a, b) corresponds to the element a + b * I, where
 x\_1 = a and x\_2 = b.
 
 An elliptic curve E is specified by an equation in two variables and a
@@ -1110,12 +1121,16 @@ Because in general the mapping is not surjective, the output of this
 construction is distinguishable from uniformly random, i.e., it does
 not behave like a random oracle.
 
-Brier et al. {{BCIMRT10}} describe two generic constructions whose outputs are
-indifferentiable from a random oracle when the constructions are instantiated
-with appropriate hash functions modeled as random oracles.
+Brier et al. {{BCIMRT10}} describe two generic methods for constructing
+random oracle encodings.
 Farashahi et al. {{FFSTV13}} and Tibouchi and Kim {{TK17}} refine the analysis
 of one of these constructions.
 That construction is described in {{roadmap}}.
+
+(In more detail: both constructions are
+indifferentiable from a random oracle {{MRH04}} when instantiated
+with appropriate hash functions modeled as random oracles.
+See {{security-considerations}} for further discussion.)
 
 ### Serialization {#term-serialization}
 
@@ -1137,24 +1152,24 @@ under the assumption that random oracles answer only queries generated
 by that protocol.
 In practice, this assumption does not hold if two protocols query the
 same random oracle.
-Concretely, consider protocols P1 and P2 that query random oracle R:
-if P1 and P2 both query R on the same value x, the security analysis of
+Concretely, consider protocols P1 and P2 that query random oracle RO:
+if P1 and P2 both query RO on the same value x, the security analysis of
 one or both protocols may be invalidated.
 
 A common approach to addressing this issue is called domain separation,
 which allows a single random oracle to simulate multiple, independent oracles.
 This is effected by ensuring that each simulated oracle sees queries that are
 distinct from those seen by all other simulated oracles.
-For example, to simulate two oracles R1 and R2 given a single oracle R,
+For example, to simulate two oracles RO1 and RO2 given a single oracle RO,
 one might define
 
-    R1(x) := R("R1" || x)
-    R2(x) := R("R2" || x)
+    RO1(x) := RO("RO1" || x)
+    RO2(x) := RO("RO2" || x)
 
-In this example, "R1" and "R2" are called domain separation tags;
-they ensure that queries to R1 and R2 cannot result in identical
-queries to R.
-Thus, it is safe to treat R1 and R2 as independent oracles.
+In this example, "RO1" and "RO2" are called domain separation tags;
+they ensure that queries to RO1 and RO2 cannot result in identical
+queries to RO.
+Thus, it is safe to treat RO1 and RO2 as independent oracles.
 
 # Roadmap {#roadmap}
 
@@ -1210,7 +1225,7 @@ Steps:
 2. u1 = hash_to_base(alpha, 1)
 3. Q0 = map_to_curve(u0)
 4. Q1 = map_to_curve(u1)
-5. R = Q0 + Q1 // Point addition
+5. R = Q0 + Q1              # Point addition
 6. P = clear_cofactor(R)
 7. return P
 ~~~
@@ -1316,9 +1331,6 @@ is_square(x) := { True,  if x^((q - 1) / 2) is 0 or 1 in F;
     Throughout the document, sgn0 is used generically to mean either of these variants.
     Each suite in {{suites}} specifies the sgn0 variant to be used.
 
--   abs(x): The absolute value of x is defined in terms of sgn0
-    in the natural way, namely, abs(x) := sgn0(x) * x.
-
 -   inv0(x): This function returns the multiplicative inverse of x in F,
     extended to all of F by fixing inv0(0) == 0.
     To implement inv0 in constant time, compute inv0(x) := x^(q - 2).
@@ -1385,7 +1397,7 @@ Steps:
 3.   sign_i = CMOV(1, -1, x_i > ((p - 1) / 2))
 4.   sign_i = CMOV(sign_i, 0, x_i == 0)
 5.   sign = CMOV(sign, sign_i, sign == 0)
-6. return CMOV(sign, 1, sign == 0)    // Regard x == 0 as positive
+6. return CMOV(sign, 1, sign == 0)      # Regard x == 0 as positive
 ~~~
 
 ### Little endian variant {#sgn0-le}
@@ -1423,7 +1435,7 @@ Steps:
 3.   sign_i = CMOV(1, -1, x_i mod 2 == 1)
 4.   sign_i = CMOV(sign_i, 0, x_i == 0)
 5.   sign = CMOV(sign, sign_i, sign == 0)
-6. return CMOV(sign, 1, sign == 0)     // regard x == 0 as positive
+6. return CMOV(sign, 1, sign == 0)      # Regard x == 0 as positive
 ~~~
 
 # Hashing to a Finite Field {#hashtobase}
@@ -1534,11 +1546,11 @@ Output:
 
 Steps:
 1. msg_prime = HKDF-Extract(DST, msg || I2OSP(0, 1))
-2. info_pfx = "H2C" || I2OSP(ctr, 1)   // "H2C" is a 3-byte ASCII string
+2. info_pfx = "H2C" || I2OSP(ctr, 1)   # "H2C" is a 3-byte ASCII string
 3. for i in (1, ..., m):
 4.   info = info_pfx || I2OSP(i, 1)
-5.   t = HKDF-Expand(msg_prime, info, L)
-6.   e_i = OS2IP(t) mod p
+5.   tv = HKDF-Expand(msg_prime, info, L)
+6.   e_i = OS2IP(tv) mod p
 7. u = (e_1, ..., e_m)
 8. return u
 ~~~
@@ -1599,7 +1611,7 @@ Note that the suites given in {{suites}} are recommended mappings
 for the respective curves.
 
 If the target elliptic curve is a supersingular curve supported by either the
-Boneh-Franklin method ({{bfmap}}) or the Elligator 2 method for A == 0 ({{ell2a0}}),
+Boneh-Franklin method ({{bfmap}}) or the Elligator 2 method for C == 0 ({{ell2c0}}),
 that mapping is the recommended one.
 
 Otherwise, if the target elliptic curve is a Montgomery curve ({{montgomery}}),
@@ -1629,7 +1641,7 @@ expensive than the curve-specific recommendations above.
 The generic interface shared by all mappings in this section is as follows:
 
 ~~~
-(x, y) = map_to_curve(u)
+    (x, y) = map_to_curve(u)
 ~~~
 
 The input u and outputs x and y are elements of the field F.
@@ -1640,7 +1652,7 @@ used instead.
 
 ## Notation
 
-As a rough style guide the following convention is used:
+As a rough guide, the following conventions are used in pseudocode:
 
 - All arithmetic operations are performed over a field F, unless
   explicitly stated otherwise.
@@ -1648,14 +1660,12 @@ As a rough style guide the following convention is used:
 - u: the input to the mapping function.
   This is an element of F produced by the hash\_to\_base function.
 
-- (x, y): are the affine coordinates of the point output by the mapping.
-  Indexed values are used when the algorithm calculates some candidate values.
+- (x, y), (X, Y), (v, w): the affine coordinates of the point output by the mapping.
+  Indexed variables (e.g., x1, y2, ...) are used for candidate values.
 
-- t1, t2, ...: are reusable temporary variables. For notable variables,
-    distinct names are used easing the debugging process when correlating with
-    test vectors.
+- tv1, tv2, ...: reusable temporary variables.
 
-- c1, c2, ...: are constant values, which can be computed in advance.
+- c1, c2, ...: constant values, which can be computed in advance.
 
 
 ## Sign of the resulting point {#point-sign}
@@ -1686,7 +1696,12 @@ cases that result from attempting to compute the inverse of 0.
 ## Mappings for Weierstrass curves {#weierstrass}
 
 The following mappings apply to elliptic curves defined by the equation
-E: y^2 = g(x) = x^3 + A * x + B, where 4 * A^3 + 27 * B^2 != 0.
+
+~~~
+    y^2 = g(x) = x^3 + A * x + B
+~~~
+
+where 4 * A^3 + 27 * B^2 != 0.
 
 ### Shallue-van de Woestijne Method {#svdw}
 
@@ -1704,8 +1719,7 @@ first evaluate the Shallue-van de Woestijne mapping to an equivalent Weierstrass
 curve, then map that point to the target Montgomery or twisted Edwards curve
 using the corresponding rational map.
 
-Preconditions: A Weierstrass curve y^2 = x^3 + A * x + B over F = GF(p^m)
-where p > 5 and odd.
+Preconditions: A Weierstrass curve y^2 = x^3 + A * x + B.
 
 Constants:
 
@@ -1729,20 +1743,21 @@ to invert this product are exception free.
 Operations:
 
 ~~~
-1. t1 = u^2 * g(Z)
-2. t2 = 1 + t1
-3. t1 = 1 - t1
-4. t3 = inv0(t1 * t2)
-5. t4 = u * t1 * t3 * sqrt(-g(Z) * (3 * Z^2 + 4 * A))
-6. x1 = -Z / 2 - t4
-7. x2 = -Z / 2 + t4
-8. t5 = 2 * t2^2 * t3 * sqrt(-g(Z) / (3 * Z^2 + 4 * A))
-9. x3 = Z + t5^2
-10. If is_square(g(x1)), set x = x1 and y = sqrt(g(x1))
-11. Else If is_square(g(x2)), set x = x2 and y = sqrt(g(x2))
-12. Else set x = x3 and y = sqrt(g(x3))
-13. If sgn0(u) != sgn0(y), set y = -y
-14. return (x, y)
+1. tv1 = u^2 * g(Z)
+2. tv2 = 1 + tv1
+3. tv1 = 1 - tv1
+4. tv3 = inv0(tv1 * tv2)
+5. tv4 = sqrt(-g(Z) * (3 * Z^2 + 4 * A))
+6. tv4 = tv4 * sgn0(tv4)                    # sgn0(tv4) MUST equal 1
+7. tv5 = u * tv1 * tv3 * tv4
+8.  x1 = -Z / 2 - tv5
+9.  x2 = -Z / 2 + tv5
+10. x3 = Z - 4 * g(Z) * (tv2^2 * tv3)^2 / (3 * Z^2 + 4 * A)
+11. If is_square(g(x1)), set x = x1 and y = sqrt(g(x1))
+12. Else If is_square(g(x2)), set x = x2 and y = sqrt(g(x2))
+13. Else set x = x3 and y = sqrt(g(x3))
+14. If sgn0(u) != sgn0(y), set y = -y
+15. return (x, y)
 ~~~
 
 #### Implementation
@@ -1758,45 +1773,45 @@ Output: (x, y), a point on E.
 Constants:
 1. c1 = g(Z)
 2. c2 = -Z / 2
-3. c3 = sqrt(-g(Z) * (3 * Z^2 + 4 * A))         // sgn0(c3) MUST equal 1
+3. c3 = sqrt(-g(Z) * (3 * Z^2 + 4 * A))     # sgn0(c3) MUST equal 1
 4. c4 = -4 * g(Z) / (3 * Z^2 + 4 * A)
 
 Steps:
-1.   t1 = u^2
-2.   t1 = t1 * c1
-3.   t2 = 1 + t1
-4.   t1 = 1 - t1
-5.   t3 = t1 * t2
-6.   t3 = inv0(t3)
-7.   t4 = u * t1
-8.   t4 = t4 * t3
-9.   t4 = t4 * c3
-10.  x1 = c2 - t4
+1.  tv1 = u^2
+2.  tv1 = tv1 * c1
+3.  tv2 = 1 + tv1
+4.  tv1 = 1 - tv1
+5.  tv3 = tv1 * tv2
+6.  tv3 = inv0(tv3)
+7.  tv4 = u * tv1
+8.  tv4 = tv4 * tv3
+9.  tv4 = tv4 * c3
+10.  x1 = c2 - tv4
 11. gx1 = x1^2
 12. gx1 = gx1 + A
 13. gx1 = gx1 * x1
 14. gx1 = gx1 + B
 15.  e1 = is_square(gx1)
-16.  x2 = c2 + t4
+16.  x2 = c2 + tv4
 17. gx2 = x2^2
 18. gx2 = gx2 + A
 19. gx2 = gx2 * x2
 20. gx2 = gx2 + B
-21.  e2 = is_square(gx2) AND NOT e1     // Avoid short-circuit logic ops
-22.  x3 = t2^2
-23.  x3 = x3 * t3
+21.  e2 = is_square(gx2) AND NOT e1     # Avoid short-circuit logic ops
+22.  x3 = tv2^2
+23.  x3 = x3 * tv3
 24.  x3 = x3^2
 25.  x3 = x3 * c4
 26.  x3 = x3 + Z
-27.   x = CMOV(x3, x1, e1)      // x = x1 if gx1 is square, else x = x3
-28.   x = CMOV(x, x2, e2)       // x = x2 if gx2 is square and gx1 is not
+27.   x = CMOV(x3, x1, e1)      # x = x1 if gx1 is square, else x = x3
+28.   x = CMOV(x, x2, e2)       # x = x2 if gx2 is square and gx1 is not
 29.  gx = x^2
 30.  gx = gx + A
 31.  gx = gx * x
 32.  gx = gx + B
 33.   y = sqrt(gx)
 34.  e3 = sgn0(u) == sgn0(y)
-35.   y = CMOV(-y, y, e3)       // Select correct sign of y
+35.   y = CMOV(-y, y, e3)       # Select correct sign of y
 36. return (x, y)
 ~~~
 
@@ -1805,10 +1820,9 @@ Steps:
 The function map\_to\_curve\_simple\_swu(u) implements a simplification
 of the Shallue-van de Woestijne-Ulas mapping {{U07}} described by Brier et
 al. {{BCIMRT10}}, which they call the "simplified SWU" map. Wahby and Boneh
-{{WB19}} generalize this mapping to curves over fields of odd characteristic p > 3.
+{{WB19}} generalize and optimize this mapping.
 
-Preconditions: A Weierstrass curve y^2 = x^3 + A * x + B over F = GF(p^m)
-where p > 5 and odd, A != 0, and B != 0.
+Preconditions: A Weierstrass curve y^2 = x^3 + A * x + B where A != 0 and B != 0.
 
 Constants:
 
@@ -1834,9 +1848,9 @@ is square by the condition on Z given above.
 Operations:
 
 ~~~
-1.  t1 = inv0(Z^2 * u^4 + Z * u^2)
-2.  x1 = (-B / A) * (1 + t1)
-3.  If t1 == 0, set x1 = B / (Z * A)
+1. tv1 = inv0(Z^2 * u^4 + Z * u^2)
+2.  x1 = (-B / A) * (1 + tv1)
+3.  If tv1 == 0, set x1 = B / (Z * A)
 4. gx1 = x1^3 + A * x1 + B
 5.  x2 = Z * u^2 * x1
 6. gx2 = x2^3 + A * x2 + B
@@ -1863,26 +1877,26 @@ Constants:
 2.  c2 = -1 / Z
 
 Steps:
-1.   t1 = Z * u^2
-2.   t2 = t1^2
-3.   x1 = t1 + t2
+1.  tv1 = Z * u^2
+2.  tv2 = tv1^2
+3.   x1 = tv1 + tv2
 4.   x1 = inv0(x1)
 5.   e1 = x1 == 0
 6.   x1 = x1 + 1
-7.   x1 = CMOV(x1, c2, e1)    // If (t1 + t2) == 0, set x1 = -1 / Z
-8.   x1 = x1 * c1      // x1 = (-B / A) * (1 + (1 / (Z^2 * u^4 + Z * u^2)))
+7.   x1 = CMOV(x1, c2, e1)    # If (tv1 + tv2) == 0, set x1 = -1 / Z
+8.   x1 = x1 * c1      # x1 = (-B / A) * (1 + (1 / (Z^2 * u^4 + Z * u^2)))
 9.  gx1 = x1^2
 10. gx1 = gx1 + A
 11. gx1 = gx1 * x1
-12. gx1 = gx1 + B             // gx1 = g(x1) = x1^3 + A * x1 + B
-13.  x2 = t1 * x1             // x2 = Z * u^2 * x1
-14.  t2 = t1 * t2
-15. gx2 = gx1 * t2            // gx2 = (Z * u^2)^3 * gx1
+12. gx1 = gx1 + B             # gx1 = g(x1) = x1^3 + A * x1 + B
+13.  x2 = tv1 * x1            # x2 = Z * u^2 * x1
+14. tv2 = tv1 * tv2
+15. gx2 = gx1 * tv2           # gx2 = (Z * u^2)^3 * gx1
 16.  e2 = is_square(gx1)
-17.   x = CMOV(x2, x1, e2)    // If is_square(gx1), x = x1, else x = x2
-18.  y2 = CMOV(gx2, gx1, e2)  // If is_square(gx1), y2 = gx1, else y2 = gx2
+17.   x = CMOV(x2, x1, e2)    # If is_square(gx1), x = x1, else x = x2
+18.  y2 = CMOV(gx2, gx1, e2)  # If is_square(gx1), y2 = gx1, else y2 = gx2
 19.   y = sqrt(y2)
-20.  e3 = sgn0(u) == sgn0(y)  // Fix sign of y
+20.  e3 = sgn0(u) == sgn0(y)  # Fix sign of y
 21.   y = CMOV(-y, y, e3)
 22. return (x, y)
 ~~~
@@ -1897,10 +1911,10 @@ Weierstrass curves having A == 0 or B == 0, which the mapping of
 This method applies to curves like secp256k1 {{SEC2}} and to pairing-friendly
 curves in the Barreto-Lynn-Scott {{BLS03}}, Barreto-Naehrig {{BN05}}, and other families.
 
-This method requires finding another elliptic curve
+This method requires finding another elliptic curve E' given by the equation
 
 ~~~
-E': y^2 = g'(x) = x^3 + A' * x + B'
+    y'^2 = g'(x') = x'^3 + A' * x' + B'
 ~~~
 
 that is isogenous to E and has A' != 0 and B' != 0.
@@ -1920,7 +1934,7 @@ the resulting points on E', and then applying iso\_map to the sum.
 This gives the same result while requiring only one evaluation of iso\_map.
 
 Preconditions: An elliptic curve E' with A' != 0 and B' != 0 that is
-isogenous to the target curve E with isogeny map iso\_map(x, y) from
+isogenous to the target curve E with isogeny map iso\_map from
 E' to E.
 
 Helper functions:
@@ -1937,8 +1951,8 @@ Exceptional cases of iso\_map MUST return the identity point on E.
 Operations:
 
 ~~~
-1. (x', y') = map_to_curve_simple_swu(u)    // (x', y') is on E'
-2.   (x, y) = iso_map(x', y')               // (x, y) is on E
+1. (x', y') = map_to_curve_simple_swu(u)    # (x', y') is on E'
+2.   (x, y) = iso_map(x', y')               # (x, y) is on E
 3. return (x, y)
 ~~~
 
@@ -1947,59 +1961,69 @@ See {{hash2curve-repo}} or {{WB19}}, Section 4.3 for details on implementing the
 ## Mappings for Montgomery curves {#montgomery}
 
 The mapping defined in {{elligator2}} implements Elligator 2 {{BHKL13}} for
-curves defined by the Weierstrass equation y^2 = x^3 + A * x^2 + B * x.
+curves defined by the Weierstrass equation
 
-Such a Weierstrass curve is related to the Montgomery curve
-B' * t^2 = s^3 + A' * s^2 + s by the following change of variables:
+~~~
+    Y^2 = X^3 + C * X^2 + D * X
+~~~
 
-- A = A' / B'
-- B = 1 / B'^2
-- x = s / B'
-- y = t / B'
+(Note that this equation is different from the one used in {{weierstrass}}.)
+This Weierstrass curve is equivalent to the Montgomery curve
 
-The Elligator 2 mapping given below returns a point (x, y) on the
+~~~
+    K * t^2 = s^3 + J * s^2 + s
+~~~
+
+by the following change of variables:
+
+- C = J / K
+- D = 1 / K^2
+- X = s / K
+- Y = t / K
+
+The Elligator 2 mapping given below returns a point (X, Y) on the
 Weierstrass curve defined above.
-This point can be converted to a point (s, t) on the original
+This point can be converted to a point (s, t) on the equivalent
 Montgomery curve by computing
 
-- s = B' * x
-- t = B' * y
+- s = K * X
+- t = K * Y
 
-Note that when B and B' are equal to 1, the above two curve equations
+Note that when D == K == 1, the above two curve equations
 are identical and no conversion is necessary.
 This is the case, for example, for Curve25519 and Curve448 {{RFC7748}}.
 
 ### Elligator 2 Method {#elligator2}
 
-Preconditions: A Weierstrass curve y^2 = x^3 + A * x^2 + B * x
-where A != 0, B != 0, and A^2 - 4 * B is non-zero and non-square in F.
+Preconditions: A Weierstrass curve Y^2 = X^3 + C * X^2 + D * X
+where C != 0, D != 0, and C^2 - 4 * D is non-zero and non-square in F.
 
 Constants:
 
-- A and B, the parameters of the elliptic curve.
+- C and D, the parameters of the elliptic curve.
 
 - Z, a non-square element of F.
   {{elligator-z-code}} gives a Sage {{SAGE}} script that outputs the RECOMMENDED Z.
 
-Sign of y: Inputs u and -u give the same x-coordinate.
-Thus, we set sgn0(y) == sgn0(u).
+Sign of Y: Inputs u and -u give the same X-coordinate.
+Thus, we set sgn0(Y) == sgn0(u).
 
 Exceptions: The exceptional case is Z * u^2 == -1, i.e., 1 + Z * u^2 == 0.
-Implementations must detect this case and set x1 = -A.
+Implementations must detect this case and set X1 = -C.
 Note that this can only happen when q = 3 (mod 4).
 
 Operations:
 
 ~~~
-1.  x1 = -A * inv0(1 + Z * u^2)
-2.  If x1 == 0, set x1 = -A.
-3. gx1 = x1^3 + A * x1^2 + B * x1
-4.  x2 = -x1 - A
-5. gx2 = x2^3 + A * x2^2 + B * x2
-6.  If is_square(gx1), set x = x1 and y = sqrt(gx1)
-7.  Else set x = x2 and y = sqrt(gx2)
-8.  If sgn0(u) != sgn0(y), set y = -y
-9.  return (x, y)
+1.  X1 = -C * inv0(1 + Z * u^2)
+2.  If X1 == 0, set X1 = -C
+3. gX1 = X1^3 + C * X1^2 + D * X1
+4.  X2 = -X1 - C
+5. gX2 = X2^3 + C * X2^2 + D * X2
+6.  If is_square(gX1), set X = X1 and Y = sqrt(gX1)
+7.  Else set X = X2 and Y = sqrt(gX2)
+8.  If sgn0(u) != sgn0(Y), set Y = -Y
+9.  return (X, Y)
 ~~~
 
 #### Implementation
@@ -2011,42 +2035,47 @@ curve448 {{RFC7748}}.
 ~~~
 map_to_curve_elligator2(u)
 Input: u, an element of F.
-Output: (x, y), a point on E.
+Output: (X, Y), a point on E.
 
 Steps:
-1.   t1 = u^2
-2.   t1 = Z * t1              // Z * u^2
-3.   e1 = t1 == -1            // exceptional case: Z * u^2 == -1
-4.   t1 = CMOV(t1, 0, e1)     // if t1 == -1, set t1 = 0
-5.   x1 = t1 + 1
-6.   x1 = inv0(x1)
-7.   x1 = -A * x1             // x1 = -A / (1 + Z * u^2)
-8.  gx1 = x1 + A
-9.  gx1 = gx1 * x1
-10. gx1 = gx1 + B
-11. gx1 = gx1 * x1            // gx1 = x1^3 + A * x1^2 + B * x1
-12.  x2 = -x1 - A
-13. gx2 = t1 * gx1
-14.  e2 = is_square(gx1)
-15.   x = CMOV(x2, x1, e2)    // If is_square(gx1), x = x1, else x = x2
-16.  y2 = CMOV(gx2, gx1, e2)  // If is_square(gx1), y2 = gx1, else y2 = gx2
-17.   y = sqrt(y2)
-18.  e3 = sgn0(u) == sgn0(y)  // Fix sign of y
-19.   y = CMOV(-y, y, e3)
-20. return (x, y)
+1.  tv1 = u^2
+2.  tv1 = Z * tv1             # Z * u^2
+3.   e1 = tv1 == -1           # exceptional case: Z * u^2 == -1
+4.  tv1 = CMOV(tv1, 0, e1)    # if tv1 == -1, set tv1 = 0
+5.   X1 = tv1 + 1
+6.   X1 = inv0(X1)
+7.   X1 = -C * X1             # X1 = -C / (1 + Z * u^2)
+8.  gX1 = X1 + C
+9.  gX1 = gX1 * X1
+10. gX1 = gX1 + D
+11. gX1 = gX1 * X1            # gX1 = X1^3 + C * X1^2 + D * X1
+12.  X2 = -X1 - C
+13. gX2 = tv1 * gX1
+14.  e2 = is_square(gX1)
+15.   X = CMOV(X2, X1, e2)    # If is_square(gX1), X = X1, else X = X2
+16.  Y2 = CMOV(gX2, gX1, e2)  # If is_square(gX1), Y2 = gX1, else Y2 = gX2
+17.   Y = sqrt(Y2)
+18.  e3 = sgn0(u) == sgn0(Y)  # Fix sign of Y
+19.   Y = CMOV(-Y, Y, e3)
+20. return (X, Y)
 ~~~
 
 ## Mappings for Twisted Edwards curves {#twisted-edwards}
 
 Twisted Edwards curves (a class of curves that includes Edwards curves)
 are given by the equation
-a * v^2 + w^2 = 1 + d * v^2 * w^2, with a != 0, d != 0, and a != d {{BBJLP08}}.
+
+~~~
+    a * v^2 + w^2 = 1 + d * v^2 * w^2
+~~~
+
+with a != 0, d != 0, and a != d {{BBJLP08}}.
 
 These curves are closely related to Montgomery
 curves ({{montgomery}}): every twisted Edwards curve is birationally equivalent
 to a Montgomery curve ({{BBJLP08}}, Theorem 3.2).
 This equivalence yields an efficient way of hashing to a twisted Edwards curve:
-first, hash to the equivalent Montgomery curve, then transform the
+first, hash to an equivalent Montgomery curve, then transform the
 result into a point on the twisted Edwards curve via a rational map.
 This method of hashing to a twisted Edwards curve thus requires identifying a
 corresponding Montgomery curve and rational map.
@@ -2084,31 +2113,42 @@ unambiguously.
 When hashing to a twisted Edwards curve that does not have a standardized
 Montgomery form or rational map, the following procedure MUST be
 used to derive them.
-For a twisted Edwards curve given by a * v^2 + w^2 = 1 + d * v^2 * w^2,
-first compute A and B, the parameters of the equivalent Weierstrass
-curve given by y^2 = x^3 + A * x^2 + B * x, as follows:
+For a twisted Edwards curve given by
 
-- A = (a + d) / 2
-- B = (a - d)^2 / 16
+~~~
+    a * v^2 + w^2 = 1 + d * v^2 * w^2
+~~~
 
-Note that the above curve is given in the Weierstrass form required
-by the Elligator 2 mapping of {{elligator2}}.
-The rational map from the point (x, y) on this Weierstrass curve
+first compute C and D, the parameters of the equivalent Weierstrass
+curve given by
+
+~~~
+    Y^2 = X^3 + C * X^2 + D * X
+~~~
+
+as follows:
+
+- C = (a + d) / 2
+- D = (a - d)^2 / 16
+
+(Note that the above curve is given in the Weierstrass form required
+by the Elligator 2 mapping of {{elligator2}}.)
+The rational map from the point (X, Y) on this Weierstrass curve
 to the point (v, w) on the twisted Edwards curve is given by
 
-- B' = 1 / sqrt(B) = 4 / (a - d)
-- v = x / y
-- w = (B' * x - 1) / (B' * x + 1)
+- invSqrtD = 4 / (a - d)
+- v = X / Y
+- w = (invSqrtD * X - 1) / (invSqrtD * X + 1)
 
-For completeness, we give the inverse map in {{appx-rational-map-edw}}.
-Note that the inverse map is not used when hashing to a twisted Edwards curve.
+(For completeness, we give the inverse map in {{appx-rational-map-edw}}.
+Note that the inverse map is not used when hashing to a twisted Edwards curve.)
 
 Rational maps may be undefined on certain inputs, e.g., when the
 denominator of one of the rational functions is zero.
-In the map described above, the exceptional cases are y == 0 or B' * x == -1.
+In the map described above, the exceptional cases are Y == 0 or invSqrtD * X == -1.
 Implementations MUST detect exceptional cases and return the value
-(v, w) = (0, 1), which is a valid point on all twisted Edwards curves
-given by the equation above.
+(v, w) = (0, 1), which is the identity point 
+on all twisted Edwards curves.
 
 The following straight-line implementation of the above rational map
 handles the exceptional cases.
@@ -2116,21 +2156,21 @@ Implementations of other rational maps (e.g., the ones give in {{RFC7748}})
 are analogous.
 
 ~~~
-rational_map(x, y)
-Input: (x, y), a point on the curve y^2 = x^3 + A * x^2 + B * x.
+rational_map(X, Y)
+Input: (X, Y), a point on the curve Y^2 = X^3 + C * X^2 + D * X.
 Output: (v, w), a point on an equivalent twisted Edwards curve.
 
-1. t1 = x * B'
-2. t2 = t1 + 1
-3. t3 = y * t2
-4. t3 = inv0(t3)
-5.  v = t2 * t3
-6.  v = v * x
-7.  w = t1 - 1
-8.  w = w * y
-9.  w = w * t3
-10. e = w == 0
-11. w = CMOV(w, 1, e)
+1. tv1 = X * invSqrtD
+2. tv2 = tv1 + 1
+3. tv3 = Y * tv2
+4. tv3 = inv0(tv3)
+5.   v = tv2 * tv3
+6.   v = v * X
+7.   w = tv1 - 1
+8.   w = w * Y
+9.   w = w * tv3
+10.  e = w == 0
+11.  w = CMOV(w, 1, e)
 12. return (v, w)
 ~~~
 
@@ -2142,10 +2182,10 @@ meeting the requirements in {{rational-map}}.
 Helper functions:
 
 - map\_to\_curve\_elligator2 is the mapping of {{elligator2}} to the curve M.
-- rational\_map is a function that takes a point (x, y) on M and
+- rational\_map is a function that takes a point (X, Y) on M and
   returns a point (v, w) on E, as defined in {{rational-map}}.
 
-Sign of y (and w): for this map, the sign is determined by map\_to\_curve\_elligator2.
+Sign of Y (and v): for this map, the sign is determined by map\_to\_curve\_elligator2.
 No further sign adjustments are required.
 
 Exceptions: The exceptions for the Elligator 2 mapping are as given in
@@ -2163,8 +2203,8 @@ map_to_curve_elligator2_edwards(u)
 Input: u, an element of F.
 Output: (v, w), a point on E.
 
-1. (x, y) = map_to_curve_elligator2(u)      // (x, y) is on M
-2. (v, w) = rational_map(x, y)              // (v, w) is on E
+1. (X, Y) = map_to_curve_elligator2(u)      # (X, Y) is on M
+2. (v, w) = rational_map(X, Y)              # (v, w) is on E
 3. return (v, w)
 ~~~
 
@@ -2173,12 +2213,17 @@ Output: (v, w), a point on E.
 ### Boneh-Franklin Method {#bfmap}
 
 The function map\_to\_curve\_bf(u) implements the Boneh-Franklin method {{BF01}} which
-covers the supersingular curves defined by y^2 = x^3 + B over a field F such
-that q = 2 (mod 3).
+covers the supersingular curves defined by
 
-Preconditions: A supersingular curve over F such that q = 2 (mod 3).
+~~~
+    y^2 = x^3 + B
+~~~
 
-Constants: B, the parameter of the supersingular curve.
+over a field F = GF(q), q = 2 (mod 3).
+
+Preconditions: A curve whose equation and base field meet the requirements immediately above.
+
+Constants: B, the parameter of the curve.
 
 Sign of y: determined by sign of u. No adjustments are necessary.
 
@@ -2187,9 +2232,9 @@ Exceptions: none.
 Operations:
 
 ~~~
-1. w = (2 * q - 1) / 3    // Integer arithmetic
-2. x = (u^2 - B)^w
-3. y = u
+1. tv1 = (2 * q - 1) / 3    # Integer arithmetic
+2.   x = (u^2 - B)^tv1
+3.   y = u
 4. return (x, y)
 ~~~
 
@@ -2204,68 +2249,81 @@ Input: u, an element of F.
 Output: (x, y), a point on E.
 
 Constants:
-1. c1 = (2 * q - 1) / 3   // Integer arithmetic
+1. c1 = (2 * q - 1) / 3     # Integer arithmetic
 
 Steps:
-1. t1 = u^2
-2. t1 = t1 - B
-3.  x = t1^c1             // x = (u^2 - B)^((2 * q - 1) / 3)
-4.  y = u
+1. tv1 = u^2
+2. tv1 = tv1 - B
+3.   x = tv1^c1             # x = (u^2 - B)^((2 * q - 1) / 3)
+4.   y = u
 5. return (x, y)
 ~~~
 
-### Elligator 2, A == 0 Method {#ell2a0}
+### Elligator 2, C == 0 Method {#ell2c0}
 
-The function map\_to\_curve\_ell2A0(u) implements an adaptation of Elligator 2
-{{BLMP19}} targeting curves given by y^2 = x^3 + B * x over F such that q = 3 (mod 4).
+The function map\_to\_curve\_ell2C0(u) implements an adaptation of Elligator 2
+{{BLMP19}} targeting curves given by the Weierstrass equation
 
-Preconditions: An elliptic curve over F such that q = 3 (mod 4).
+~~~
+    Y^2 = X^3 + D * X
+~~~
 
-Constants: B, the parameter of the elliptic curve.
+over F = GF(q), q = 3 (mod 4).
+This method also works for curves given by the Montgomery equation
 
-Sign of y: Inputs u and -u give the same x-coordinate.
-Thus, we set sgn0(y) == sgn0(u).
+~~~
+    K * t^2 = s^3 + s
+~~~
+
+via the change of variables given in {{montgomery}}.
+
+Preconditions: A curve whose equation and base field meet the requirements immediately above.
+
+Constants: D, the parameter of the elliptic curve.
+
+Sign of Y: Inputs u and -u give the same X-coordinate.
+Thus, we set sgn0(Y) == sgn0(u).
 
 Exceptions: none.
 
 Operations:
 
 ~~~
-1.  x1 = u
-2. gx1 = x1^3 + B * x1
-3.  x2 = -x1
-4. gx2 = -gx1
-5. If is_square(gx1), set x = x1 and y = sqrt(gx1)
-6. Else set x = x2 and y = sqrt(gx2)
-7. If sgn0(u) != sgn0(y), set y = -y.
-8. return (x, y)
+1.  X1 = u
+2. gX1 = X1^3 + D * X1
+3.  X2 = -X1
+4. gX2 = -gX1
+5. If is_square(gX1), set X = X1 and Y = sqrt(gX1)
+6. Else set X = X2 and Y = sqrt(gX2)
+7. If sgn0(u) != sgn0(Y), set Y = -Y
+8. return (X, Y)
 ~~~
 
 #### Implementation
 
-The following procedure implements the Elligator 2 mapping for A == 0
+The following procedure implements the Elligator 2 mapping for C == 0
 in a straight-line fashion.
 
 ~~~
-map_to_curve_ell2A0(u)
+map_to_curve_ell2C0(u)
 Input: u, an element of F.
-Output: (x, y), a point on E.
+Output: (X, Y), a point on E.
 
 Constants:
-1. c1 = (p + 1) / 4         // Integer arithmetic
+1. c1 = (q + 1) / 4         # Integer arithmetic
 
 Steps:
-1.  x1 = u
-2.  x2 = -x1
-3. gx1 = x1^2
-4. gx1 = gx1 + B
-5. gx1 = gx1 * x1           // gx1 = x1^3 + B * x1
-6.   y = gx1^c1             // This is either sqrt(gx1) or sqrt(gx2)
-7.  e1 = (y^2) == gx1
-8.   x = CMOV(x2, x1, e1)
-9.  e2 = sgn0(u) == sgn0(y)
-10.  y = CMOV(-y, y, e2)
-11. return (x, y)
+1.  X1 = u
+2.  X2 = -X1
+3. gX1 = X1^2
+4. gX1 = gX1 + D
+5. gX1 = gX1 * X1           # gX1 = X1^3 + D * X1
+6.   Y = gX1^c1             # This is either sqrt(gX1) or sqrt(gX2)
+7.  e1 = (Y^2) == gX1
+8.   X = CMOV(X2, X1, e1)
+9.  e2 = sgn0(u) == sgn0(Y)
+10.  Y = CMOV(-Y, Y, e2)
+11. return (X, Y)
 ~~~
 
 # Clearing the cofactor {#cofactor-clearing}
@@ -2302,7 +2360,7 @@ The clear\_cofactor function is parameterized by a scalar h\_eff.
 Specifically,
 
 ~~~
-clear_cofactor(P) := h_eff * P
+    clear_cofactor(P) := h_eff * P
 ~~~
 
 where \* represents scalar multiplication.
@@ -2530,15 +2588,15 @@ This section defines ciphersuites for curve25519 and edwards25519 {{RFC7748}}.
 The suites curve25519-SHA256-ELL2-RO- and curve25519-SHA256-ELL2-NU-
 share the following parameters, in addition to the common parameters below.
 
-- E: B * y^2 = x^3 + A * x^2 + x, where
-  - A = 486662
-  - B = 1
+- E: K * t^2 = s^3 + J * s^2 + s, where
+  - J = 486662
+  - K = 1
 - f: Elligator 2 method, {{elligator2}}
 
 The suites edwards25519-SHA256-EDELL2-RO- and edwards25519-SHA256-EDELL2-NU-
 share the following parameters, in addition to the common parameters below.
 
-- E: a * x^2 + y^2 = 1 + d * x^2 * y^2, where
+- E: a * v^2 + w^2 = 1 + d * v^2 * w^2, where
   - a = -1
   - d = 0x52036cee2b6ffe738cc740797779e89800700a4d4141d8ab75eb4dca135978a3
 - f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
@@ -2565,15 +2623,15 @@ This section defines ciphersuites for curve448 and edwards448 {{RFC7748}}.
 The suites curve448-SHA512-ELL2-RO- and curve448-SHA512-ELL2-NU-
 share the following parameters, in addition to the common parameters below.
 
-- E: B * y^2 = x^3 + A * x^2 + x, where
-  - A = 156326
-  - B = 1
+- E: K * t^2 = s^3 + J * s^2 + s, where
+  - J = 156326
+  - K = 1
 - f: Elligator 2 method, {{elligator2}}
 
 The suites edwards448-SHA512-EDELL2-RO- and edwards448-SHA512-EDELL2-NU-
 share the following parameters, in addition to the common parameters below.
 
-- E: a * x^2 + y^2 = 1 + d * x^2 * y^2, where
+- E: a * v^2 + w^2 = 1 + d * v^2 * w^2, where
   - a = 1
   - d = -39081
 - f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
@@ -2629,7 +2687,7 @@ to the curve E' isogenous to secp256k1 is given in {{sswu-map-to-3mod4}}.
 ## Suites for BLS12-381 {#suites-bls12381}
 
 This section defines ciphersuites for groups G1 and G2 of
-the BLS12-381 elliptic curve {{draft-yonezawa-pfc-01}}.
+the BLS12-381 elliptic curve {{BLS12-381}}.
 
 ### BLS12-381 G1 {#suites-bls12381-g1}
 
@@ -2706,7 +2764,7 @@ Budroni and Pintore ({{BP18}}, Section 4.1).
 
 This document has no IANA actions.
 
-# Security Considerations
+# Security Considerations {#security-considerations}
 
 When constant-time implementations are required, all basic operations and
 utility functions must be implemented in constant time, as discussed in
@@ -2726,7 +2784,7 @@ for random oracle encodings.
 
 When the hash\_to\_curve function ({{roadmap}}) is instantiated
 with hash\_to\_base ({{hashtobase}}), the resulting function is
-indifferentiable from a random oracle.
+indifferentiable from a random oracle ({{FFSTV13}}, {{LBB19}}, {{MRH04}}).
 In most cases such a function can be safely used in protocols whose security
 analysis assumes a random oracle that outputs points on an elliptic curve.
 As Ristenpart et al. discuss in {{RSS11}}, however, not all security proofs
@@ -2859,32 +2917,49 @@ This section gives several useful rational maps.
 
 The inverse of the rational map specified in {{rational-map}}, i.e.,
 the map from the point (v, w) on the twisted Edwards curve
-a * v^2 + w^2 = 1 + d * v^2 * w^2
-to the point (x, y) on the Weierstrass curve
-y^2 = x^3 + A * x^2 + B * x
+
+~~~
+    a * v^2 + w^2 = 1 + d * v^2 * w^2
+~~~
+
+to the point (X, Y) on the Weierstrass curve
+
+~~~
+    Y^2 = X^3 + C * X^2 + D * X
+~~~
+
 is given by:
 
-- A = (a + d) / 2
-- B = (a - d)^2 / 16
-- B' = 1 / sqrt(B) = 4 / (a - d)
-- x = (1 + w) / (B' * (1 - w))
-- y = (1 + w) / (B' * v * (1 - w))
+- C = (a + d) / 2
+- D = (a - d)^2 / 16
+- invSqrtD = 4 / (a - d)
+- X = (1 + w) / (invSqrtD * (1 - w))
+- Y = (1 + w) / (invSqrtD * v * (1 - w))
 
-This map is undefined when w == 1 or v == 0.
-In this case, return the point (x, y) = (0, 0).
+This map is undefined when v == 0 or w == 1.
+If (v, w) = (0, -1), return the point (X, Y) = (0, 0).
+Otherwise, return the identity point on the Weierstrass curve.
+(This follows from {{BBJLP08}}, Section 3.)
 
 It may also be useful to map to a Montgomery curve
-of the form B' * t^2 = s^3 + A' * s^2 + s.
+of the form
+
+~~~
+    K * t^2 = s^3 + J * s^2 + s
+~~~
+
 This curve is equivalent to the twisted Edwards curve above via the
 following rational map ({{BBJLP08}}, Theorem 3.2):
 
-- A' = 2 * (a + d) / (a - d)
-- B' = 4 / (a - d)
+- J = 2 * (a + d) / (a - d)
+- K = 4 / (a - d)
 - s = (1 + w) / (1 - w)
 - t = (1 + w) / (v * (1 - w))
 
 whose inverse is given by:
 
+- a = (J + 2) / K
+- d = (J - 2) / K
 - v = s / t
 - w = (s - 1) / (s + 1)
 
@@ -2898,20 +2973,28 @@ This mapping can be used to apply the Shallue-van de Woestijne method
 ## Montgomery to Weierstrass curves {#appx-rational-map-mont}
 
 The rational map from the point (s, t) on the Montgomery curve
-B' * t^2 = s^3 + A' * s^2 + s
+
+~~~
+    K * t^2 = s^3 + J * s^2 + s
+~~~
+
 to the point (x, y) on the equivalent Weierstrass curve
-y^2 = x^3 + C * x + D
+
+~~~
+    y^2 = x^3 + A * x + B
+~~~
+
 is given by:
 
-- C = (3 - A'^2) / (3 * B'^2)
-- D = (2 * A'^3 - 9 * A') / (27 * B'^3)
-- x = (3 * s + A') / (3 * B')
-- y = t / B'
+- A = (3 - J^2) / (3 * K^2)
+- B = (2 * J^3 - 9 * J) / (27 * K^3)
+- x = (3 * s + J) / (3 * K)
+- y = t / K
 
 The inverse map, from the point (x, y) to the point (s, t), is given by
 
-- s = (3 * B' * x - A') / 3
-- t = y * B'
+- s = (3 * K * x - J) / 3
+- t = y * K
 
 This mapping can be used to apply the Shallue-van de Woestijne method
 ({{svdw}}) to Montgomery curves.
@@ -3099,7 +3182,7 @@ Specifically, each mapping function in this section has the following
 signature:
 
 ~~~
-(xn, xd, yn, nd) = map_to_curve(u)
+    (xn, xd, yn, nd) = map_to_curve(u)
 ~~~
 
 The resulting point (x, y) is given by (xn / xd, yn / yd).
@@ -3151,43 +3234,42 @@ Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on the target curve.
 
 Constants: defined per curve; see above.
-1.  c1 = B / 3
-2.  c2 = (p - 3) / 4           // Integer arithmetic
-3.  c3 = sqrt(-Z^3)
+1.  c1 = (p - 3) / 4           # Integer arithmetic
+2.  c2 = sqrt(-Z^3)
 
 Steps:
-1.   t1 = u^2
-2.   t3 = Z * t1
-3.   t2 = t3^2
-4.   xd = t2 + t3
+1.  tv1 = u^2
+2.  tv3 = Z * tv1
+3.  tv2 = tv3^2
+4.   xd = tv2 + tv3
 5.  x1n = xd + 1
 6.  x1n = x1n * B
 7.   xd = -A * xd
 8.   e1 = xd == 0
-9.   xd = CMOV(xd, Z * A, e1)  // If xd == 0, set xd = Z * A
-10.  t2 = xd^2
-11. gxd = t2 * xd              // gxd == xd^3
-12.  t2 = A * t2
+9.   xd = CMOV(xd, Z * A, e1)  # If xd == 0, set xd = Z * A
+10. tv2 = xd^2
+11. gxd = tv2 * xd             # gxd == xd^3
+12. tv2 = A * tv2
 13. gx1 = x1n^2
-14. gx1 = gx1 + t2             // x1n^2 + A * xd^2
-15. gx1 = gx1 * x1n            // x1n^3 + A * x1n * xd^2
-16.  t2 = B * gxd
-17. gx1 = gx1 + t2             // x1n^3 + A * x1n * xd^2 + B * xd^3
-18.  t4 = gxd^2
-19.  t2 = gx1 * gxd
-20.  t4 = t4 * t2              // gx1 * gxd^3
-21.  y1 = t4^c2                // (gx1 * gxd^3)^((p - 3) / 4)
-22.  y1 = y1 * t2              // gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
-23. x2n = t3 * x1n             // x2 = x2n / xd = -10 * u^2 * x1n / xd
-24.  y2 = y1 * c3              // y2 = y1 * sqrt(-Z^3)
-25.  y2 = y2 * t1
+14. gx1 = gx1 + tv2            # x1n^2 + A * xd^2
+15. gx1 = gx1 * x1n            # x1n^3 + A * x1n * xd^2
+16. tv2 = B * gxd
+17. gx1 = gx1 + tv2            # x1n^3 + A * x1n * xd^2 + B * xd^3
+18. tv4 = gxd^2
+19. tv2 = gx1 * gxd
+20. tv4 = tv4 * tv2            # gx1 * gxd^3
+21.  y1 = tv4^c1               # (gx1 * gxd^3)^((p - 3) / 4)
+22.  y1 = y1 * tv2             # gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
+23. x2n = tv3 * x1n            # x2 = x2n / xd = -10 * u^2 * x1n / xd
+24.  y2 = y1 * c2              # y2 = y1 * sqrt(-Z^3)
+25.  y2 = y2 * tv1
 26.  y2 = y2 * u
-27.  t2 = y1^2
-28.  t2 = t2 * gxd
-29.  e2 = t2 == gx1
-30.  xn = CMOV(x2n, x1n, e2)   // If e2, x = x1, else x = x2
-31.   y = CMOV(y2, y1, e2)     // If e2, y = y1, else y = y2
-32.  e3 = sgn0(u) == sgn0(y)   // Fix sign of y
+27. tv2 = y1^2
+28. tv2 = tv2 * gxd
+29.  e2 = tv2 == gx1
+30.  xn = CMOV(x2n, x1n, e2)   # If e2, x = x1, else x = x2
+31.   y = CMOV(y2, y1, e2)     # If e2, y = y1, else y = y2
+32.  e3 = sgn0(u) == sgn0(y)   # Fix sign of y
 33.   y = CMOV(-y, y, e3)
 34. return (xn, xd, y, 1)
 ~~~
@@ -3205,50 +3287,50 @@ Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on curve25519.
 
 Constants:
-1. c1 = (p + 3) / 8           // Integer arithmetic
+1. c1 = (p + 3) / 8           # Integer arithmetic
 2. c2 = 2^c1
 3. c3 = sqrt(-1)
-4. c4 = (p - 5) / 8           // Integer arithmetic
+4. c4 = (p - 5) / 8           # Integer arithmetic
 
 Steps:
-1.   t1 = u^2
-2.   t1 = 2 * t1
-3.   xd = t1 + 1              // Nonzero: -1 is square (mod p), t1 is not
-4.  x1n = -486662             // x1 = x1n / xd = -486662 / (1 + 2 * u^2)
-5.   t2 = xd^2
-6.  gxd = t2 * xd             // gxd = xd^3
-7.  gx1 = 486662 * xd         // 486662 * xd
-8.  gx1 = gx1 + x1n           // x1n + 486662 * xd
-9.  gx1 = gx1 * x1n           // x1n^2 + 486662 * x1n * xd
-10. gx1 = gx1 + t2            // x1n^2 + 486662 * x1n * xd + xd^2
-11. gx1 = gx1 * x1n           // x1n^3 + 486662 * x1n^2 * xd + x1n * xd^2
-12.  t3 = gxd^2
-13.  t2 = t3^2                // gxd^4
-14.  t3 = t3 * gxd            // gxd^3
-15.  t3 = t3 * gx1            // gx1 * gxd^3
-16.  t2 = t2 * t3             // gx1 * gxd^7
-17. y11 = t2^c4               // (gx1 * gxd^7)^((p - 5) / 8)
-18. y11 = y11 * t3            // gx1 * gxd^3 * (gx1 * gxd^7)^((p - 5) / 8)
+1.  tv1 = u^2
+2.  tv1 = 2 * tv1
+3.   xd = tv1 + 1             # Nonzero: -1 is square (mod p), tv1 is not
+4.  x1n = -486662             # x1 = x1n / xd = -486662 / (1 + 2 * u^2)
+5.  tv2 = xd^2
+6.  gxd = tv2 * xd            # gxd = xd^3
+7.  gx1 = 486662 * xd         # 486662 * xd
+8.  gx1 = gx1 + x1n           # x1n + 486662 * xd
+9.  gx1 = gx1 * x1n           # x1n^2 + 486662 * x1n * xd
+10. gx1 = gx1 + tv2           # x1n^2 + 486662 * x1n * xd + xd^2
+11. gx1 = gx1 * x1n           # x1n^3 + 486662 * x1n^2 * xd + x1n * xd^2
+12. tv3 = gxd^2
+13. tv2 = tv3^2               # gxd^4
+14. tv3 = tv3 * gxd           # gxd^3
+15. tv3 = tv3 * gx1           # gx1 * gxd^3
+16. tv2 = tv2 * tv3           # gx1 * gxd^7
+17. y11 = tv2^c4              # (gx1 * gxd^7)^((p - 5) / 8)
+18. y11 = y11 * tv3           # gx1 * gxd^3 * (gx1 * gxd^7)^((p - 5) / 8)
 19. y12 = y11 * c3
-20.  t2 = y11^2
-21.  t2 = t2 * gxd
-22.  e1 = t2 == gx1
-23.  y1 = CMOV(y12, y11, e1)  // If g(x1) is square, this is its sqrt
-24. x2n = x1n * t1            // x2 = x2n / xd = 2 * u^2 * x1n / xd
+20. tv2 = y11^2
+21. tv2 = tv2 * gxd
+22.  e1 = tv2 == gx1
+23.  y1 = CMOV(y12, y11, e1)  # If g(x1) is square, this is its sqrt
+24. x2n = x1n * tv1           # x2 = x2n / xd = 2 * u^2 * x1n / xd
 25. y21 = y11 * u
 26. y21 = y21 * c2
 27. y22 = y21 * c3
-28. gx2 = gx1 * t1            // g(x2) = gx2 / gxd = 2 * u^2 * g(x1)
-29.  t2 = y21^2
-30.  t2 = t2 * gxd
-31.  e2 = t2 == gx2
-32.  y2 = CMOV(y22, y21, e2)  // If g(x2) is square, this is its sqrt
-33.  t2 = y1^2
-34.  t2 = t2 * gxd
-35.  e3 = t2 == gx1
-36.  xn = CMOV(x2n, x1n, e3)  // If e3, x = x1, else x = x2
-37.   y = CMOV(y2, y1, e3)    // If e3, y = y1, else y = y2
-38.  e4 = sgn0(u) == sgn0(y)  // Fix sign of y
+28. gx2 = gx1 * tv1           # g(x2) = gx2 / gxd = 2 * u^2 * g(x1)
+29. tv2 = y21^2
+30. tv2 = tv2 * gxd
+31.  e2 = tv2 == gx2
+32.  y2 = CMOV(y22, y21, e2)  # If g(x2) is square, this is its sqrt
+33. tv2 = y1^2
+34. tv2 = tv2 * gxd
+35.  e3 = tv2 == gx1
+36.  xn = CMOV(x2n, x1n, e3)  # If e3, x = x1, else x = x2
+37.   y = CMOV(y2, y1, e3)    # If e3, y = y1, else y = y2
+38.  e4 = sgn0(u) == sgn0(y)  # Fix sign of y
 39.   y = CMOV(-y, y, e4)
 40. return (xn, xd, y, 1)
 ~~~
@@ -3268,17 +3350,17 @@ Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on edwards25519.
 
 Constants:
-1. c1 = sqrt(-486664)   // sgn0(c1) MUST equal 1
+1. c1 = sqrt(-486664)    # sgn0(c1) MUST equal 1
 
 Steps:
 1.  (xMn, xMd, yMn, yMd) = map_to_curve_elligator2_curve25519(u)
 2.  xn = xMn * yMd
 3.  xn = xn * c1
-4.  xd = xMd * yMn       // xn / xd = c1 * xM / yM
+4.  xd = xMd * yMn       # xn / xd = c1 * xM / yM
 5.  yn = xMn - xMd
-6.  yd = xMn + xMd       // (n / d - 1) / (n / d + 1) = (n - d) / (n + d)
-7.  t1 = xd * yd
-8.   e = t1 == 0
+6.  yd = xMn + xMd       # (n / d - 1) / (n / d + 1) = (n - d) / (n + d)
+7. tv1 = xd * yd
+8.   e = tv1 == 0
 9.  xn = CMOV(xn, 0, e)
 10. xd = CMOV(xd, 1, e)
 11. yn = CMOV(yn, 1, e)
@@ -3299,35 +3381,35 @@ Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on curve448.
 
 Constants:
-1. c1 = (p - 3) / 4           // Integer arithmetic
+1. c1 = (p - 3) / 4           # Integer arithmetic
 
 Steps:
-1.   t1 = u^2
-2.   e1 = t1 == 1
-3.   t1 = CMOV(t1, 0, e1)     // If Z * u^2 == -1, set t1 = 0
-4.   xd = 1 - t1
+1.  tv1 = u^2
+2.   e1 = tv1 == 1
+3.  tv1 = CMOV(tv1, 0, e1)    # If Z * u^2 == -1, set tv1 = 0
+4.   xd = 1 - tv1
 5.  x1n = -156326
-6.   t2 = xd^2
-7.  gxd = t2 * xd             // gxd = xd^3
-8.  gx1 = 156326 * xd         // 156326 * xd
-9.  gx1 = gx1 + x1n           // x1n + 156326 * xd
-10. gx1 = gx1 * x1n           // x1n^2 + 156326 * x1n * xd
-11. gx1 = gx1 + t2            // x1n^2 + 156326 * x1n * xd + xd^2
-12. gx1 = gx1 * x1n           // x1n^3 + 156326 * x1n^2 * xd + x1n * xd^2
-13.  t3 = gxd^2
-14.  t2 = gx1 * gxd           // gx1 * gxd
-15.  t3 = t3 * t2             // gx1 * gxd^3
-16.  y1 = t3^c1               // (gx1 * gxd^3)^((p - 3) / 4)
-17.  y1 = y1 * t2             // gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
-18. x2n = -t1 * x1n           // x2 = x2n / xd = -1 * u^2 * x1n / xd
+6.  tv2 = xd^2
+7.  gxd = tv2 * xd            # gxd = xd^3
+8.  gx1 = 156326 * xd         # 156326 * xd
+9.  gx1 = gx1 + x1n           # x1n + 156326 * xd
+10. gx1 = gx1 * x1n           # x1n^2 + 156326 * x1n * xd
+11. gx1 = gx1 + tv2           # x1n^2 + 156326 * x1n * xd + xd^2
+12. gx1 = gx1 * x1n           # x1n^3 + 156326 * x1n^2 * xd + x1n * xd^2
+13. tv3 = gxd^2
+14. tv2 = gx1 * gxd           # gx1 * gxd
+15. tv3 = tv3 * tv2           # gx1 * gxd^3
+16.  y1 = tv3^c1              # (gx1 * gxd^3)^((p - 3) / 4)
+17.  y1 = y1 * tv2            # gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
+18. x2n = -tv1 * x1n          # x2 = x2n / xd = -1 * u^2 * x1n / xd
 19.  y2 = y1 * u
 20.  y2 = CMOV(y2, 0, e1)
-21.  t2 = y1^2
-22.  t2 = t2 * gxd
-23.  e2 = t2 == gx1
-24.  xn = CMOV(x2n, x1n, e2)  // If e2, x = x1, else x = x2
-25.   y = CMOV(y2, y1, e2)    // If e2, y = y1, else y = y2
-26.  e3 = sgn0(u) == sgn0(y)  // Fix sign of y
+21. tv2 = y1^2
+22. tv2 = tv2 * gxd
+23.  e2 = tv2 == gx1
+24.  xn = CMOV(x2n, x1n, e2)  # If e2, x = x1, else x = x2
+25.   y = CMOV(y2, y1, e2)    # If e2, y = y1, else y = y2
+26.  e3 = sgn0(u) == sgn0(y)  # Fix sign of y
 27.   y = CMOV(-y, y, e3)
 28. return (xn, xd, y, 1)
 ~~~
@@ -3354,32 +3436,32 @@ Steps:
 5.  yn2 = yn^2
 6.  yd2 = yd^2
 7.  xEn = xn2 - xd2
-8.   t2 = xEn - xd2
+8.  tv2 = xEn - xd2
 9.  xEn = xEn * xd2
 10. xEn = xEn * yd
 11. xEn = xEn * yn
 12. xEn = xEn * 4
-13.  t2 = t2 * xn2
-14.  t2 = t2 * yd2
-15.  t3 = 4 * yn2
-16.  t1 = t3 + yd2
-17.  t1 = t1 * xd4
-18. xEd = t1 + t2
-19.  t2 = t2 * xn
-20.  t4 = xn * xd4
-21. yEn = t3 - yd2
-22. yEn = yEn * t4
-23. yEn = yEn - t2
-24.  t1 = xn2 + xd2
-25.  t1 = t1 * xd2
-26.  t1 = t1 * xd
-27.  t1 = t1 * yn2
-28.  t1 = -2 * t1
-29. yEd = t2 + t1
-30.  t4 = t4 * yd2
-31. yEd = yEd + t4
-32.  t1 = xEd * yEd
-33.   e = t1 == 0
+13. tv2 = tv2 * xn2
+14. tv2 = tv2 * yd2
+15. tv3 = 4 * yn2
+16. tv1 = tv3 + yd2
+17. tv1 = tv1 * xd4
+18. xEd = tv1 + tv2
+19. tv2 = tv2 * xn
+20. tv4 = xn * xd4
+21. yEn = tv3 - yd2
+22. yEn = yEn * tv4
+23. yEn = yEn - tv2
+24. tv1 = xn2 + xd2
+25. tv1 = tv1 * xd2
+26. tv1 = tv1 * xd
+27. tv1 = tv1 * yn2
+28. tv1 = -2 * tv1
+29. yEd = tv2 + tv1
+30. tv4 = tv4 * yd2
+31. yEd = yEd + tv4
+32. tv1 = xEd * yEd
+33.   e = tv1 == 0
 34. xEn = CMOV(xEn, 0, e)
 35. xEd = CMOV(xEd, 1, e)
 36. yEn = CMOV(yEn, 1, e)
@@ -3396,6 +3478,9 @@ This section gives Sage {{SAGE}} scripts used to generate parameters for the map
 The below function outputs an appropriate Z for the Shallue and van de Woestijne map ({{svdw}}).
 
 ~~~sage
+# Arguments:
+# - F, a field object, e.g., F = GF(2^521 - 1)
+# - A and B, the coefficients of the curve equation y^2 = x^3 + A * x + B
 def find_z_svdw(F, A, B):
     g = lambda x: F(x)^3 + F(A) * F(x) + F(B)
     h = lambda Z: -(F(3) * Z^2 + F(4) * A) / (F(4) * g(Z))
@@ -3467,84 +3552,81 @@ def find_z_ell2(F):
 # sqrt functions {#appx-sqrt}
 
 This section defines special-purpose sqrt functions for the three most common cases,
-p = 3 (mod 4), p = 5 (mod 8), and p = 9 (mod 16).
+q = 3 (mod 4), q = 5 (mod 8), and q = 9 (mod 16).
 In addition, it gives a generic constant-time algorithm that works for any prime modulus.
 
-## p = 3 (mod 4) {#sqrt-3mod4}
+{{AR13}} and {{S85}} describe optimized methods for extension fields.
+
+## q = 3 (mod 4) {#sqrt-3mod4}
 
 ~~~
 sqrt_3mod4(x)
 
 Parameters:
 - F, a finite field of characteristic p and order q = p^m.
-- p, the characteristic of F (see immediately above).
 
 Input: x, an element of F.
-Output: s, an element of F such that (s^2) == x.
+Output: z, an element of F such that (z^2) == x, if x is square in F.
 
 Constants:
-1. c1 = (q + 1) / 4     // Integer arithmetic
+1. c1 = (q + 1) / 4     # Integer arithmetic
 
 Procedure:
 1. return x^c1
 ~~~
 
-## p = 5 (mod 8) {#sqrt-5mod8}
+## q = 5 (mod 8) {#sqrt-5mod8}
 
 ~~~
 sqrt_5mod8(x)
 
 Parameters:
 - F, a finite field of characteristic p and order q = p^m.
-- p, the characteristic of F (see immediately above).
 
 Input: x, an element of F.
-Output: s, an element of F such that (s^2) == x.
+Output: z, an element of F such that (z^2) == x, if x is square in F.
 
 Constants:
 1. c1 = sqrt(-1) in F, i.e., (c1^2) == -1 in F
-2. c2 = (q + 3) / 8     // Integer arithmetic
+2. c2 = (q + 3) / 8     # Integer arithmetic
 
 Procedure:
-1. t1 = x^c2
-2.  e = (t1^2) == x
-3.  s = CMOV(t1 * c1, t1, e)
-3. return s
+1. tv1 = x^c2
+2. tv2 = tv1 * c1
+3.   e = (tv1^2) == x
+4.   z = CMOV(tv2, tv1, e)
+5. return z
 ~~~
 
-## p = 9 (mod 16) {#sqrt-9mod16}
-
-Note that this case also applies to GF(p^2) when p = 3 (mod 8).
-{{AR13}} and {{S85}} describe methods that work for other finite fields.
+## q = 9 (mod 16) {#sqrt-9mod16}
 
 ~~~
 sqrt_9mod16(x)
 
 Parameters:
 - F, a finite field of characteristic p and order q = p^m.
-- p, the characteristic of F (see immediately above).
 
 Input: x, an element of F.
-Output: s, an element of F such that (s^2) == x.
+Output: z, an element of F such that (z^2) == x, if x is square in F.
 
 Constants:
 1. c1 = sqrt(-1) in F, i.e., (c1^2) == -1 in F
 2. c2 = sqrt(c1) in F, i.e., (c2^2) == c1 in F
 3. c3 = sqrt(-c1) in F, i.e., (c3^2) == -c1 in F
-4. c4 = (q + 7) / 16    // Integer arithmetic
+4. c4 = (q + 7) / 16         # Integer arithmetic
 
 Procedure:
-1.  t1 = x^c4
-2.  t2 = c1 * t1
-3.  t3 = c2 * t1
-4.  t4 = c3 * t1
-5.  e1 = (t2^2) == x
-6.  e2 = (t3^2) == x
-7.  t1 = CMOV(t1, t2, e1)  // Select t2 if (t2^2) == x
-8.  t2 = CMOV(t4, t3, e2)  // Select t3 if (t3^2) == x
-9.  e3 = (t2^2) == x
-10.  s = CMOV(t1, t2, e3)  // Select the sqrt from t1 and t2
-11. return s
+1. tv1 = x^c4
+2. tv2 = c1 * tv1
+3. tv3 = c2 * tv1
+4. tv4 = c3 * tv1
+5.  e1 = (tv2^2) == x
+6.  e2 = (tv3^2) == x
+7. tv1 = CMOV(tv1, tv2, e1)  # Select tv2 if (tv2^2) == x
+8. tv2 = CMOV(tv4, tv3, e2)  # Select tv3 if (tv3^2) == x
+9.  e3 = (tv2^2) == x
+10.  z = CMOV(tv1, tv2, e3)  # Select the sqrt from tv1 and tv2
+11. return z
 ~~~
 
 ## Constant-time Tonelli-Shanks algorithm {#sqrt-ts}
@@ -3561,53 +3643,30 @@ faster, when they apply.
 sqrt_ts_ct(x)
 
 Parameters:
-- F, a finite field of order p
-- p, the characteristic of F (see immediately above)
+- F, a finite field of characteristic p and order q = p^m.
 
 Input x, an element of F.
-Output: s, an element of F such that s^2 == x, if x is a square in F.
+Output: z, an element of F such that z^2 == x, if x is square in F.
 
-Constants (see discussion below):
-1. c1, the largest integer such that 2^c1 divides p - 1.
-2. c2 = (p - 1) / (2^c1)        // Integer arithmetic
-3. c3 = (c2 - 1) / 2            // Integer arithmetic
+Constants:
+1. c1, the largest integer such that 2^c1 divides q - 1.
+2. c2 = (q - 1) / (2^c1)        # Integer arithmetic
+3. c3 = (c2 - 1) / 2            # Integer arithmetic
 4. c4, a non-square value in F
 5. c5 = c4^c2 in F
 
 Procedure:
-1.  s = x^c3
-2.  t = s * s * x
-3.  s = s * x
+1.  z = x^c3
+2.  t = z * z * x
+3.  z = z * x
 4.  b = t
 5.  c = c5
-6.  for k in (c1, c1 - 1, ..., 2):
-7.      for j in (1, 2, ..., k - 2):
+6.  for i in (c1, c1 - 1, ..., 2):
+7.      for j in (1, 2, ..., i - 2):
 8.           b = b * b
-9.      s = CMOV(s, s * c, b != 1)
+9.      z = CMOV(z, z * c, b != 1)
 10.     c = c * c
 11.     t = CMOV(t, t * c, b != 1)
 12.     b = t
-13. return s
-~~~
-
-The constants used in this procedure can be computed as follows:
-
-~~~
-precompute_ts(p)
-
-Input: p, a prime
-Output: the required constants c1, ..., c5
-
-Procedure:
-1.  c1 = 0
-2.  c2 = p - 1
-3.  while c2 is even:
-4.      c2 = c2 / 2             // Integer arithmetic
-5.      c1 = c1 + 1
-6.  c3 = (c2 - 1) / 2           // Integer arithmetic
-7.  c4 = 1
-8.  while c4 is square mod p:
-9.      c4 = c4 + 1
-10. c5 = c4^c2 mod p
-11. return (c1, c2, c3, c4, c5)
+13. return z
 ~~~

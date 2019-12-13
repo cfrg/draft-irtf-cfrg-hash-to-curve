@@ -107,21 +107,20 @@ def tonelli_shanks_ct(x):
         ts_precompute(p, F)
 
     (q, m, c) = sqrt_cache[p]
-    r = x ** ((q - 1) // 2)
-    t = r * r * x
-    r *= x
+    z = x ** ((q - 1) // 2)
+    t = z * z * x
+    z = z * x
     b = t
-    for k in range(m, 1, -1):
-        for _ in range(1, k - 1):
-            b *= b
-        b_is_good = b != F(1)
-        r = CMOV(r, r * c, b_is_good)
-        c *= c
-        t = CMOV(t, t * c, b_is_good)
+    for i in range(m, 1, -1):
+        for _ in range(1, i - 1):
+             b = b * b
+        z = CMOV(z, z * c, b != 1)
+        c = c * c
+        t = CMOV(t, t * c, b != 1)
         b = t
 
-    if r ** 2 == x:
-        return r
+    if z ** 2 == x:
+        return z
     assert not x.is_square()
     return None
 
