@@ -17,3 +17,4 @@ report.xml
 venv/
 lib
 draft-irtf-cfrg-hash-to-curve.xml
+metadata.min.js

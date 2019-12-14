@@ -921,6 +921,7 @@ informative:
   W19:
     title: An explicit, generic parameterization for the Shallue--van de Woestijne map
     target: https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/doc/svdw_params.pdf
+    date: 2019
     author:
       -
         ins: R. S. Wahby
