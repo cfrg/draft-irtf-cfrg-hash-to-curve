@@ -1611,11 +1611,7 @@ for a given elliptic curve.
 Note that the suites given in {{suites}} are recommended mappings
 for the respective curves.
 
-If the target elliptic curve is a supersingular curve supported by either the
-Boneh-Franklin method ({{bfmap}}) or the Elligator 2 method for C == 0 ({{ell2c0}}),
-that mapping is the recommended one.
-
-Otherwise, if the target elliptic curve is a Montgomery curve ({{montgomery}}),
+If the target elliptic curve is a Montgomery curve ({{montgomery}}),
 the Elligator 2 method ({{elligator2}}) is recommended.
 Similarly, if the target elliptic curve is a twisted Edwards curve ({{twisted-edwards}}),
 the twisted Edwards Elligator 2 method ({{ell2edwards}}) is recommended.
@@ -2207,124 +2203,6 @@ Output: (v, w), a point on E.
 1. (X, Y) = map_to_curve_elligator2(u)      # (X, Y) is on M
 2. (v, w) = rational_map(X, Y)              # (v, w) is on E
 3. return (v, w)
-~~~
-
-## Mappings for Supersingular curves
-
-### Boneh-Franklin Method {#bfmap}
-
-The function map\_to\_curve\_bf(u) implements the Boneh-Franklin method {{BF01}} which
-covers the supersingular curves defined by
-
-~~~
-    y^2 = x^3 + B
-~~~
-
-over a field F = GF(q), q = 2 (mod 3).
-
-Preconditions: A curve whose equation and base field meet the requirements immediately above.
-
-Constants: B, the parameter of the curve.
-
-Sign of y: determined by sign of u. No adjustments are necessary.
-
-Exceptions: none.
-
-Operations:
-
-~~~
-1. tv1 = (2 * q - 1) / 3    # Integer arithmetic
-2.   x = (u^2 - B)^tv1
-3.   y = u
-4. return (x, y)
-~~~
-
-#### Implementation
-
-The following procedure implements the Boneh-Franklin's algorithm in a
-straight-line fashion.
-
-~~~
-map_to_curve_bf(u)
-Input: u, an element of F.
-Output: (x, y), a point on E.
-
-Constants:
-1. c1 = (2 * q - 1) / 3     # Integer arithmetic
-
-Steps:
-1. tv1 = u^2
-2. tv1 = tv1 - B
-3.   x = tv1^c1             # x = (u^2 - B)^((2 * q - 1) / 3)
-4.   y = u
-5. return (x, y)
-~~~
-
-### Elligator 2, C == 0 Method {#ell2c0}
-
-The function map\_to\_curve\_ell2C0(u) implements an adaptation of Elligator 2
-{{BLMP19}} targeting curves given by the Weierstrass equation
-
-~~~
-    Y^2 = X^3 + D * X
-~~~
-
-over F = GF(q), q = 3 (mod 4).
-This method also works for curves given by the Montgomery equation
-
-~~~
-    K * t^2 = s^3 + s
-~~~
-
-via the change of variables given in {{montgomery}}.
-
-Preconditions: A curve whose equation and base field meet the requirements immediately above.
-
-Constants: D, the parameter of the elliptic curve.
-
-Sign of Y: Inputs u and -u give the same X-coordinate.
-Thus, we set sgn0(Y) == sgn0(u).
-
-Exceptions: none.
-
-Operations:
-
-~~~
-1.  X1 = u
-2. gX1 = X1^3 + D * X1
-3.  X2 = -X1
-4. gX2 = -gX1
-5. If is_square(gX1), set X = X1 and Y = sqrt(gX1)
-6. Else set X = X2 and Y = sqrt(gX2)
-7. If sgn0(u) != sgn0(Y), set Y = -Y
-8. return (X, Y)
-~~~
-
-#### Implementation
-
-The following procedure implements the Elligator 2 mapping for C == 0
-in a straight-line fashion.
-
-~~~
-map_to_curve_ell2C0(u)
-Input: u, an element of F.
-Output: (X, Y), a point on E.
-
-Constants:
-1. c1 = (q + 1) / 4         # Integer arithmetic
-
-Steps:
-1.  X1 = u
-2.  X2 = -X1
-3. gX1 = X1^2
-4. gX1 = gX1 + D
-5. gX1 = gX1 * X1           # gX1 = X1^3 + D * X1
-6.   Y = gX1^c1             # This is either sqrt(gX1) or sqrt(gX2)
-7.  e1 = (Y^2) == gX1
-8.   X = CMOV(X2, X1, e1)
-9.  e2 = sgn0(u) == sgn0(Y)
-10.  Y = CMOV(-Y, Y, e2)
-11. return (X, Y)
 ~~~
 
 # Clearing the cofactor {#cofactor-clearing}
