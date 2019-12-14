@@ -5,7 +5,7 @@ import sys
 
 from hash_to_base import test_hkdf
 
-print "Importing modules..."
+print("Importing modules...")
 
 try:
     from sagelib.common import test_ts

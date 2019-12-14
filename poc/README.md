@@ -5,7 +5,7 @@ In addition, you'll need a reasonably modern version of make (GNU make works wel
 
 ## Getting started
 
-1. `make` --- This preprocesses the sage files. If you don't do this, you'll get
+1. `make -j` --- This preprocesses the sage files. If you don't do this, you'll get
    an error message telling you to do it.
 
 2. `make test` --- runs all tests. This takes several minutes.

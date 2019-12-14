@@ -21,8 +21,8 @@ test: pyfiles
 	sage test.sage
 
 vectors: pyfiles
-	@mkdir -p vectors
+	@mkdir -p vectors ascii
 	sage test_vectors.sage
 
 clean:
-	rm -rf sagelib *.pyc *.sage.py *.log vectors
+	rm -rf sagelib *.pyc *.sage.py *.log vectors ascii
