@@ -52,10 +52,6 @@ The following files implement the deterministic mappings:
 
 - Elligator 2 for Twisted Edwards curves: `ell2edw_generic.sage`
 
-- Boneh-Franklin: `bf_generic.sage`
-
-- Elligator 2, C == 0: `ell2c0_generic.sage`
-
 All of these have the same interface: they define a class (e.g., `GenericSvdW` for
 the Shallue-van de Woestijne map) that takes as arguments the field `F` (constructed
 using Sage's `GF()` constructor) and the elliptic curve coefficients `A` and `B`
