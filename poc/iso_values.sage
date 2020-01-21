@@ -32,7 +32,7 @@ def show_iso(iso):
                 continue
             if jdx > max_jdx:
                 max_jdx = jdx
-            print "- k\\_(%d,%d) = %s" % (idx, jdx, show_elm(val))
+            print("- k\\_(%d,%d) = %s" % (idx, jdx, show_elm(val)))
         if skipped_one:
             max_jdx += 1
             ostr = "x'^%d" % (max_jdx)
@@ -50,10 +50,10 @@ def show_iso(iso):
                 ostr += " + ..."
             ostr += " + k\\_(%d,0)" % idx
         mstr += "  - %s = %s\n" % (s, ostr)
-        print
-    print
-    print mstr
-    print
+        print()
+    print()
+    print(mstr)
+    print()
 
 
 # SECP256k1 iso
@@ -116,9 +116,9 @@ def iso_bls12381g2():
     return iso
 
 if __name__ == "__main__":
-    print "** SECP256k1\n"
+    print("** SECP256k1\n")
     show_iso(iso_secp256k1())
-    print "** BLS12-381 G1\n"
+    print("** BLS12-381 G1\n")
     show_iso(iso_bls12381g1())
-    print "** BLS12-381 G2\n"
+    print("** BLS12-381 G2\n")
     show_iso(iso_bls12381g2())

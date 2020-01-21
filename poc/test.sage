@@ -30,56 +30,56 @@ except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 if __name__ == "__main__":
-    print "Testing hkdf"
+    print("Testing hkdf")
     test_hkdf()
 
-    print "Testing Tonelli-Shanks"
+    print("Testing Tonelli-Shanks")
     test_ts()
 
-    print "Checking maps"
+    print("Checking maps")
     map_check()
 
-    print "Testing 'native' Montgomery curve impl"
+    print("Testing 'native' Montgomery curve impl")
     MontgomeryCurve.test()
 
-    print "Testing 'native' Edwards curve impl"
+    print("Testing 'native' Edwards curve impl")
     EdwardsCurve.test()
 
-    print "Testing optimized Elligator2"
-    print "Testing Curve25519"
+    print("Testing optimized Elligator2")
+    print("Testing Curve25519")
     test_25519()
-    print "Testing Curve448"
+    print("Testing Curve448")
     test_448()
 
-    print "Testing optimized SSWU"
+    print("Testing optimized SSWU")
     test_sswu()
 
-    print "Testing generic maps"
+    print("Testing generic maps")
     for m in (GenericBF, GenericEll2, GenericEll2C0, GenericEll2Edw, GenericSSWU, GenericSvdW):
-        print "Testing %s" % m.__name__
+        print("Testing %s" % m.__name__)
         for _ in range(0, 32):
             m.test_random()
 
-    print "Testing curve25519/edwards25519 suites"
+    print("Testing curve25519/edwards25519 suites")
     test_suite_25519()
 
-    print "Testing curve448/edwards448 suites"
+    print("Testing curve448/edwards448 suites")
     test_suite_448()
 
-    print "Testing P256 suites"
+    print("Testing P256 suites")
     test_suite_p256()
 
-    print "Testing P384 suites"
+    print("Testing P384 suites")
     test_suite_p384()
 
-    print "Testing P521 suites"
+    print("Testing P521 suites")
     test_suite_p521()
 
-    print "Testing secp256k1 suites"
+    print("Testing secp256k1 suites")
     test_suite_secp256k1()
 
-    print "Testing BLS12-381 G1 suites"
+    print("Testing BLS12-381 G1 suites")
     test_suite_bls12381g1()
 
-    print "Testing BLS12-381 G2 suites"
+    print("Testing BLS12-381 G2 suites")
     test_suite_bls12381g2()
