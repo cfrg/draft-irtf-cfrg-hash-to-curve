@@ -8,8 +8,21 @@ import hashlib
 import hmac
 import struct
 import sys
-if sys.version_info[0] != 2:
-    raise RuntimeError("this code is geared toward Python2/Sage, not Python3")
+if sys.version_info[0] == 3:
+    xrange = range
+    NULL_BYTE = b'\x00'
+    NULL_STRING = b''
+    H2C_STRING = b'H2C'
+    X0B_STRING = b'\x0b'
+    X0C_STRING = b'\x0c'
+    _as_bytes = lambda x: bytes(x, "utf-8")
+else:
+    NULL_BYTE = '\x00'
+    NULL_STRING = ''
+    H2C_STRING = 'H2C'
+    X0B_STRING = '\x0b'
+    X0C_STRING = '\x0c'
+    _as_bytes = lambda x: x
 
 # defined in RFC 3447, section 4.1
 def I2OSP(val, length):
@@ -38,7 +51,7 @@ def OS2IP(octets, skip_assert=False):
 # per RFC5869
 def hkdf_extract(salt, ikm, hash_fn):
     if salt is None:
-        salt = '\x00' * hash_fn().digest_size
+        salt = NULL_BYTE * hash_fn().digest_size
     return hmac.HMAC(salt, ikm, hash_fn).digest()
 def hkdf_expand(prk, info, length, hash_fn):
     digest_size = hash_fn().digest_size
@@ -48,8 +61,8 @@ def hkdf_expand(prk, info, length, hash_fn):
     if nreps == 0 or nreps > 255:
         raise ValueError("length arg to hkdf_expand cannot be longer than 255 * Hashlen")
     if info is None:
-        info = ''
-    last = okm = ''
+        info = NULL_STRING
+    last = okm = NULL_STRING
     for rep in range(0, nreps):
         last = hmac.HMAC(prk, last + info + I2OSP(rep + 1, 1), hash_fn).digest()
         okm += last
@@ -58,8 +71,8 @@ def hkdf_expand(prk, info, length, hash_fn):
 # from draft-irtf-cfrg-hash-to-curve-05
 def hash_to_base(msg, ctr, dst, modulus, degree, blen, hash_fn):
     rets = [None] * degree
-    msg_prime = hkdf_extract(dst, msg + '\x00', hash_fn)
-    info_pfx = 'H2C' + I2OSP(ctr, 1)
+    msg_prime = hkdf_extract(_as_bytes(dst), _as_bytes(msg) + NULL_BYTE, hash_fn)
+    info_pfx = H2C_STRING + I2OSP(ctr, 1)
     for i in range(0, degree):
         info = info_pfx + I2OSP(i + 1, 1)
         t = hkdf_expand(msg_prime, info, blen, hash_fn)
@@ -69,7 +82,7 @@ def hash_to_base(msg, ctr, dst, modulus, degree, blen, hash_fn):
 def test_hkdf():
     # test cases from RFC5869
     test_cases = [ ( hashlib.sha256
-                   , '\x0b' * 22
+                   , X0B_STRING * 22
                    , I2OSP(0x000102030405060708090a0b0c, 13)
                    , I2OSP(0xf0f1f2f3f4f5f6f7f8f9, 10)
                    , 42
@@ -85,15 +98,15 @@ def test_hkdf():
                    , I2OSP(0xb11e398dc80327a1c8e7f78c596a49344f012eda2d4efad8a050cc4c19afa97c59045a99cac7827271cb41c65e590e09da3275600c2f09b8367793a9aca3db71cc30c58179ec3e87c14c01d5c1f3434f1d87, 82)
                    ),
                    ( hashlib.sha256
-                   , '\x0b' * 22
-                   , ''
-                   , ''
+                   , X0B_STRING * 22
+                   , NULL_STRING
+                   , NULL_STRING
                    , 42
                    , I2OSP(0x19ef24a32c717b167f33a91d6f648bdf96596776afdb6377ac434c1c293ccb04, 32)
                    , I2OSP(0x8da4e775a563c18f715f802a063c5a31b8a11f5c5ee1879ec3454e5f3c738d2d9d201395faa4b61a96c8, 42)
                    ),
                    ( hashlib.sha1
-                   , '\x0b' * 11
+                   , X0B_STRING * 11
                    , I2OSP(0x000102030405060708090a0b0c, 13)
                    , I2OSP(0xf0f1f2f3f4f5f6f7f8f9, 10)
                    , 42
@@ -109,17 +122,17 @@ def test_hkdf():
                    , I2OSP(0x0bd770a74d1160f7c9f12cd5912a06ebff6adcae899d92191fe4305673ba2ffe8fa3f1a4e5ad79f3f334b3b202b2173c486ea37ce3d397ed034c7f9dfeb15c5e927336d0441f4c4300e2cff0d0900b52d3b4, 82)
                    ),
                    ( hashlib.sha1
-                   , '\x0b' * 22
-                   , ''
-                   , ''
+                   , X0B_STRING * 22
+                   , NULL_STRING
+                   , NULL_STRING
                    , 42
                    , I2OSP(0xda8c8a73c7fa77288ec6f5e7c297786aa0d32d01, 20)
                    , I2OSP(0x0ac1af7002b3d761d1e55298da9d0506b9ae52057220a306e07b6b87e8df21d0ea00033de03984d34918, 42)
                    ),
                    ( hashlib.sha1
-                   , '\x0c' * 22
+                   , X0C_STRING * 22
                    , None
-                   , ''
+                   , NULL_STRING
                    , 42
                    , I2OSP(0x2adccada18779e7c2077ad2eb19d3f3e731385dd, 20)
                    , I2OSP(0x2c91117204d745f3500d636a62f64f0ab3bae548aa53d423b0d1f27ebba6f5e5673a081d70cce7acfc48, 42)
