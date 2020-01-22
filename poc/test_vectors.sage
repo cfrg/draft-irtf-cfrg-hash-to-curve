@@ -97,4 +97,4 @@ ALL_SUITES = [
 ]
 
 if __name__ == '__main__':
-    map(create_files, ALL_SUITES)
+    list(map(create_files, ALL_SUITES))

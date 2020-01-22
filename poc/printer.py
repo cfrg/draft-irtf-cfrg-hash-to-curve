@@ -11,7 +11,10 @@ class Printer:
 
     @staticmethod
     def _pprint_hex(octet_string):
-        return "".join("{:02x}".format(ord(c)) for c in octet_string)
+        if type(octet_string) == str:
+            return "".join("{:02x}".format(ord(c)) for c in octet_string)
+        if type(octet_string) == bytes:
+            return "".join("{:02x}".format(c) for c in octet_string)
 
     @staticmethod
     def _tv_wrap(text):
@@ -19,7 +22,7 @@ class Printer:
 
     @staticmethod
     def _lv(label, values):
-        prefix = "%7s = " % label
+        prefix = "{:7s} = ".format(label)
         sep_lines = "\n" + " " * 10
         sep_extension = "\n" + " " * 7 + "+i*"
         out = sep_extension.join([sep_lines.join(Printer._tv_wrap(value))
