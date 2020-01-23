@@ -2756,12 +2756,13 @@ Several extensions and generalizations follow this work, including
 {{FSV09}}, {{FT10}}, {{KLR10}}, {{F11}}, and {{CK11}}.
 
 Following the work of Farashahi {{F11}}, Fouque et al. {{FJT13}} describe a
-mapping to curves of characteristic p = 3 (mod 4) having a number of points
+mapping to curves over fields of characteristic p = 3 (mod 4) having a number of points
 divisible by 4.  Bernstein et al. {{BHKL13}} optimize this mapping and
 describe a related mapping that they call "Elligator 2," which applies to
 any curve over a field of odd characteristic having a point of order 2.
 This includes Curve25519 and Curve448, both of which are CFRG-recommended
-curves {{RFC7748}}.
+curves {{RFC7748}}. Bernstein et al. {{BLMP19}} extend the Elligator 2 map
+to a class of supersingular curves over fields of characteristic p = 3 (mod 4).
 
 An important caveat regarding all of the above deterministic mapping
 functions is that none of them map to the entire curve, but rather to some
