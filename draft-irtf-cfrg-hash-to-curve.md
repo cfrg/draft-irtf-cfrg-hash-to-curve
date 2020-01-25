@@ -2492,6 +2492,11 @@ The common parameters for all of the above suites are:
 - Z: 2
 - h\_eff: 8
 
+The suites curve25519-SHA512-ELL2-RO-, curve25519-SHA512-ELL2-NU-,
+edwards25519-SHA512-EDELL2-RO-, and edwards25519-SHA512-EDELL2-NU-
+are identical to the correspondingly named suites defined above,
+except that H is SHA-512.
+
 Optimized example implementations of the above mappings are given in
 {{map-to-curve25519}} and {{map-to-edwards25519}}.
 
