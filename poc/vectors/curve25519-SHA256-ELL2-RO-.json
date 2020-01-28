@@ -1,0 +1,45 @@
+{
+  "ciphersuite": "curve25519-SHA256-ELL2-RO-",
+  "curve": "curve25519",
+  "dst": "QUUX-V01-CS02",
+  "field": {
+    "m": "0x1",
+    "p": "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed"
+  },
+  "hash": "sha256",
+  "map": {
+    "name": "Elligator2",
+    "sgn0": "sgn0_le"
+  },
+  "randomOracle": true,
+  "vectors": [
+    {
+      "P": {
+        "x": "0x05d8b66cb4e80fca05b6301964875ab7d7c5a4c4918d547908708679fdeab67e",
+        "y": "0x22f61e41c8026936bcdfd52ea5435d1e014812f75fc05c0f08dd27c41b637f16"
+      },
+      "msg": ""
+    },
+    {
+      "P": {
+        "x": "0x2bb2e2acc3c10db43c1e448d9c629cb8c096d04c39bd280b8607338a87f6786c",
+        "y": "0x3d08047945394b66b4dcf92b209e50a6fbc6cb33808ba3dc30c1295c2f85a838"
+      },
+      "msg": "abc"
+    },
+    {
+      "P": {
+        "x": "0x34a14a92d7f8762ad298d4d9e8ffba22343a27cf34d00d2579756ccb78e49498",
+        "y": "0x36aa1ca1e20104f5ca0cd64ed21ca86299690ea49730a9205aee9d9cd778d92f"
+      },
+      "msg": "abcdef0123456789"
+    },
+    {
+      "P": {
+        "x": "0x62815adb9f1240e8df44d28da17aa44f1a0031484d4e2fe91a8c798b68302b08",
+        "y": "0x153b6addc7bd52472a4b21bd92aed5da4cc46ce0ed54b2d90cd867da1e3581a6"
+      },
+      "msg": "a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ]
+}

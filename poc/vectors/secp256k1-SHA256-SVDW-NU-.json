@@ -1,0 +1,45 @@
+{
+  "ciphersuite": "secp256k1-SHA256-SVDW-NU-",
+  "curve": "secp256k1",
+  "dst": "QUUX-V01-CS02",
+  "field": {
+    "m": "0x1",
+    "p": "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f"
+  },
+  "hash": "sha256",
+  "map": {
+    "name": "SVDW",
+    "sgn0": "sgn0_le"
+  },
+  "randomOracle": false,
+  "vectors": [
+    {
+      "P": {
+        "x": "0xf8315bda63051f996535ea97fbff227c8f3351726d60a0c66d4e51a39da5cedb",
+        "y": "0xe27e904c436ff289ce35c7182b21edc70b3c12f32b340074ef40f871c46f0059"
+      },
+      "msg": ""
+    },
+    {
+      "P": {
+        "x": "0x7fd3bd788d6b594b09a184f15dea1b5cbf2eab71a641d2f4349037c3b732b9ad",
+        "y": "0x7a8181ea027e7272f9c6962dd949fca60489f453f7c2651d2109e35ca0570c0e"
+      },
+      "msg": "abc"
+    },
+    {
+      "P": {
+        "x": "0x25775ff435ec7beff3f40eb9c1598d52bde1df5390663cd4f545d6b0d7a4ffee",
+        "y": "0xd09acf8e25b368982fe1c18358694d200a23302c1cd934bf49a68ad804c38dbb"
+      },
+      "msg": "abcdef0123456789"
+    },
+    {
+      "P": {
+        "x": "0xb242cc41bf25eaa6cd463019683104c732a7a273be824f101c2afa35378d3ff5",
+        "y": "0xbeaf35de4a7f9794bcbbeac771857fbfcf7835c18cc68450052159a95d86d81c"
+      },
+      "msg": "a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ]
+}

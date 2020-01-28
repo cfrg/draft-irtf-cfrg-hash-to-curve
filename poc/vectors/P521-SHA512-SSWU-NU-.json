@@ -1,0 +1,45 @@
+{
+  "ciphersuite": "P521-SHA512-SSWU-NU-",
+  "curve": "P384",
+  "dst": "QUUX-V01-CS02",
+  "field": {
+    "m": "0x1",
+    "p": "0x1ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+  },
+  "hash": "sha512",
+  "map": {
+    "name": "SSWU",
+    "sgn0": "sgn0_le"
+  },
+  "randomOracle": false,
+  "vectors": [
+    {
+      "P": {
+        "x": "0x0047625fcf688e752e033badd49376598b9b724aaa876fb143a32ecb0558574a993f68a617681b5eb69e05214e29087724fa31e4bdfbd16ef49f432d7a1d420d3efb",
+        "y": "0x01464b92c6d3bed416a9765cd1182adc7b4e09104d845a86a82c558c7325db9161121de0c346f7979bb9becca422d2f5900fef27a3e38fe78a4ab492f8d26cba7da5"
+      },
+      "msg": ""
+    },
+    {
+      "P": {
+        "x": "0x0110f211a7747a5a6fff0ee78d8398fd1b385f3b61cc1f8b155d374c80bd61d0ba958afe5bfb7ff9608547654fc5cf120822009cfddfb23e328c7437127a7dee2f38",
+        "y": "0x016c9b62dd9ce4ebc2dd90721d3edb539571579a4e586df6fb0b88847c41d2c225654468c5e90d2a48fa2cf9918b4227c92dc02ff146ef89cd18850f977fa167d1ce"
+      },
+      "msg": "abc"
+    },
+    {
+      "P": {
+        "x": "0x0124e6f185917e5b2910c4523372d4f4e91ad78e27feefdbaf843b2a978e1cb99050dff9dca092eddafde96b771109f28a4d4819c1c3abdb005e04fba0ecb4d8ef26",
+        "y": "0x01954db4d65ce20e9980784b6bfbddbb7f294b0e8825ea482c3ee80601dcc8cd936b5a32be6c8b3f2c8d9fe47422589f44de22f8b17fea8ca0b2efc3c208468625a1"
+      },
+      "msg": "abcdef0123456789"
+    },
+    {
+      "P": {
+        "x": "0x01f508aa7c98165e3275c48592490a92501c4a15233da4ead216a0b42b4f8ef069b6563d81a359e101db016f6dab56f70cb10022abe875eb552166fe8db327d1cc53",
+        "y": "0x0104ffd08d21a3b64b1d60bb646cabd2fad4628dbed5925f4ac818a00d306207fd13b3e82c097015b8318ed49ba26daf09136209af28ba280c325d09d33457986d6e"
+      },
+      "msg": "a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ]
+}
