@@ -40,12 +40,19 @@ def m2e_25519(P):
 
 monty_suite = BasicH2CSuiteDef("curve25519", F, Ap, Bp, sgn0_le, hashlib.sha256, 48, None, 8, True, DST)
 edw_suite = EdwH2CSuiteDef(monty_suite._replace(E="edwards25519",Aa=a, Bd=d), Ap, Bp, m2e_25519)
-edw25519_hash_ro = EdwH2CSuite("edwards25519-SHA256-EDELL2-RO-",edw_suite)
-monty25519_hash_ro = MontyH2CSuite("curve25519-SHA256-ELL2-RO-",monty_suite)
-edw25519_hash_nu = EdwH2CSuite("edwards25519-SHA256-EDELL2-NU-",edw_suite._replace(base=edw_suite.base._replace(is_ro=False)))
-monty25519_hash_nu = MontyH2CSuite("curve25519-SHA256-ELL2-NU-",monty_suite._replace(is_ro=False))
-assert edw25519_hash_ro.m2c.Z == edw25519_hash_nu.m2c.Z == 2
-assert monty25519_hash_ro.m2c.Z == monty25519_hash_nu.m2c.Z == 2
+edw25519_sha256_ro = EdwH2CSuite("edwards25519-SHA256-EDELL2-RO-",edw_suite)
+monty25519_sha256_ro = MontyH2CSuite("curve25519-SHA256-ELL2-RO-",monty_suite)
+edw25519_sha256_nu = EdwH2CSuite("edwards25519-SHA256-EDELL2-NU-",edw_suite._replace(base=edw_suite.base._replace(is_ro=False)))
+monty25519_sha256_nu = MontyH2CSuite("curve25519-SHA256-ELL2-NU-",monty_suite._replace(is_ro=False))
+
+edw25519_sha512_ro = EdwH2CSuite("edwards25519-SHA512-EDELL2-RO-",edw_suite._replace(base=edw_suite.base._replace(H=hashlib.sha512)))
+monty25519_sha512_ro = MontyH2CSuite("curve25519-SHA512-ELL2-RO-",monty_suite._replace(H=hashlib.sha512))
+edw25519_sha512_nu = EdwH2CSuite("edwards25519-SHA512-EDELL2-NU-",edw_suite._replace(base=edw_suite.base._replace(H=hashlib.sha512,is_ro=False)))
+monty25519_sha512_nu = MontyH2CSuite("curve25519-SHA512-ELL2-NU-",monty_suite._replace(H=hashlib.sha512,is_ro=False))
+assert edw25519_sha256_ro.m2c.Z == edw25519_sha256_nu.m2c.Z == 2
+assert monty25519_sha256_ro.m2c.Z == monty25519_sha256_nu.m2c.Z == 2
+assert edw25519_sha512_ro.m2c.Z == edw25519_sha512_nu.m2c.Z == 2
+assert monty25519_sha512_ro.m2c.Z == monty25519_sha512_nu.m2c.Z == 2
 
 group_order = 2^252 + 0x14def9dea2f79cd65812631a5cf5d3ed
 
@@ -63,8 +70,10 @@ def _test_suite(edw_hash, monty_hash, m2e, group_order, nreps=128):
     assert (monty_out * group_order).is_zero()
 
 def test_suite_25519():
-    _test_suite(edw25519_hash_ro, monty25519_hash_ro, m2e_25519, group_order)
-    _test_suite(edw25519_hash_nu, monty25519_hash_nu, m2e_25519, group_order)
+    _test_suite(edw25519_sha256_ro, monty25519_sha256_ro, m2e_25519, group_order)
+    _test_suite(edw25519_sha256_nu, monty25519_sha256_nu, m2e_25519, group_order)
+    _test_suite(edw25519_sha512_ro, monty25519_sha512_ro, m2e_25519, group_order)
+    _test_suite(edw25519_sha512_nu, monty25519_sha512_nu, m2e_25519, group_order)
 
 if __name__ == "__main__":
     test_suite_25519()

@@ -29,10 +29,14 @@ try:
         secp256k1_svdw_ro, \
         secp256k1_svdw_nu
     from sagelib.suite_25519 import \
-        edw25519_hash_ro,   \
-        edw25519_hash_nu,   \
-        monty25519_hash_ro, \
-        monty25519_hash_nu
+        edw25519_sha256_ro,   \
+        edw25519_sha256_nu,   \
+        monty25519_sha256_ro, \
+        monty25519_sha256_nu, \
+        edw25519_sha512_ro,   \
+        edw25519_sha512_nu,   \
+        monty25519_sha512_ro, \
+        monty25519_sha512_nu
     from sagelib.suite_448 import \
         edw448_hash_ro,   \
         edw448_hash_nu,   \
@@ -86,10 +90,10 @@ ALL_SUITES = [
     p256_sswu_nu, p384_sswu_nu, p521_sswu_nu, secp256k1_sswu_nu,
     p256_svdw_ro, p384_svdw_ro, p521_svdw_ro, secp256k1_svdw_ro,
     p256_svdw_nu, p384_svdw_nu, p521_svdw_nu, secp256k1_svdw_nu,
-    edw25519_hash_ro, edw448_hash_ro,
-    edw25519_hash_nu, edw448_hash_nu,
-    monty25519_hash_ro, monty448_hash_ro,
-    monty25519_hash_nu, monty448_hash_nu,
+    edw25519_sha256_ro, edw25519_sha512_ro, edw448_hash_ro,
+    edw25519_sha256_nu, edw25519_sha512_nu, edw448_hash_nu,
+    monty25519_sha256_ro, monty25519_sha512_ro, monty448_hash_ro,
+    monty25519_sha256_nu, monty25519_sha512_nu, monty448_hash_nu,
     bls12381g1_svdw_ro, bls12381g2_svdw_ro,
     bls12381g1_sswu_ro, bls12381g2_sswu_ro,
     bls12381g1_svdw_nu, bls12381g2_svdw_nu,
