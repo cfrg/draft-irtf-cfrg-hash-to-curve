@@ -21,7 +21,7 @@ This requires that you have the necessary software installed.  See
 
 The purpose of these implementations is for generating test vectors and enabling cross compatibility with other implementations.
 
-Note that these implementations cannot be used in production systems because side-channel countermeasures are not included.
+These implementations are for reference only. They MUST NOT be used in production systems.
 
  - [Sage](https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/tree/master/poc)
  - [Go](https://github.com/armfazh/h2c-go-ref)
