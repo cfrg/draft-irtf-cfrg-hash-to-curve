@@ -1,25 +1,21 @@
-%.py: %.sage
-	@sage -preparse $<
+# borrowed from
+# https://github.com/kwantam/bls_sigs_ref/blob/master/sage-impl/Makefile
+
+SAGEFILES := $(basename $(notdir $(wildcard *.sage)))
+PYFILES := $(addprefix sagelib/, $(addsuffix .py,$(SAGEFILES)))
+.PRECIOUS: $(PYFILES)
+
+.PHONY: pyfiles
+pyfiles: sagelib/__init__.py $(PYFILES)
+
+sagelib/__init__.py:
+	mkdir -p sagelib
+	echo pass > sagelib/__init__.py
+
+sagelib/%.py: %.sage
+	@echo "Parsing $<"
+	@sage --preparse $<
 	@mv $<.py $@
 
-test_%: %.sage all
-	@sage $<
-
-all: common.py hash_to_base.py
-
-test: all \
-	test_hash_to_base \
-	test_icart \
-	test_simple_swu \
-	test_ell2montg \
-	test_ell2_ed448 \
-	test_ell2edwards \
-	test_bonehfranklin \
-	test_ell2supers \
-	test_fouquetibouchi \
-	test_sswu_bls12-381_g1 \
-	test_sswu_bls12-381_g2 \
-	test_svdw
-
 clean:
-	@rm -f *.pyc *.sage.py common.py hash_to_base.py
+	rm -rf sagelib *.pyc *.sage.py *.log

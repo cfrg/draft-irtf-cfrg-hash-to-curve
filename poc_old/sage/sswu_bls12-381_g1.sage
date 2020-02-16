@@ -31,6 +31,12 @@ iso.switch_sign()  # we use the isogeny with the opposite sign for y; the choice
 
 h2c_suite = "H2C-BLS12_381_1-SHA512-OSSWU-"
 
+def show_iso_map():
+    ((xnum, xden), (ynum, yden)) = [ (rm.numerator().dict(), rm.denominator().dict()) for rm in iso.rational_maps() ]
+    for (idx, poly) in zip((1, 2, 3, 4), (xnum, xden, ynum, yden)):
+        for ((jdx, _), val) in sorted(poly.iteritems()):
+            print "- k\_(%d,%d) = 0x%s" % (idx, jdx, ZZ(val).hex())
+
 # y^2 = g1p(x) is the curve equation for EllP
 def g1p(x):
     return F(x**3 + EllP_a * x + EllP_b)
