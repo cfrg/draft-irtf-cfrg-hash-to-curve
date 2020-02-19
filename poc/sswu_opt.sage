@@ -4,13 +4,14 @@
 import sys
 try:
     from sagelib.common import CMOV
+    from sagelib.common import sgn0_be
     from sagelib.sswu_generic import GenericSSWU
     from sagelib.z_selection import find_z_sswu
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 class OptimizedSSWU(object):
-    def __init__(self, p, A, B):
+    def __init__(self, p, A, B, sgn0 = None):
         assert p % 4 == 3
         assert A != 0
         assert B != 0
@@ -26,7 +27,7 @@ class OptimizedSSWU(object):
         self.c2 = sqrt(-Z^3)
 
         # map for testing
-        self.ref_map = GenericSSWU(F, self.A, self.B)
+        self.ref_map = GenericSSWU(F, self.A, self.B, sgn0)
 
     def map_to_curve(self, u):
         sgn0 = self.ref_map.sgn0
@@ -121,7 +122,7 @@ assert test_secp256k1.Z == GF(p_secp256k1)(-11)
 p_bls12381 = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
 Ap_bls12381g1 = 0x144698a3b8e9433d693a02c96d4982b0ea985383ee66a8d8e8981aefd881ac98936f8da0e0f97f5cf428082d584c1d
 Bp_bls12381g1 = 0x12e2908d11688030018b12e8753eee3b2016c1f0f24f4070a0b9c14fcef35ef55a23215a316ceaa5d1cc48e98e172be0
-test_bls12381g1 = OptimizedSSWU(p_bls12381, Ap_bls12381g1, Bp_bls12381g1)
+test_bls12381g1 = OptimizedSSWU(p_bls12381, Ap_bls12381g1, Bp_bls12381g1, sgn0_be)
 assert test_bls12381g1.Z == GF(p_bls12381)(11)
 
 def test_sswu():

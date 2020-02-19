@@ -10,7 +10,7 @@ except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 class GenericSSWU(GenericMap):
-    def __init__(self, F, A, B):
+    def __init__(self, F, A, B, sgn0 = None):
         self.F = F
         self.A = F(A)
         self.B = F(B)
@@ -18,6 +18,8 @@ class GenericSSWU(GenericMap):
         assert self.B != 0, "S-SWU requires B != 0"
         self.Z = find_z_sswu(F, F(A), F(B))
         self.E = EllipticCurve(F, [F(A), F(B)])
+        if sgn0 is not None:
+            self.sgn0 = sgn0
 
         # constants for straight-line impl
         self.c1 = -F(B) / F(A)
