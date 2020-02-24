@@ -1676,6 +1676,9 @@ SHA-2 {{FIPS180-4}} and SHA-3 {{FIPS202}} are typical and RECOMMENDED choices.
 As an example, for 128-bit security, b >= 256 bits and either SHA256 or
 SHA3-256 would be an appropriate choice.
 
+When using expand\_message\_md in a suite, the EXP\_TAG is "XMD".
+See {{suiteIDformat}} for details.
+
 The following procedure implements expand\_message\_md.
 
 ~~~
@@ -1725,6 +1728,11 @@ under a reasonable cryptographic assumption.
 The SHAKE {{FIPS202}} XOF family is a typical and RECOMMENDED choice.
 As an example, for 128-bit security, SHAKE-128 would be an appropriate choice.
 
+When using expand\_message\_md in a suite, the EXP\_TAG is "XOF".
+See {{suiteIDformat}} for details.
+
+The following procedure implements expand\_message\_md.
+
 ~~~
 expand_message_xof(msg, DST, len_in_octets)
 
@@ -1768,8 +1776,8 @@ primitive, whereas a Mersenne twister pseudorandom number generator is not.
 
 - SHOULD read msg exactly once, for efficiency when msg is long.
 
-In addition, an expand\_message variant MUST specify a unique tag that
-identifies that variant in a Suite ID.
+In addition, an expand\_message variant MUST specify a unique EXP\_TAG
+that identifies that variant in a Suite ID.
 {{suiteIDformat}} gives details.
 
 # Deterministic Mappings {#mappings}
@@ -2447,8 +2455,10 @@ Each suite comprises the following parameters:
 - p, the characteristic of the field F.
 - m, the extension degree of the field F.
 - sgn0, one of the variants specified in {{sgn0-variants}}.
-- H, the hash function used by hash\_to\_field ({{hashtofield-sec}}).
-- L, the length of HKDF-Expand output in hash\_to\_field ({{hashtofield-sec}}).
+- L, the length parameter for hash\_to\_field ({{hashtofield-sec}}).
+- expand\_message, one of the variants specified in {{hashtofield-expand}}
+  plus any parameters required for the specified variant (for example, H,
+  the underlying hash function).
 - f, a mapping function from {{mappings}}.
 - h\_eff, the scalar parameter for clear\_cofactor ({{cofactor-clearing}}).
 
@@ -2479,21 +2489,23 @@ the subsection that gives the corresponding parameters.
 
 The RECOMMENDED way to define a new hash-to-curve suite is:
 
-1. E, F, p, and m are determined by the elliptic curve and the field.
+1. E, F, p, and m are determined by the elliptic curve and its base field.
 
 2. Choose a sgn0 variant following the guidelines in {{sgn0-variants}}.
 
-3. Choose a hash function H meeting the requirements in {{hashtofield-sec}},
-   and compute L as described in that section.
+3. Compute L as described in {{hashtofield-sec}}.
 
-4. Choose a mapping following the guidelines in {{choosing-mapping}},
+4. Choose an expand\_message variant from {{hashtofield-expand}} plus any
+   underlying cryptographic primitives (e.g., a hash function H).
+
+5. Choose a mapping following the guidelines in {{choosing-mapping}},
    and select any required parameters for that mapping.
 
-5. Choose h\_eff to be either the cofactor of E or, if a fast cofactor
+6. Choose h\_eff to be either the cofactor of E or, if a fast cofactor
    clearing method is to be used, a value appropriate to that method
    as discussed in {{cofactor-clearing}}.
 
-6. Construct a Suite ID following the guidelines in {{suiteIDformat}}.
+7. Construct a Suite ID following the guidelines in {{suiteIDformat}}.
 
 When hashing to an elliptic curve not listed in this section, corresponding
 hash-to-curve suites SHOULD be specified as described in this section.
@@ -2515,16 +2527,23 @@ Fields MUST be chosen as follows:
 
 - CURVE\_ID: a human-readable representation of the target elliptic curve.
 
-- HASH\_ID: a human-readable representation of the hash function used in
-  hash\_to\_field ({{hashtofield}}).
+- HASH\_ID: a human-readable representation of the expand\_message function
+  and any underlying hash primitives used in hash\_to\_field ({{hashtofield}}).
+  This field MUST be constructed as follows:
 
-  If a suite uses an alternative hash\_to\_field function ({{hashtofield-expand-other}}),
-  a short descriptive name MUST be chosen for that function using only the
-  allowed characters listed above.
-  That name MUST be appended to the HASH\_ID field, separated by a colon.
-  For example, a hash\_to\_field function based on KMAC128 {{SP.800-185}} might
-  use the short name "h2b/kmac128", and a reasonable value for the HASH\_ID field
-  would be "SHA3:h2b/kmac128".
+        EXP_TAG || ":" || HASH_NAME
+
+  Here, HASH\_NAME is a human-readable name for the underlying hash primitive.
+  Hyphens are not allowed; any hyphens in the commonly-used name for the hash
+  function SHOULD be replaced with "." (ASCII 0x2e).
+
+  As examples:
+
+    1. For expand\_message\_xof ({{hashtofield-expand-xof}}) with SHAKE-128,
+       HASH\_ID is "XOF:SHAKE.128".
+
+    2. For expand\_message\_md ({{hashtofield-expand-md}}) with SHA3-256,
+       HASH\_ID is "XMD:SHA3.256".
 
 - MAP\_ID: a human-readable representation of the map\_to\_curve function
   ({{mappings}}).
