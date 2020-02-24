@@ -2535,8 +2535,8 @@ Fields MUST be chosen as follows:
     - "XOF" for expand\_message\_xof ({{hashtofield-expand-xof}}).
 
   HASH\_NAME is a human-readable name for the underlying hash primitive.
-  As stated above, hyphens are not allowed. Any hyphens in the commonly-used
-  name for the hash function SHOULD be replaced with "." (ASCII 0x2e).
+  As stated above, hyphens are not allowed. Any hyphens in the name of the
+  hash function SHOULD be replaced with "." (ASCII 0x2e).
 
   As examples:
 
