@@ -2787,17 +2787,22 @@ Each encoding function accepts arbitrary input and maps it to a pseudorandom
 point on the curve.
 Directly evaluating the mappings of {{mappings}} produces an output that is
 distinguishable from random.
-{{roadmap}} shows how to use these mappings to construct a function approximating a
-random oracle.
+{{roadmap}} shows how to use these mappings to construct a function that is
+indifferentiable from a random oracle.
 
 {{domain-separation}} describes considerations related to domain separation
 for random oracle encodings.
 
-{{hashtofield}} describes considerations for uniformly hashing to field elements.
+{{hashtofield}} describes considerations for uniformly hashing to field
+elements.
+When built on an expand\_message variant described in that section, and
+when following the security guidelines of that expand\_message variant,
+hash\_to\_field is indifferentiable from a random oracle.
 
-When the hash\_to\_curve function ({{roadmap}}) is instantiated
-with hash\_to\_field ({{hashtofield}}), the resulting function is
-indifferentiable from a random oracle ({{FFSTV13}}, {{LBB19}}, {{MRH04}}).
+When the hash\_to\_curve function ({{roadmap}}) is instantiated with a
+hash\_to\_field function that is indifferentiable from a random oracle
+({{hashtofield}}), the resulting function is indifferentiable from a random
+oracle ({{FFSTV13}}, {{LBB19}}, {{MRH04}}).
 In most cases such a function can be safely used in protocols whose security
 analysis assumes a random oracle that outputs points on an elliptic curve.
 As Ristenpart et al. discuss in {{RSS11}}, however, not all security proofs
@@ -2813,7 +2818,7 @@ To mitigate such attacks, it is recommended to first execute a more costly key
 derivation function (e.g., PBKDF2 {{!RFC2898}} or scrypt {{!RFC7914}}) on the password,
 then hash the output of that function to the target elliptic curve.
 For collision resistance, the hash underlying the key derivation function
-should be chosen according to the guidelines listed in {{hashtofield-sec}}.
+should be chosen according to the guidelines listed in {{hashtofield-expand}}.
 
 # Acknowledgements
 
