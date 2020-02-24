@@ -987,7 +987,7 @@ a hash-to-curve suite, which fixes all of the parameters listed in {{suites}},
 plus a domain separation tag ({{domain-separation}}).
 Starting from working operations on the target elliptic curve and its base field,
 a hash-to-curve suite requires implementing the specified encoding function ({{roadmap}}),
-its constituent subroutines ({{hashtobase}}, {{mappings}}, {{cofactor-clearing}}), and
+its constituent subroutines ({{hashtofield}}, {{mappings}}, {{cofactor-clearing}}), and
 a few utility functions ({{utility}}).
 
 Correspondingly, designers specifying a protocol that requires hashing to an elliptic curve
@@ -1103,7 +1103,7 @@ Thus, any encoding built from H is also not injective.
 Like mappings, encodings may be invertible, meaning that there is an efficient
 algorithm that, for any point P output by the encoding, outputs a bit string s
 such that applying the encoding to s outputs P.
-The hash function used by all encodings specified in this document ({{hashtobase}})
+The hash function used by all encodings specified in this document ({{hashtofield}})
 is not invertible; thus, the encodings are also not invertible.
 
 ### Random oracle encodings {#term-rom}
@@ -1178,9 +1178,9 @@ This section presents a general framework for encoding bit strings to points
 on an elliptic curve. To construct these encodings, we rely on three basic
 functions:
 
--   The function hash\_to\_base, {0, 1}^\* x {0, 1, 2} -> F, hashes arbitrary-length bit strings
+-   The function hash\_to\_field, {0, 1}^\* x {0, 1, 2} -> F, hashes arbitrary-length bit strings
     to elements of a finite field; its implementation is defined in
-    {{hashtobase}}.
+    {{hashtofield}}.
 
 -   The function map\_to\_curve, F -> E, calculates a point on the elliptic curve E
     from an element of the finite field F over which E is defined.
@@ -1204,7 +1204,7 @@ Input: alpha, an arbitrary-length bit string.
 Output: P, a point in G.
 
 Steps:
-1. u = hash_to_base(alpha, 2)
+1. u = hash_to_field(alpha, 2)
 2. Q = map_to_curve(u)
 3. P = clear_cofactor(Q)
 4. return P
@@ -1222,8 +1222,8 @@ Input: alpha, an arbitrary-length bit string.
 Output: P, a point in G.
 
 Steps:
-1. u0 = hash_to_base(alpha, 0)
-2. u1 = hash_to_base(alpha, 1)
+1. u0 = hash_to_field(alpha, 0)
+2. u1 = hash_to_field(alpha, 1)
 3. Q0 = map_to_curve(u0)
 4. Q1 = map_to_curve(u1)
 5. R = Q0 + Q1              # Point addition
@@ -1246,7 +1246,7 @@ either hash\_to\_curve or encode\_to\_curve MUST enforce domain separation
 between those hash functions.
 This requirement applies both in the case of multiple hashes to the same
 curve and in the case of multiple hashes to different curves.
-(This is because the hash\_to\_base primitive ({{hashtobase}}) requires
+(This is because the hash\_to\_field primitive ({{hashtofield}}) requires
 domain separation to guarantee independent outputs.)
 
 Domain separation is enforced with a domain separation tag (DST),
@@ -1254,8 +1254,8 @@ which is an octet string.
 Care is required when selecting and using a domain separation tag.
 The following requirements apply:
 
-1. Tags MUST be supplied as the DST parameter to hash\_to\_base, as
-   described in {{hashtobase}}.
+1. Tags MUST be supplied as the DST parameter to hash\_to\_field, as
+   described in {{hashtofield}}.
 
 2. Tags MUST begin with a fixed protocol identification string.
    This identification string should be unique to the protocol.
@@ -1439,9 +1439,9 @@ Steps:
 6. return CMOV(sign, 1, sign == 0)      # Regard x == 0 as positive
 ~~~
 
-# Hashing to a Finite Field {#hashtobase}
+# Hashing to a Finite Field {#hashtofield}
 
-The hash\_to\_base function hashes a string msg of any length into an element of a
+The hash\_to\_field function hashes a string msg of any length into an element of a
 field F. This function is parametrized by the field F ({{bg-curves}}) and by H,
 a cryptographic hash function that outputs b bits.
 
@@ -1451,10 +1451,10 @@ The reason is that these procedures are difficult to implement in constant time,
 and later well-meaning "optimizations" may silently render an implementation
 non-constant-time.
 
-## Security considerations {#hashtobase-sec}
+## Security considerations {#hashtofield-sec}
 
-For security, hash\_to\_base should be collision resistant and its output distribution
-should be uniform over F. To this end, hash\_to\_base requires
+For security, hash\_to\_field should be collision resistant and its output distribution
+should be uniform over F. To this end, hash\_to\_field requires
 a cryptographic hash function H which satisfies the following properties:
 
 1. The number of bits output by H should be b >= 2 * k for sufficient collision
@@ -1467,7 +1467,7 @@ typical and RECOMMENDED choices.
 For example, for 128-bit security, b >= 256 bits; in this case, SHA256 would
 be an appropriate choice for H.
 
-Ensuring that the hash\_to\_base output is a uniform random element of F requires
+Ensuring that the hash\_to\_field output is a uniform random element of F requires
 care, even when H is modeled as a random oracle. For example,
 if H is SHA256 and F is a field of characteristic p = 2^255 - 19, then the
 result of reducing H(msg) (a 256-bit integer) modulo p is slightly more likely
@@ -1482,8 +1482,8 @@ msg to a L-byte string, where L = ceil((ceil(log2(p)) + k) / 8); this
 string is then interpreted as an integer via OS2IP {{RFC8017}}. For example,
 for p a 255-bit prime and k = 128-bit security, L = ceil((255 + 128) / 8) = 48 bytes.
 
-Finally, hash\_to\_base appends one zero byte to msg in the invocation of HKDF-Extract.
-This ensures that the use of HKDF in hash\_to\_base is indifferentiable
+Finally, hash\_to\_field appends one zero byte to msg in the invocation of HKDF-Extract.
+This ensures that the use of HKDF in hash\_to\_field is indifferentiable
 from a random oracle (see {{LBB19}}, Lemma 8 and {{DRST12}}, Theorems 4.3 and 4.4).
 (In particular, this approach works because it ensures that the final byte of
 each HMAC invocation in HKDF-Extract and HKDF-Expand is distinct.)
@@ -1493,11 +1493,11 @@ recommendations for choosing domain separation tags. The hash\_to\_curve
 function takes such a tag as a parameter, DST; this is the REQUIRED
 method for applying domain separation.
 
-{{hashtobase-impl}} details the hash\_to\_base procedure.
+{{hashtofield-impl}} details the hash\_to\_field procedure.
 
-## Performance considerations {#hashtobase-perf}
+## Performance considerations {#hashtofield-perf}
 
-The hash\_to\_base function uses HKDF-Extract to combine the
+The hash\_to\_field function uses HKDF-Extract to combine the
 input msg and domain separation tag DST into a short digest, which is then
 passed to HKDF-Expand {{!RFC5869}}.
 For short messages, this entails at most two extra invocations of H, which
@@ -1510,20 +1510,20 @@ the value being hashed, e.g., H(msg || 0) and H(msg || 1).
 If msg is long, however, this is either inefficient (because it entails hashing
 msg twice) or requires non-black-box use of H (e.g., partial evaluation).
 
-To sidestep both of these issues, hash\_to\_base takes a second argument, ctr,
+To sidestep both of these issues, hash\_to\_field takes a second argument, ctr,
 which it passes to HKDF-Expand.
-This means that two invocations of hash\_to\_base on the same msg with different
+This means that two invocations of hash\_to\_field on the same msg with different
 ctr values both start with identical invocations of HKDF-Extract.
 This is an improvement because it allows sharing one evaluation of HKDF-Extract
-among multiple invocations of hash\_to\_base, i.e., by factoring out the common
+among multiple invocations of hash\_to\_field, i.e., by factoring out the common
 computation.
 
-## Implementation {#hashtobase-impl}
+## Implementation {#hashtofield-impl}
 
-The following procedure implements hash\_to\_base.
+The following procedure implements hash\_to\_field.
 
 ~~~
-hash_to_base(msg, ctr)
+hash_to_field(msg, ctr)
 
 Parameters:
 - DST, a domain separation tag (see discussion above).
@@ -1540,7 +1540,7 @@ Inputs:
 - msg is the message to hash.
 - ctr is 0, 1, or 2.
   This is used to efficiently create independent
-  instances of hash_to_base (see discussion above).
+  instances of hash_to_field (see discussion above).
 
 Output:
 - u, an element in F.
@@ -1556,16 +1556,16 @@ Steps:
 8. return u
 ~~~
 
-## Alternative hash\_to\_base functions {#hashtobase-alt}
+## Alternative hash\_to\_field functions {#hashtofield-alt}
 
-The hash\_to\_base function is suitable for use with a wide range of hash functions,
+The hash\_to\_field function is suitable for use with a wide range of hash functions,
 including SHA-2 {{FIPS180-4}}, SHA-3 {{FIPS202}}, BLAKE2 {{?RFC7693}}, and others.
 In some cases, however, implementors may wish to replace the HKDF-based function
 defined in this section with one built on a different pseudorandom function.
 This section briefly describes the REQUIRED way of doing so.
 
-The security considerations of {{hashtobase-sec}} continue to apply.
-In particular, an alternative hash\_to\_base function:
+The security considerations of {{hashtofield-sec}} continue to apply.
+In particular, an alternative hash\_to\_field function:
 
 - MUST give collision resistance commensurate with the security level of the target elliptic curve.
 
@@ -1576,21 +1576,21 @@ In particular, an alternative hash\_to\_base function:
 
 - MUST output an element of F whose statistical distance from uniform is commensurate
   with the security level of the target elliptic curve.
-  It is RECOMMENDED to follow the guidelines for controlling bias in {{hashtobase-sec}}.
+  It is RECOMMENDED to follow the guidelines for controlling bias in {{hashtofield-sec}}.
 
 - MUST give independent output values for distinct (msg, ctr) inputs.
 
 - MUST support domain separation via a supplied domain separation tag (DST).
   Care is required when implementing domain separation: this document
-  assumes that instantiating hash\_to\_base with distinct DSTs yields
+  assumes that instantiating hash\_to\_field with distinct DSTs yields
   independent hash functions.
 
-The efficiency considerations of {{hashtobase-perf}} should also be followed.
+The efficiency considerations of {{hashtofield-perf}} should also be followed.
 In particular, it SHOULD be possible to hash one msg with multiple ctr values
 without requiring multiple passes over msg.
 
 Finally, the Suite ID value MUST be modified to indicate that an alternative
-hash\_to\_base function is being used.
+hash\_to\_field function is being used.
 {{suiteIDformat}} gives details.
 
 # Deterministic Mappings {#mappings}
@@ -1655,7 +1655,7 @@ As a rough guide, the following conventions are used in pseudocode:
   explicitly stated otherwise.
 
 - u: the input to the mapping function.
-  This is an element of F produced by the hash\_to\_base function.
+  This is an element of F produced by the hash\_to\_field function.
 
 - (x, y), (X, Y), (v, w): the affine coordinates of the point output by the mapping.
   Indexed variables (e.g., x1, y2, ...) are used for candidate values.
@@ -2268,8 +2268,8 @@ Each suite comprises the following parameters:
 - p, the characteristic of the field F.
 - m, the extension degree of the field F.
 - sgn0, one of the variants specified in {{sgn0-variants}}.
-- H, the hash function used by hash\_to\_base ({{hashtobase-sec}}).
-- L, the length of HKDF-Expand output in hash\_to\_base ({{hashtobase-sec}}).
+- H, the hash function used by hash\_to\_field ({{hashtofield-sec}}).
+- L, the length of HKDF-Expand output in hash\_to\_field ({{hashtofield-sec}}).
 - f, a mapping function from {{mappings}}.
 - h\_eff, the scalar parameter for clear\_cofactor ({{cofactor-clearing}}).
 
@@ -2278,7 +2278,7 @@ additional parameters Z, M, rational\_map, E', and/or iso\_map.
 These MUST be specified when applicable.
 
 All applications MUST choose a domain separation tag (DST)
-for use with hash\_to\_base ({{hashtobase}}), in accordance with the
+for use with hash\_to\_field ({{hashtofield}}), in accordance with the
 guidelines of {{domain-separation}}.
 In addition, applications whose security requires a random oracle MUST use
 a suite specifying hash\_to\_curve ({{roadmap}}); see {{suiteIDformat}}.
@@ -2304,7 +2304,7 @@ The RECOMMENDED way to define a new hash-to-curve suite is:
 
 2. Choose a sgn0 variant following the guidelines in {{sgn0-variants}}.
 
-3. Choose a hash function H meeting the requirements in {{hashtobase-sec}},
+3. Choose a hash function H meeting the requirements in {{hashtofield-sec}},
    and compute L as described in that section.
 
 4. Choose a mapping following the guidelines in {{choosing-mapping}},
@@ -2337,13 +2337,13 @@ Fields MUST be chosen as follows:
 - CURVE\_ID: a human-readable representation of the target elliptic curve.
 
 - HASH\_ID: a human-readable representation of the hash function used in
-  hash\_to\_base ({{hashtobase}}).
+  hash\_to\_field ({{hashtofield}}).
 
-  If a suite uses an alternative hash\_to\_base function ({{hashtobase-alt}}),
+  If a suite uses an alternative hash\_to\_field function ({{hashtofield-alt}}),
   a short descriptive name MUST be chosen for that function using only the
   allowed characters listed above.
   That name MUST be appended to the HASH\_ID field, separated by a colon.
-  For example, a hash\_to\_base function based on KMAC128 {{SP.800-185}} might
+  For example, a hash\_to\_field function based on KMAC128 {{SP.800-185}} might
   use the short name "h2b/kmac128", and a reasonable value for the HASH\_ID field
   would be "SHA3:h2b/kmac128".
 
@@ -2664,10 +2664,10 @@ random oracle.
 {{domain-separation}} describes considerations related to domain separation
 for random oracle encodings.
 
-{{hashtobase}} describes considerations for uniformly hashing to field elements.
+{{hashtofield}} describes considerations for uniformly hashing to field elements.
 
 When the hash\_to\_curve function ({{roadmap}}) is instantiated
-with hash\_to\_base ({{hashtobase}}), the resulting function is
+with hash\_to\_field ({{hashtofield}}), the resulting function is
 indifferentiable from a random oracle ({{FFSTV13}}, {{LBB19}}, {{MRH04}}).
 In most cases such a function can be safely used in protocols whose security
 analysis assumes a random oracle that outputs points on an elliptic curve.
@@ -2679,12 +2679,12 @@ relying on the hash\_to\_curve function.
 
 When hashing passwords using any function described in this document, an adversary
 who learns the output of the hash function (or potentially any intermediate value,
-e.g., the output of hash\_to\_base) may be able to carry out a dictionary attack.
+e.g., the output of hash\_to\_field) may be able to carry out a dictionary attack.
 To mitigate such attacks, it is recommended to first execute a more costly key
 derivation function (e.g., PBKDF2 {{!RFC2898}} or scrypt {{!RFC7914}}) on the password,
 then hash the output of that function to the target elliptic curve.
 For collision resistance, the hash underlying the key derivation function
-should be chosen according to the guidelines listed in {{hashtobase-sec}}.
+should be chosen according to the guidelines listed in {{hashtofield-sec}}.
 
 # Acknowledgements
 
