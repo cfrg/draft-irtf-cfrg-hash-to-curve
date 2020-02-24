@@ -1650,7 +1650,7 @@ Notation:
   (b - a) octets starting at the a'th octet of str.
 
 Steps:
-1. ell = ceil((len_in_octets - k_in_octets) / b_in_octets)
+1. ell = ceil((len_in_octets + k_in_octets) / b_in_octets)
 2. ABORT if ell > 255
 3. b_0 = H(DST || I2OSP(0, 1) || I2OSP(ell, 1) || msg)
 4. for i in (1, ..., ell - 1):
