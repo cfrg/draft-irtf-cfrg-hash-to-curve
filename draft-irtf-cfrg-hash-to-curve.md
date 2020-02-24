@@ -166,6 +166,56 @@ informative:
         ins: P. Puniya
         name: Prashant Puniya
         org: New York University
+  MT07:
+    title: "Domain extension of public random functions: Beyond the birthday barrier"
+    seriesinfo:
+        "In": Advances in Cryptology - CRYPTO 2007
+        "pages": 187-204
+        DOI: 10.1007/978-3-540-74143-5_11
+    target: https://doi.org/10.1007/978-3-540-74143-5_11
+    date: 2007
+    author:
+      -
+        ins: U. Maurer
+        name: Ueli Maurer
+        org: ETH Zurich
+      -
+        ins: S. Tessaro
+        name: Stefano Tessaro
+        org: ETH Zurich
+  CN08:
+    title: "Improved indifferentiability security analysis for ChopMD hash function"
+    seriesinfo:
+        "In": FSE
+        "pages": 429-443
+        DOI: 10.1007/978-3-540-71039-4_27
+    target: https://doi.org/10.1007/978-3-540-71039-4_27
+    date: 2008
+    author:
+      -
+        ins: D. Chang
+        name: Donghoon Chang
+      -
+        ins: M. Nandi
+        name: Mridul Nandi
+  DFL12:
+    title: Generic indifferentiability proofs of hash designs
+    seriesinfo:
+        "In": CSF
+        "pages": 340-353
+        DOI: 10.1109/CSF.2012.13
+    target: https://doi.org/10.1109/CSF.2012.13
+    date: 2012
+    author:
+      -
+        ins: M. Daubignard
+        name: Marion Daubignard
+      -
+        ins: P-A. Fouque
+        name: Pierre-Alain Fouque
+      -
+        ins: Y. Lakhnech
+        name: Yassine Lakhnech
   BLAKE2X:
     title: BLAKE2X
     target: https://blake2.net/blake2x.pdf
@@ -286,7 +336,7 @@ informative:
     date: 2010
     author:
       -
-        ins: P. Fouque
+        ins: P-A. Fouque
         name: Pierre-Alain Fouque
         org: Ecole Normale Superieure and INRIA Rennes
       -
@@ -303,7 +353,7 @@ informative:
     date: 2012
     author:
       -
-        ins: P. Fouque
+        ins: P-A. Fouque
         name: Pierre-Alain Fouque
         org: Ecole Normale Superieure and INRIA Rennes
       -
@@ -320,7 +370,7 @@ informative:
     date: 2013
     author:
       -
-        ins: P. Fouque
+        ins: P-A. Fouque
         name: Pierre-Alain Fouque
         org: Ecole Normale Superieure and INRIA Rennes
       -
@@ -1513,19 +1563,19 @@ an implementation non-constant-time.
 ## Security considerations {#hashtofield-sec}
 
 The hash\_to\_field function is designed to be indifferentiable from a
-random oracle {{MRH04}}.
-Ensuring indifferentiability requires care, even when expand\_message is
-modeled as a random oracle (see {{hashtofield-expand}}, below).
-To see why, consider a prime p that is close to 3/4 * 2^256.
+random oracle {{MRH04}} when expand\_message ({{hashtofield-expand}})
+is modeled as a random oracle (see {{security-considerations-hash-to-field}}).
+Ensuring indifferentiability requires care; to see why, consider a prime
+p that is close to 3/4 * 2^256.
 Reducing a random 256-bit integer modulo this p yields a value that is in
 the range \[0, p / 3\] with probability roughly 1/2, meaning that this value
-is far from uniform in \[0, p - 1\].
+is statistically far from uniform in \[0, p - 1\].
 
 To control bias, hash\_to\_field instead uses pseudorandom integers whose
 length is at least ceil(log2(p)) + k bits.
 Reducing such integers mod p gives bias at most 2^-k for any p; this bias
 is appropriate for a cryptosystem with k-bit security.
-To obtain such an integer, hash\_to\_field uses expand\_message to obtain
+To obtain such integers, hash\_to\_field uses expand\_message to obtain
 L pseudorandom octets, where L = ceil((ceil(log2(p)) + k) / 8); this
 octet-string is then interpreted as an integer via OS2IP {{RFC8017}}.
 For example, for p a 255-bit prime and k = 128-bit security,
@@ -1568,8 +1618,8 @@ Notation:
   (b - a) octets starting at the a'th octet of str.
 
 Steps:
-1. pro_length = count * m * L
-2. pseudo_random_octets = expand_message(msg, DST, prb_length)
+1. len_in_octets = count * m * L
+2. pseudo_random_octets = expand_message(msg, DST, len_in_octets)
 3. for i in (0, ..., count - 1):
 4.   for j in (0, ..., m - 1):
 5.     elm_offset = L * (j + i * m)
@@ -1608,11 +1658,12 @@ a cryptographic hash function H that outputs b bits.
 For security, H must meet the following requirements:
 
 - The number of bits output by H MUST be b >= 2 * k, for k the target
-security level in bits. This ensures collision resistance to k bits.
+security level in bits. This ensures k-bit collision resistance.
 
 - H MAY be a Merkle-Damgaard hash function like SHA-2.
 In this case, security holds when the underlying compression function is
 modeled as a random oracle {{CDMP05}}.
+(See {{security-considerations-expand-md}} for discussion.)
 
 - H MAY be a sponge-based hash function like SHA-3 or BLAKE2.
 In this case, security holds when the inner function is modeled as a
@@ -2786,7 +2837,7 @@ Each encoding function accepts arbitrary input and maps it to a pseudorandom
 point on the curve.
 Directly evaluating the mappings of {{mappings}} produces an output that is
 distinguishable from random.
-{{roadmap}} shows how to use these mappings to construct a function that is
+{{roadmap}} shows how to use these mappings to construct hash\_to\_curve, which is
 indifferentiable from a random oracle.
 
 {{domain-separation}} describes considerations related to domain separation
@@ -2796,7 +2847,8 @@ for random oracle encodings.
 elements.
 When built on an expand\_message variant described in that section, and
 when following the security guidelines of that expand\_message variant,
-hash\_to\_field is indifferentiable from a random oracle.
+hash\_to\_field is indifferentiable from a random oracle;
+see {{security-considerations-hash-to-field}} and {{security-considerations-expand-md}}.
 
 When the hash\_to\_curve function ({{roadmap}}) is instantiated with a
 hash\_to\_field function that is indifferentiable from a random oracle
@@ -2818,6 +2870,57 @@ derivation function (e.g., PBKDF2 {{!RFC2898}} or scrypt {{!RFC7914}}) on the pa
 then hash the output of that function to the target elliptic curve.
 For collision resistance, the hash underlying the key derivation function
 should be chosen according to the guidelines listed in {{hashtofield-expand}}.
+
+## hash\_to\_field security {#security-considerations-hash-to-field}
+
+The hash\_to\_field function defined in {{hashtofield}} is indifferentiable
+from a random oracle {{MRH04}} when expand\_message ({{hashtofield-expand}})
+is modeled as a random oracle.
+By composability of indifferentiability proofs, this also holds when
+expand\_message is proved indifferentiable from a random oracle relative
+to an underlying primitive that is modeled as a random oracle.
+
+We very briefly sketch the indifferentiability argument for hash\_to\_field.
+Notice that each integer mod p that hash\_to\_field returns (i.e., each element
+of the vector representation of F) is a member of an equivalence class of roughly
+2^k integers of length log2(p) + k bits, all of which are equal modulo p.
+For each integer mod p that hash\_to\_field returns, the simulator samples
+one member of this equivalence class at random and outputs the octet-string
+returned by I2OSP.
+(Notice that this is essentially the inverse of the hash\_to\_field procedure.)
+
+## expand\_message\_md security {#security-considerations-expand-md}
+
+The expand\_message\_md function defined in {{hashtofield-expand-md}} is indifferentiable
+from a random oracle {{MRH04}} when any of the following hold:
+
+1. H is indifferentiable from a random oracle,
+2. H is a sponge-based hash function whose inner function
+   is modeled as a random transformation or random permutation {{BDPV08}}, or
+3. H is a Merkle-Damgaard hash function and the compression function is
+   modeled as a random oracle {{CDMP05}}.
+
+The first and second cases are true by the composability of indifferentiability
+proofs.
+For the third case, we now briefly sketch an indifferentiability argument.
+Here, H is a Merkle-Damgaard function; we model H's underlying compression
+function as a random oracle.
+
+First, we argue that each of the b_i values, i >= 1, is generated by a hash
+function that is indifferentiable from a random oracle.
+This follows from Theorem 3.4 of {{CDMP05}} and the fact that each call to H
+that generates one of these b_i values has a unique prefix, DST || I2OSP(i, 1).
+
+Next, we argue that b_0_chopped is generated by a hash function that is
+indifferentiable from a random oracle.
+This follows from Theorem 3.3 of {{CDMP05}}; {{MT07}}, {{CN08}}, and {{DFL12}}
+improve the analysis, giving tighter security bounds.
+
+Finally, since b_0_chopped and all b_i, i >= 1, are the outputs of hash
+functions indifferentiable from random oracles, their concatenation
+is also indifferentiable from a random oracle by the composability of
+indifferentiability proofs, as is a len_in_octets prefix of this concatenation.
+(See also {{CDMP05}}, Section 5.)
 
 # Acknowledgements
 
