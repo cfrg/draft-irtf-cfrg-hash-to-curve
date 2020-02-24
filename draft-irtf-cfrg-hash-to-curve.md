@@ -116,6 +116,56 @@ informative:
         ins: R. Perlner
         name: Ray Perlner
         org: NIST Computer Security Division
+  BDPV08:
+    title: On the Indifferentiability of the Sponge Construction
+    seriesinfo:
+        "In": Advances in Cryptology - EUROCRYPT 2008
+        "pages": 181-197
+        DOI: 10.1007/978-3-540-78967-3_11
+    target: https://doi.org/10.1007/978-3-540-78967-3_11
+    date: 2008
+    author:
+      -
+        ins: G. Bertoni,
+        name: Guido Bertoni
+        org: STMicroelectronics
+      -
+        ins: J. Daemen
+        name: Joan Daemen
+        org: STMicroelectronics
+      -
+        ins: M. Peeters
+        name: Michael Peeters
+        org: NXP Semiconductors
+      -
+        ins: G. Van Assche
+        name: Gilles Van Assche
+        org: STMicroelectronics
+  CDMP05:
+    title: "Merkle-Damgaard Revisited: How to Construct a Hash Function"
+    seriesinfo:
+        "In": Advances in Cryptology - CRYPTO 2005
+        "pages": 430-448
+        DOI: 10.1007/11535218_26
+    target: https://doi.org/10.1007/11535218_26
+    date: 2005
+    author:
+      -
+        ins: J-S. Coron
+        name: Jean-Sebastien Coron
+        org: University of Luxembourg
+      -
+        ins: Y. Dodis
+        name: Yevgeniy Dodis
+        org: New York University
+      -
+        ins: C. Malinaud
+        name: Cecile Malinaud
+        org: University of Luxembourg
+      -
+        ins: P. Puniya
+        name: Prashant Puniya
+        org: New York University
   BLAKE2X:
     title: BLAKE2X
     target: https://blake2.net/blake2x.pdf
@@ -694,7 +744,7 @@ informative:
         name: Eric Brier
         org: Ingenico
       -
-        ins: J. S. Coron
+        ins: J-S. Coron
         name: Jean-Sebastien Coron
         org: Universite du Luxembourg
       -
@@ -967,7 +1017,7 @@ protocol.
 This document aims to bridge this gap by providing a thorough set of
 recommended algorithms for a range of curve types.
 Each algorithm conforms to a common interface: it takes as input an arbitrary-length
-bit string and produces as output a point on an elliptic curve.
+octet-string and produces as output a point on an elliptic curve.
 We provide implementation details for each algorithm, describe
 the security rationale behind each recommendation, and give guidance for
 elliptic curves that are not explicitly covered.
@@ -1052,7 +1102,7 @@ Summary of quantities:
 | F,q,p | Finite field F of characteristic p and #F = q = p^m. | For prime fields, q = p; otherwise, q = p^m and m>1. |
 | E | Elliptic curve. | E is specified by an equation and a field F. |
 | n | Number of points on the elliptic curve E. | n = h * r, for h and r defined below. |
-| G | A subgroup of the elliptic curve. | Destination group to which bit strings are encoded. |
+| G | A subgroup of the elliptic curve. | Destination group to which octet-strings are encoded. |
 | r | Order of G. | This number MUST be prime.  |
 | h | Cofactor, h >= 1. | An integer satisfying n = h * r.  |
 
@@ -1250,7 +1300,7 @@ curve and in the case of multiple hashes to different curves.
 domain separation to guarantee independent outputs.)
 
 Domain separation is enforced with a domain separation tag (DST),
-which is an octet string.
+which is an octet-string.
 Care is required when selecting and using a domain separation tag.
 The following requirements apply:
 
@@ -1337,7 +1387,7 @@ is_square(x) := { True,  if x^((q - 1) / 2) is 0 or 1 in F;
     To implement inv0 in constant time, compute inv0(x) := x^(q - 2).
     Notice on input 0, the output is 0 as required.
 
--   I2OSP and OS2IP: These functions are used to convert an octet string to
+-   I2OSP and OS2IP: These functions are used to convert an octet-string to
     and from a non-negative integer as described in {{RFC8017}}.
 
 -   a \|\| b: denotes the concatenation of bit strings a and b.
@@ -1441,156 +1491,235 @@ Steps:
 
 # Hashing to a Finite Field {#hashtofield}
 
-The hash\_to\_field function hashes a string msg of any length into an element of a
-field F. This function is parametrized by the field F ({{bg-curves}}) and by H,
-a cryptographic hash function that outputs b bits.
+The hash\_to\_field function hashes an octet-string msg of any length into
+one or more elements of a field F.
+This function works in two steps: it first expands the input octet-string
+into a pseudorandom octet-string, and then interprets this pseudorandom
+octet-string as one or more elements of F.
+
+For the first step, hash\_to\_field calls an auxiliary function
+expand\_message.
+This document defines two variants of expand\_message, one appropriate
+for hash functions like SHA-2 {{FIPS180-4}} or SHA-3 {{FIPS202}}, and one
+appropriate for extensible-output functions like SHAKE-128 {{FIPS202}}.
+Security considerations for each expand\_message variant are discussed
+below ({{hashtofield-expand-md}}, {{hashtofield-expand-xof}}).
 
 Implementors MUST NOT use rejection sampling to generate a uniformly
 random element of F.
-The reason is that these procedures are difficult to implement in constant time,
-and later well-meaning "optimizations" may silently render an implementation
-non-constant-time.
+The reason is that rejection sampling procedures are difficult to implement
+in constant time, and later well-meaning "optimizations" may silently render
+an implementation non-constant-time.
 
 ## Security considerations {#hashtofield-sec}
 
-For security, hash\_to\_field should be collision resistant and its output distribution
-should be uniform over F. To this end, hash\_to\_field requires
-a cryptographic hash function H which satisfies the following properties:
+The hash\_to\_field function is designed to be indifferentiable from a
+random oracle {{MRH04}}.
+Ensuring indifferentiability requires care, even when expand\_message is
+modeled as a random oracle (see {{hashtofield-expand}}, below).
+To see why, consider a prime p that is close to 3/4 * 2^256.
+Reducing a random 256-bit integer modulo this p yields a value that is in
+the range \[0, p / 3\] with probability roughly 1/2, meaning that this value
+is far from uniform in \[0, p - 1\].
 
-1. The number of bits output by H should be b >= 2 * k for sufficient collision
-resistance, where k is the target security level in bits. (This is needed for a
-birthday bound of approximately 2^(-k).)
-2. H is modeled as a random oracle, so care should be taken when instantiating it.
-Hash functions in the SHA-2 {{FIPS180-4}} and SHA-3 {{FIPS202}} families are
-typical and RECOMMENDED choices.
+To control bias, hash\_to\_field instead uses pseudorandom integers whose
+length is at least ceil(log2(p)) + k bits.
+Reducing such integers mod p gives bias at most 2^-k for any p; this bias
+is appropriate for a cryptosystem with k-bit security.
+To obtain such an integer, hash\_to\_field uses expand\_message to obtain
+L pseudorandom octets, where L = ceil((ceil(log2(p)) + k) / 8); this
+octet-string is then interpreted as an integer via OS2IP {{RFC8017}}.
+For example, for p a 255-bit prime and k = 128-bit security,
+L = ceil((255 + 128) / 8) = 48 octets.
 
-For example, for 128-bit security, b >= 256 bits; in this case, SHA256 would
-be an appropriate choice for H.
-
-Ensuring that the hash\_to\_field output is a uniform random element of F requires
-care, even when H is modeled as a random oracle. For example,
-if H is SHA256 and F is a field of characteristic p = 2^255 - 19, then the
-result of reducing H(msg) (a 256-bit integer) modulo p is slightly more likely
-to be in \[0, 37\] than if the value were selected uniformly at random.
-In this example the bias is negligible, but in general it can be significant.
-
-To control bias, the input msg should be hashed to an integer comprising at
-least ceil(log2(p)) + k bits; reducing this integer modulo p gives bias at
-most 2^-k, which is a safe choice for a cryptosystem with k-bit security.
-To obtain such an integer, HKDF {{!RFC5869}} is used to expand the input
-msg to a L-byte string, where L = ceil((ceil(log2(p)) + k) / 8); this
-string is then interpreted as an integer via OS2IP {{RFC8017}}. For example,
-for p a 255-bit prime and k = 128-bit security, L = ceil((255 + 128) / 8) = 48 bytes.
-
-Finally, hash\_to\_field appends one zero byte to msg in the invocation of HKDF-Extract.
-This ensures that the use of HKDF in hash\_to\_field is indifferentiable
-from a random oracle (see {{LBB19}}, Lemma 8 and {{DRST12}}, Theorems 4.3 and 4.4).
-(In particular, this approach works because it ensures that the final byte of
-each HMAC invocation in HKDF-Extract and HKDF-Expand is distinct.)
-
-{{domain-separation}} discusses requirements for domain separation and
-recommendations for choosing domain separation tags. The hash\_to\_curve
-function takes such a tag as a parameter, DST; this is the REQUIRED
-method for applying domain separation.
-
-{{hashtofield-impl}} details the hash\_to\_field procedure.
-
-## Performance considerations {#hashtofield-perf}
-
-The hash\_to\_field function uses HKDF-Extract to combine the
-input msg and domain separation tag DST into a short digest, which is then
-passed to HKDF-Expand {{!RFC5869}}.
-For short messages, this entails at most two extra invocations of H, which
-is a negligible overhead in the context of hashing to elliptic curves.
-
-A related issue is that the random oracle construction described in {{roadmap}}
-requires evaluating two independent hash functions H0 and H1 on msg.
-One way to instantiate independent hashes is to append a counter to
-the value being hashed, e.g., H(msg || 0) and H(msg || 1).
-If msg is long, however, this is either inefficient (because it entails hashing
-msg twice) or requires non-black-box use of H (e.g., partial evaluation).
-
-To sidestep both of these issues, hash\_to\_field takes a second argument, ctr,
-which it passes to HKDF-Expand.
-This means that two invocations of hash\_to\_field on the same msg with different
-ctr values both start with identical invocations of HKDF-Extract.
-This is an improvement because it allows sharing one evaluation of HKDF-Extract
-among multiple invocations of hash\_to\_field, i.e., by factoring out the common
-computation.
-
-## Implementation {#hashtofield-impl}
+## hash\_to\_field implementation {#hashtofield-impl}
 
 The following procedure implements hash\_to\_field.
 
+The expand\_message parameter to this function MUST conform to the requirements
+given below ({{hashtofield-expand}}).
+
+{{domain-separation}} discusses requirements for domain separation and
+recommendations for choosing DST, the domain separation tag.
+This is the REQUIRED method for applying domain separation.
+
 ~~~
-hash_to_field(msg, ctr)
+hash_to_field(msg, count)
 
 Parameters:
 - DST, a domain separation tag (see discussion above).
-- H, a cryptographic hash function.
 - F, a finite field of characteristic p and order q = p^m.
 - p, the characteristic of F (see immediately above).
 - m, the extension degree of F, m >= 1 (see immediately above).
 - L = ceil((ceil(log2(p)) + k) / 8), where k is the security
   parameter of the cryptosystem (e.g., k = 128).
-- HKDF-Extract and HKDF-Expand are as defined in RFC5869,
-  instantiated with the hash function H.
+- expand_message, a function that expands an octet-string and
+  domain separation tag into a pseudorandom octet-string
+  (see discussion above).
 
 Inputs:
-- msg is the message to hash.
-- ctr is 0, 1, or 2.
-  This is used to efficiently create independent
-  instances of hash_to_field (see discussion above).
+- msg is an octet-string containing the message to hash.
+- count is the number of elements of F to output.
 
-Output:
-- u, an element in F.
+Outputs:
+- (u_1, ..., u_(count)), a list of field elements.
+
+Notation:
+- For an octet-string str, let str[a : b] represent the
+  (b - a) octets starting at the a'th octet of str.
 
 Steps:
-1. msg_prime = HKDF-Extract(DST, msg || I2OSP(0, 1))
-2. info_pfx = "H2C" || I2OSP(ctr, 1)   # "H2C" is a 3-byte ASCII string
-3. for i in (1, ..., m):
-4.   info = info_pfx || I2OSP(i, 1)
-5.   tv = HKDF-Expand(msg_prime, info, L)
-6.   e_i = OS2IP(tv) mod p
-7. u = (e_1, ..., e_m)
-8. return u
+1. pro_length = count * m * L
+2. pseudo_random_octets = expand_message(msg, DST, prb_length)
+3. for i in (0, ..., count - 1):
+4.   for j in (0, ..., m - 1):
+5.     elm_offset = L * (j + i * m)
+6.     tv = pseudo_random_octets[elm_offset : (elm_offset + L)]
+7.     e_j = OS2IP(tv) mod p
+8.   u_i = (e_0, ..., e_(m - 1))
+9. return (u_0, ..., u_(count - 1))
 ~~~
 
-## Alternative hash\_to\_field functions {#hashtofield-alt}
+## expand\_message {#hashtofield-expand}
 
-The hash\_to\_field function is suitable for use with a wide range of hash functions,
-including SHA-2 {{FIPS180-4}}, SHA-3 {{FIPS202}}, BLAKE2 {{?RFC7693}}, and others.
-In some cases, however, implementors may wish to replace the HKDF-based function
-defined in this section with one built on a different pseudorandom function.
-This section briefly describes the REQUIRED way of doing so.
+expand\_message is a function that generates a pseudorandom octet-string.
+It takes three arguments:
 
-The security considerations of {{hashtofield-sec}} continue to apply.
-In particular, an alternative hash\_to\_field function:
+- msg, an octet-string containing the message to hash,
+- DST, an octet-string that acts as a domain separation tag, and
+- len\_in\_octets, the number of octets to be generated.
 
-- MUST give collision resistance commensurate with the security level of the target elliptic curve.
+This document defines two variants of expand\_message:
 
-- MUST be built on a pseudorandom function that is designed for use in
-  applications requiring cryptographic randomness.
+- expand\_message\_md ({{hashtofield-expand-md}}) is appropriate for use
+with a wide range of hash functions, including SHA-2 {{FIPS180-4}}, SHA-3
+{{FIPS202}}, BLAKE2 {{?RFC7693}}, and others.
 
-- MUST NOT use rejection sampling.
+- expand\_message\_xof ({{hashtofield-expand-xof}}) is appropriate for use
+with extensible-output functions (XOFs) including functions in the SHAKE
+{{FIPS202}} or BLAKE2X {{BLAKE2X}} families.
 
-- MUST output an element of F whose statistical distance from uniform is commensurate
-  with the security level of the target elliptic curve.
-  It is RECOMMENDED to follow the guidelines for controlling bias in {{hashtofield-sec}}.
+These two variants should suffice for the vast majority of use cases, but other
+variants are possible; {{hashtofield-expand-other}} discusses requirements.
 
-- MUST give independent output values for distinct (msg, ctr) inputs.
+### expand\_message\_md {#hashtofield-expand-md}
 
-- MUST support domain separation via a supplied domain separation tag (DST).
-  Care is required when implementing domain separation: this document
-  assumes that instantiating hash\_to\_field with distinct DSTs yields
-  independent hash functions.
+The expand\_message\_md function produces a pseudorandom octet string using
+a cryptographic hash function H that outputs b bits.
+For security, H must meet the following requirements:
 
-The efficiency considerations of {{hashtofield-perf}} should also be followed.
-In particular, it SHOULD be possible to hash one msg with multiple ctr values
-without requiring multiple passes over msg.
+- The number of bits output by H MUST be b >= 2 * k, for k the target
+security level in bits. This ensures collision resistance to k bits.
 
-Finally, the Suite ID value MUST be modified to indicate that an alternative
-hash\_to\_field function is being used.
+- H MAY be a Merkle-Damgaard hash function like SHA-2.
+In this case, security holds when the underlying compression function is
+modeled as a random oracle {{CDMP05}}.
+
+- H MAY be a sponge-based hash function like SHA-3 or BLAKE2.
+In this case, security holds when the inner function is modeled as a
+random transformation or as a random permutation {{BDPV08}}.
+
+- Otherwise, H MUST be a hash function that has been proved indifferentiable
+from a random oracle {{MRH04}} under a reasonable cryptographic assumption.
+
+SHA-2 {{FIPS180-4}} and SHA-3 {{FIPS202}} are typical and RECOMMENDED choices.
+As an example, for 128-bit security, b >= 256 bits and either SHA256 or
+SHA3-256 would be an appropriate choice.
+
+The following procedure implements expand\_message\_md.
+
+~~~
+expand_message_md(msg, DST, len_in_octets)
+
+Parameters:
+- H, a hash function (see requirements above).
+- b_in_octets, ceil(b / 8) for b the output size of H in bits.
+  For example, for b = 256, b_in_octets = 32.
+- k_in_octets, ceil(k / 8) for k the security parameter.
+  For example, for k = 128, k_in_octets = 16.
+
+Input:
+- msg, an octet string.
+- DST, an octet string.
+- len_in_octets, the length of the requested output in octets.
+
+Output:
+- pseudo_random_octets, an octet string
+
+Notation:
+- For an octet-string str, let str[a : b] represent the
+  (b - a) octets starting at the a'th octet of str.
+
+Steps:
+1. ell = ceil((len_in_octets - k_in_octets) / b_in_octets)
+2. ABORT if ell > 255
+3. b_0 = H(DST || I2OSP(0, 1) || I2OSP(ell, 1) || msg)
+4. for i in (1, ..., ell - 1):
+5.   b_i = H(DST || I2OSP(i, 1) || b_(i - 1))
+6. b_0_chopped = b_0[0 : (b_in_octets - k_in_octets)]
+7. pseudo_random_octets = b_0_chopped || b_1 || ... || b_(ell - 1)
+8. return pseudo_random_octets[0 : len_in_octets]
+~~~
+
+### expand\_message\_xof {#hashtofield-expand-xof}
+
+The expand\_message\_xof function produces a pseudorandom octet string
+using an extensible-output function (XOF) H.
+For security, H must meet the following criteria:
+
+- The collision resistance of H MUST be at least k bits.
+
+- H MUST be an XOF that has been proved indifferentiable from a random oracle
+under a reasonable cryptographic assumption.
+
+The SHAKE {{FIPS202}} XOF family is a typical and RECOMMENDED choice.
+As an example, for 128-bit security, SHAKE-128 would be an appropriate choice.
+
+~~~
+expand_message_xof(msg, DST, len_in_octets)
+
+Parameters:
+- H, an extensible-output function.
+  H(m, d) hashes message m and returns d octets.
+
+Input:
+- msg, an octet string.
+- DST, an octet string.
+- len_in_octets, the length of the requested output in octets.
+
+Output:
+- pseudo_random_octets, an octet string
+
+Steps:
+1. msg_prime = DST || I2OSP(len_in_octets, 2) || msg
+2. pseudo_random_octets = H(msg_prime, len_in_octets)
+3. return pseudo_random_octets
+~~~
+
+### Defining other expand\_message variants {#hashtofield-expand-other}
+
+When defining a new expand\_message variant, the most important consideration
+is that hash\_to\_field models expand\_message as a random oracle.
+Thus, implementors SHOULD prove indifferentiability from a random oracle
+under an appropriate assumption about the underlying cryptographic primitives.
+
+In addition, expand\_message variants:
+
+- MUST give collision resistance commensurate with the security level of
+the target elliptic curve.
+
+- MUST be built on primitives designed for use in applications requiring
+cryptographic randomness. As examples, a secure stream cipher is an appropriate
+primitive, whereas a Mersenne twister pseudorandom number generator is not.
+
+- MUST NOT use any form of rejection sampling.
+
+- MUST give independent values for distinct (msg, DST, length) inputs.
+
+- SHOULD read msg exactly once, for efficiency when msg is long.
+
+In addition, an expand\_message variant MUST specify a unique tag that
+identifies that variant in a Suite ID.
 {{suiteIDformat}} gives details.
 
 # Deterministic Mappings {#mappings}
@@ -2339,7 +2468,7 @@ Fields MUST be chosen as follows:
 - HASH\_ID: a human-readable representation of the hash function used in
   hash\_to\_field ({{hashtofield}}).
 
-  If a suite uses an alternative hash\_to\_field function ({{hashtofield-alt}}),
+  If a suite uses an alternative hash\_to\_field function ({{hashtofield-expand-other}}),
   a short descriptive name MUST be chosen for that function using only the
   allowed characters listed above.
   That name MUST be appended to the HASH\_ID field, separated by a colon.
