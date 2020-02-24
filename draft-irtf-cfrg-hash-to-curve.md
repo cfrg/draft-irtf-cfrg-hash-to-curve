@@ -1673,11 +1673,8 @@ random transformation or as a random permutation {{BDPV08}}.
 from a random oracle {{MRH04}} under a reasonable cryptographic assumption.
 
 SHA-2 {{FIPS180-4}} and SHA-3 {{FIPS202}} are typical and RECOMMENDED choices.
-As an example, for 128-bit security, b >= 256 bits and either SHA256 or
+As an example, for 128-bit security, b >= 256 bits and either SHA-256 or
 SHA3-256 would be an appropriate choice.
-
-When using expand\_message\_md in a suite, the EXP\_TAG is "XMD".
-See {{suiteIDformat}} for details.
 
 The following procedure implements expand\_message\_md.
 
@@ -1728,9 +1725,6 @@ under a reasonable cryptographic assumption.
 The SHAKE {{FIPS202}} XOF family is a typical and RECOMMENDED choice.
 As an example, for 128-bit security, SHAKE-128 would be an appropriate choice.
 
-When using expand\_message\_md in a suite, the EXP\_TAG is "XOF".
-See {{suiteIDformat}} for details.
-
 The following procedure implements expand\_message\_md.
 
 ~~~
@@ -1778,7 +1772,7 @@ primitive, whereas a Mersenne twister pseudorandom number generator is not.
 
 In addition, an expand\_message variant MUST specify a unique EXP\_TAG
 that identifies that variant in a Suite ID.
-{{suiteIDformat}} gives details.
+See {{suiteIDformat}} for more information.
 
 # Deterministic Mappings {#mappings}
 
@@ -2491,21 +2485,23 @@ The RECOMMENDED way to define a new hash-to-curve suite is:
 
 1. E, F, p, and m are determined by the elliptic curve and its base field.
 
-2. Choose a sgn0 variant following the guidelines in {{sgn0-variants}}.
+2. Choose either hash\_to\_curve or encode\_to\_curve ({{roadmap}}).
 
-3. Compute L as described in {{hashtofield-sec}}.
+3. Choose a sgn0 variant following the guidelines in {{sgn0-variants}}.
 
-4. Choose an expand\_message variant from {{hashtofield-expand}} plus any
+4. Compute L as described in {{hashtofield-sec}}.
+
+5. Choose an expand\_message variant from {{hashtofield-expand}} plus any
    underlying cryptographic primitives (e.g., a hash function H).
 
-5. Choose a mapping following the guidelines in {{choosing-mapping}},
+6. Choose a mapping following the guidelines in {{choosing-mapping}},
    and select any required parameters for that mapping.
 
-6. Choose h\_eff to be either the cofactor of E or, if a fast cofactor
+7. Choose h\_eff to be either the cofactor of E or, if a fast cofactor
    clearing method is to be used, a value appropriate to that method
    as discussed in {{cofactor-clearing}}.
 
-7. Construct a Suite ID following the guidelines in {{suiteIDformat}}.
+8. Construct a Suite ID following the guidelines in {{suiteIDformat}}.
 
 When hashing to an elliptic curve not listed in this section, corresponding
 hash-to-curve suites SHOULD be specified as described in this section.
@@ -2533,9 +2529,14 @@ Fields MUST be chosen as follows:
 
         EXP_TAG || ":" || HASH_NAME
 
-  Here, HASH\_NAME is a human-readable name for the underlying hash primitive.
-  Hyphens are not allowed; any hyphens in the commonly-used name for the hash
-  function SHOULD be replaced with "." (ASCII 0x2e).
+  EXP\_TAG indicates the expand\_message variant:
+
+    - "XMD" for expand\_message\_md ({{hashtofield-expand-md}}).
+    - "XOF" for expand\_message\_xof ({{hashtofield-expand-xof}}).
+
+  HASH\_NAME is a human-readable name for the underlying hash primitive.
+  As stated above, hyphens are not allowed. Any hyphens in the commonly-used
+  name for the hash function SHOULD be replaced with "." (ASCII 0x2e).
 
   As examples:
 
@@ -2546,7 +2547,11 @@ Fields MUST be chosen as follows:
        HASH\_ID is "XMD:SHA3.256".
 
 - MAP\_ID: a human-readable representation of the map\_to\_curve function
-  ({{mappings}}).
+  as defined in {{mappings}}. These are defined as follows:
+
+    - "SVDW" for or Shallue and van de Woestijne ({{svdw}}).
+    - "SSWU" for Simplified SWU ({{simple-swu}}, {{simple-swu-AB0}}).
+    - "ELL2" for Elligator 2 ({{elligator2}}, {{ell2edwards}}).
 
 - ENC\_VAR: a string indicating the encoding type and other information.
   The first two characters of this string indicate whether the suite
@@ -2569,13 +2574,13 @@ Fields MUST be chosen as follows:
 
 This section defines ciphersuites for the NIST P-256 elliptic curve {{FIPS186-4}}.
 
-The suites P256-SHA256-SSWU-RO- and P256-SHA256-SSWU-NU-
+The suites P256-XMD:SHA.256-SSWU-RO- and P256-XMD:SHA.256-SSWU-NU-
 share the following parameters, in addition to the common parameters below.
 
 - f: Simplified SWU method, {{simple-swu}}
 - Z: -10
 
-The suites P256-SHA256-SVDW-RO- and P256-SHA256-SVDW-NU-
+The suites P256-XMD:SHA.256-SVDW-RO- and P256-XMD:SHA.256-SVDW-NU-
 share the following parameters, in addition to the common parameters below.
 
 - f: Shallue-van de Woestijne method, {{svdw}}
@@ -2589,6 +2594,7 @@ The common parameters for the above suites are:
 - p: 2^256 - 2^224 + 2^192 + 2^96 - 1
 - m: 1
 - sgn0: sgn0\_le ({{sgn0-le}})
+- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
 - H: SHA-256
 - L: 48
 - h\_eff: 1
@@ -2600,13 +2606,13 @@ to P-256 is given in {{sswu-map-to-3mod4}}.
 
 This section defines ciphersuites for the NIST P-384 elliptic curve {{FIPS186-4}}.
 
-The suites P384-SHA512-SSWU-RO- and P384-SHA512-SSWU-NU-
+The suites P384-XMD:SHA.512-SSWU-RO- and P384-XMD:SHA.512-SSWU-NU-
 share the following parameters, in addition to the common parameters below.
 
 - f: Simplified SWU method, {{simple-swu}}
 - Z: -12
 
-The suites P384-SHA512-SVDW-RO- and P384-SHA512-SVDW-NU-
+The suites P384-XMD:SHA.512-SVDW-RO- and P384-XMD:SHA.512-SVDW-NU-
 share the following parameters, in addition to the common parameters below.
 
 - f: Shallue-van de Woestijne method, {{svdw}}
@@ -2620,6 +2626,7 @@ The common parameters for the above suites are:
 - p: 2^384 - 2^128 - 2^96 + 2^32 - 1
 - m: 1
 - sgn0: sgn0\_le ({{sgn0-le}})
+- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
 - H: SHA-512
 - L: 72
 - h\_eff: 1
@@ -2631,13 +2638,13 @@ to P-384 is given in {{sswu-map-to-3mod4}}.
 
 This section defines ciphersuites for the NIST P-521 elliptic curve {{FIPS186-4}}.
 
-The suites P521-SHA512-SSWU-RO- and P521-SHA512-SSWU-NU-
+The suites P521-XMD:SHA.512-SSWU-RO- and P521-XMD:SHA.512-SSWU-NU-
 share the following parameters, in addition to the common parameters below.
 
 - f: Simplified SWU method, {{simple-swu}}
 - Z: -4
 
-The suites P521-SHA512-SVDW-RO- and P521-SHA512-SVDW-NU-
+The suites P521-XMD:SHA.512-SVDW-RO- and P521-XMD:SHA.512-SVDW-NU-
 share the following parameters, in addition to the common parameters below.
 
 - f: Shallue-van de Woestijne method, {{svdw}}
@@ -2651,6 +2658,7 @@ The common parameters for the above suites are:
 - p: 2^521 - 1
 - m: 1
 - sgn0: sgn0\_le ({{sgn0-le}})
+- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
 - H: SHA-512
 - L: 96
 - h\_eff: 1
@@ -2662,7 +2670,7 @@ to P-521 is given in {{sswu-map-to-3mod4}}.
 
 This section defines ciphersuites for curve25519 and edwards25519 {{RFC7748}}.
 
-The suites curve25519-SHA256-ELL2-RO- and curve25519-SHA256-ELL2-NU-
+The suites curve25519-XMD:SHA.256-ELL2-RO- and curve25519-XMD:SHA.256-ELL2-NU-
 share the following parameters, in addition to the common parameters below.
 
 - E: K * t^2 = s^3 + J * s^2 + s, where
@@ -2670,7 +2678,7 @@ share the following parameters, in addition to the common parameters below.
   - K = 1
 - f: Elligator 2 method, {{elligator2}}
 
-The suites edwards25519-SHA256-EDELL2-RO- and edwards25519-SHA256-EDELL2-NU-
+The suites edwards25519-XMD:SHA.256-ELL2-RO- and edwards25519-XMD:SHA.256-ELL2-NU-
 share the following parameters, in addition to the common parameters below.
 
 - E: a * v^2 + w^2 = 1 + d * v^2 * w^2, where
@@ -2685,13 +2693,14 @@ The common parameters for all of the above suites are:
 - p: 2^255 - 19
 - m: 1
 - sgn0: sgn0\_le ({{sgn0-le}})
+- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
 - H: SHA-256
 - L: 48
 - Z: 2
 - h\_eff: 8
 
-The suites curve25519-SHA512-ELL2-RO-, curve25519-SHA512-ELL2-NU-,
-edwards25519-SHA512-EDELL2-RO-, and edwards25519-SHA512-EDELL2-NU-
+The suites curve25519-XMD:SHA.512-ELL2-RO-, curve25519-XMD:SHA.512-ELL2-NU-,
+edwards25519-XMD:SHA.512-ELL2-RO-, and edwards25519-XMD:SHA.512-ELL2-NU-
 are identical to the correspondingly named suites defined above,
 except that H is SHA-512.
 
@@ -2702,7 +2711,7 @@ Optimized example implementations of the above mappings are given in
 
 This section defines ciphersuites for curve448 and edwards448 {{RFC7748}}.
 
-The suites curve448-SHA512-ELL2-RO- and curve448-SHA512-ELL2-NU-
+The suites curve448-XMD:SHA.512-ELL2-RO- and curve448-XMD:SHA.512-ELL2-NU-
 share the following parameters, in addition to the common parameters below.
 
 - E: K * t^2 = s^3 + J * s^2 + s, where
@@ -2710,7 +2719,7 @@ share the following parameters, in addition to the common parameters below.
   - K = 1
 - f: Elligator 2 method, {{elligator2}}
 
-The suites edwards448-SHA512-EDELL2-RO- and edwards448-SHA512-EDELL2-NU-
+The suites edwards448-XMD:SHA.512-ELL2-RO- and edwards448-XMD:SHA.512-ELL2-NU-
 share the following parameters, in addition to the common parameters below.
 
 - E: a * v^2 + w^2 = 1 + d * v^2 * w^2, where
@@ -2725,6 +2734,7 @@ The common parameters for all of the above suites are:
 - p: 2^448 - 2^224 - 1
 - m: 1
 - sgn0: sgn0\_le ({{sgn0-le}})
+- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
 - H: SHA-512
 - L: 84
 - Z: -1
@@ -2737,7 +2747,7 @@ Optimized example implementations of the above mappings are given in
 
 This section defines ciphersuites for the secp256k1 elliptic curve {{SEC2}}.
 
-The suites secp256k1-SHA256-SSWU-RO- and secp256k1-SHA256-SSWU-NU-
+The suites secp256k1-XMD:SHA.256-SSWU-RO- and secp256k1-XMD:SHA.256-SSWU-NU-
 share the following parameters, in addition to the common parameters below.
 
 - f: Simplified SWU for AB == 0, {{simple-swu-AB0}}
@@ -2747,7 +2757,7 @@ share the following parameters, in addition to the common parameters below.
   - B': 1771
 - iso\_map: the 3-isogeny map from E' to E given in {{appx-iso-secp256k1}}
 
-The suites secp256k1-SHA256-SVDW-RO- and secp256k1-SHA256-SVDW-NU-
+The suites secp256k1-XMD:SHA.256-SVDW-RO- and secp256k1-XMD:SHA.256-SVDW-NU-
 share the following parameters, in addition to the common parameters below.
 
 - f: Shallue-van de Woestijne method, {{svdw}}
@@ -2759,6 +2769,7 @@ The common parameters for all of the above suites are:
 - p: 2^256 - 2^32 - 2^9 - 2^8 - 2^7 - 2^6 - 2^4 - 1
 - m: 1
 - sgn0: sgn0\_le ({{sgn0-le}})
+- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
 - H: SHA-256
 - L: 48
 - h\_eff: 1
@@ -2773,7 +2784,7 @@ the BLS12-381 elliptic curve {{BLS12-381}}.
 
 ### BLS12-381 G1 {#suites-bls12381-g1}
 
-The suites BLS12381G1-SHA256-SSWU-RO- and BLS12381G1-SHA256-SSWU-NU-
+The suites BLS12381G1-XMD:SHA.256-SSWU-RO- and BLS12381G1-XMD:SHA.256-SSWU-NU-
 share the following parameters, in addition to the common parameters below.
 
 - f: Simplified SWU for AB == 0, {{simple-swu-AB0}}
@@ -2783,7 +2794,7 @@ share the following parameters, in addition to the common parameters below.
   - B' = 0x12e2908d11688030018b12e8753eee3b2016c1f0f24f4070a0b9c14fcef35ef55a23215a316ceaa5d1cc48e98e172be0
 - iso\_map: the 11-isogeny map from E' to E given in {{appx-iso-bls12381-g1}}
 
-The suites BLS12381G1-SHA256-SVDW-RO- and BLS12381G1-SHA256-SVDW-NU-
+The suites BLS12381G1-XMD:SHA.256-SVDW-RO- and BLS12381G1-XMD:SHA.256-SVDW-NU-
 share the following parameters, in addition to the common parameters below.
 
 - f: Shallue-van de Woestijne method, {{svdw}}
@@ -2795,6 +2806,7 @@ The common parameters for the above suites are:
 - p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
 - m: 1
 - sgn0: sgn0\_be ({{sgn0-be}})
+- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
 - H: SHA-256
 - L: 64
 - h\_eff: 0xd201000000010001
@@ -2813,7 +2825,7 @@ Group G2 of BLS12-381 is defined over a field F = GF(p^m) defined as:
 - m: 2
 - (1, I) is the basis for F, where I^2 + 1 == 0 in F
 
-The suites BLS12381G2-SHA256-SSWU-RO- and BLS12381G2-SHA256-SSWU-NU-
+The suites BLS12381G2-XMD:SHA.256-SSWU-RO- and BLS12381G2-XMD:SHA.256-SSWU-NU-
 share the following parameters, in addition to the common parameters below.
 
 - f: Simplified SWU for AB == 0, {{simple-swu-AB0}}
@@ -2823,7 +2835,7 @@ share the following parameters, in addition to the common parameters below.
   - B' = 1012 * (1 + I)
 - iso\_map: the isogeny map from E' to E given in {{appx-iso-bls12381-g2}}
 
-The suites BLS12381G2-SHA256-SVDW-RO- and BLS12381G2-SHA256-SVDW-NU-
+The suites BLS12381G2-XMD:SHA.256-SVDW-RO- and BLS12381G2-XMD:SHA.256-SVDW-NU-
 share the following parameters, in addition to the common parameters below.
 
 - f: Shallue-van de Woestijne method, {{svdw}}
@@ -2834,6 +2846,7 @@ The common parameters for the above suites are:
 - E: y^2 = x^3 + 4 * (1 + I)
 - p, m, F: defined above
 - sgn0: sgn0\_be ({{sgn0-be}})
+- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
 - H: SHA-256
 - L: 64
 - h\_eff: 0xbc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff031508ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689f6a359894c0adebbf6b4e8020005aaa95551
