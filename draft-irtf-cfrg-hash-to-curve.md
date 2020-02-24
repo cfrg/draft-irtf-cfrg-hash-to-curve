@@ -1254,8 +1254,8 @@ Input: alpha, an arbitrary-length bit string.
 Output: P, a point in G.
 
 Steps:
-1. u = hash_to_field(alpha, 2)
-2. Q = map_to_curve(u)
+1. u = hash_to_field(alpha, 1)
+2. Q = map_to_curve(u[0])
 3. P = clear_cofactor(Q)
 4. return P
 ~~~
@@ -1272,13 +1272,12 @@ Input: alpha, an arbitrary-length bit string.
 Output: P, a point in G.
 
 Steps:
-1. u0 = hash_to_field(alpha, 0)
-2. u1 = hash_to_field(alpha, 1)
-3. Q0 = map_to_curve(u0)
-4. Q1 = map_to_curve(u1)
-5. R = Q0 + Q1              # Point addition
-6. P = clear_cofactor(R)
-7. return P
+1. u = hash_to_field(alpha, 2)
+2. Q0 = map_to_curve(u[0])
+3. Q1 = map_to_curve(u[1])
+4. R = Q0 + Q1              # Point addition
+5. P = clear_cofactor(R)
+6. return P
 ~~~
 
 Instances of these functions are given in {{suites}}, which defines a list of
