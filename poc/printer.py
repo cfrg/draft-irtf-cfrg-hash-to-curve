@@ -3,7 +3,7 @@
 
 import textwrap
 
-from hash_to_base import I2OSP
+from hash_to_field import I2OSP
 
 
 class Printer:

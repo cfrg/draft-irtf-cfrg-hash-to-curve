@@ -3,6 +3,7 @@
 
 import hashlib
 import sys
+from hash_to_field import expand_message_md
 try:
     from sagelib.common import sgn0_le
     from sagelib.h2c_suite import BasicH2CSuiteDef, BasicH2CSuite
@@ -18,7 +19,7 @@ F = GF(p)
 A = F(-3)
 B = F(0xb3312fa7e23ee7e4988e056be3f82d19181d9c6efe8141120314088f5013875ac656398d8a2ed19d2a85c8edd3ec2aef)
 
-p384_sswu_def = BasicH2CSuiteDef("P384", F, A, B, sgn0_le, hashlib.sha512, 72, GenericSSWU, 1, True, DST)
+p384_sswu_def = BasicH2CSuiteDef("P384", F, A, B, sgn0_le, expand_message_md, hashlib.sha512, 72, GenericSSWU, 1, 192, True, DST)
 p384_svdw_def = p384_sswu_def._replace(MapT=GenericSvdW)
 p384_sswu_ro = BasicH2CSuite("P384-SHA512-SSWU-RO-",p384_sswu_def)
 p384_svdw_ro = BasicH2CSuite("P384-SHA512-SVDW-RO-",p384_svdw_def)

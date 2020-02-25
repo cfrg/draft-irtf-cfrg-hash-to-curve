@@ -35,9 +35,9 @@ def OS2IP(octets, skip_assert=False):
     return ret
 
 # from draft-irtf-cfrg-hash-to-curve-06
-def hash_to_field(msg, count, dst, modulus, degree, blen, expand_fn, security_param):
+def hash_to_field(msg, count, dst, modulus, degree, blen, expand_fn, hash_fn, security_param):
     len_in_octets = count * degree * blen
-    pseudo_random_octets = expand_fn(msg, dst, len_in_octets, (security_param + 7) // 8)
+    pseudo_random_octets = expand_fn(msg, dst, len_in_octets, hash_fn, security_param)
     u_vals = [None] * count
     for i in xrange(0, count):
         e_vals = [None] * degree
@@ -49,17 +49,18 @@ def hash_to_field(msg, count, dst, modulus, degree, blen, expand_fn, security_pa
     return u_vals
 
 # from draft-irtf-cfrg-hash-to-curve-06
-# xof_fn should be, e.g., hashlib.shake_128 (available in Python3 only)
-def expand_message_xof(msg, dst, len_in_octets, xof_fn, _):
+# hash_fn should be, e.g., hashlib.shake_128 (available in Python3 only)
+def expand_message_xof(msg, dst, len_in_octets, hash_fn, _):
     msg_prime = _as_bytes(dst) + I2OSP(len_in_octets, 2) + _as_bytes(msg)
-    pseudo_random_octets = xof_fn(msg_prime).digest(len_in_octets)
+    pseudo_random_octets = hash_fn(msg_prime).digest(len_in_octets)
     return pseudo_random_octets
 
 # from draft-irtf-cfrg-hash-to-curve-06
 # hash_fn should be, e.g., hashlib.sha256
-def expand_message_md(msg, dst, len_in_octets, hash_fn, k_in_octets):
+def expand_message_md(msg, dst, len_in_octets, hash_fn, security_param):
     b_in_octets = hash_fn().digest_size
-    assert 8 * b_in_octets >= 2 * (k_in_octets * 8 - 7)     # rough sanity check --- need slop because of rounding
+    k_in_octets = (security_param + 7) // 8
+    assert 8 * b_in_octets >= 2 * security_param    # sanity check
     dst = _as_bytes(dst)
 
     # compute ell and check that sizes are as we expect
@@ -92,7 +93,7 @@ def _test_xmd():
     dst = _random_string(16)
     ress = {}
     for l in range(16, 8192):
-        result = expand_message_md(msg, dst, l, hashlib.sha512, 32)
+        result = expand_message_md(msg, dst, l, hashlib.sha512, 256)
         # check for correct length
         assert l == len(result)
         # check for unique outputs
@@ -105,7 +106,7 @@ def _test_xof():
     dst = _random_string(16)
     ress = {}
     for l in range(16, 8192):
-        result = expand_message_xof(msg, dst, l, hashlib.shake_128, 16)
+        result = expand_message_xof(msg, dst, l, hashlib.shake_128, 128)
         # check for correct length
         assert l == len(result)
         # check for unique outputs
@@ -113,7 +114,10 @@ def _test_xof():
         ress[key] = ress.get(key, 0) + 1
     assert all( x == 1 for x in ress.values() )
 
-if __name__ == "__main__":
+def test_expand():
     _test_xmd()
     if sys.version_info[0] == 3:
         _test_xof()
+
+if __name__ == "__main__":
+    test_expand()

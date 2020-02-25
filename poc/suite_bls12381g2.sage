@@ -3,6 +3,7 @@
 
 import hashlib
 import sys
+from hash_to_field import expand_message_md
 try:
     from sagelib.common import sgn0_be
     from sagelib.h2c_suite import BasicH2CSuiteDef, BasicH2CSuite, IsoH2CSuiteDef, IsoH2CSuite
@@ -26,7 +27,7 @@ ell_u = 0xd201000000010000
 h_eff = h2 * (3 * ell_u^2 - 3)
 iso_map = iso_bls12381g2()
 
-bls12381g2_svdw_def = BasicH2CSuiteDef("BLS12381G2", F, A, B, sgn0_be, hashlib.sha256, 64, GenericSvdW, h_eff, True, DST)
+bls12381g2_svdw_def = BasicH2CSuiteDef("BLS12381G2", F, A, B, sgn0_be, expand_message_md, hashlib.sha256, 64, GenericSvdW, h_eff, 128, True, DST)
 bls12381g2_sswu_def = IsoH2CSuiteDef(bls12381g2_svdw_def._replace(MapT=GenericSSWU), Ap, Bp, iso_map)
 bls12381g2_svdw_ro = BasicH2CSuite("BLS12381G2-SHA256-SVDW-RO-",bls12381g2_svdw_def)
 bls12381g2_sswu_ro = IsoH2CSuite("BLS12381G2-SHA256-SSWU-RO-",bls12381g2_sswu_def)
