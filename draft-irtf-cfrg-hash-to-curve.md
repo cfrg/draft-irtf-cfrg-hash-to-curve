@@ -2910,6 +2910,11 @@ This document has no IANA actions.
 When constant-time implementations are required, all basic operations and
 utility functions must be implemented in constant time, as discussed in
 {{utility}}.
+In some applications (e.g., embedded systems), leakage through other side
+channels (e.g., power or electromagnetic side channels) may be pertinent.
+Defending against such leakage is outside the scope of this document, because
+the nature of the leakage and the appropriate defense depends on the protocol
+from which a hash-to-curve function is invoked.
 
 Each encoding function accepts arbitrary input and maps it to a pseudorandom
 point on the curve.
