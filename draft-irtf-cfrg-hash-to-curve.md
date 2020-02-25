@@ -2448,6 +2448,7 @@ Each suite comprises the following parameters:
 - E, the target elliptic curve over a field F.
 - p, the characteristic of the field F.
 - m, the extension degree of the field F.
+- k, the target security level of the suite in bits.
 - sgn0, one of the variants specified in {{sgn0-variants}}.
 - L, the length parameter for hash\_to\_field ({{hashtofield-sec}}).
 - expand\_message, one of the variants specified in {{hashtofield-expand}}
@@ -2491,6 +2492,7 @@ P256-XMD:SHA.256-SSWU-RO- is defined as follows:
    - B = 0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b
 - p: 2^256 - 2^224 + 2^192 + 2^96 - 1
 - m: 1
+- k: 128
 - sgn0: sgn0\_le ({{sgn0-le}})
 - expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
 - H: SHA-256
@@ -2526,6 +2528,7 @@ P384-XMD:SHA.512-SSWU-RO- is defined as follows:
   - B = 0xb3312fa7e23ee7e4988e056be3f82d19181d9c6efe8141120314088f5013875ac656398d8a2ed19d2a85c8edd3ec2aef
 - p: 2^384 - 2^128 - 2^96 + 2^32 - 1
 - m: 1
+- k: 192
 - sgn0: sgn0\_le ({{sgn0-le}})
 - expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
 - H: SHA-512
@@ -2561,6 +2564,7 @@ P521-XMD:SHA.512-SSWU-RO- is defined as follows:
   - B = 0x51953eb9618e1c9a1f929a21a0b68540eea2da725b99b315f3b8b489918ef109e156193951ec7e937b1652c0bd3bb1bf073573df883d2c34f1ef451fd46b503f00
 - p: 2^521 - 1
 - m: 1
+- k: 256
 - sgn0: sgn0\_le ({{sgn0-le}})
 - expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
 - H: SHA-512
@@ -2596,6 +2600,7 @@ curve25519-XMD:SHA.256-ELL2-RO- is defined as follows:
   - K = 1
 - p: 2^255 - 19
 - m: 1
+- k: 128
 - sgn0: sgn0\_le ({{sgn0-le}})
 - expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
 - H: SHA-256
@@ -2647,6 +2652,7 @@ curve448-XMD:SHA.512-ELL2-RO- is defined as follows:
   - K = 1
 - p: 2^448 - 2^224 - 1
 - m: 1
+- k: 224
 - sgn0: sgn0\_le ({{sgn0-le}})
 - expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
 - H: SHA-512
@@ -2684,6 +2690,7 @@ secp256k1-XMD:SHA.256-SSWU-RO- is defined as follows:
 - E: y^2 = x^3 + 7
 - p: 2^256 - 2^32 - 2^9 - 2^8 - 2^7 - 2^6 - 2^4 - 1
 - m: 1
+- k: 128
 - sgn0: sgn0\_le ({{sgn0-le}})
 - expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
 - H: SHA-256
@@ -2726,6 +2733,7 @@ BLS12381G1-XMD:SHA.256-SSWU-RO- is defined as follows:
 - E: y^2 = x^3 + 4
 - p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
 - m: 1
+- k: 128
 - sgn0: sgn0\_be ({{sgn0-be}})
 - expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
 - H: SHA-256
@@ -2770,6 +2778,7 @@ BLS12381G2-XMD:SHA.256-SSWU-RO- is defined as follows:
   - p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
   - m: 2
   - (1, I) is the basis for F, where I^2 + 1 == 0 in F
+- k: 128
 - sgn0: sgn0\_be ({{sgn0-be}})
 - expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
 - H: SHA-256
@@ -2804,7 +2813,8 @@ Budroni and Pintore ({{BP18}}, Section 4.1).
 
 The RECOMMENDED way to define a new hash-to-curve suite is:
 
-1. E, F, p, and m are determined by the elliptic curve and its base field.
+1. E, F, p, and m are determined by the elliptic curve and its base field;
+   k is determined by the security level of the elliptic curve.
 
 2. Choose encoding type, either hash\_to\_curve or encode\_to\_curve ({{roadmap}}).
 
