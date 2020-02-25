@@ -27,10 +27,10 @@ iso_map = iso_bls12381g1()
 
 bls12381g1_svdw_def = BasicH2CSuiteDef("BLS12381G1", F, A, B, sgn0_be, expand_message_md, hashlib.sha256, 64, GenericSvdW, h_eff, 128, True, DST)
 bls12381g1_sswu_def = IsoH2CSuiteDef(bls12381g1_svdw_def._replace(MapT=GenericSSWU), Ap, Bp, iso_map)
-bls12381g1_svdw_ro = BasicH2CSuite("BLS12381G1-SHA256-SVDW-RO-",bls12381g1_svdw_def)
-bls12381g1_sswu_ro = IsoH2CSuite("BLS12381G1-SHA256-SSWU-RO-",bls12381g1_sswu_def)
-bls12381g1_svdw_nu = BasicH2CSuite("BLS12381G1-SHA256-SVDW-NU-",bls12381g1_svdw_def._replace(is_ro=False))
-bls12381g1_sswu_nu = IsoH2CSuite("BLS12381G1-SHA256-SSWU-NU-",bls12381g1_sswu_def._replace(base=bls12381g1_sswu_def.base._replace(is_ro=False)))
+bls12381g1_svdw_ro = BasicH2CSuite("BLS12381G1-XMD:SHA.256-SVDW-RO-",bls12381g1_svdw_def)
+bls12381g1_sswu_ro = IsoH2CSuite("BLS12381G1-XMD:SHA.256-SSWU-RO-",bls12381g1_sswu_def)
+bls12381g1_svdw_nu = BasicH2CSuite("BLS12381G1-XMD:SHA.256-SVDW-NU-",bls12381g1_svdw_def._replace(is_ro=False))
+bls12381g1_sswu_nu = IsoH2CSuite("BLS12381G1-XMD:SHA.256-SSWU-NU-",bls12381g1_sswu_def._replace(base=bls12381g1_sswu_def.base._replace(is_ro=False)))
 assert bls12381g1_sswu_ro.m2c.Z == bls12381g1_sswu_nu.m2c.Z == 11
 assert bls12381g1_svdw_ro.m2c.Z == bls12381g1_svdw_nu.m2c.Z == -3
 

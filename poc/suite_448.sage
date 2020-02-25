@@ -39,10 +39,10 @@ def m2e_448(P):
 
 monty_suite = BasicH2CSuiteDef("curve448", F, Ap, Bp, sgn0_le, expand_message_md, hashlib.sha512, 84, None, 4, 224, True, DST)
 edw_suite = EdwH2CSuiteDef(monty_suite._replace(E="edwards448",Aa=a, Bd=d), Ap, Bp, m2e_448)
-edw448_hash_ro = EdwH2CSuite("edwards448-SHA512-EDELL2-RO-",edw_suite)
-monty448_hash_ro = MontyH2CSuite("curve448-SHA512-ELL2-RO-",monty_suite)
-edw448_hash_nu = EdwH2CSuite("edwards448-SHA512-EDELL2-NU-",edw_suite._replace(base=edw_suite.base._replace(is_ro=False)))
-monty448_hash_nu = MontyH2CSuite("curve448-SHA512-ELL2-NU-",monty_suite._replace(is_ro=False))
+edw448_hash_ro = EdwH2CSuite("edwards448-XMD:SHA.512-EDELL2-RO-",edw_suite)
+monty448_hash_ro = MontyH2CSuite("curve448-XMD:SHA.512-ELL2-RO-",monty_suite)
+edw448_hash_nu = EdwH2CSuite("edwards448-XMD:SHA.512-EDELL2-NU-",edw_suite._replace(base=edw_suite.base._replace(is_ro=False)))
+monty448_hash_nu = MontyH2CSuite("curve448-XMD:SHA.512-ELL2-NU-",monty_suite._replace(is_ro=False))
 assert edw448_hash_ro.m2c.Z == edw448_hash_nu.m2c.Z == -1
 assert monty448_hash_ro.m2c.Z == monty448_hash_nu.m2c.Z == -1
 
