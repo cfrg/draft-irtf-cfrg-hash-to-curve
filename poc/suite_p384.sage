@@ -3,7 +3,6 @@
 
 import hashlib
 import sys
-
 try:
     from sagelib.common import sgn0_le
     from sagelib.h2c_suite import BasicH2CSuiteDef, BasicH2CSuite
