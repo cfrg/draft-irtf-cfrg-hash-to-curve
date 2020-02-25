@@ -1,0 +1,45 @@
+{
+  "ciphersuite": "P384-SHA512-SVDW-NU-",
+  "curve": "P384",
+  "dst": "QUUX-V01-CS02",
+  "field": {
+    "m": "0x1",
+    "p": "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000ffffffff"
+  },
+  "hash": "sha512",
+  "map": {
+    "name": "SVDW",
+    "sgn0": "sgn0_le"
+  },
+  "randomOracle": false,
+  "vectors": [
+    {
+      "P": {
+        "x": "0x9175c880913060823975df6754bb20afad3a5807ef94695f48f31fcf6cb06316625bf0562de63891e3e7186b671c640f",
+        "y": "0x21badacee69ad3d51bb496b27669975fb7f124c2160a17a045cfd6d38166e9e63843846e08d03e5dcd7297e5ec47c07d"
+      },
+      "msg": ""
+    },
+    {
+      "P": {
+        "x": "0x8d5c59d57c711d10b99a283f4afaa6ca068a54fe912f44ed3fe672599c6a11e3ca4bd12867510f4a7d03ae09f5cb487b",
+        "y": "0xabc84a0b6117e004c42fe0d11fb94d333026787dd00120ad99846d2022a6f5d7efdd2063ef220e9b88cb76b2b034e272"
+      },
+      "msg": "abc"
+    },
+    {
+      "P": {
+        "x": "0x27194d9446d0ec34510fc48725c3072b7594d23da63666349751070d82a2126369e7d7c879d27bcc04d2d47c17bc0b20",
+        "y": "0x578103a8cbc18914438e85feab62a7c5c3b82def3d11381aa28d2f13ffe3fc61c02b4d4b760cb1e11c1510f6435554fb"
+      },
+      "msg": "abcdef0123456789"
+    },
+    {
+      "P": {
+        "x": "0x2a344dade36a94e64f9d97fa530280c703b00b8de04c0edddd695d1bce7a65c453c5bdafdcc04474e9a3f2c7d11c4adb",
+        "y": "0x76265911e475620c209578e95c68575a6580fb9843836980d4fb8844799ae6711d62d812ec0fdbacb7e87a27c6a7c48a"
+      },
+      "msg": "a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ]
+}

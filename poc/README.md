@@ -8,10 +8,12 @@ In addition, you'll need a reasonably modern version of make (GNU make works wel
 1. `make` --- This preprocesses the sage files. If you don't do this, you'll get
    an error message telling you to do it.
 
-2. `sage test.sage` --- runs all tests. This takes several minutes.
+2. `make test` --- runs all tests. This takes several minutes.
 
 3. Alternatively, most files will self-test if executed with sage, e.g.,
    `sage suite_p256.sage`.
+
+4. `make vectors` --- generates all test vectors.
 
 # In more detail
 

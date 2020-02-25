@@ -24,18 +24,22 @@ Bp = F(0x12e2908d11688030018b12e8753eee3b2016c1f0f24f4070a0b9c14fcef35ef55a23215
 h_eff = 0xd201000000010001
 iso_map = iso_bls12381g1()
 
-bls12381g1_svdw_def = BasicH2CSuiteDef(F, A, B, sgn0_be, hashlib.sha256, 64, GenericSvdW, h_eff, True, DST)
+bls12381g1_svdw_def = BasicH2CSuiteDef("BLS12381G1", F, A, B, sgn0_be, hashlib.sha256, 64, GenericSvdW, h_eff, True, DST)
 bls12381g1_sswu_def = IsoH2CSuiteDef(bls12381g1_svdw_def._replace(MapT=GenericSSWU), Ap, Bp, iso_map)
-bls12381g1_svdw = BasicH2CSuite(bls12381g1_svdw_def)
-bls12381g1_sswu = IsoH2CSuite(bls12381g1_sswu_def)
-assert bls12381g1_sswu.m2c.Z == 11
-assert bls12381g1_svdw.m2c.Z == -3
+bls12381g1_svdw_ro = BasicH2CSuite("BLS12381G1-SHA256-SVDW-RO-",bls12381g1_svdw_def)
+bls12381g1_sswu_ro = IsoH2CSuite("BLS12381G1-SHA256-SSWU-RO-",bls12381g1_sswu_def)
+bls12381g1_svdw_nu = BasicH2CSuite("BLS12381G1-SHA256-SVDW-NU-",bls12381g1_svdw_def._replace(is_ro=False))
+bls12381g1_sswu_nu = IsoH2CSuite("BLS12381G1-SHA256-SSWU-NU-",bls12381g1_sswu_def._replace(base=bls12381g1_sswu_def.base._replace(is_ro=False)))
+assert bls12381g1_sswu_ro.m2c.Z == bls12381g1_sswu_nu.m2c.Z == 11
+assert bls12381g1_svdw_ro.m2c.Z == bls12381g1_svdw_nu.m2c.Z == -3
 
 bls12381g1_order = 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001
 
 def test_suite_bls12381g1():
-    _test_suite(bls12381g1_sswu, bls12381g1_order)
-    _test_suite(bls12381g1_svdw, bls12381g1_order)
+    _test_suite(bls12381g1_sswu_ro, bls12381g1_order)
+    _test_suite(bls12381g1_svdw_ro, bls12381g1_order)
+    _test_suite(bls12381g1_sswu_nu, bls12381g1_order)
+    _test_suite(bls12381g1_svdw_nu, bls12381g1_order)
 
 if __name__ == "__main__":
     test_suite_bls12381g1()

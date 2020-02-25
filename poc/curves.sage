@@ -27,9 +27,15 @@ class PointBase(object):
     def __repr__(self):
         return "(%d : %d : %d)" % (self.x, self.y, self.z)
 
+    def curve(self):
+        return self.E
+
 class CurveBase(object):
     def __call__(self, x, y, z=1):
         return self.PointT(self, x, y, z)
+
+    def base_field(self):
+        return self.F
 
     def order(self):
         return self.E.order()

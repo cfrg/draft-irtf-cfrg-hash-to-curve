@@ -11,6 +11,7 @@ except ImportError:
 
 class GenericEll2(GenericMap):
     def __init__(self, F, A, B):
+        self.name = "ELL2"
         self.F = F
         A = F(A)
         B = F(B)

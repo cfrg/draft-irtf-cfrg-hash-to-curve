@@ -11,6 +11,7 @@ except ImportError:
 
 class GenericSSWU(GenericMap):
     def __init__(self, F, A, B):
+        self.name = "SSWU"
         self.F = F
         self.A = F(A)
         self.B = F(B)

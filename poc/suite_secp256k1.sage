@@ -23,18 +23,22 @@ Ap = F(0x3f8731abdd661adca08a5558f0f5d272e953d363cb6f0e5d405447c01a444533)
 Bp = F(1771)
 iso_map = iso_secp256k1()
 
-secp256k1_svdw_def = BasicH2CSuiteDef(F, A, B, sgn0_le, hashlib.sha256, 48, GenericSvdW, 1, True, DST)
+secp256k1_svdw_def = BasicH2CSuiteDef("secp256k1", F, A, B, sgn0_le, hashlib.sha256, 48, GenericSvdW, 1, True, DST)
 secp256k1_sswu_def = IsoH2CSuiteDef(secp256k1_svdw_def._replace(MapT=GenericSSWU), Ap, Bp, iso_map)
-secp256k1_svdw = BasicH2CSuite(secp256k1_svdw_def)
-secp256k1_sswu = IsoH2CSuite(secp256k1_sswu_def)
-assert secp256k1_sswu.m2c.Z == -11
-assert secp256k1_svdw.m2c.Z == 1
+secp256k1_sswu_ro = IsoH2CSuite("secp256k1-SHA256-SSWU-RO-",secp256k1_sswu_def)
+secp256k1_svdw_ro = BasicH2CSuite("secp256k1-SHA256-SVDW-RO-",secp256k1_svdw_def)
+secp256k1_sswu_nu = IsoH2CSuite("secp256k1-SHA256-SSWU-NU-",secp256k1_sswu_def._replace(base=secp256k1_sswu_def.base._replace(is_ro=False)))
+secp256k1_svdw_nu = BasicH2CSuite("secp256k1-SHA256-SVDW-NU-",secp256k1_svdw_def._replace(is_ro=False))
+assert secp256k1_sswu_ro.m2c.Z == secp256k1_sswu_nu.m2c.Z == -11
+assert secp256k1_svdw_ro.m2c.Z == secp256k1_svdw_nu.m2c.Z == 1
 
 secp256k1_order = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141
 
 def test_suite_secp256k1():
-    _test_suite(secp256k1_sswu, secp256k1_order)
-    _test_suite(secp256k1_svdw, secp256k1_order)
+    _test_suite(secp256k1_sswu_ro, secp256k1_order)
+    _test_suite(secp256k1_svdw_ro, secp256k1_order)
+    _test_suite(secp256k1_sswu_nu, secp256k1_order)
+    _test_suite(secp256k1_svdw_nu, secp256k1_order)
 
 if __name__ == "__main__":
     test_suite_secp256k1()

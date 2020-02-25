@@ -14,6 +14,13 @@ class GenericMap(object):
     not_straight_line = None
     sgn0 = staticmethod(sgn0_le)
     sqrt = staticmethod(square_root)
+    name = None
+
+    def __dict__(self):
+        return {
+            "name" :  self.name,
+            "sgn0": "sgn0_le" if self.sgn0 == sgn0_le else "sgn0_be",
+        }
 
     def set_sgn0(self, fn):
         self.sgn0 = fn

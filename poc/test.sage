@@ -5,6 +5,8 @@ import sys
 
 from hash_to_base import test_hkdf
 
+print("Importing modules...")
+
 try:
     from sagelib.common import test_ts
     from sagelib.ell2_generic import GenericEll2
