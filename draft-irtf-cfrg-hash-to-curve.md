@@ -1768,6 +1768,13 @@ primitive, whereas a Mersenne twister pseudorandom number generator is not.
 
 - MUST give independent values for distinct (msg, DST, length) inputs.
 
+- MUST use the domain separation tag DST to ensure that invocations of
+cryptographic primitives inside of expand\_message are domain separated
+from all invocations outside of expand\_message.
+For example, if the expand\_message variant uses a hash function H, DST
+MUST be either prepended or appended to the input to each invocation of H
+(for consistency, prepending is the RECOMMENDED approach).
+
 - SHOULD read msg exactly once, for efficiency when msg is long.
 
 In addition, an expand\_message variant MUST specify a unique EXP\_TAG
@@ -2916,22 +2923,16 @@ Defending against such leakage is outside the scope of this document, because
 the nature of the leakage and the appropriate defense depends on the protocol
 from which a hash-to-curve function is invoked.
 
-Each encoding function accepts arbitrary input and maps it to a pseudorandom
-point on the curve.
-Directly evaluating the mappings of {{mappings}} produces an output that is
-distinguishable from random.
-{{roadmap}} shows how to use these mappings to construct hash\_to\_curve, which is
-indifferentiable from a random oracle.
+Each encoding variant ({{roadmap}}) accepts an arbitrary octet-string and maps
+it to a pseudorandom point on the curve.
+Note, however, that directly evaluating the mappings of {{mappings}} produces
+an output that is distinguishable from random.
 
-{{domain-separation}} describes considerations related to domain separation
-for random oracle encodings.
+{{domain-separation}} describes considerations related to domain separation.
 
-{{hashtofield}} describes considerations for uniformly hashing to field
-elements.
-When built on an expand\_message variant described in that section, and
-when following the security guidelines of that expand\_message variant,
-hash\_to\_field is indifferentiable from a random oracle;
-see {{security-considerations-hash-to-field}} and {{security-considerations-expand-md}}.
+{{hashtofield}} describes considerations for uniformly hashing to field elements;
+see {{security-considerations-hash-to-field}} and {{security-considerations-expand-md}}
+for further discussion.
 
 When the hash\_to\_curve function ({{roadmap}}) is instantiated with a
 hash\_to\_field function that is indifferentiable from a random oracle
@@ -2962,6 +2963,9 @@ is modeled as a random oracle.
 By composability of indifferentiability proofs, this also holds when
 expand\_message is proved indifferentiable from a random oracle relative
 to an underlying primitive that is modeled as a random oracle.
+When following the guidelines in {{hashtofield-expand}}, both variants
+of expand\_message defined in that section meet this requirement
+(see also {{security-considerations-expand-md}}).
 
 We very briefly sketch the indifferentiability argument for hash\_to\_field.
 Notice that each integer mod p that hash\_to\_field returns (i.e., each element
@@ -2971,6 +2975,17 @@ For each integer mod p that hash\_to\_field returns, the simulator samples
 one member of this equivalence class at random and outputs the octet-string
 returned by I2OSP.
 (Notice that this is essentially the inverse of the hash\_to\_field procedure.)
+
+Finally, we note that in the expand\_message variants defined in this document
+({{hashtofield-expand}}), the argument to every invocation of H (the underlying
+hash or extensible output function) is prepended with the domain separation
+tag DST.
+This ensures that invocations of H outside of hash\_to\_field can be separated
+from those inside of hash\_to\_field by prepending the outside invocations
+with a distinct domain separation tag.
+(Other expand\_message variants that follow the guidelines in
+{{hashtofield-expand-other}} should have similar properties; these SHOULD
+be analyzed on a case-by-case basis.)
 
 ## expand\_message\_md security {#security-considerations-expand-md}
 
