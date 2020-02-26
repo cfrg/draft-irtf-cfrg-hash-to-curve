@@ -16,9 +16,12 @@ class GenericEll2Edw(GenericMap):
         d = F(d)
         self.a = a
         self.d = d
-        assert a != 0, "Edwards curve requires a != 0"
-        assert d != 0, "Edwards curve requires d != 0"
-        assert a != d, "Edwards curve requires a != d"
+        if a == 0:
+            raise ValueError("Edwards curve requires a != 0")
+        if d == 0:
+            raise ValueError("Edwards curve requires d != 0")
+        if a == d:
+            raise ValueError("Edwards curve requires a != d")
 
         # equivalent Montgomery curve
         self.A = (a + d) / F(2)

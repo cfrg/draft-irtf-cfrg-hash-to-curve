@@ -10,19 +10,22 @@ except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 class GenericEll2(GenericMap):
-    def __init__(self, F, A, B):
+    def __init__(self, F, J, K):
         self.name = "ELL2"
         self.F = F
-        A = F(A)
-        B = F(B)
-        assert A != 0, "Ell2 requires A != 0"
-        assert B != 0, "Ell2 requires B != 0"
-        test = A**2 - 4 * B
-        assert test != 0 and not test.is_square(), "Ell2 requires A^2 - 4B != 0 and nonsquare"
-        self.A = A
-        self.B = B
+        J = F(J)
+        K = F(K)
+        if J == 0:
+            raise ValueError("Ell2 requires J != 0")
+        if K == 0:
+            raise ValueError("Ell2 requires K != 0")
+        test = (J^2 - 4) / (K^2)
+        if test == 0 or test.is_square():
+            raise ValueError("Ell2 requires (J^2 - 4) / K^2 != 0 and nonsquare")
+        self.J = J
+        self.K = K
         self.Z = find_z_ell2(F)
-        self.E = EllipticCurve(F, [0, A, 0, B, 0])
+        self.E = EllipticCurve(F, [0, J / K, 0, 1 / K^2, 0])
 
         # values at which the map is undefined
         self.undefs = []
@@ -30,31 +33,38 @@ class GenericEll2(GenericMap):
             ex = sqrt(F(-1) / self.Z)
             self.undefs += [ex, -ex]
 
+    def to_weierstrass(self, s, t):
+        x = s / self.K
+        y = t / self.K
+        return (x, y)
+
     def not_straight_line(self, u):
         is_square = self.is_square
         inv0 = self.inv0
         sgn0 = self.sgn0
         sqrt = self.sqrt
         u = self.F(u)
-        C = self.A
-        D = self.B
+        J = self.J
+        K = self.K
         Z = self.Z
 
-        X1 = -C * inv0(1 + Z * u^2)
-        if X1 == 0:
-            X1 = -C
-        gX1 = X1^3 + C * X1^2 + D * X1
-        X2 = -X1 - C
-        gX2 = X2^3 + C * X2^2 + D * X2
-        if is_square(gX1):
-            X = X1
-            Y = sqrt(gX1)
+        x1 = -(J / K) * inv0(1 + Z * u^2)
+        if x1 == 0:
+            x1 = -(J / K)
+        gx1 = x1^3 + (J / K) * x1^2 + x1 / K^2
+        x2 = -x1 - (J / K)
+        gx2 = x2^3 + (J / K) * x2^2 + x2 / K^2
+        if is_square(gx1):
+            x = x1
+            y = sqrt(gx1)
         else:
-            X = X2
-            Y = sqrt(gX2)
-        if sgn0(u) != sgn0(Y):
-            Y = -Y
-        return (X, Y)
+            x = x2
+            y = sqrt(gx2)
+        s = x * K
+        t = y * K
+        if sgn0(u) != sgn0(t):
+            t = -t
+        return (s, t)
 
     def straight_line(self, u):
         inv0 = self.inv0
@@ -62,30 +72,35 @@ class GenericEll2(GenericMap):
         sgn0 = self.sgn0
         sqrt = self.sqrt
         u = self.F(u)
-        C = self.A
-        D = self.B
+        J = self.J
+        K = self.K
         Z = self.Z
+
+        c1 = J / K
+        c2 = 1 / K^2
 
         tv1 = u^2
         tv1 = Z * tv1             # Z * u^2
         e1 = tv1 == -1           # exceptional case: Z * u^2 == -1
         tv1 = CMOV(tv1, 0, e1)    # if tv1 == -1, set tv1 = 0
-        X1 = tv1 + 1
-        X1 = inv0(X1)
-        X1 = -C * X1             # X1 = -C / (1 + Z * u^2)
-        gX1 = X1 + C
-        gX1 = gX1 * X1
-        gX1 = gX1 + D
-        gX1 = gX1 * X1            # gX1 = X1^3 + C * X1^2 + D * X1
-        X2 = -X1 - C
-        gX2 = tv1 * gX1
-        e2 = is_square(gX1)
-        X = CMOV(X2, X1, e2)    # If is_square(gX1), X = X1, else X = X2
-        Y2 = CMOV(gX2, gX1, e2)  # If is_square(gX1), Y2 = gX1, else Y2 = gX2
-        Y = sqrt(Y2)
-        e3 = sgn0(u) == sgn0(Y)  # Fix sign of Y
-        Y = CMOV(-Y, Y, e3)
-        return (X, Y)
+        x1 = tv1 + 1
+        x1 = inv0(x1)
+        x1 = -c1 * x1             # x1 = -(J / K) / (1 + Z * u^2)
+        gx1 = x1 + c1
+        gx1 = gx1 * x1
+        gx1 = gx1 + c2
+        gx1 = gx1 * x1            # gx1 = x1^3 + (J / K) * x1^2 + x1 / K^2
+        x2 = -x1 - c1
+        gx2 = tv1 * gx1
+        e2 = is_square(gx1)
+        x = CMOV(x2, x1, e2)    # If is_square(gx1), x = x1, else x = x2
+        y2 = CMOV(gx2, gx1, e2)  # If is_square(gx1), y2 = gx1, else y2 = gx2
+        y = sqrt(y2)
+        s = x * K
+        t = y * K
+        e3 = sgn0(u) == sgn0(t)  # Fix sign of t
+        t = CMOV(-t, t, e3)
+        return (s, t)
 
 if __name__ == "__main__":
     for _ in range(0, 32):
