@@ -1906,7 +1906,7 @@ cases that result from attempting to compute the inverse of 0.
 
 ## Mappings for Weierstrass curves {#weierstrass}
 
-The following mappings apply to elliptic curves defined by the equation
+The mappings in this section apply to a target curve E defined by the equation
 
 ~~~
     y^2 = g(x) = x^3 + A * x + B
@@ -2171,47 +2171,20 @@ See {{hash2curve-repo}} or {{WB19}}, Section 4.3 for details on implementing the
 
 ## Mappings for Montgomery curves {#montgomery}
 
-The mapping defined in {{elligator2}} implements Elligator 2 {{BHKL13}} for
-curves defined by the Weierstrass equation
-
-~~~
-    Y^2 = X^3 + C * X^2 + D * X
-~~~
-
-(Note that this equation is different from the one used in {{weierstrass}}.)
-This Weierstrass curve is equivalent to the Montgomery curve
+The mapping defined in this section applies to a target curve M defined by the equation
 
 ~~~
     K * t^2 = s^3 + J * s^2 + s
 ~~~
 
-by the following change of variables:
-
-- C = J / K
-- D = 1 / K^2
-- X = s / K
-- Y = t / K
-
-The Elligator 2 mapping given below returns a point (X, Y) on the
-Weierstrass curve defined above.
-This point can be converted to a point (s, t) on the equivalent
-Montgomery curve by computing
-
-- s = K * X
-- t = K * Y
-
-Note that when D == K == 1, the above two curve equations
-are identical and no conversion is necessary.
-This is the case, for example, for Curve25519 and Curve448 {{RFC7748}}.
-
 ### Elligator 2 Method {#elligator2}
 
-Preconditions: A Weierstrass curve Y^2 = X^3 + C * X^2 + D * X
-where C != 0, D != 0, and C^2 - 4 * D is non-zero and non-square in F.
+Preconditions: A Montgomery curve K * t^2 = s^3 + J * s^2 + s where
+J != 0, K != 0, and (J^2 - 4) / K^2 is non-zero and non-square in F.
 
 Constants:
 
-- C and D, the parameters of the elliptic curve.
+- J and K, the parameters of the elliptic curve.
 
 - Z, a non-square element of F.
   {{elligator-z-code}} gives a Sage {{SAGE}} script that outputs the RECOMMENDED Z.
@@ -2220,21 +2193,23 @@ Sign of Y: Inputs u and -u give the same X-coordinate.
 Thus, we set sgn0(Y) == sgn0(u).
 
 Exceptions: The exceptional case is Z * u^2 == -1, i.e., 1 + Z * u^2 == 0.
-Implementations must detect this case and set X1 = -C.
+Implementations must detect this case and set X1 = -(J / K).
 Note that this can only happen when q = 3 (mod 4).
 
 Operations:
 
 ~~~
-1.  X1 = -C * inv0(1 + Z * u^2)
-2.  If X1 == 0, set X1 = -C
-3. gX1 = X1^3 + C * X1^2 + D * X1
-4.  X2 = -X1 - C
-5. gX2 = X2^3 + C * X2^2 + D * X2
+1.  X1 = -(J / K) * inv0(1 + Z * u^2)
+2.  If X1 == 0, set X1 = -(J / K)
+3. gX1 = X1^3 + (J / K) * X1^2 + X1 / K^2
+4.  X2 = -X1 - (J / K)
+5. gX2 = X2^3 + (J / K) * X2^2 + X2 / K^2
 6.  If is_square(gX1), set X = X1 and Y = sqrt(gX1)
 7.  Else set X = X2 and Y = sqrt(gX2)
-8.  If sgn0(u) != sgn0(Y), set Y = -Y
-9.  return (X, Y)
+8.   s = X * K
+9.   t = Y * K
+10. If sgn0(u) != sgn0(t), set t = -t
+11. return (s, t)
 ~~~
 
 #### Implementation
@@ -2246,7 +2221,11 @@ curve448 {{RFC7748}}.
 ~~~
 map_to_curve_elligator2(u)
 Input: u, an element of F.
-Output: (X, Y), a point on E.
+Output: (s, t), a point on M.
+
+Constants:
+1.   c1 = J / K
+2.   c2 = 1 / K^2
 
 Steps:
 1.  tv1 = u^2
@@ -2255,20 +2234,22 @@ Steps:
 4.  tv1 = CMOV(tv1, 0, e1)    # if tv1 == -1, set tv1 = 0
 5.   X1 = tv1 + 1
 6.   X1 = inv0(X1)
-7.   X1 = -C * X1             # X1 = -C / (1 + Z * u^2)
-8.  gX1 = X1 + C
+7.   X1 = -c1 * X1             # X1 = -(J / K) / (1 + Z * u^2)
+8.  gX1 = X1 + c1
 9.  gX1 = gX1 * X1
-10. gX1 = gX1 + D
-11. gX1 = gX1 * X1            # gX1 = X1^3 + C * X1^2 + D * X1
-12.  X2 = -X1 - C
+10. gX1 = gX1 + c2
+11. gX1 = gX1 * X1            # gX1 = X1^3 + (J / K) * X1^2 + X1 / K^2
+12.  X2 = -X1 - c1
 13. gX2 = tv1 * gX1
 14.  e2 = is_square(gX1)
 15.   X = CMOV(X2, X1, e2)    # If is_square(gX1), X = X1, else X = X2
 16.  Y2 = CMOV(gX2, gX1, e2)  # If is_square(gX1), Y2 = gX1, else Y2 = gX2
 17.   Y = sqrt(Y2)
-18.  e3 = sgn0(u) == sgn0(Y)  # Fix sign of Y
-19.   Y = CMOV(-Y, Y, e3)
-20. return (X, Y)
+18.   s = X * K
+19.   t = Y * K
+20.  e3 = sgn0(u) == sgn0(t)  # Fix sign of t
+21.   t = CMOV(-t, t, e3)
+22. return (s, t)
 ~~~
 
 ## Mappings for Twisted Edwards curves {#twisted-edwards}
