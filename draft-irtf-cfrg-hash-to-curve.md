@@ -1871,7 +1871,7 @@ As a rough guide, the following conventions are used in pseudocode:
 - u: the input to the mapping function.
   This is an element of F produced by the hash\_to\_field function.
 
-- (x, y), (X, Y), (v, w): the affine coordinates of the point output by the mapping.
+- (x, y), (s, t), (v, w): the affine coordinates of the point output by the mapping.
   Indexed variables (e.g., x1, y2, ...) are used for candidate values.
 
 - tv1, tv2, ...: reusable temporary variables.
@@ -2189,25 +2189,25 @@ Constants:
 - Z, a non-square element of F.
   {{elligator-z-code}} gives a Sage {{SAGE}} script that outputs the RECOMMENDED Z.
 
-Sign of Y: Inputs u and -u give the same X-coordinate.
-Thus, we set sgn0(Y) == sgn0(u).
+Sign of t: Inputs u and -u give the same s-coordinate.
+Thus, we set sgn0(t) == sgn0(u).
 
 Exceptions: The exceptional case is Z * u^2 == -1, i.e., 1 + Z * u^2 == 0.
-Implementations must detect this case and set X1 = -(J / K).
+Implementations must detect this case and set x1 = -(J / K).
 Note that this can only happen when q = 3 (mod 4).
 
 Operations:
 
 ~~~
-1.  X1 = -(J / K) * inv0(1 + Z * u^2)
-2.  If X1 == 0, set X1 = -(J / K)
-3. gX1 = X1^3 + (J / K) * X1^2 + X1 / K^2
-4.  X2 = -X1 - (J / K)
-5. gX2 = X2^3 + (J / K) * X2^2 + X2 / K^2
-6.  If is_square(gX1), set X = X1 and Y = sqrt(gX1)
-7.  Else set X = X2 and Y = sqrt(gX2)
-8.   s = X * K
-9.   t = Y * K
+1.  x1 = -(J / K) * inv0(1 + Z * u^2)
+2.  If x1 == 0, set x1 = -(J / K)
+3. gx1 = x1^3 + (J / K) * x1^2 + x1 / K^2
+4.  x2 = -x1 - (J / K)
+5. gx2 = x2^3 + (J / K) * x2^2 + x2 / K^2
+6.  If is_square(gx1), set x = x1 and y = sqrt(gx1)
+7.  Else set x = x2 and y = sqrt(gx2)
+8.   s = x * K
+9.   t = y * K
 10. If sgn0(u) != sgn0(t), set t = -t
 11. return (s, t)
 ~~~
@@ -2232,21 +2232,21 @@ Steps:
 2.  tv1 = Z * tv1             # Z * u^2
 3.   e1 = tv1 == -1           # exceptional case: Z * u^2 == -1
 4.  tv1 = CMOV(tv1, 0, e1)    # if tv1 == -1, set tv1 = 0
-5.   X1 = tv1 + 1
-6.   X1 = inv0(X1)
-7.   X1 = -c1 * X1             # X1 = -(J / K) / (1 + Z * u^2)
-8.  gX1 = X1 + c1
-9.  gX1 = gX1 * X1
-10. gX1 = gX1 + c2
-11. gX1 = gX1 * X1            # gX1 = X1^3 + (J / K) * X1^2 + X1 / K^2
-12.  X2 = -X1 - c1
-13. gX2 = tv1 * gX1
-14.  e2 = is_square(gX1)
-15.   X = CMOV(X2, X1, e2)    # If is_square(gX1), X = X1, else X = X2
-16.  Y2 = CMOV(gX2, gX1, e2)  # If is_square(gX1), Y2 = gX1, else Y2 = gX2
-17.   Y = sqrt(Y2)
-18.   s = X * K
-19.   t = Y * K
+5.   x1 = tv1 + 1
+6.   x1 = inv0(x1)
+7.   x1 = -c1 * x1             # x1 = -(J / K) / (1 + Z * u^2)
+8.  gx1 = x1 + c1
+9.  gx1 = gx1 * x1
+10. gx1 = gx1 + c2
+11. gx1 = gx1 * x1            # gx1 = x1^3 + (J / K) * x1^2 + x1 / K^2
+12.  x2 = -x1 - c1
+13. gx2 = tv1 * gx1
+14.  e2 = is_square(gx1)
+15.   x = CMOV(x2, x1, e2)    # If is_square(gx1), x = x1, else x = x2
+16.  y2 = CMOV(gx2, gx1, e2)  # If is_square(gx1), y2 = gx1, else y2 = gx2
+17.   y = sqrt(y2)
+18.   s = x * K
+19.   t = y * K
 20.  e3 = sgn0(u) == sgn0(t)  # Fix sign of t
 21.   t = CMOV(-t, t, e3)
 22. return (s, t)
@@ -2311,33 +2311,32 @@ For a twisted Edwards curve given by
     a * v^2 + w^2 = 1 + d * v^2 * w^2
 ~~~
 
-first compute C and D, the parameters of the equivalent Weierstrass
+first compute J and K, the parameters of the equivalent Montgomery
 curve given by
 
 ~~~
-    Y^2 = X^3 + C * X^2 + D * X
+    K * t^2 = s^3 + J * s^2 + s
 ~~~
 
 as follows:
 
-- C = (a + d) / 2
-- D = (a - d)^2 / 16
+- J = 2 * (a + d) / (a - d)
+- K = 4 / (a - d)
 
-(Note that the above curve is given in the Weierstrass form required
-by the Elligator 2 mapping of {{elligator2}}.)
-The rational map from the point (X, Y) on this Weierstrass curve
+Note that this curve has the form required by the Elligator 2
+mapping of {{elligator2}}.
+The rational map from the point (s, t) on this Montgomery curve
 to the point (v, w) on the twisted Edwards curve is given by
 
-- invSqrtD = 4 / (a - d)
-- v = X / Y
-- w = (invSqrtD * X - 1) / (invSqrtD * X + 1)
+- v = s / t
+- w = (s - 1) / (s + 1)
 
 (For completeness, we give the inverse map in {{appx-rational-map-edw}}.
 Note that the inverse map is not used when hashing to a twisted Edwards curve.)
 
 Rational maps may be undefined on certain inputs, e.g., when the
 denominator of one of the rational functions is zero.
-In the map described above, the exceptional cases are Y == 0 or invSqrtD * X == -1.
+In the map described above, the exceptional cases are t == 0 or s == -1.
 Implementations MUST detect exceptional cases and return the value
 (v, w) = (0, 1), which is the identity point
 on all twisted Edwards curves.
@@ -2348,36 +2347,35 @@ Implementations of other rational maps (e.g., the ones give in {{RFC7748}})
 are analogous.
 
 ~~~
-rational_map(X, Y)
-Input: (X, Y), a point on the curve Y^2 = X^3 + C * X^2 + D * X.
+rational_map(s, t)
+Input: (s, t), a point on the curve K * t^2 = s^3 + J * s^2 + s.
 Output: (v, w), a point on an equivalent twisted Edwards curve.
 
-1. tv1 = X * invSqrtD
-2. tv2 = tv1 + 1
-3. tv3 = Y * tv2
-4. tv3 = inv0(tv3)
-5.   v = tv2 * tv3
-6.   v = v * X
-7.   w = tv1 - 1
-8.   w = w * Y
-9.   w = w * tv3
-10.  e = w == 0
-11.  w = CMOV(w, 1, e)
-12. return (v, w)
+1. tv1 = s + 1
+2. tv2 = tv1 * t        # (s + 1) * t
+3. tv2 = inv0(tv2)      # 1 / ((s + 1) * t)
+4.   v = tv2 * tv1      # 1 / t
+5.   v = v * s          # s / t
+6.   w = tv2 * t        # 1 / (s + 1)
+7. tv1 = s - 1
+8.   w = w * tv1        # (s - 1) / (s + 1)
+9.   e = tv2 == 0
+10.  w = CMOV(w, 1, e)  # handle exceptional case
+11. return (v, w)
 ~~~
 
 ### Elligator 2 Method {#ell2edwards}
 
-Preconditions: A twisted Edwards curve E and an equivalent curve M
-meeting the requirements in {{rational-map}}.
+Preconditions: A twisted Edwards curve E and an equivalent Montgomery
+curve M meeting the requirements in {{rational-map}}.
 
 Helper functions:
 
 - map\_to\_curve\_elligator2 is the mapping of {{elligator2}} to the curve M.
-- rational\_map is a function that takes a point (X, Y) on M and
+- rational\_map is a function that takes a point (s, t) on M and
   returns a point (v, w) on E, as defined in {{rational-map}}.
 
-Sign of Y (and v): for this map, the sign is determined by map\_to\_curve\_elligator2.
+Sign of t (and v): for this map, the sign is determined by map\_to\_curve\_elligator2.
 No further sign adjustments are required.
 
 Exceptions: The exceptions for the Elligator 2 mapping are as given in
@@ -2395,8 +2393,8 @@ map_to_curve_elligator2_edwards(u)
 Input: u, an element of F.
 Output: (v, w), a point on E.
 
-1. (X, Y) = map_to_curve_elligator2(u)      # (X, Y) is on M
-2. (v, w) = rational_map(X, Y)              # (v, w) is on E
+1. (s, t) = map_to_curve_elligator2(u)      # (s, t) is on M
+2. (v, w) = rational_map(s, t)              # (v, w) is on E
 3. return (v, w)
 ~~~
 
@@ -3146,62 +3144,56 @@ This document does not deal with this complementary problem.
 
 This section gives several useful rational maps.
 
-## Twisted Edwards to Weierstrass and Montgomery curves {#appx-rational-map-edw}
+## Twisted Edwards Montgomery curves {#appx-rational-map-edw}
 
-The inverse of the rational map specified in {{rational-map}}, i.e.,
-the map from the point (v, w) on the twisted Edwards curve
+This section gives a generic birational map between twisted Edwards
+and Montgomery curves.
+This birational map comprises the rational map specified in
+{{rational-map}} and its inverse.
+
+The twisted Edwards curve
 
 ~~~
     a * v^2 + w^2 = 1 + d * v^2 * w^2
 ~~~
 
-to the point (X, Y) on the Weierstrass curve
-
-~~~
-    Y^2 = X^3 + C * X^2 + D * X
-~~~
-
-is given by:
-
-- C = (a + d) / 2
-- D = (a - d)^2 / 16
-- invSqrtD = 4 / (a - d)
-- X = (1 + w) / (invSqrtD * (1 - w))
-- Y = (1 + w) / (invSqrtD * v * (1 - w))
-
-This map is undefined when v == 0 or w == 1.
-If (v, w) = (0, -1), return the point (X, Y) = (0, 0).
-Otherwise, return the identity point on the Weierstrass curve.
-(This follows from {{BBJLP08}}, Section 3.)
-
-It may also be useful to map to a Montgomery curve
-of the form
+is birationally equivalent to the Montgomery curve
 
 ~~~
     K * t^2 = s^3 + J * s^2 + s
 ~~~
 
-This curve is equivalent to the twisted Edwards curve above via the
-following rational map ({{BBJLP08}}, Theorem 3.2):
+by the following mappings ({{BBJLP08}}, Theorem 3.2).
+To convert from twisted Edwards to Montgomery form, the mapping is
 
 - J = 2 * (a + d) / (a - d)
 - K = 4 / (a - d)
 - s = (1 + w) / (1 - w)
 - t = (1 + w) / (v * (1 - w))
 
-whose inverse is given by:
+This mapping requires that a != d.
+The mapping is undefined when v == 0 or w == 1.
+In this case, return the identity point on the Montgomery curve.
+
+To convert from Montgomery to twisted Edwards form, the mapping is
 
 - a = (J + 2) / K
 - d = (J - 2) / K
 - v = s / t
 - w = (s - 1) / (s + 1)
 
-Composing the mapping immediately above with the mapping from
+This mapping requires that J != 2, J != -2, and K != 0.
+The mapping is undefined when t == 0 or s == -1.
+In this case, return the point (v, w) = (0, 1), which is
+the identity point on all twisted Edwards curves.
+
+Composing the mapping of this section with the mapping from
 Montgomery to Weierstrass curves in {{appx-rational-map-mont}}
-yields a mapping from twisted Edwards curves to Weierstrass curves
-of the form required by the mappings in {{weierstrass}}.
-This mapping can be used to apply the Shallue-van de Woestijne method
-({{svdw}}) to twisted Edwards curves.
+yields a mapping from twisted Edwards curves to Weierstrass curves,
+which is the form required by the mappings in {{weierstrass}}.
+This composition of mappings can be used to apply the Shallue-van
+de Woestijne ({{svdw}}) or Simplified SWU ({{simple-swu}}) method
+to twisted Edwards curves.
 
 ## Montgomery to Weierstrass curves {#appx-rational-map-mont}
 
@@ -3229,8 +3221,9 @@ The inverse map, from the point (x, y) to the point (s, t), is given by
 - s = (3 * K * x - J) / 3
 - t = y * K
 
-This mapping can be used to apply the Shallue-van de Woestijne method
-({{svdw}}) to Montgomery curves.
+This mapping can be used to apply the Shallue-van de Woestijne
+({{svdw}}) or Simplified SWU ({{simple-swu}}) method to
+Montgomery curves.
 
 # Isogeny maps for Suites {#appx-iso}
 
