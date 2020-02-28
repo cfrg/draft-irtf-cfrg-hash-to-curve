@@ -1542,8 +1542,8 @@ Steps:
 
 The hash\_to\_field function hashes a byte string msg of any length into
 one or more elements of a field F.
-This function works in two steps: it first expands the input byte string
-into a pseudorandom byte string, and then interprets this pseudorandom
+This function works in two steps: it first hashes the input byte string
+to produce a pseudorandom byte string, and then interprets this pseudorandom
 byte string as one or more elements of F.
 
 For the first step, hash\_to\_field calls an auxiliary function
@@ -1574,11 +1574,11 @@ is statistically far from uniform in \[0, p - 1\].
 To control bias, hash\_to\_field instead uses pseudorandom integers whose
 length is at least ceil(log2(p)) + k bits.
 Reducing such integers mod p gives bias at most 2^-k for any p; this bias
-is appropriate for a cryptosystem with k-bit security.
+is appropriate when targeting k-bit security.
 To obtain such integers, hash\_to\_field uses expand\_message to obtain
 L pseudorandom bytes, where L = ceil((ceil(log2(p)) + k) / 8); this
 byte string is then interpreted as an integer via OS2IP {{RFC8017}}.
-For example, for p a 255-bit prime and k = 128-bit security,
+For example, for a 255-bit prime p, and k = 128-bit security,
 L = ceil((255 + 128) / 8) = 48 bytes.
 
 ## hash\_to\_field implementation {#hashtofield-impl}
@@ -1611,11 +1611,11 @@ Inputs:
 - count is the number of elements of F to output.
 
 Outputs:
-- (u_1, ..., u_(count)), a list of field elements.
+- (u_0, ..., u_(count - 1)), a list of field elements.
 
 Notation:
 - For a byte string str, let str[a : b] represent the
-  (b - a) bytes starting at the a'th byte of str.
+  (b - a) bytes starting at str[a].
 
 Steps:
 1. len_in_bytes = count * m * L
@@ -1673,7 +1673,7 @@ random transformation or as a random permutation {{BDPV08}}.
 from a random oracle {{MRH04}} under a reasonable cryptographic assumption.
 
 SHA-2 {{FIPS180-4}} and SHA-3 {{FIPS202}} are typical and RECOMMENDED choices.
-As an example, for 128-bit security, b >= 256 bits and either SHA-256 or
+As an example, for the 128-bit security level, b >= 256 bits and either SHA-256 or
 SHA3-256 would be an appropriate choice.
 
 The following procedure implements expand\_message\_md.
@@ -1698,7 +1698,7 @@ Output:
 
 Notation:
 - For a byte string str, let str[a : b] represent the
-  (b - a) bytes starting at the a'th byte of str.
+  (b - a) bytes starting at str[a].
 
 Steps:
 1. ell = ceil((len_in_bytes + k_in_bytes) / b_in_bytes)
@@ -2715,8 +2715,8 @@ except for the following parameters:
 
 - f: Shallue-van de Woestijne method, {{svdw}}
 - Z: 1
-- E' is not defined for this suite
-- iso\_map is not defined for this suite
+- E' is not required for this suite
+- iso\_map is not required for this suite
 
 secp256k1-XMD:SHA.256-SSWU-NU- is identical to secp256k1-XMD:SHA.256-SSWU-RO-,
 except that the encoding type is encode\_to\_curve ({{roadmap}}).
@@ -2758,8 +2758,8 @@ except for the following parameters:
 
 - f: Shallue-van de Woestijne method, {{svdw}}
 - Z: -3
-- E' is not defined for this suite
-- iso\_map is not defined for this suite
+- E' is not required for this suite
+- iso\_map is not required for this suite
 
 BLS12381G1-XMD:SHA.256-SSWU-NU- is identical to BLS12381G1-XMD:SHA.256-SSWU-RO-,
 except that the encoding type is encode\_to\_curve ({{roadmap}}).
@@ -2803,8 +2803,8 @@ except for the following parameters:
 
 - f: Shallue-van de Woestijne method, {{svdw}}
 - Z: I
-- E' is not defined for this suite
-- iso\_map is not defined for this suite
+- E' is not required for this suite
+- iso\_map is not required for this suite
 
 BLS12381G2-XMD:SHA.256-SSWU-NU- is identical to BLS12381G2-XMD:SHA.256-SSWU-RO-,
 except that the encoding type is encode\_to\_curve ({{roadmap}}).
