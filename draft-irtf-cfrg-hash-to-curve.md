@@ -2854,8 +2854,12 @@ The fields CURVE\_ID, HASH\_ID, MAP\_ID, and ENC\_VAR are
 ASCII-encoded strings of at most 64 characters each.
 Fields can contain only ASCII characters between 0x21 and 0x7E (inclusive)
 other than hyphen and underscore (i.e., 0x2d, and 0x5f).
+
 As indicated above, each field (including the last) is followed by a hyphen
-("-", ASCII 0x2d); this helps to ensure that Suite IDs are prefix free.
+("-", ASCII 0x2d).
+This helps to ensure that Suite IDs are prefix free.
+Suite IDs MUST include the final hyphen and MUST NOT include any characters
+after the final hyphen.
 
 Fields MUST be chosen as follows:
 
