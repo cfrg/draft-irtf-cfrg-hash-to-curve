@@ -116,6 +116,106 @@ informative:
         ins: R. Perlner
         name: Ray Perlner
         org: NIST Computer Security Division
+  BDPV08:
+    title: On the Indifferentiability of the Sponge Construction
+    seriesinfo:
+        "In": Advances in Cryptology - EUROCRYPT 2008
+        "pages": 181-197
+        DOI: 10.1007/978-3-540-78967-3_11
+    target: https://doi.org/10.1007/978-3-540-78967-3_11
+    date: 2008
+    author:
+      -
+        ins: G. Bertoni,
+        name: Guido Bertoni
+        org: STMicroelectronics
+      -
+        ins: J. Daemen
+        name: Joan Daemen
+        org: STMicroelectronics
+      -
+        ins: M. Peeters
+        name: Michael Peeters
+        org: NXP Semiconductors
+      -
+        ins: G. Van Assche
+        name: Gilles Van Assche
+        org: STMicroelectronics
+  CDMP05:
+    title: "Merkle-Damgaard Revisited: How to Construct a Hash Function"
+    seriesinfo:
+        "In": Advances in Cryptology - CRYPTO 2005
+        "pages": 430-448
+        DOI: 10.1007/11535218_26
+    target: https://doi.org/10.1007/11535218_26
+    date: 2005
+    author:
+      -
+        ins: J-S. Coron
+        name: Jean-Sebastien Coron
+        org: University of Luxembourg
+      -
+        ins: Y. Dodis
+        name: Yevgeniy Dodis
+        org: New York University
+      -
+        ins: C. Malinaud
+        name: Cecile Malinaud
+        org: University of Luxembourg
+      -
+        ins: P. Puniya
+        name: Prashant Puniya
+        org: New York University
+  MT07:
+    title: "Domain extension of public random functions: Beyond the birthday barrier"
+    seriesinfo:
+        "In": Advances in Cryptology - CRYPTO 2007
+        "pages": 187-204
+        DOI: 10.1007/978-3-540-74143-5_11
+    target: https://doi.org/10.1007/978-3-540-74143-5_11
+    date: 2007
+    author:
+      -
+        ins: U. Maurer
+        name: Ueli Maurer
+        org: ETH Zurich
+      -
+        ins: S. Tessaro
+        name: Stefano Tessaro
+        org: ETH Zurich
+  CN08:
+    title: "Improved indifferentiability security analysis for ChopMD hash function"
+    seriesinfo:
+        "In": FSE
+        "pages": 429-443
+        DOI: 10.1007/978-3-540-71039-4_27
+    target: https://doi.org/10.1007/978-3-540-71039-4_27
+    date: 2008
+    author:
+      -
+        ins: D. Chang
+        name: Donghoon Chang
+      -
+        ins: M. Nandi
+        name: Mridul Nandi
+  DFL12:
+    title: Generic indifferentiability proofs of hash designs
+    seriesinfo:
+        "In": CSF
+        "pages": 340-353
+        DOI: 10.1109/CSF.2012.13
+    target: https://doi.org/10.1109/CSF.2012.13
+    date: 2012
+    author:
+      -
+        ins: M. Daubignard
+        name: Marion Daubignard
+      -
+        ins: P-A. Fouque
+        name: Pierre-Alain Fouque
+      -
+        ins: Y. Lakhnech
+        name: Yassine Lakhnech
   BLAKE2X:
     title: BLAKE2X
     target: https://blake2.net/blake2x.pdf
@@ -236,7 +336,7 @@ informative:
     date: 2010
     author:
       -
-        ins: P. Fouque
+        ins: P-A. Fouque
         name: Pierre-Alain Fouque
         org: Ecole Normale Superieure and INRIA Rennes
       -
@@ -253,7 +353,7 @@ informative:
     date: 2012
     author:
       -
-        ins: P. Fouque
+        ins: P-A. Fouque
         name: Pierre-Alain Fouque
         org: Ecole Normale Superieure and INRIA Rennes
       -
@@ -270,7 +370,7 @@ informative:
     date: 2013
     author:
       -
-        ins: P. Fouque
+        ins: P-A. Fouque
         name: Pierre-Alain Fouque
         org: Ecole Normale Superieure and INRIA Rennes
       -
@@ -694,7 +794,7 @@ informative:
         name: Eric Brier
         org: Ingenico
       -
-        ins: J. S. Coron
+        ins: J-S. Coron
         name: Jean-Sebastien Coron
         org: Universite du Luxembourg
       -
@@ -967,7 +1067,7 @@ protocol.
 This document aims to bridge this gap by providing a thorough set of
 recommended algorithms for a range of curve types.
 Each algorithm conforms to a common interface: it takes as input an arbitrary-length
-bit string and produces as output a point on an elliptic curve.
+byte string and produces as output a point on an elliptic curve.
 We provide implementation details for each algorithm, describe
 the security rationale behind each recommendation, and give guidance for
 elliptic curves that are not explicitly covered.
@@ -987,7 +1087,7 @@ a hash-to-curve suite, which fixes all of the parameters listed in {{suites}},
 plus a domain separation tag ({{domain-separation}}).
 Starting from working operations on the target elliptic curve and its base field,
 a hash-to-curve suite requires implementing the specified encoding function ({{roadmap}}),
-its constituent subroutines ({{hashtobase}}, {{mappings}}, {{cofactor-clearing}}), and
+its constituent subroutines ({{hashtofield}}, {{mappings}}, {{cofactor-clearing}}), and
 a few utility functions ({{utility}}).
 
 Correspondingly, designers specifying a protocol that requires hashing to an elliptic curve
@@ -1052,7 +1152,7 @@ Summary of quantities:
 | F,q,p | Finite field F of characteristic p and #F = q = p^m. | For prime fields, q = p; otherwise, q = p^m and m>1. |
 | E | Elliptic curve. | E is specified by an equation and a field F. |
 | n | Number of points on the elliptic curve E. | n = h * r, for h and r defined below. |
-| G | A subgroup of the elliptic curve. | Destination group to which bit strings are encoded. |
+| G | A subgroup of the elliptic curve. | Destination group to which byte strings are encoded. |
 | r | Order of G. | This number MUST be prime.  |
 | h | Cofactor, h >= 1. | An integer satisfying n = h * r.  |
 
@@ -1085,25 +1185,25 @@ document does not discuss inversion algorithms.
 
 Encodings are closely related to mappings.
 Like a mapping, an encoding is a function that outputs a point on an elliptic curve.
-In contrast to a mapping, however, the input to an encoding is an arbitrary bit string.
+In contrast to a mapping, however, the input to an encoding is an arbitrary string.
 Encodings can be deterministic or probabilistic.
 Deterministic encodings are preferred for security, because probabilistic
-ones can leak information through side channels.
+ones are more likely to leak information through side channels.
 
 This document constructs deterministic encodings by composing a hash function H
 with a deterministic mapping.
-In particular, H takes as input an arbitrary bit string and outputs an element of F.
+In particular, H takes as input an arbitrary string and outputs an element of F.
 The deterministic mapping takes that element as input and outputs a point on an
 elliptic curve E defined over F.
-Since the hash function H takes arbitrary bit strings as inputs, it cannot be
+Since the hash function H takes arbitrary strings as inputs, it cannot be
 injective: the set of inputs is larger than the set of outputs, so there must
 be distinct inputs that give the same output (i.e., there must be collisions).
 Thus, any encoding built from H is also not injective.
 
 Like mappings, encodings may be invertible, meaning that there is an efficient
-algorithm that, for any point P output by the encoding, outputs a bit string s
+algorithm that, for any point P output by the encoding, outputs a string s
 such that applying the encoding to s outputs P.
-The hash function used by all encodings specified in this document ({{hashtobase}})
+The hash function used by all encodings specified in this document ({{hashtofield}})
 is not invertible; thus, the encodings are also not invertible.
 
 ### Random oracle encodings {#term-rom}
@@ -1142,7 +1242,7 @@ For example, {{SEC1}} and {{p1363a}} give standard methods for serialization and
 
 Deserialization is different from encoding in that only certain strings
 (namely, those output by the serialization procedure) can be deserialized.
-In contrast, this document is concerned with encodings from arbitrary bit strings
+In contrast, this document is concerned with encodings from arbitrary strings
 to elliptic curve points.
 This document does not cover serialization or deserialization.
 
@@ -1174,13 +1274,13 @@ Thus, it is safe to treat RO1 and RO2 as independent oracles.
 
 # Roadmap {#roadmap}
 
-This section presents a general framework for encoding bit strings to points
+This section presents a general framework for encoding byte strings to points
 on an elliptic curve. To construct these encodings, we rely on three basic
 functions:
 
--   The function hash\_to\_base, {0, 1}^\* x {0, 1, 2} -> F, hashes arbitrary-length bit strings
+-   The function hash\_to\_field, {0, 1}^\* x {0, 1, 2} -> F, hashes arbitrary-length byte strings
     to elements of a finite field; its implementation is defined in
-    {{hashtobase}}.
+    {{hashtofield}}.
 
 -   The function map\_to\_curve, F -> E, calculates a point on the elliptic curve E
     from an element of the finite field F over which E is defined.
@@ -1194,23 +1294,23 @@ We describe two high-level encoding functions ({{term-encoding}}).
 Although these functions have the same interface, the
 distributions of their outputs are different.
 
--   Nonuniform encoding (encode\_to\_curve). This function encodes bit strings to points in G.
+-   Nonuniform encoding (encode\_to\_curve). This function encodes byte strings to points in G.
     The distribution of the output is not uniformly random in G.
 
 ~~~
 encode_to_curve(alpha)
 
-Input: alpha, an arbitrary-length bit string.
+Input: alpha, an arbitrary-length byte string.
 Output: P, a point in G.
 
 Steps:
-1. u = hash_to_base(alpha, 2)
-2. Q = map_to_curve(u)
+1. u = hash_to_field(alpha, 1)
+2. Q = map_to_curve(u[0])
 3. P = clear_cofactor(Q)
 4. return P
 ~~~
 
--   Random oracle encoding (hash\_to\_curve). This function encodes bit strings to points in G.
+-   Random oracle encoding (hash\_to\_curve). This function encodes byte strings to points in G.
     This function is suitable for applications requiring a random oracle returning points in G,
     provided that map\_to\_curve is "well distributed" ({{FFSTV13}}, Def. 1).
     All of the map\_to\_curve functions defined in {{mappings}} meet this requirement.
@@ -1218,17 +1318,16 @@ Steps:
 ~~~
 hash_to_curve(alpha)
 
-Input: alpha, an arbitrary-length bit string.
+Input: alpha, an arbitrary-length byte string.
 Output: P, a point in G.
 
 Steps:
-1. u0 = hash_to_base(alpha, 0)
-2. u1 = hash_to_base(alpha, 1)
-3. Q0 = map_to_curve(u0)
-4. Q1 = map_to_curve(u1)
-5. R = Q0 + Q1              # Point addition
-6. P = clear_cofactor(R)
-7. return P
+1. u = hash_to_field(alpha, 2)
+2. Q0 = map_to_curve(u[0])
+3. Q1 = map_to_curve(u[1])
+4. R = Q0 + Q1              # Point addition
+5. P = clear_cofactor(R)
+6. return P
 ~~~
 
 Instances of these functions are given in {{suites}}, which defines a list of
@@ -1246,16 +1345,16 @@ either hash\_to\_curve or encode\_to\_curve MUST enforce domain separation
 between those hash functions.
 This requirement applies both in the case of multiple hashes to the same
 curve and in the case of multiple hashes to different curves.
-(This is because the hash\_to\_base primitive ({{hashtobase}}) requires
+(This is because the hash\_to\_field primitive ({{hashtofield}}) requires
 domain separation to guarantee independent outputs.)
 
 Domain separation is enforced with a domain separation tag (DST),
-which is an octet string.
+which is a byte string.
 Care is required when selecting and using a domain separation tag.
 The following requirements apply:
 
-1. Tags MUST be supplied as the DST parameter to hash\_to\_base, as
-   described in {{hashtobase}}.
+1. Tags MUST be supplied as the DST parameter to hash\_to\_field, as
+   described in {{hashtofield}}.
 
 2. Tags MUST begin with a fixed protocol identification string.
    This identification string should be unique to the protocol.
@@ -1337,10 +1436,10 @@ is_square(x) := { True,  if x^((q - 1) / 2) is 0 or 1 in F;
     To implement inv0 in constant time, compute inv0(x) := x^(q - 2).
     Notice on input 0, the output is 0 as required.
 
--   I2OSP and OS2IP: These functions are used to convert an octet string to
+-   I2OSP and OS2IP: These functions are used to convert a byte string to
     and from a non-negative integer as described in {{RFC8017}}.
 
--   a \|\| b: denotes the concatenation of bit strings a and b.
+-   a \|\| b: denotes the concatenation of strings a and b.
 
 ## sgn0 variants {#sgn0-variants}
 
@@ -1439,159 +1538,274 @@ Steps:
 6. return CMOV(sign, 1, sign == 0)      # Regard x == 0 as positive
 ~~~
 
-# Hashing to a Finite Field {#hashtobase}
+# Hashing to a Finite Field {#hashtofield}
 
-The hash\_to\_base function hashes a string msg of any length into an element of a
-field F. This function is parametrized by the field F ({{bg-curves}}) and by H,
-a cryptographic hash function that outputs b bits.
+The hash\_to\_field function hashes a byte string msg of any length into
+one or more elements of a field F.
+This function works in two steps: it first hashes the input byte string
+to produce a pseudorandom byte string, and then interprets this pseudorandom
+byte string as one or more elements of F.
+
+For the first step, hash\_to\_field calls an auxiliary function
+expand\_message.
+This document defines two variants of expand\_message, one appropriate
+for hash functions like SHA-2 {{FIPS180-4}} or SHA-3 {{FIPS202}}, and one
+appropriate for extensible-output functions like SHAKE-128 {{FIPS202}}.
+Security considerations for each expand\_message variant are discussed
+below ({{hashtofield-expand-md}}, {{hashtofield-expand-xof}}).
 
 Implementors MUST NOT use rejection sampling to generate a uniformly
 random element of F.
-The reason is that these procedures are difficult to implement in constant time,
-and later well-meaning "optimizations" may silently render an implementation
-non-constant-time.
+The reason is that rejection sampling procedures are difficult to implement
+in constant time, and later well-meaning "optimizations" may silently render
+an implementation non-constant-time.
 
-## Security considerations {#hashtobase-sec}
+## Security considerations {#hashtofield-sec}
 
-For security, hash\_to\_base should be collision resistant and its output distribution
-should be uniform over F. To this end, hash\_to\_base requires
-a cryptographic hash function H which satisfies the following properties:
+The hash\_to\_field function is designed to be indifferentiable from a
+random oracle {{MRH04}} when expand\_message ({{hashtofield-expand}})
+is modeled as a random oracle (see {{security-considerations-hash-to-field}}).
+Ensuring indifferentiability requires care; to see why, consider a prime
+p that is close to 3/4 * 2^256.
+Reducing a random 256-bit integer modulo this p yields a value that is in
+the range \[0, p / 3\] with probability roughly 1/2, meaning that this value
+is statistically far from uniform in \[0, p - 1\].
 
-1. The number of bits output by H should be b >= 2 * k for sufficient collision
-resistance, where k is the target security level in bits. (This is needed for a
-birthday bound of approximately 2^(-k).)
-2. H is modeled as a random oracle, so care should be taken when instantiating it.
-Hash functions in the SHA-2 {{FIPS180-4}} and SHA-3 {{FIPS202}} families are
-typical and RECOMMENDED choices.
+To control bias, hash\_to\_field instead uses pseudorandom integers whose
+length is at least ceil(log2(p)) + k bits.
+Reducing such integers mod p gives bias at most 2^-k for any p; this bias
+is appropriate when targeting k-bit security.
+To obtain such integers, hash\_to\_field uses expand\_message to obtain
+L pseudorandom bytes, where L = ceil((ceil(log2(p)) + k) / 8); this
+byte string is then interpreted as an integer via OS2IP {{RFC8017}}.
+For example, for a 255-bit prime p, and k = 128-bit security,
+L = ceil((255 + 128) / 8) = 48 bytes.
 
-For example, for 128-bit security, b >= 256 bits; in this case, SHA256 would
-be an appropriate choice for H.
+## hash\_to\_field implementation {#hashtofield-impl}
 
-Ensuring that the hash\_to\_base output is a uniform random element of F requires
-care, even when H is modeled as a random oracle. For example,
-if H is SHA256 and F is a field of characteristic p = 2^255 - 19, then the
-result of reducing H(msg) (a 256-bit integer) modulo p is slightly more likely
-to be in \[0, 37\] than if the value were selected uniformly at random.
-In this example the bias is negligible, but in general it can be significant.
+The following procedure implements hash\_to\_field.
 
-To control bias, the input msg should be hashed to an integer comprising at
-least ceil(log2(p)) + k bits; reducing this integer modulo p gives bias at
-most 2^-k, which is a safe choice for a cryptosystem with k-bit security.
-To obtain such an integer, HKDF {{!RFC5869}} is used to expand the input
-msg to a L-byte string, where L = ceil((ceil(log2(p)) + k) / 8); this
-string is then interpreted as an integer via OS2IP {{RFC8017}}. For example,
-for p a 255-bit prime and k = 128-bit security, L = ceil((255 + 128) / 8) = 48 bytes.
-
-Finally, hash\_to\_base appends one zero byte to msg in the invocation of HKDF-Extract.
-This ensures that the use of HKDF in hash\_to\_base is indifferentiable
-from a random oracle (see {{LBB19}}, Lemma 8 and {{DRST12}}, Theorems 4.3 and 4.4).
-(In particular, this approach works because it ensures that the final byte of
-each HMAC invocation in HKDF-Extract and HKDF-Expand is distinct.)
+The expand\_message parameter to this function MUST conform to the requirements
+given below ({{hashtofield-expand}}).
 
 {{domain-separation}} discusses requirements for domain separation and
-recommendations for choosing domain separation tags. The hash\_to\_curve
-function takes such a tag as a parameter, DST; this is the REQUIRED
-method for applying domain separation.
-
-{{hashtobase-impl}} details the hash\_to\_base procedure.
-
-## Performance considerations {#hashtobase-perf}
-
-The hash\_to\_base function uses HKDF-Extract to combine the
-input msg and domain separation tag DST into a short digest, which is then
-passed to HKDF-Expand {{!RFC5869}}.
-For short messages, this entails at most two extra invocations of H, which
-is a negligible overhead in the context of hashing to elliptic curves.
-
-A related issue is that the random oracle construction described in {{roadmap}}
-requires evaluating two independent hash functions H0 and H1 on msg.
-One way to instantiate independent hashes is to append a counter to
-the value being hashed, e.g., H(msg || 0) and H(msg || 1).
-If msg is long, however, this is either inefficient (because it entails hashing
-msg twice) or requires non-black-box use of H (e.g., partial evaluation).
-
-To sidestep both of these issues, hash\_to\_base takes a second argument, ctr,
-which it passes to HKDF-Expand.
-This means that two invocations of hash\_to\_base on the same msg with different
-ctr values both start with identical invocations of HKDF-Extract.
-This is an improvement because it allows sharing one evaluation of HKDF-Extract
-among multiple invocations of hash\_to\_base, i.e., by factoring out the common
-computation.
-
-## Implementation {#hashtobase-impl}
-
-The following procedure implements hash\_to\_base.
+recommendations for choosing DST, the domain separation tag.
+This is the REQUIRED method for applying domain separation.
 
 ~~~
-hash_to_base(msg, ctr)
+hash_to_field(msg, count)
 
 Parameters:
 - DST, a domain separation tag (see discussion above).
-- H, a cryptographic hash function.
 - F, a finite field of characteristic p and order q = p^m.
 - p, the characteristic of F (see immediately above).
 - m, the extension degree of F, m >= 1 (see immediately above).
 - L = ceil((ceil(log2(p)) + k) / 8), where k is the security
   parameter of the cryptosystem (e.g., k = 128).
-- HKDF-Extract and HKDF-Expand are as defined in RFC5869,
-  instantiated with the hash function H.
+- expand_message, a function that expands a byte string and
+  domain separation tag into a pseudorandom byte string
+  (see discussion above).
 
 Inputs:
-- msg is the message to hash.
-- ctr is 0, 1, or 2.
-  This is used to efficiently create independent
-  instances of hash_to_base (see discussion above).
+- msg is a byte string containing the message to hash.
+- count is the number of elements of F to output.
 
-Output:
-- u, an element in F.
+Outputs:
+- (u_0, ..., u_(count - 1)), a list of field elements.
+
+Notation:
+- For a byte string str, let str[a : b] be the (b - a)
+  bytes starting at str[a]. For example, "ABC"[0 : 2] == "AB".
 
 Steps:
-1. msg_prime = HKDF-Extract(DST, msg || I2OSP(0, 1))
-2. info_pfx = "H2C" || I2OSP(ctr, 1)   # "H2C" is a 3-byte ASCII string
-3. for i in (1, ..., m):
-4.   info = info_pfx || I2OSP(i, 1)
-5.   tv = HKDF-Expand(msg_prime, info, L)
-6.   e_i = OS2IP(tv) mod p
-7. u = (e_1, ..., e_m)
-8. return u
+1. len_in_bytes = count * m * L
+2. pseudo_random_bytes = expand_message(msg, DST, len_in_bytes)
+3. for i in (0, ..., count - 1):
+4.   for j in (0, ..., m - 1):
+5.     elm_offset = L * (j + i * m)
+6.     tv = pseudo_random_bytes[elm_offset : (elm_offset + L)]
+7.     e_j = OS2IP(tv) mod p
+8.   u_i = (e_0, ..., e_(m - 1))
+9. return (u_0, ..., u_(count - 1))
 ~~~
 
-## Alternative hash\_to\_base functions {#hashtobase-alt}
+## expand\_message {#hashtofield-expand}
 
-The hash\_to\_base function is suitable for use with a wide range of hash functions,
-including SHA-2 {{FIPS180-4}}, SHA-3 {{FIPS202}}, BLAKE2 {{?RFC7693}}, and others.
-In some cases, however, implementors may wish to replace the HKDF-based function
-defined in this section with one built on a different pseudorandom function.
-This section briefly describes the REQUIRED way of doing so.
+expand\_message is a function that generates a pseudorandom byte string.
+It takes three arguments:
 
-The security considerations of {{hashtobase-sec}} continue to apply.
-In particular, an alternative hash\_to\_base function:
+- msg, a byte string containing the message to hash,
+- DST, a byte string that acts as a domain separation tag, and
+- len\_in\_bytes, the number of bytes to be generated.
 
-- MUST give collision resistance commensurate with the security level of the target elliptic curve.
+This document defines two variants of expand\_message:
 
-- MUST be built on a pseudorandom function that is designed for use in
-  applications requiring cryptographic randomness.
+- expand\_message\_md ({{hashtofield-expand-md}}) is appropriate for use
+with a wide range of hash functions, including SHA-2 {{FIPS180-4}}, SHA-3
+{{FIPS202}}, BLAKE2 {{?RFC7693}}, and others.
 
-- MUST NOT use rejection sampling.
+- expand\_message\_xof ({{hashtofield-expand-xof}}) is appropriate for use
+with extensible-output functions (XOFs) including functions in the SHAKE
+{{FIPS202}} or BLAKE2X {{BLAKE2X}} families.
 
-- MUST output an element of F whose statistical distance from uniform is commensurate
-  with the security level of the target elliptic curve.
-  It is RECOMMENDED to follow the guidelines for controlling bias in {{hashtobase-sec}}.
+These two variants should suffice for the vast majority of use cases, but other
+variants are possible; {{hashtofield-expand-other}} discusses requirements.
 
-- MUST give independent output values for distinct (msg, ctr) inputs.
+The expand\_message variants defined in this section accept domain separation
+tags of at most 255 bytes.
+If a domain separation tag longer than 255 bytes must be used (e.g., because
+of requirements imposed by an invoking protocol), implementors MUST compute
+a short domain separation tag by hashing, as follows:
 
-- MUST support domain separation via a supplied domain separation tag (DST).
-  Care is required when implementing domain separation: this document
-  assumes that instantiating hash\_to\_base with distinct DSTs yields
-  independent hash functions.
+    DST = H("H2C-OVERSIZE-DST-" || a_very_long_DST)
 
-The efficiency considerations of {{hashtobase-perf}} should also be followed.
-In particular, it SHOULD be possible to hash one msg with multiple ctr values
-without requiring multiple passes over msg.
+Here, a\_very\_long\_DST is the DST whose length is greater than 255 bytes,
+"H2C-OVERSIZE-DST-" is an ASCII string literal, and the hash function H MUST
+meet the criteria given in {{hashtofield-expand-md}}.
 
-Finally, the Suite ID value MUST be modified to indicate that an alternative
-hash\_to\_base function is being used.
-{{suiteIDformat}} gives details.
+### expand\_message\_md {#hashtofield-expand-md}
+
+The expand\_message\_md function produces a pseudorandom byte string using
+a cryptographic hash function H that outputs b bits.
+For security, H must meet the following requirements:
+
+- The number of bits output by H MUST be b >= 2 * k, for k the target
+security level in bits. This ensures k-bit collision resistance.
+
+- H MAY be a Merkle-Damgaard hash function like SHA-2.
+In this case, security holds when the underlying compression function is
+modeled as a random oracle {{CDMP05}}.
+(See {{security-considerations-expand-md}} for discussion.)
+
+- H MAY be a sponge-based hash function like SHA-3 or BLAKE2.
+In this case, security holds when the inner function is modeled as a
+random transformation or as a random permutation {{BDPV08}}.
+
+- Otherwise, H MUST be a hash function that has been proved indifferentiable
+from a random oracle {{MRH04}} under a reasonable cryptographic assumption.
+
+SHA-2 {{FIPS180-4}} and SHA-3 {{FIPS202}} are typical and RECOMMENDED choices.
+As an example, for the 128-bit security level, b >= 256 bits and either SHA-256 or
+SHA3-256 would be an appropriate choice.
+
+The following procedure implements expand\_message\_md.
+
+~~~
+expand_message_md(msg, DST, len_in_bytes)
+
+Parameters:
+- H, a hash function (see requirements above).
+- b_in_bytes, ceil(b / 8) for b the output size of H in bits.
+  For example, for b = 256, b_in_bytes = 32.
+- k_in_bytes, ceil(k / 8) for k the security parameter.
+  For example, for k = 128, k_in_bytes = 16.
+
+Input:
+- msg, a byte string.
+- DST, a byte string of at most 255 bytes.
+- len_in_bytes, the length of the requested output in bytes.
+
+Output:
+- pseudo_random_bytes, a byte string
+
+Notation:
+- For a byte string str, let str[a : b] be the (b - a)
+  bytes starting at str[a]. For example, "ABC"[0 : 2] == "AB".
+- For a byte string str, let len(str) be the length
+  of str in bytes. For example, len("ABC") == 3.
+
+Steps:
+1. ell = ceil((len_in_bytes + k_in_bytes) / b_in_bytes)
+2. ABORT if ell > 256
+3. DST_prime = I2OSP(len(DST), 1) || DST
+4. b_0 = H(DST_prime || I2OSP(0, 1) || I2OSP(len_in_bytes, 2) || msg)
+5. for i in (1, ..., ell - 1):
+6.   b_i = H(DST_prime || I2OSP(i, 1) || b_(i - 1))
+7. b_0_chopped = b_0[0 : (b_in_bytes - k_in_bytes)]
+8. pseudo_random_bytes = b_0_chopped || b_1 || ... || b_(ell - 1)
+9. return pseudo_random_bytes[0 : len_in_bytes]
+~~~
+
+### expand\_message\_xof {#hashtofield-expand-xof}
+
+The expand\_message\_xof function produces a pseudorandom byte string
+using an extensible-output function (XOF) H.
+For security, H must meet the following criteria:
+
+- The collision resistance of H MUST be at least k bits.
+
+- H MUST be an XOF that has been proved indifferentiable from a random oracle
+under a reasonable cryptographic assumption.
+
+The SHAKE {{FIPS202}} XOF family is a typical and RECOMMENDED choice.
+As an example, for 128-bit security, SHAKE-128 would be an appropriate choice.
+
+The following procedure implements expand\_message\_md.
+
+~~~
+expand_message_xof(msg, DST, len_in_bytes)
+
+Parameters:
+- H, an extensible-output function.
+  H(m, d) hashes message m and returns d bytes.
+
+Input:
+- msg, a byte string.
+- DST, a byte string of at most 255 bytes.
+- len_in_bytes, the length of the requested output in bytes.
+
+Output:
+- pseudo_random_bytes, a byte string
+
+Notation:
+- For a byte string str, let len(str) be the length
+  of str in bytes. For example, len("ABC") == 3.
+
+Steps:
+1. DST_prime = I2OSP(len(DST), 1) || DST
+2. msg_prime = DST_prime || I2OSP(len_in_bytes, 2) || msg
+3. pseudo_random_bytes = H(msg_prime, len_in_bytes)
+4. return pseudo_random_bytes
+~~~
+
+### Defining other expand\_message variants {#hashtofield-expand-other}
+
+When defining a new expand\_message variant, the most important consideration
+is that hash\_to\_field models expand\_message as a random oracle.
+Thus, implementors SHOULD prove indifferentiability from a random oracle
+under an appropriate assumption about the underlying cryptographic primitives.
+
+In addition, expand\_message variants:
+
+- MUST give collision resistance commensurate with the security level of
+the target elliptic curve.
+
+- MUST be built on primitives designed for use in applications requiring
+cryptographic randomness. As examples, a secure stream cipher is an appropriate
+primitive, whereas a Mersenne twister pseudorandom number generator is not.
+
+- MUST NOT use any form of rejection sampling.
+
+- MUST give independent values for distinct (msg, DST, length) inputs.
+Meeting this requirement is slightly subtle.
+As one example, simply hashing the concatenation DST || msg does not work,
+because in this case distinct (DST, msg) pairs whose concatenations are equal
+will return the same output (e.g., ("AB", "CDEF") and ("ABC", "DEF")).
+The variants defined in this document handle this issue by concatenating
+a prefix-free encoding of DST with msg.
+
+- MUST use the domain separation tag DST to ensure that invocations of
+cryptographic primitives inside of expand\_message are domain separated
+from all invocations outside of expand\_message.
+For example, if the expand\_message variant uses a hash function H, (an encoding of) DST
+MUST be either prepended or appended to the input to each invocation of H
+(for consistency, prepending is the RECOMMENDED approach).
+
+- SHOULD read msg exactly once, for efficiency when msg is long.
+
+In addition, an expand\_message variant MUST specify a unique EXP\_TAG
+that identifies that variant in a Suite ID.
+See {{suiteIDformat}} for more information.
 
 # Deterministic Mappings {#mappings}
 
@@ -1655,7 +1869,7 @@ As a rough guide, the following conventions are used in pseudocode:
   explicitly stated otherwise.
 
 - u: the input to the mapping function.
-  This is an element of F produced by the hash\_to\_base function.
+  This is an element of F produced by the hash\_to\_field function.
 
 - (x, y), (X, Y), (v, w): the affine coordinates of the point output by the mapping.
   Indexed variables (e.g., x1, y2, ...) are used for candidate values.
@@ -2256,20 +2470,23 @@ generally give the same result as the fast method, and SHOULD NOT be used.
 
 This section lists recommended suites for hashing to standard elliptic curves.
 
-A suite fully specifies the procedure for hashing bit strings to
+A suite fully specifies the procedure for hashing byte strings to
 points on a specific elliptic curve group.
 Each suite comprises the following parameters:
 
 - Suite ID, a short name used to refer to a given suite.
-  The ID also indicates whether a suite is a random oracle or nonuniform
-  encoding ({{term-rom}}, {{roadmap}}).
   {{suiteIDformat}} discusses the naming conventions for suite IDs.
+- encoding type, either random oracle (hash\_to\_curve) or nonuniform (encode\_to\_curve).
+  See {{roadmap}} for definitions of these encoding types.
 - E, the target elliptic curve over a field F.
 - p, the characteristic of the field F.
 - m, the extension degree of the field F.
+- k, the target security level of the suite in bits.
 - sgn0, one of the variants specified in {{sgn0-variants}}.
-- H, the hash function used by hash\_to\_base ({{hashtobase-sec}}).
-- L, the length of HKDF-Expand output in hash\_to\_base ({{hashtobase-sec}}).
+- L, the length parameter for hash\_to\_field ({{hashtofield-sec}}).
+- expand\_message, one of the variants specified in {{hashtofield-expand}}
+  plus any parameters required for the specified variant (for example, H,
+  the underlying hash function).
 - f, a mapping function from {{mappings}}.
 - h\_eff, the scalar parameter for clear\_cofactor ({{cofactor-clearing}}).
 
@@ -2278,10 +2495,10 @@ additional parameters Z, M, rational\_map, E', and/or iso\_map.
 These MUST be specified when applicable.
 
 All applications MUST choose a domain separation tag (DST)
-for use with hash\_to\_base ({{hashtobase}}), in accordance with the
-guidelines of {{domain-separation}}.
-In addition, applications whose security requires a random oracle MUST use
-a suite specifying hash\_to\_curve ({{roadmap}}); see {{suiteIDformat}}.
+in accordance with the guidelines in {{domain-separation}}.
+In addition, applications whose security requires a random oracle
+that returns points on the target curve MUST use a suite whose
+encoding type is hash\_to\_curve ({{roadmap}}); see {{suiteIDformat}}.
 
 The below table lists the curves for which suites are defined and
 the subsection that gives the corresponding parameters.
@@ -2296,25 +2513,359 @@ the subsection that gives the corresponding parameters.
 | secp256k1                 | {{suites-secp256k1}} |
 | BLS12-381                 | {{suites-bls12381}}  |
 
+## Suites for NIST P-256 {#suites-p256}
+
+This section defines ciphersuites for the NIST P-256 elliptic curve {{FIPS186-4}}.
+
+P256-XMD:SHA.256-SSWU-RO- is defined as follows:
+
+- encoding type: hash\_to\_curve ({{roadmap}})
+- E: y^2 = x^3 + A * x + B, where
+   - A = -3
+   - B = 0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b
+- p: 2^256 - 2^224 + 2^192 + 2^96 - 1
+- m: 1
+- k: 128
+- sgn0: sgn0\_le ({{sgn0-le}})
+- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
+- H: SHA-256
+- L: 48
+- f: Simplified SWU method, {{simple-swu}}
+- Z: -10
+- h\_eff: 1
+
+P256-XMD:SHA.256-SVDW-RO- is identical to P256-XMD:SHA.256-SSWU-RO-,
+except for the following parameters:
+
+- f: Shallue-van de Woestijne method, {{svdw}}
+- Z: -3
+
+P256-XMD:SHA.256-SSWU-NU- is identical to P256-XMD:SHA.256-SSWU-RO-,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
+
+P256-XMD:SHA.256-SVDW-NU- is identical to P256-XMD:SHA.256-SVDW-RO-,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
+
+An optimized example implementation of the Simplified SWU mapping
+to P-256 is given in {{sswu-map-to-3mod4}}.
+
+## Suites for NIST P-384 {#suites-p384}
+
+This section defines ciphersuites for the NIST P-384 elliptic curve {{FIPS186-4}}.
+
+P384-XMD:SHA.512-SSWU-RO- is defined as follows:
+
+- encoding type: hash\_to\_curve ({{roadmap}})
+- E: y^2 = x^3 + A * x + B, where
+  - A = -3
+  - B = 0xb3312fa7e23ee7e4988e056be3f82d19181d9c6efe8141120314088f5013875ac656398d8a2ed19d2a85c8edd3ec2aef
+- p: 2^384 - 2^128 - 2^96 + 2^32 - 1
+- m: 1
+- k: 192
+- sgn0: sgn0\_le ({{sgn0-le}})
+- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
+- H: SHA-512
+- L: 72
+- f: Simplified SWU method, {{simple-swu}}
+- Z: -12
+- h\_eff: 1
+
+P384-XMD:SHA.512-SVDW-RO- is identical to P384-XMD:SHA.512-SSWU-RO-,
+except for the following parameters:
+
+- f: Shallue-van de Woestijne method, {{svdw}}
+- Z: -1
+
+P384-XMD:SHA.512-SSWU-NU- is identical to P384-XMD:SHA.512-SSWU-RO-,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
+
+P384-XMD:SHA.512-SVDW-NU- is identical to P384-XMD:SHA.512-SVDW-RO-,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
+
+An optimized example implementation of the Simplified SWU mapping
+to P-384 is given in {{sswu-map-to-3mod4}}.
+
+## Suites for NIST P-521 {#suites-p521}
+
+This section defines ciphersuites for the NIST P-521 elliptic curve {{FIPS186-4}}.
+
+P521-XMD:SHA.512-SSWU-RO- is defined as follows:
+
+- encoding type: hash\_to\_curve ({{roadmap}})
+- E: y^2 = x^3 + A * x + B, where
+  - A = -3
+  - B = 0x51953eb9618e1c9a1f929a21a0b68540eea2da725b99b315f3b8b489918ef109e156193951ec7e937b1652c0bd3bb1bf073573df883d2c34f1ef451fd46b503f00
+- p: 2^521 - 1
+- m: 1
+- k: 256
+- sgn0: sgn0\_le ({{sgn0-le}})
+- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
+- H: SHA-512
+- L: 96
+- f: Simplified SWU method, {{simple-swu}}
+- Z: -4
+- h\_eff: 1
+
+P521-XMD:SHA.512-SVDW-RO- is identical to P521-XMD:SHA.512-SSWU-RO-,
+except for the following parameters:
+
+- f: Shallue-van de Woestijne method, {{svdw}}
+- Z: 1
+
+P521-XMD:SHA.512-SSWU-NU- is identical to P512-XMD:SHA.512-SSWU-RO-,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
+
+P521-XMD:SHA.512-SVDW-NU- is identical to P512-XMD:SHA.512-SVDW-RO-,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
+
+An optimized example implementation of the Simplified SWU mapping
+to P-521 is given in {{sswu-map-to-3mod4}}.
+
+## Suites for curve25519 and edwards25519 {#suites-25519}
+
+This section defines ciphersuites for curve25519 and edwards25519 {{RFC7748}}.
+
+curve25519-XMD:SHA.256-ELL2-RO- is defined as follows:
+
+- encoding type: hash\_to\_curve ({{roadmap}})
+- E: K * t^2 = s^3 + J * s^2 + s, where
+  - J = 486662
+  - K = 1
+- p: 2^255 - 19
+- m: 1
+- k: 128
+- sgn0: sgn0\_le ({{sgn0-le}})
+- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
+- H: SHA-256
+- L: 48
+- f: Elligator 2 method, {{elligator2}}
+- Z: 2
+- h\_eff: 8
+
+edwards25519-XMD:SHA.256-ELL2-RO- is identical to curve25519-XMD:SHA.256-ELL2-RO-,
+except for the following parameters:
+
+- E: a * v^2 + w^2 = 1 + d * v^2 * w^2, where
+  - a = -1
+  - d = 0x52036cee2b6ffe738cc740797779e89800700a4d4141d8ab75eb4dca135978a3
+- f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
+- M: curve25519 defined in {{RFC7748}}, Section 4.1
+- rational\_map: the birational map defined in {{RFC7748}}, Section 4.1
+
+curve25519-XMD:SHA.256-ELL2-NU- is identical to curve25519-XMD:SHA.256-ELL2-RO-,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
+
+edwards25519-XMD:SHA.256-ELL2-NU- is identical to edwards25519-XMD:SHA.256-ELL2-RO-,
+except that ene encoding type is encode\_to\_curve ({{roadmap}}).
+
+curve25519-XMD:SHA.512-ELL2-RO- is identical to curve25519-XMD:SHA.256-ELL2-RO-,
+except that H is SHA-512.
+
+curve25519-XMD:SHA.512-ELL2-NU- is identical to curve25519-XMD:SHA.256-ELL2-NU-,
+except that H is SHA-512.
+
+edwards25519-XMD:SHA.512-ELL2-RO- is identical to edwards25519-XMD:SHA.256-ELL2-RO-,
+except that H is SHA-512.
+
+edwards25519-XMD:SHA.512-ELL2-NU- is identical to edwards25519-XMD:SHA.256-ELL2-NU-;
+except that H is SHA-512.
+
+Optimized example implementations of the above mappings are given in
+{{map-to-curve25519}} and {{map-to-edwards25519}}.
+
+## Suites for curve448 and edwards448 {#suites-448}
+
+This section defines ciphersuites for curve448 and edwards448 {{RFC7748}}.
+
+curve448-XMD:SHA.512-ELL2-RO- is defined as follows:
+
+- encoding type: hash\_to\_curve ({{roadmap}})
+- E: K * t^2 = s^3 + J * s^2 + s, where
+  - J = 156326
+  - K = 1
+- p: 2^448 - 2^224 - 1
+- m: 1
+- k: 224
+- sgn0: sgn0\_le ({{sgn0-le}})
+- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
+- H: SHA-512
+- L: 84
+- f: Elligator 2 method, {{elligator2}}
+- Z: -1
+- h\_eff: 4
+
+edwards448-XMD:SHA.512-ELL2-RO- is identical to curve448-XMD:SHA.512-ELL2-RO-,
+except for the following parameters:
+
+- E: a * v^2 + w^2 = 1 + d * v^2 * w^2, where
+  - a = 1
+  - d = -39081
+- f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
+- M: curve448, defined in {{RFC7748}}, Section 4.2
+- rational\_map: the 4-isogeny map defined in {{RFC7748}}, Section 4.2
+
+curve448-XMD:SHA.512-ELL2-NU- is identical to curve448-XMD:SHA.512-ELL2-RO-,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
+
+edwards448-XMD:SHA.512-ELL2-NU- is identical to edwards448-XMD:SHA.512-ELL2-RO-,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
+
+Optimized example implementations of the above mappings are given in
+{{map-to-curve448}} and {{map-to-edwards448}}.
+
+## Suites for secp256k1 {#suites-secp256k1}
+
+This section defines ciphersuites for the secp256k1 elliptic curve {{SEC2}}.
+
+secp256k1-XMD:SHA.256-SSWU-RO- is defined as follows:
+
+- encoding type: hash\_to\_curve ({{roadmap}})
+- E: y^2 = x^3 + 7
+- p: 2^256 - 2^32 - 2^9 - 2^8 - 2^7 - 2^6 - 2^4 - 1
+- m: 1
+- k: 128
+- sgn0: sgn0\_le ({{sgn0-le}})
+- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
+- H: SHA-256
+- L: 48
+- f: Simplified SWU for AB == 0, {{simple-swu-AB0}}
+- Z: -11
+- E': y'^2 = x'^3 + A' * x' + B', where
+  - A': 0x3f8731abdd661adca08a5558f0f5d272e953d363cb6f0e5d405447c01a444533
+  - B': 1771
+- iso\_map: the 3-isogeny map from E' to E given in {{appx-iso-secp256k1}}
+- h\_eff: 1
+
+secp256k1-XMD:SHA.256-SVDW-RO- is identical to secp256k1-XMD:SHA.256-SSWU-RO-,
+except for the following parameters:
+
+- f: Shallue-van de Woestijne method, {{svdw}}
+- Z: 1
+- E' is not required for this suite
+- iso\_map is not required for this suite
+
+secp256k1-XMD:SHA.256-SSWU-NU- is identical to secp256k1-XMD:SHA.256-SSWU-RO-,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
+
+secp256k1-XMD:SHA.256-SVDW-NU- is identical to secp256k1-XMD:SHA.256-SVDW-RO-,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
+
+An optimized example implementation of the Simplified SWU mapping
+to the curve E' isogenous to secp256k1 is given in {{sswu-map-to-3mod4}}.
+
+## Suites for BLS12-381 {#suites-bls12381}
+
+This section defines ciphersuites for groups G1 and G2 of
+the BLS12-381 elliptic curve {{BLS12-381}}.
+
+### BLS12-381 G1 {#suites-bls12381-g1}
+
+BLS12381G1-XMD:SHA.256-SSWU-RO- is defined as follows:
+
+- encoding type: hash\_to\_curve ({{roadmap}})
+- E: y^2 = x^3 + 4
+- p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
+- m: 1
+- k: 128
+- sgn0: sgn0\_be ({{sgn0-be}})
+- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
+- H: SHA-256
+- L: 64
+- f: Simplified SWU for AB == 0, {{simple-swu-AB0}}
+- Z: 11
+- E': y'^2 = x'^3 + A' * x' + B', where
+  - A' = 0x144698a3b8e9433d693a02c96d4982b0ea985383ee66a8d8e8981aefd881ac98936f8da0e0f97f5cf428082d584c1d
+  - B' = 0x12e2908d11688030018b12e8753eee3b2016c1f0f24f4070a0b9c14fcef35ef55a23215a316ceaa5d1cc48e98e172be0
+- iso\_map: the 11-isogeny map from E' to E given in {{appx-iso-bls12381-g1}}
+- h\_eff: 0xd201000000010001
+
+BLS12381G1-XMD:SHA.256-SVDW-RO- is identical to BLS12381G1-XMD:SHA.256-SSWU-RO-,
+except for the following parameters:
+
+- f: Shallue-van de Woestijne method, {{svdw}}
+- Z: -3
+- E' is not required for this suite
+- iso\_map is not required for this suite
+
+BLS12381G1-XMD:SHA.256-SSWU-NU- is identical to BLS12381G1-XMD:SHA.256-SSWU-RO-,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
+
+BLS12381G1-XMD:SHA.256-SVDW-NU- is identical to BLS12381G1-XMD:SHA.256-SVDW-RO-,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
+
+Note that the h\_eff values for these suites are chosen for compatibility
+with the fast cofactor clearing method described by Scott ({{WB19}} Section 5).
+
+An optimized example implementation of the Simplified SWU mapping
+to the curve E' isogenous to BLS12-381 G1 is given in {{sswu-map-to-3mod4}}.
+
+### BLS12-381 G2 {#suites-bls12381-g2}
+
+Group G2 of BLS12-381 is defined over a field F = GF(p^m) defined as:
+
+BLS12381G2-XMD:SHA.256-SSWU-RO- is defined as follows:
+
+- encoding type: hash\_to\_curve ({{roadmap}})
+- E: y^2 = x^3 + 4 * (1 + I)
+- base field F is GF(p^m), where
+  - p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
+  - m: 2
+  - (1, I) is the basis for F, where I^2 + 1 == 0 in F
+- k: 128
+- sgn0: sgn0\_be ({{sgn0-be}})
+- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
+- H: SHA-256
+- L: 64
+- f: Simplified SWU for AB == 0, {{simple-swu-AB0}}
+- Z: -(2 + I)
+- E': y'^2 = x'^3 + A' * x' + B', where
+  - A' = 240 * I
+  - B' = 1012 * (1 + I)
+- iso\_map: the isogeny map from E' to E given in {{appx-iso-bls12381-g2}}
+- h\_eff: 0xbc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff031508ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689f6a359894c0adebbf6b4e8020005aaa95551
+
+BLS12381G2-XMD:SHA.256-SVDW-RO- is identical to BLS12381G2-XMD:SHA.256-SSWU-RO-,
+except for the following parameters:
+
+- f: Shallue-van de Woestijne method, {{svdw}}
+- Z: I
+- E' is not required for this suite
+- iso\_map is not required for this suite
+
+BLS12381G2-XMD:SHA.256-SSWU-NU- is identical to BLS12381G2-XMD:SHA.256-SSWU-RO-,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
+
+BLS12381G2-XMD:SHA.256-SVDW-NU- is identical to BLS12381G2-XMD:SHA.256-SVDW-RO-,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
+
+Note that the h\_eff values for these suites are chosen for compatibility
+with the fast cofactor clearing method described by
+Budroni and Pintore ({{BP18}}, Section 4.1).
+
 ## Defining a new hash-to-curve suite {#new-suite}
 
 The RECOMMENDED way to define a new hash-to-curve suite is:
 
-1. E, F, p, and m are determined by the elliptic curve and the field.
+1. E, F, p, and m are determined by the elliptic curve and its base field;
+   k is determined by the security level of the elliptic curve.
 
-2. Choose a sgn0 variant following the guidelines in {{sgn0-variants}}.
+2. Choose encoding type, either hash\_to\_curve or encode\_to\_curve ({{roadmap}}).
 
-3. Choose a hash function H meeting the requirements in {{hashtobase-sec}},
-   and compute L as described in that section.
+3. Choose a sgn0 variant following the guidelines in {{sgn0-variants}}.
 
-4. Choose a mapping following the guidelines in {{choosing-mapping}},
+4. Compute L as described in {{hashtofield-sec}}.
+
+5. Choose an expand\_message variant from {{hashtofield-expand}} plus any
+   underlying cryptographic primitives (e.g., a hash function H).
+
+6. Choose a mapping following the guidelines in {{choosing-mapping}},
    and select any required parameters for that mapping.
 
-5. Choose h\_eff to be either the cofactor of E or, if a fast cofactor
+7. Choose h\_eff to be either the cofactor of E or, if a fast cofactor
    clearing method is to be used, a value appropriate to that method
    as discussed in {{cofactor-clearing}}.
 
-6. Construct a Suite ID following the guidelines in {{suiteIDformat}}.
+8. Construct a Suite ID following the guidelines in {{suiteIDformat}}.
 
 When hashing to an elliptic curve not listed in this section, corresponding
 hash-to-curve suites SHOULD be specified as described in this section.
@@ -2329,26 +2880,46 @@ The fields CURVE\_ID, HASH\_ID, MAP\_ID, and ENC\_VAR are
 ASCII-encoded strings of at most 64 characters each.
 Fields can contain only ASCII characters between 0x21 and 0x7E (inclusive)
 other than hyphen and underscore (i.e., 0x2d, and 0x5f).
+
 As indicated above, each field (including the last) is followed by a hyphen
-("-", ASCII 0x2d); this helps to ensure that Suite IDs are prefix free.
+("-", ASCII 0x2d).
+This helps to ensure that Suite IDs are prefix free.
+Suite IDs MUST include the final hyphen and MUST NOT include any characters
+after the final hyphen.
 
 Fields MUST be chosen as follows:
 
 - CURVE\_ID: a human-readable representation of the target elliptic curve.
 
-- HASH\_ID: a human-readable representation of the hash function used in
-  hash\_to\_base ({{hashtobase}}).
+- HASH\_ID: a human-readable representation of the expand\_message function
+  and any underlying hash primitives used in hash\_to\_field ({{hashtofield}}).
+  This field MUST be constructed as follows:
 
-  If a suite uses an alternative hash\_to\_base function ({{hashtobase-alt}}),
-  a short descriptive name MUST be chosen for that function using only the
-  allowed characters listed above.
-  That name MUST be appended to the HASH\_ID field, separated by a colon.
-  For example, a hash\_to\_base function based on KMAC128 {{SP.800-185}} might
-  use the short name "h2b/kmac128", and a reasonable value for the HASH\_ID field
-  would be "SHA3:h2b/kmac128".
+        EXP_TAG || ":" || HASH_NAME
+
+  EXP\_TAG indicates the expand\_message variant:
+
+    - "XMD" for expand\_message\_md ({{hashtofield-expand-md}}).
+    - "XOF" for expand\_message\_xof ({{hashtofield-expand-xof}}).
+
+  HASH\_NAME is a human-readable name for the underlying hash primitive.
+  As stated above, hyphens are not allowed. Any hyphens in the name of the
+  hash function SHOULD be replaced with "." (ASCII 0x2e).
+
+  As examples:
+
+    1. For expand\_message\_xof ({{hashtofield-expand-xof}}) with SHAKE-128,
+       HASH\_ID is "XOF:SHAKE.128".
+
+    2. For expand\_message\_md ({{hashtofield-expand-md}}) with SHA3-256,
+       HASH\_ID is "XMD:SHA3.256".
 
 - MAP\_ID: a human-readable representation of the map\_to\_curve function
-  ({{mappings}}).
+  as defined in {{mappings}}. These are defined as follows:
+
+    - "SVDW" for or Shallue and van de Woestijne ({{svdw}}).
+    - "SSWU" for Simplified SWU ({{simple-swu}}, {{simple-swu-AB0}}).
+    - "ELL2" for Elligator 2 ({{elligator2}}, {{ell2edwards}}).
 
 - ENC\_VAR: a string indicating the encoding type and other information.
   The first two characters of this string indicate whether the suite
@@ -2367,283 +2938,6 @@ Fields MUST be chosen as follows:
     version of a random-oracle suite, while "RO:V02:FOO01:BAR17" might be
     used to indicate a variant of that suite.
 
-## Suites for NIST P-256 {#suites-p256}
-
-This section defines ciphersuites for the NIST P-256 elliptic curve {{FIPS186-4}}.
-
-The suites P256-SHA256-SSWU-RO- and P256-SHA256-SSWU-NU-
-share the following parameters, in addition to the common parameters below.
-
-- f: Simplified SWU method, {{simple-swu}}
-- Z: -10
-
-The suites P256-SHA256-SVDW-RO- and P256-SHA256-SVDW-NU-
-share the following parameters, in addition to the common parameters below.
-
-- f: Shallue-van de Woestijne method, {{svdw}}
-- Z: -3
-
-The common parameters for the above suites are:
-
-- E: y^2 = x^3 + A * x + B, where
-   - A = -3
-   - B = 0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b
-- p: 2^256 - 2^224 + 2^192 + 2^96 - 1
-- m: 1
-- sgn0: sgn0\_le ({{sgn0-le}})
-- H: SHA-256
-- L: 48
-- h\_eff: 1
-
-An optimized example implementation of the Simplified SWU mapping
-to P-256 is given in {{sswu-map-to-3mod4}}.
-
-## Suites for NIST P-384 {#suites-p384}
-
-This section defines ciphersuites for the NIST P-384 elliptic curve {{FIPS186-4}}.
-
-The suites P384-SHA512-SSWU-RO- and P384-SHA512-SSWU-NU-
-share the following parameters, in addition to the common parameters below.
-
-- f: Simplified SWU method, {{simple-swu}}
-- Z: -12
-
-The suites P384-SHA512-SVDW-RO- and P384-SHA512-SVDW-NU-
-share the following parameters, in addition to the common parameters below.
-
-- f: Shallue-van de Woestijne method, {{svdw}}
-- Z: -1
-
-The common parameters for the above suites are:
-
-- E: y^2 = x^3 + A * x + B, where
-  - A = -3
-  - B = 0xb3312fa7e23ee7e4988e056be3f82d19181d9c6efe8141120314088f5013875ac656398d8a2ed19d2a85c8edd3ec2aef
-- p: 2^384 - 2^128 - 2^96 + 2^32 - 1
-- m: 1
-- sgn0: sgn0\_le ({{sgn0-le}})
-- H: SHA-512
-- L: 72
-- h\_eff: 1
-
-An optimized example implementation of the Simplified SWU mapping
-to P-384 is given in {{sswu-map-to-3mod4}}.
-
-## Suites for NIST P-521 {#suites-p521}
-
-This section defines ciphersuites for the NIST P-521 elliptic curve {{FIPS186-4}}.
-
-The suites P521-SHA512-SSWU-RO- and P521-SHA512-SSWU-NU-
-share the following parameters, in addition to the common parameters below.
-
-- f: Simplified SWU method, {{simple-swu}}
-- Z: -4
-
-The suites P521-SHA512-SVDW-RO- and P521-SHA512-SVDW-NU-
-share the following parameters, in addition to the common parameters below.
-
-- f: Shallue-van de Woestijne method, {{svdw}}
-- Z: 1
-
-The common parameters for the above suites are:
-
-- E: y^2 = x^3 + A * x + B, where
-  - A = -3
-  - B = 0x51953eb9618e1c9a1f929a21a0b68540eea2da725b99b315f3b8b489918ef109e156193951ec7e937b1652c0bd3bb1bf073573df883d2c34f1ef451fd46b503f00
-- p: 2^521 - 1
-- m: 1
-- sgn0: sgn0\_le ({{sgn0-le}})
-- H: SHA-512
-- L: 96
-- h\_eff: 1
-
-An optimized example implementation of the Simplified SWU mapping
-to P-521 is given in {{sswu-map-to-3mod4}}.
-
-## Suites for curve25519 and edwards25519 {#suites-25519}
-
-This section defines ciphersuites for curve25519 and edwards25519 {{RFC7748}}.
-
-The suites curve25519-SHA256-ELL2-RO- and curve25519-SHA256-ELL2-NU-
-share the following parameters, in addition to the common parameters below.
-
-- E: K * t^2 = s^3 + J * s^2 + s, where
-  - J = 486662
-  - K = 1
-- f: Elligator 2 method, {{elligator2}}
-
-The suites edwards25519-SHA256-EDELL2-RO- and edwards25519-SHA256-EDELL2-NU-
-share the following parameters, in addition to the common parameters below.
-
-- E: a * v^2 + w^2 = 1 + d * v^2 * w^2, where
-  - a = -1
-  - d = 0x52036cee2b6ffe738cc740797779e89800700a4d4141d8ab75eb4dca135978a3
-- f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
-- M: curve25519 defined in {{RFC7748}}, Section 4.1
-- rational\_map: the birational map defined in {{RFC7748}}, Section 4.1
-
-The common parameters for all of the above suites are:
-
-- p: 2^255 - 19
-- m: 1
-- sgn0: sgn0\_le ({{sgn0-le}})
-- H: SHA-256
-- L: 48
-- Z: 2
-- h\_eff: 8
-
-The suites curve25519-SHA512-ELL2-RO-, curve25519-SHA512-ELL2-NU-,
-edwards25519-SHA512-EDELL2-RO-, and edwards25519-SHA512-EDELL2-NU-
-are identical to the correspondingly named suites defined above,
-except that H is SHA-512.
-
-Optimized example implementations of the above mappings are given in
-{{map-to-curve25519}} and {{map-to-edwards25519}}.
-
-## Suites for curve448 and edwards448 {#suites-448}
-
-This section defines ciphersuites for curve448 and edwards448 {{RFC7748}}.
-
-The suites curve448-SHA512-ELL2-RO- and curve448-SHA512-ELL2-NU-
-share the following parameters, in addition to the common parameters below.
-
-- E: K * t^2 = s^3 + J * s^2 + s, where
-  - J = 156326
-  - K = 1
-- f: Elligator 2 method, {{elligator2}}
-
-The suites edwards448-SHA512-EDELL2-RO- and edwards448-SHA512-EDELL2-NU-
-share the following parameters, in addition to the common parameters below.
-
-- E: a * v^2 + w^2 = 1 + d * v^2 * w^2, where
-  - a = 1
-  - d = -39081
-- f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
-- M: curve448, defined in {{RFC7748}}, Section 4.2
-- rational\_map: the 4-isogeny map defined in {{RFC7748}}, Section 4.2
-
-The common parameters for all of the above suites are:
-
-- p: 2^448 - 2^224 - 1
-- m: 1
-- sgn0: sgn0\_le ({{sgn0-le}})
-- H: SHA-512
-- L: 84
-- Z: -1
-- h\_eff: 4
-
-Optimized example implementations of the above mappings are given in
-{{map-to-curve448}} and {{map-to-edwards448}}.
-
-## Suites for secp256k1 {#suites-secp256k1}
-
-This section defines ciphersuites for the secp256k1 elliptic curve {{SEC2}}.
-
-The suites secp256k1-SHA256-SSWU-RO- and secp256k1-SHA256-SSWU-NU-
-share the following parameters, in addition to the common parameters below.
-
-- f: Simplified SWU for AB == 0, {{simple-swu-AB0}}
-- Z: -11
-- E': y'^2 = x'^3 + A' * x' + B', where
-  - A': 0x3f8731abdd661adca08a5558f0f5d272e953d363cb6f0e5d405447c01a444533
-  - B': 1771
-- iso\_map: the 3-isogeny map from E' to E given in {{appx-iso-secp256k1}}
-
-The suites secp256k1-SHA256-SVDW-RO- and secp256k1-SHA256-SVDW-NU-
-share the following parameters, in addition to the common parameters below.
-
-- f: Shallue-van de Woestijne method, {{svdw}}
-- Z: 1
-
-The common parameters for all of the above suites are:
-
-- E: y^2 = x^3 + 7
-- p: 2^256 - 2^32 - 2^9 - 2^8 - 2^7 - 2^6 - 2^4 - 1
-- m: 1
-- sgn0: sgn0\_le ({{sgn0-le}})
-- H: SHA-256
-- L: 48
-- h\_eff: 1
-
-An optimized example implementation of the Simplified SWU mapping
-to the curve E' isogenous to secp256k1 is given in {{sswu-map-to-3mod4}}.
-
-## Suites for BLS12-381 {#suites-bls12381}
-
-This section defines ciphersuites for groups G1 and G2 of
-the BLS12-381 elliptic curve {{BLS12-381}}.
-
-### BLS12-381 G1 {#suites-bls12381-g1}
-
-The suites BLS12381G1-SHA256-SSWU-RO- and BLS12381G1-SHA256-SSWU-NU-
-share the following parameters, in addition to the common parameters below.
-
-- f: Simplified SWU for AB == 0, {{simple-swu-AB0}}
-- Z: 11
-- E': y'^2 = x'^3 + A' * x' + B', where
-  - A' = 0x144698a3b8e9433d693a02c96d4982b0ea985383ee66a8d8e8981aefd881ac98936f8da0e0f97f5cf428082d584c1d
-  - B' = 0x12e2908d11688030018b12e8753eee3b2016c1f0f24f4070a0b9c14fcef35ef55a23215a316ceaa5d1cc48e98e172be0
-- iso\_map: the 11-isogeny map from E' to E given in {{appx-iso-bls12381-g1}}
-
-The suites BLS12381G1-SHA256-SVDW-RO- and BLS12381G1-SHA256-SVDW-NU-
-share the following parameters, in addition to the common parameters below.
-
-- f: Shallue-van de Woestijne method, {{svdw}}
-- Z: -3
-
-The common parameters for the above suites are:
-
-- E: y^2 = x^3 + 4
-- p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
-- m: 1
-- sgn0: sgn0\_be ({{sgn0-be}})
-- H: SHA-256
-- L: 64
-- h\_eff: 0xd201000000010001
-
-Note that this h\_eff value is chosen for compatibility
-with the fast cofactor clearing method described by Scott ({{WB19}} Section 5).
-
-An optimized example implementation of the Simplified SWU mapping
-to the curve E' isogenous to BLS12-381 G1 is given in {{sswu-map-to-3mod4}}.
-
-### BLS12-381 G2 {#suites-bls12381-g2}
-
-Group G2 of BLS12-381 is defined over a field F = GF(p^m) defined as:
-
-- p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
-- m: 2
-- (1, I) is the basis for F, where I^2 + 1 == 0 in F
-
-The suites BLS12381G2-SHA256-SSWU-RO- and BLS12381G2-SHA256-SSWU-NU-
-share the following parameters, in addition to the common parameters below.
-
-- f: Simplified SWU for AB == 0, {{simple-swu-AB0}}
-- Z: -(2 + I)
-- E': y'^2 = x'^3 + A' * x' + B', where
-  - A' = 240 * I
-  - B' = 1012 * (1 + I)
-- iso\_map: the isogeny map from E' to E given in {{appx-iso-bls12381-g2}}
-
-The suites BLS12381G2-SHA256-SVDW-RO- and BLS12381G2-SHA256-SVDW-NU-
-share the following parameters, in addition to the common parameters below.
-
-- f: Shallue-van de Woestijne method, {{svdw}}
-- Z: I
-
-The common parameters for the above suites are:
-
-- E: y^2 = x^3 + 4 * (1 + I)
-- p, m, F: defined above
-- sgn0: sgn0\_be ({{sgn0-be}})
-- H: SHA-256
-- L: 64
-- h\_eff: 0xbc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff031508ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689f6a359894c0adebbf6b4e8020005aaa95551
-
-Note that this h\_eff value is chosen for compatibility
-with the fast cofactor clearing method described by
-Budroni and Pintore ({{BP18}}, Section 4.1).
-
 # IANA Considerations
 
 This document has no IANA actions.
@@ -2653,22 +2947,27 @@ This document has no IANA actions.
 When constant-time implementations are required, all basic operations and
 utility functions must be implemented in constant time, as discussed in
 {{utility}}.
+In some applications (e.g., embedded systems), leakage through other side
+channels (e.g., power or electromagnetic side channels) may be pertinent.
+Defending against such leakage is outside the scope of this document, because
+the nature of the leakage and the appropriate defense depends on the protocol
+from which a hash-to-curve function is invoked.
 
-Each encoding function accepts arbitrary input and maps it to a pseudorandom
-point on the curve.
-Directly evaluating the mappings of {{mappings}} produces an output that is
-distinguishable from random.
-{{roadmap}} shows how to use these mappings to construct a function approximating a
-random oracle.
+Each encoding variant ({{roadmap}}) accepts an arbitrary byte string and maps
+it to a pseudorandom point on the curve.
+Note, however, that directly evaluating the mappings of {{mappings}} produces
+an output that is distinguishable from random.
 
-{{domain-separation}} describes considerations related to domain separation
-for random oracle encodings.
+{{domain-separation}} describes considerations related to domain separation.
 
-{{hashtobase}} describes considerations for uniformly hashing to field elements.
+{{hashtofield}} describes considerations for uniformly hashing to field elements;
+see {{security-considerations-hash-to-field}} and {{security-considerations-expand-md}}
+for further discussion.
 
-When the hash\_to\_curve function ({{roadmap}}) is instantiated
-with hash\_to\_base ({{hashtobase}}), the resulting function is
-indifferentiable from a random oracle ({{FFSTV13}}, {{LBB19}}, {{MRH04}}).
+When the hash\_to\_curve function ({{roadmap}}) is instantiated with a
+hash\_to\_field function that is indifferentiable from a random oracle
+({{hashtofield}}), the resulting function is indifferentiable from a random
+oracle ({{FFSTV13}}, {{LBB19}}, {{MRH04}}).
 In most cases such a function can be safely used in protocols whose security
 analysis assumes a random oracle that outputs points on an elliptic curve.
 As Ristenpart et al. discuss in {{RSS11}}, however, not all security proofs
@@ -2679,12 +2978,80 @@ relying on the hash\_to\_curve function.
 
 When hashing passwords using any function described in this document, an adversary
 who learns the output of the hash function (or potentially any intermediate value,
-e.g., the output of hash\_to\_base) may be able to carry out a dictionary attack.
+e.g., the output of hash\_to\_field) may be able to carry out a dictionary attack.
 To mitigate such attacks, it is recommended to first execute a more costly key
 derivation function (e.g., PBKDF2 {{!RFC2898}} or scrypt {{!RFC7914}}) on the password,
 then hash the output of that function to the target elliptic curve.
 For collision resistance, the hash underlying the key derivation function
-should be chosen according to the guidelines listed in {{hashtobase-sec}}.
+should be chosen according to the guidelines listed in {{hashtofield-expand}}.
+
+## hash\_to\_field security {#security-considerations-hash-to-field}
+
+The hash\_to\_field function defined in {{hashtofield}} is indifferentiable
+from a random oracle {{MRH04}} when expand\_message ({{hashtofield-expand}})
+is modeled as a random oracle.
+By composability of indifferentiability proofs, this also holds when
+expand\_message is proved indifferentiable from a random oracle relative
+to an underlying primitive that is modeled as a random oracle.
+When following the guidelines in {{hashtofield-expand}}, both variants
+of expand\_message defined in that section meet this requirement
+(see also {{security-considerations-expand-md}}).
+
+We very briefly sketch the indifferentiability argument for hash\_to\_field.
+Notice that each integer mod p that hash\_to\_field returns (i.e., each element
+of the vector representation of F) is a member of an equivalence class of roughly
+2^k integers of length log2(p) + k bits, all of which are equal modulo p.
+For each integer mod p that hash\_to\_field returns, the simulator samples
+one member of this equivalence class at random and outputs the byte string
+returned by I2OSP.
+(Notice that this is essentially the inverse of the hash\_to\_field procedure.)
+
+Finally, we note that in the expand\_message variants defined in this document
+({{hashtofield-expand}}), the argument to every invocation of H (the underlying
+hash or extensible output function) is prepended with a prefix-free encoding of
+the domain separation tag DST, namely,
+
+    DST_prime = I2OSP(len(DST), 1) || DST
+
+The reason for this design is that it allows invocations of H outside of hash\_to\_field
+to be separated from those inside of hash\_to\_field, just by prepending the outside
+invocations with some other tag distinct from DST\_prime.
+Other expand\_message variants that follow the guidelines in
+{{hashtofield-expand-other}} are expected to have similar properties,
+but these should be analyzed on a case-by-case basis.
+
+## expand\_message\_md security {#security-considerations-expand-md}
+
+The expand\_message\_md function defined in {{hashtofield-expand-md}} is indifferentiable
+from a random oracle {{MRH04}} when any of the following hold:
+
+1. H is indifferentiable from a random oracle,
+2. H is a sponge-based hash function whose inner function
+   is modeled as a random transformation or random permutation {{BDPV08}}, or
+3. H is a Merkle-Damgaard hash function and the compression function is
+   modeled as a random oracle {{CDMP05}}.
+
+The first and second cases are true by the composability of indifferentiability
+proofs.
+For the third case, we now briefly sketch an indifferentiability argument.
+Here, H is a Merkle-Damgaard function; we model H's underlying compression
+function as a random oracle.
+
+First, we argue that each of the b\_i values, i >= 1, is generated by a hash
+function that is indifferentiable from a random oracle.
+This follows from Theorem 3.4 of {{CDMP05}} and the fact that each call to H
+that generates one of these b\_i values has a unique prefix, DST || I2OSP(i, 1).
+
+Next, we argue that b\_0\_chopped is generated by a hash function that is
+indifferentiable from a random oracle.
+This follows from Theorem 3.3 of {{CDMP05}}; {{MT07}}, {{CN08}}, and {{DFL12}}
+improve the analysis, giving tighter security bounds.
+
+Finally, since b\_0\_chopped and all b\_i, i >= 1, are the outputs of hash
+functions indifferentiable from random oracles, their concatenation
+is also indifferentiable from a random oracle by the composability of
+indifferentiability proofs, as is a len\_in\_bytes prefix of this concatenation.
+(See also {{CDMP05}}, Section 5.)
 
 # Acknowledgements
 
