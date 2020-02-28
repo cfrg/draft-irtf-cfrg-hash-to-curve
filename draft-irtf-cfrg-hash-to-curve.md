@@ -1067,7 +1067,7 @@ protocol.
 This document aims to bridge this gap by providing a thorough set of
 recommended algorithms for a range of curve types.
 Each algorithm conforms to a common interface: it takes as input an arbitrary-length
-octet-string and produces as output a point on an elliptic curve.
+byte string and produces as output a point on an elliptic curve.
 We provide implementation details for each algorithm, describe
 the security rationale behind each recommendation, and give guidance for
 elliptic curves that are not explicitly covered.
@@ -1152,7 +1152,7 @@ Summary of quantities:
 | F,q,p | Finite field F of characteristic p and #F = q = p^m. | For prime fields, q = p; otherwise, q = p^m and m>1. |
 | E | Elliptic curve. | E is specified by an equation and a field F. |
 | n | Number of points on the elliptic curve E. | n = h * r, for h and r defined below. |
-| G | A subgroup of the elliptic curve. | Destination group to which octet-strings are encoded. |
+| G | A subgroup of the elliptic curve. | Destination group to which byte strings are encoded. |
 | r | Order of G. | This number MUST be prime.  |
 | h | Cofactor, h >= 1. | An integer satisfying n = h * r.  |
 
@@ -1185,23 +1185,23 @@ document does not discuss inversion algorithms.
 
 Encodings are closely related to mappings.
 Like a mapping, an encoding is a function that outputs a point on an elliptic curve.
-In contrast to a mapping, however, the input to an encoding is an arbitrary bit string.
+In contrast to a mapping, however, the input to an encoding is an arbitrary string.
 Encodings can be deterministic or probabilistic.
 Deterministic encodings are preferred for security, because probabilistic
-ones can leak information through side channels.
+ones are more likely to leak information through side channels.
 
 This document constructs deterministic encodings by composing a hash function H
 with a deterministic mapping.
-In particular, H takes as input an arbitrary bit string and outputs an element of F.
+In particular, H takes as input an arbitrary string and outputs an element of F.
 The deterministic mapping takes that element as input and outputs a point on an
 elliptic curve E defined over F.
-Since the hash function H takes arbitrary bit strings as inputs, it cannot be
+Since the hash function H takes arbitrary strings as inputs, it cannot be
 injective: the set of inputs is larger than the set of outputs, so there must
 be distinct inputs that give the same output (i.e., there must be collisions).
 Thus, any encoding built from H is also not injective.
 
 Like mappings, encodings may be invertible, meaning that there is an efficient
-algorithm that, for any point P output by the encoding, outputs a bit string s
+algorithm that, for any point P output by the encoding, outputs a string s
 such that applying the encoding to s outputs P.
 The hash function used by all encodings specified in this document ({{hashtofield}})
 is not invertible; thus, the encodings are also not invertible.
@@ -1242,7 +1242,7 @@ For example, {{SEC1}} and {{p1363a}} give standard methods for serialization and
 
 Deserialization is different from encoding in that only certain strings
 (namely, those output by the serialization procedure) can be deserialized.
-In contrast, this document is concerned with encodings from arbitrary bit strings
+In contrast, this document is concerned with encodings from arbitrary strings
 to elliptic curve points.
 This document does not cover serialization or deserialization.
 
@@ -1274,11 +1274,11 @@ Thus, it is safe to treat RO1 and RO2 as independent oracles.
 
 # Roadmap {#roadmap}
 
-This section presents a general framework for encoding bit strings to points
+This section presents a general framework for encoding byte strings to points
 on an elliptic curve. To construct these encodings, we rely on three basic
 functions:
 
--   The function hash\_to\_field, {0, 1}^\* x {0, 1, 2} -> F, hashes arbitrary-length bit strings
+-   The function hash\_to\_field, {0, 1}^\* x {0, 1, 2} -> F, hashes arbitrary-length byte strings
     to elements of a finite field; its implementation is defined in
     {{hashtofield}}.
 
@@ -1294,13 +1294,13 @@ We describe two high-level encoding functions ({{term-encoding}}).
 Although these functions have the same interface, the
 distributions of their outputs are different.
 
--   Nonuniform encoding (encode\_to\_curve). This function encodes bit strings to points in G.
+-   Nonuniform encoding (encode\_to\_curve). This function encodes byte strings to points in G.
     The distribution of the output is not uniformly random in G.
 
 ~~~
 encode_to_curve(alpha)
 
-Input: alpha, an arbitrary-length bit string.
+Input: alpha, an arbitrary-length byte string.
 Output: P, a point in G.
 
 Steps:
@@ -1310,7 +1310,7 @@ Steps:
 4. return P
 ~~~
 
--   Random oracle encoding (hash\_to\_curve). This function encodes bit strings to points in G.
+-   Random oracle encoding (hash\_to\_curve). This function encodes byte strings to points in G.
     This function is suitable for applications requiring a random oracle returning points in G,
     provided that map\_to\_curve is "well distributed" ({{FFSTV13}}, Def. 1).
     All of the map\_to\_curve functions defined in {{mappings}} meet this requirement.
@@ -1318,7 +1318,7 @@ Steps:
 ~~~
 hash_to_curve(alpha)
 
-Input: alpha, an arbitrary-length bit string.
+Input: alpha, an arbitrary-length byte string.
 Output: P, a point in G.
 
 Steps:
@@ -1349,7 +1349,7 @@ curve and in the case of multiple hashes to different curves.
 domain separation to guarantee independent outputs.)
 
 Domain separation is enforced with a domain separation tag (DST),
-which is an octet-string.
+which is a byte string.
 Care is required when selecting and using a domain separation tag.
 The following requirements apply:
 
@@ -1436,10 +1436,10 @@ is_square(x) := { True,  if x^((q - 1) / 2) is 0 or 1 in F;
     To implement inv0 in constant time, compute inv0(x) := x^(q - 2).
     Notice on input 0, the output is 0 as required.
 
--   I2OSP and OS2IP: These functions are used to convert an octet-string to
+-   I2OSP and OS2IP: These functions are used to convert a byte string to
     and from a non-negative integer as described in {{RFC8017}}.
 
--   a \|\| b: denotes the concatenation of bit strings a and b.
+-   a \|\| b: denotes the concatenation of strings a and b.
 
 ## sgn0 variants {#sgn0-variants}
 
@@ -1540,11 +1540,11 @@ Steps:
 
 # Hashing to a Finite Field {#hashtofield}
 
-The hash\_to\_field function hashes an octet-string msg of any length into
+The hash\_to\_field function hashes a byte string msg of any length into
 one or more elements of a field F.
-This function works in two steps: it first expands the input octet-string
-into a pseudorandom octet-string, and then interprets this pseudorandom
-octet-string as one or more elements of F.
+This function works in two steps: it first expands the input byte string
+into a pseudorandom byte string, and then interprets this pseudorandom
+byte string as one or more elements of F.
 
 For the first step, hash\_to\_field calls an auxiliary function
 expand\_message.
@@ -1576,10 +1576,10 @@ length is at least ceil(log2(p)) + k bits.
 Reducing such integers mod p gives bias at most 2^-k for any p; this bias
 is appropriate for a cryptosystem with k-bit security.
 To obtain such integers, hash\_to\_field uses expand\_message to obtain
-L pseudorandom octets, where L = ceil((ceil(log2(p)) + k) / 8); this
-octet-string is then interpreted as an integer via OS2IP {{RFC8017}}.
+L pseudorandom bytes, where L = ceil((ceil(log2(p)) + k) / 8); this
+byte string is then interpreted as an integer via OS2IP {{RFC8017}}.
 For example, for p a 255-bit prime and k = 128-bit security,
-L = ceil((255 + 128) / 8) = 48 octets.
+L = ceil((255 + 128) / 8) = 48 bytes.
 
 ## hash\_to\_field implementation {#hashtofield-impl}
 
@@ -1602,28 +1602,28 @@ Parameters:
 - m, the extension degree of F, m >= 1 (see immediately above).
 - L = ceil((ceil(log2(p)) + k) / 8), where k is the security
   parameter of the cryptosystem (e.g., k = 128).
-- expand_message, a function that expands an octet-string and
-  domain separation tag into a pseudorandom octet-string
+- expand_message, a function that expands a byte string and
+  domain separation tag into a pseudorandom byte string
   (see discussion above).
 
 Inputs:
-- msg is an octet-string containing the message to hash.
+- msg is a byte string containing the message to hash.
 - count is the number of elements of F to output.
 
 Outputs:
 - (u_1, ..., u_(count)), a list of field elements.
 
 Notation:
-- For an octet-string str, let str[a : b] represent the
-  (b - a) octets starting at the a'th octet of str.
+- For a byte string str, let str[a : b] represent the
+  (b - a) bytes starting at the a'th byte of str.
 
 Steps:
-1. len_in_octets = count * m * L
-2. pseudo_random_octets = expand_message(msg, DST, len_in_octets)
+1. len_in_bytes = count * m * L
+2. pseudo_random_bytes = expand_message(msg, DST, len_in_bytes)
 3. for i in (0, ..., count - 1):
 4.   for j in (0, ..., m - 1):
 5.     elm_offset = L * (j + i * m)
-6.     tv = pseudo_random_octets[elm_offset : (elm_offset + L)]
+6.     tv = pseudo_random_bytes[elm_offset : (elm_offset + L)]
 7.     e_j = OS2IP(tv) mod p
 8.   u_i = (e_0, ..., e_(m - 1))
 9. return (u_0, ..., u_(count - 1))
@@ -1631,12 +1631,12 @@ Steps:
 
 ## expand\_message {#hashtofield-expand}
 
-expand\_message is a function that generates a pseudorandom octet-string.
+expand\_message is a function that generates a pseudorandom byte string.
 It takes three arguments:
 
-- msg, an octet-string containing the message to hash,
-- DST, an octet-string that acts as a domain separation tag, and
-- len\_in\_octets, the number of octets to be generated.
+- msg, a byte string containing the message to hash,
+- DST, a byte string that acts as a domain separation tag, and
+- len\_in\_bytes, the number of bytes to be generated.
 
 This document defines two variants of expand\_message:
 
@@ -1653,7 +1653,7 @@ variants are possible; {{hashtofield-expand-other}} discusses requirements.
 
 ### expand\_message\_md {#hashtofield-expand-md}
 
-The expand\_message\_md function produces a pseudorandom octet string using
+The expand\_message\_md function produces a pseudorandom byte string using
 a cryptographic hash function H that outputs b bits.
 For security, H must meet the following requirements:
 
@@ -1679,41 +1679,41 @@ SHA3-256 would be an appropriate choice.
 The following procedure implements expand\_message\_md.
 
 ~~~
-expand_message_md(msg, DST, len_in_octets)
+expand_message_md(msg, DST, len_in_bytes)
 
 Parameters:
 - H, a hash function (see requirements above).
-- b_in_octets, ceil(b / 8) for b the output size of H in bits.
-  For example, for b = 256, b_in_octets = 32.
-- k_in_octets, ceil(k / 8) for k the security parameter.
-  For example, for k = 128, k_in_octets = 16.
+- b_in_bytes, ceil(b / 8) for b the output size of H in bits.
+  For example, for b = 256, b_in_bytes = 32.
+- k_in_bytes, ceil(k / 8) for k the security parameter.
+  For example, for k = 128, k_in_bytes = 16.
 
 Input:
-- msg, an octet string.
-- DST, an octet string.
-- len_in_octets, the length of the requested output in octets.
+- msg, a byte string.
+- DST, a byte string.
+- len_in_bytes, the length of the requested output in bytes.
 
 Output:
-- pseudo_random_octets, an octet string
+- pseudo_random_bytes, a byte string
 
 Notation:
-- For an octet-string str, let str[a : b] represent the
-  (b - a) octets starting at the a'th octet of str.
+- For a byte string str, let str[a : b] represent the
+  (b - a) bytes starting at the a'th byte of str.
 
 Steps:
-1. ell = ceil((len_in_octets + k_in_octets) / b_in_octets)
+1. ell = ceil((len_in_bytes + k_in_bytes) / b_in_bytes)
 2. ABORT if ell > 256
-3. b_0 = H(DST || I2OSP(0, 1) || I2OSP(len_in_octets, 2) || msg)
+3. b_0 = H(DST || I2OSP(0, 1) || I2OSP(len_in_bytes, 2) || msg)
 4. for i in (1, ..., ell - 1):
 5.   b_i = H(DST || I2OSP(i, 1) || b_(i - 1))
-6. b_0_chopped = b_0[0 : (b_in_octets - k_in_octets)]
-7. pseudo_random_octets = b_0_chopped || b_1 || ... || b_(ell - 1)
-8. return pseudo_random_octets[0 : len_in_octets]
+6. b_0_chopped = b_0[0 : (b_in_bytes - k_in_bytes)]
+7. pseudo_random_bytes = b_0_chopped || b_1 || ... || b_(ell - 1)
+8. return pseudo_random_bytes[0 : len_in_bytes]
 ~~~
 
 ### expand\_message\_xof {#hashtofield-expand-xof}
 
-The expand\_message\_xof function produces a pseudorandom octet string
+The expand\_message\_xof function produces a pseudorandom byte string
 using an extensible-output function (XOF) H.
 For security, H must meet the following criteria:
 
@@ -1728,24 +1728,24 @@ As an example, for 128-bit security, SHAKE-128 would be an appropriate choice.
 The following procedure implements expand\_message\_md.
 
 ~~~
-expand_message_xof(msg, DST, len_in_octets)
+expand_message_xof(msg, DST, len_in_bytes)
 
 Parameters:
 - H, an extensible-output function.
-  H(m, d) hashes message m and returns d octets.
+  H(m, d) hashes message m and returns d bytes.
 
 Input:
-- msg, an octet string.
-- DST, an octet string.
-- len_in_octets, the length of the requested output in octets.
+- msg, a byte string.
+- DST, a byte string.
+- len_in_bytes, the length of the requested output in bytes.
 
 Output:
-- pseudo_random_octets, an octet string
+- pseudo_random_bytes, a byte string
 
 Steps:
-1. msg_prime = DST || I2OSP(len_in_octets, 2) || msg
-2. pseudo_random_octets = H(msg_prime, len_in_octets)
-3. return pseudo_random_octets
+1. msg_prime = DST || I2OSP(len_in_bytes, 2) || msg
+2. pseudo_random_bytes = H(msg_prime, len_in_bytes)
+3. return pseudo_random_bytes
 ~~~
 
 ### Defining other expand\_message variants {#hashtofield-expand-other}
@@ -2444,7 +2444,7 @@ generally give the same result as the fast method, and SHOULD NOT be used.
 
 This section lists recommended suites for hashing to standard elliptic curves.
 
-A suite fully specifies the procedure for hashing bit strings to
+A suite fully specifies the procedure for hashing byte strings to
 points on a specific elliptic curve group.
 Each suite comprises the following parameters:
 
@@ -2923,7 +2923,7 @@ Defending against such leakage is outside the scope of this document, because
 the nature of the leakage and the appropriate defense depends on the protocol
 from which a hash-to-curve function is invoked.
 
-Each encoding variant ({{roadmap}}) accepts an arbitrary octet-string and maps
+Each encoding variant ({{roadmap}}) accepts an arbitrary byte string and maps
 it to a pseudorandom point on the curve.
 Note, however, that directly evaluating the mappings of {{mappings}} produces
 an output that is distinguishable from random.
@@ -2972,7 +2972,7 @@ Notice that each integer mod p that hash\_to\_field returns (i.e., each element
 of the vector representation of F) is a member of an equivalence class of roughly
 2^k integers of length log2(p) + k bits, all of which are equal modulo p.
 For each integer mod p that hash\_to\_field returns, the simulator samples
-one member of this equivalence class at random and outputs the octet-string
+one member of this equivalence class at random and outputs the byte string
 returned by I2OSP.
 (Notice that this is essentially the inverse of the hash\_to\_field procedure.)
 
@@ -3017,7 +3017,7 @@ improve the analysis, giving tighter security bounds.
 Finally, since b_0_chopped and all b_i, i >= 1, are the outputs of hash
 functions indifferentiable from random oracles, their concatenation
 is also indifferentiable from a random oracle by the composability of
-indifferentiability proofs, as is a len_in_octets prefix of this concatenation.
+indifferentiability proofs, as is a len_in_bytes prefix of this concatenation.
 (See also {{CDMP05}}, Section 5.)
 
 # Acknowledgements
