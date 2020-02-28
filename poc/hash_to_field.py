@@ -51,7 +51,15 @@ def hash_to_field(msg, count, dst, modulus, degree, blen, expand_fn, hash_fn, se
 # from draft-irtf-cfrg-hash-to-curve-06
 # hash_fn should be, e.g., hashlib.shake_128 (available in Python3 only)
 def expand_message_xof(msg, dst, len_in_octets, hash_fn, _):
-    msg_prime = _as_bytes(dst) + I2OSP(len_in_octets, 2) + _as_bytes(msg)
+    dst = _as_bytes(dst)
+    if len(dst) > 255:
+        raise ValueError("dst len should be at most 255 bytes")
+
+    # compute prefix-free encoding of DST
+    dst_prime = I2OSP(len(dst), 1) + dst
+    assert len(dst_prime) == len(dst) + 1
+
+    msg_prime = dst_prime + I2OSP(len_in_octets, 2) + _as_bytes(msg)
     pseudo_random_octets = hash_fn(msg_prime).digest(len_in_octets)
     return pseudo_random_octets
 
@@ -62,6 +70,8 @@ def expand_message_md(msg, dst, len_in_octets, hash_fn, security_param):
     k_in_octets = (security_param + 7) // 8
     assert 8 * b_in_octets >= 2 * security_param    # sanity check
     dst = _as_bytes(dst)
+    if len(dst) > 255:
+        raise ValueError("dst len should be at most 255 bytes")
 
     # compute ell and check that sizes are as we expect
     ell = (len_in_octets + k_in_octets + b_in_octets - 1) // b_in_octets
@@ -70,11 +80,15 @@ def expand_message_md(msg, dst, len_in_octets, hash_fn, security_param):
     assert (ell - 1) * b_in_octets - k_in_octets < len_in_octets
     assert ell * b_in_octets - k_in_octets >= len_in_octets
 
+    # compute prefix-free encoding of DST
+    dst_prime = I2OSP(len(dst), 1) + dst
+    assert len(dst_prime) == len(dst) + 1
+
     # compute blocks
     b_vals = [None] * ell
-    b_vals[0] = hash_fn(dst + I2OSP(0, 1) + I2OSP(len_in_octets, 2) + _as_bytes(msg)).digest()
+    b_vals[0] = hash_fn(dst_prime + I2OSP(0, 1) + I2OSP(len_in_octets, 2) + _as_bytes(msg)).digest()
     for i in xrange(1, ell):
-        b_vals[i] = hash_fn(dst + I2OSP(i, 1) + b_vals[i - 1]).digest()
+        b_vals[i] = hash_fn(dst_prime + I2OSP(i, 1) + b_vals[i - 1]).digest()
 
     # truncate first block
     b_vals[0] = b_vals[0][0 : (b_in_octets - k_in_octets)]
