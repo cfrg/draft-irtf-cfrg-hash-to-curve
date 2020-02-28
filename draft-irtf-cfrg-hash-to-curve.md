@@ -1614,8 +1614,8 @@ Outputs:
 - (u_0, ..., u_(count - 1)), a list of field elements.
 
 Notation:
-- For a byte string str, let str[a : b] represent the
-  (b - a) bytes starting at str[a].
+- For a byte string str, let str[a : b] be the (b - a)
+  bytes starting at str[a]. For example, "ABC"[0 : 2] == "AB".
 
 Steps:
 1. len_in_bytes = count * m * L
@@ -1650,6 +1650,18 @@ with extensible-output functions (XOFs) including functions in the SHAKE
 
 These two variants should suffice for the vast majority of use cases, but other
 variants are possible; {{hashtofield-expand-other}} discusses requirements.
+
+The expand\_message variants defined in this section accept domain separation
+tags of at most 255 bytes.
+If a domain separation tag longer than 255 bytes must be used (e.g., because
+of requirements imposed by an invoking protocol), implementors MUST compute
+a short domain separation tag by hashing, as follows:
+
+    DST = H("H2C-OVERSIZE-DST-" || a_very_long_DST)
+
+Here, a\_very\_long\_DST is the DST whose length is greater than 255 bytes,
+"H2C-OVERSIZE-DST-" is an ASCII string literal, and the hash function H MUST
+meet the criteria given in {{hashtofield-expand-md}}.
 
 ### expand\_message\_md {#hashtofield-expand-md}
 
@@ -1690,25 +1702,28 @@ Parameters:
 
 Input:
 - msg, a byte string.
-- DST, a byte string.
+- DST, a byte string of at most 255 bytes.
 - len_in_bytes, the length of the requested output in bytes.
 
 Output:
 - pseudo_random_bytes, a byte string
 
 Notation:
-- For a byte string str, let str[a : b] represent the
-  (b - a) bytes starting at str[a].
+- For a byte string str, let str[a : b] be the (b - a)
+  bytes starting at str[a]. For example, "ABC"[0 : 2] == "AB".
+- For a byte string str, let len(str) be the length
+  of str in bytes. For example, len("ABC") == 3.
 
 Steps:
 1. ell = ceil((len_in_bytes + k_in_bytes) / b_in_bytes)
 2. ABORT if ell > 256
-3. b_0 = H(DST || I2OSP(0, 1) || I2OSP(len_in_bytes, 2) || msg)
-4. for i in (1, ..., ell - 1):
-5.   b_i = H(DST || I2OSP(i, 1) || b_(i - 1))
-6. b_0_chopped = b_0[0 : (b_in_bytes - k_in_bytes)]
-7. pseudo_random_bytes = b_0_chopped || b_1 || ... || b_(ell - 1)
-8. return pseudo_random_bytes[0 : len_in_bytes]
+3. DST_prime = I2OSP(len(DST), 1) || DST
+4. b_0 = H(DST_prime || I2OSP(0, 1) || I2OSP(len_in_bytes, 2) || msg)
+5. for i in (1, ..., ell - 1):
+6.   b_i = H(DST_prime || I2OSP(i, 1) || b_(i - 1))
+7. b_0_chopped = b_0[0 : (b_in_bytes - k_in_bytes)]
+8. pseudo_random_bytes = b_0_chopped || b_1 || ... || b_(ell - 1)
+9. return pseudo_random_bytes[0 : len_in_bytes]
 ~~~
 
 ### expand\_message\_xof {#hashtofield-expand-xof}
@@ -1736,16 +1751,21 @@ Parameters:
 
 Input:
 - msg, a byte string.
-- DST, a byte string.
+- DST, a byte string of at most 255 bytes.
 - len_in_bytes, the length of the requested output in bytes.
 
 Output:
 - pseudo_random_bytes, a byte string
 
+Notation:
+- For a byte string str, let len(str) be the length
+  of str in bytes. For example, len("ABC") == 3.
+
 Steps:
-1. msg_prime = DST || I2OSP(len_in_bytes, 2) || msg
-2. pseudo_random_bytes = H(msg_prime, len_in_bytes)
-3. return pseudo_random_bytes
+1. DST_prime = I2OSP(len(DST), 1) || DST
+2. msg_prime = DST_prime || I2OSP(len_in_bytes, 2) || msg
+3. pseudo_random_bytes = H(msg_prime, len_in_bytes)
+4. return pseudo_random_bytes
 ~~~
 
 ### Defining other expand\_message variants {#hashtofield-expand-other}
@@ -1767,11 +1787,17 @@ primitive, whereas a Mersenne twister pseudorandom number generator is not.
 - MUST NOT use any form of rejection sampling.
 
 - MUST give independent values for distinct (msg, DST, length) inputs.
+Meeting this requirement is slightly subtle.
+As one example, simply hashing the concatenation DST || msg does not work,
+because in this case distinct (DST, msg) pairs whose concatenations are equal
+will return the same output (e.g., ("AB", "CDEF") and ("ABC", "DEF")).
+The variants defined in this document handle this issue by concatenating
+a prefix-free encoding of DST with msg.
 
 - MUST use the domain separation tag DST to ensure that invocations of
 cryptographic primitives inside of expand\_message are domain separated
 from all invocations outside of expand\_message.
-For example, if the expand\_message variant uses a hash function H, DST
+For example, if the expand\_message variant uses a hash function H, (an encoding of) DST
 MUST be either prepended or appended to the input to each invocation of H
 (for consistency, prepending is the RECOMMENDED approach).
 
@@ -2982,14 +3008,17 @@ returned by I2OSP.
 
 Finally, we note that in the expand\_message variants defined in this document
 ({{hashtofield-expand}}), the argument to every invocation of H (the underlying
-hash or extensible output function) is prepended with the domain separation
-tag DST.
-This ensures that invocations of H outside of hash\_to\_field can be separated
-from those inside of hash\_to\_field by prepending the outside invocations
-with a distinct domain separation tag.
-(Other expand\_message variants that follow the guidelines in
-{{hashtofield-expand-other}} should have similar properties; these SHOULD
-be analyzed on a case-by-case basis.)
+hash or extensible output function) is prepended with a prefix-free encoding of
+the domain separation tag DST, namely,
+
+    DST_prime = I2OSP(len(DST), 1) || DST
+
+The reason for this design is that it allows invocations of H outside of hash\_to\_field
+to be separated from those inside of hash\_to\_field, just by prepending the outside
+invocations with some other tag distinct from DST\_prime.
+Other expand\_message variants that follow the guidelines in
+{{hashtofield-expand-other}} are expected to have similar properties,
+but these should be analyzed on a case-by-case basis.
 
 ## expand\_message\_md security {#security-considerations-expand-md}
 
@@ -3008,20 +3037,20 @@ For the third case, we now briefly sketch an indifferentiability argument.
 Here, H is a Merkle-Damgaard function; we model H's underlying compression
 function as a random oracle.
 
-First, we argue that each of the b_i values, i >= 1, is generated by a hash
+First, we argue that each of the b\_i values, i >= 1, is generated by a hash
 function that is indifferentiable from a random oracle.
 This follows from Theorem 3.4 of {{CDMP05}} and the fact that each call to H
-that generates one of these b_i values has a unique prefix, DST || I2OSP(i, 1).
+that generates one of these b\_i values has a unique prefix, DST || I2OSP(i, 1).
 
-Next, we argue that b_0_chopped is generated by a hash function that is
+Next, we argue that b\_0\_chopped is generated by a hash function that is
 indifferentiable from a random oracle.
 This follows from Theorem 3.3 of {{CDMP05}}; {{MT07}}, {{CN08}}, and {{DFL12}}
 improve the analysis, giving tighter security bounds.
 
-Finally, since b_0_chopped and all b_i, i >= 1, are the outputs of hash
+Finally, since b\_0\_chopped and all b\_i, i >= 1, are the outputs of hash
 functions indifferentiable from random oracles, their concatenation
 is also indifferentiable from a random oracle by the composability of
-indifferentiability proofs, as is a len_in_bytes prefix of this concatenation.
+indifferentiability proofs, as is a len\_in\_bytes prefix of this concatenation.
 (See also {{CDMP05}}, Section 5.)
 
 # Acknowledgements
