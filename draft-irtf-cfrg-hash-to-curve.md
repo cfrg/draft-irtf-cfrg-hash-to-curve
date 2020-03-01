@@ -3486,7 +3486,7 @@ Steps:
 20. tv4 = tv4 * tv2            # gx1 * gxd^3
 21.  y1 = tv4^c1               # (gx1 * gxd^3)^((p - 3) / 4)
 22.  y1 = y1 * tv2             # gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
-23. x2n = tv3 * x1n            # x2 = x2n / xd = -10 * u^2 * x1n / xd
+23. x2n = tv3 * x1n            # x2 = x2n / xd = Z * u^2 * x1n / xd
 24.  y2 = y1 * c2              # y2 = y1 * sqrt(-Z^3)
 25.  y2 = y2 * tv1
 26.  y2 = y2 * u
