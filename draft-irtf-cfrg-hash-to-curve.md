@@ -99,23 +99,6 @@ informative:
     author:
       -
         org: National Institute of Standards and Technology (NIST)
-  SP.800-185:
-    title: "SHA-3 Derived Functions: cSHAKE, KMAC, TupleHash and ParallelHash"
-    target: https://doi.org/10.6028/NIST.SP.800-185
-    date: Dec, 2016
-    author:
-      -
-        ins: J. Kelsey
-        name: John Kelsey
-        org: NIST Computer Security Division
-      -
-        ins: S. Chang
-        name: Shu-jen Chang
-        org: NIST Computer Security Division
-      -
-        ins: R. Perlner
-        name: Ray Perlner
-        org: NIST Computer Security Division
   BDPV08:
     title: On the Indifferentiability of the Sponge Construction
     seriesinfo:
@@ -972,31 +955,6 @@ informative:
         ins: K. Bhargavan
         name: Karthikeyan Bhargavan
         org: INRIA Paris
-  DRST12:
-    title: "To hash or not to hash again? (In)differentiability results for H^2 and HMAC"
-    seriesinfo:
-      "In": Advances in Cryptology - CRYPTO 2012
-      "pages": 348-366
-      DOI: 10.1007/978-3-642-32009-5_21
-    target: https://doi.org/10.1007/978-3-642-32009-5_21
-    date: Aug, 2012
-    author:
-      -
-        ins: Y. Dodis
-        name: Yevgeniy Dodis
-        org: New York University
-      -
-        ins: T. Ristenpart
-        name: Thomas Ristenpart
-        org: University of Wisconsin-Madison
-      -
-        ins: J. Steinberger
-        name: John Steinberger
-        org: Tsinghua University
-      -
-        ins: S. Tessaro
-        name: Stefano Tessaro
-        org: Massachusetts Institute of Technology
   RSS11:
     title: "Careful with Composition: Limitations of the Indifferentiability Framework"
     seriesinfo:
@@ -3144,7 +3102,7 @@ This document does not deal with this complementary problem.
 
 This section gives several useful rational maps.
 
-## Twisted Edwards Montgomery curves {#appx-rational-map-edw}
+## Twisted Edwards to Montgomery curves {#appx-rational-map-edw}
 
 This section gives a generic birational map between twisted Edwards
 and Montgomery curves.
@@ -3171,9 +3129,12 @@ To convert from twisted Edwards to Montgomery form, the mapping is
 - s = (1 + w) / (1 - w)
 - t = (1 + w) / (v * (1 - w))
 
-This mapping requires that a != d.
+This mapping is defined when a != d, which is guaranteed by the definition
+of twisted Edwards curves.
 The mapping is undefined when v == 0 or w == 1.
-In this case, return the identity point on the Montgomery curve.
+If (v, w) == (0, -1), return the point (s, t) = (0, 0).
+For all other undefined inputs, return the identity point on the Montgomery curve.
+(This follows from [BBJLP08], Section 3.)
 
 To convert from Montgomery to twisted Edwards form, the mapping is
 
@@ -3182,10 +3143,19 @@ To convert from Montgomery to twisted Edwards form, the mapping is
 - v = s / t
 - w = (s - 1) / (s + 1)
 
-This mapping requires that J != 2, J != -2, and K != 0.
+This mapping is defined when J != 2, J != -2, and K != 0; all Montgomery
+curves meet these criteria.
 The mapping is undefined when t == 0 or s == -1.
-In this case, return the point (v, w) = (0, 1), which is
-the identity point on all twisted Edwards curves.
+If (s, t) == (0, 0), return the point (v, w) = (0, -1).
+For all other undefined inputs, return the identity point on the twisted
+Edwards curve, namely, (v, w) = (0, 1).
+(This follows from [BBJLP08], Section 3.)
+
+(Note that {{rational-map}} gives a simpler rule for handling undefined
+inputs to this rational map: always return the identity point.
+The simpler rule gives the same result when used as part of an encoding
+function ({{roadmap}}), because the cofactor clearing step will always
+map the point (v, w) = (0, -1) to the identity point.)
 
 Composing the mapping of this section with the mapping from
 Montgomery to Weierstrass curves in {{appx-rational-map-mont}}
