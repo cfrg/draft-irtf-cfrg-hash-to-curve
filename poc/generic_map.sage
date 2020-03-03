@@ -32,7 +32,7 @@ class GenericMap(object):
         (x1, y1) = self.straight_line(u)
         (x2, y2) = self.not_straight_line(u)
         assert (x1, y1) == (x2, y2), "straight-line / non-straight-line mismatch"
-        return self.E(x1, y1)
+        return self.E(*self.to_weierstrass(x1, y1))
 
     def is_square(self, x):
         return self.F(x).is_square()
@@ -50,6 +50,9 @@ class GenericMap(object):
         self.test_undef()
         for _ in range(0, 256):
             self.map_to_curve(self.F.random_element())
+
+    def to_weierstrass(self, xin, yin):
+        return (xin, yin)
 
     @classmethod
     def get_random(cls):
@@ -69,8 +72,8 @@ class GenericMap(object):
                 # randomly pick sgn0_le or sgn0_be
                 if randint(0, 1) == 1:
                     ret.set_sgn0(sgn0_be)
-            except:
-                # constructor threw exception
+            except ValueError as e:
+                # constructor threw ValueError: this curve is not valid for this map
                 continue
             return ret
 

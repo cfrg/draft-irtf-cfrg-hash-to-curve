@@ -24,5 +24,10 @@ vectors: pyfiles
 	@mkdir -p vectors ascii
 	sage test_vectors.sage
 
+.PHONY: clean
 clean:
-	rm -rf sagelib *.pyc *.sage.py *.log vectors ascii
+	rm -rf sagelib *.pyc *.sage.py *.log
+
+.PHONY: distclean
+distclean: clean
+	rm -rf vectors ascii

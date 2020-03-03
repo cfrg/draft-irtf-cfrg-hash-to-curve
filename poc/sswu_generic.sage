@@ -15,8 +15,10 @@ class GenericSSWU(GenericMap):
         self.F = F
         self.A = F(A)
         self.B = F(B)
-        assert self.A != 0, "S-SWU requires A != 0"
-        assert self.B != 0, "S-SWU requires B != 0"
+        if self.A == 0:
+            raise ValueError("S-SWU requires A != 0")
+        if self.B == 0:
+            raise ValueError("S-SWU requires B != 0")
         self.Z = find_z_sswu(F, F(A), F(B))
         self.E = EllipticCurve(F, [F(A), F(B)])
 

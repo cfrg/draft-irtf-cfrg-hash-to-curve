@@ -150,16 +150,10 @@ class MontyH2CSuite(BasicH2CSuite):
         assert isinstance(sdef, BasicH2CSuiteDef)
 
         # figure out mapping to required Weierstrass form and init base class
-        F = sdef.F
-        Ap = F(sdef.Aa)
-        Bp = F(sdef.Bd)
-        A = Ap / Bp
-        B = 1 / Bp^2
-        self.Bp = Bp
-        super(MontyH2CSuite, self).__init__(name, sdef._replace(Aa=A, Bd=B, MapT=GenericEll2))
+        super(MontyH2CSuite, self).__init__(name, sdef._replace(MapT=GenericEll2))
 
         # helper: do point ops directly on the Monty repr
-        self.monty = MontgomeryCurve(F, Ap, Bp)
+        self.monty = MontgomeryCurve(sdef.F, sdef.Aa, sdef.Bd)
         self.to_self = self.monty.to_self
 
 class EdwH2CSuite(MontyH2CSuite):
