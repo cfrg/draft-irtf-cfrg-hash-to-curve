@@ -1399,6 +1399,21 @@ is_square(x) := { True,  if x^((q - 1) / 2) is 0 or 1 in F;
 
 -   a \|\| b: denotes the concatenation of strings a and b.
 
+-   substr(str, sstart, slen): for a byte string str, this function returns
+    the slen-byte substring starting at position sstart; positions are zero
+    indexed.
+    For example, substr("ABCDEFG", 2, 3) == "CDE".
+
+-   len(str): for a byte string str, this function returns the length of str
+    in bytes.
+    For example, len("ABC") == 3.
+
+-   strxor(str1, str2): for byte strings str1 and str2, strxor(str1, str2)
+    returns the bitwise XOR of the two strings.
+    For example, strxor("abc", "XYZ") == "9;9" (the strings in this example
+    are ASCII literals, but strxor is defined for arbitrary byte strings).
+    In this document, strxor is only applied to inputs of equal length.
+
 ## sgn0 variants {#sgn0-variants}
 
 This section defines two ways of determining the "sign" of an element of F.
@@ -1510,7 +1525,7 @@ This document defines two variants of expand\_message, one appropriate
 for hash functions like SHA-2 {{FIPS180-4}} or SHA-3 {{FIPS202}}, and one
 appropriate for extensible-output functions like SHAKE-128 {{FIPS202}}.
 Security considerations for each expand\_message variant are discussed
-below ({{hashtofield-expand-md}}, {{hashtofield-expand-xof}}).
+below ({{hashtofield-expand-xmd}}, {{hashtofield-expand-xof}}).
 
 Implementors MUST NOT use rejection sampling to generate a uniformly
 random element of F.
@@ -1571,17 +1586,13 @@ Inputs:
 Outputs:
 - (u_0, ..., u_(count - 1)), a list of field elements.
 
-Notation:
-- For a byte string str, let str[a : b] be the (b - a)
-  bytes starting at str[a]. For example, "ABC"[0 : 2] == "AB".
-
 Steps:
 1. len_in_bytes = count * m * L
 2. pseudo_random_bytes = expand_message(msg, DST, len_in_bytes)
 3. for i in (0, ..., count - 1):
 4.   for j in (0, ..., m - 1):
 5.     elm_offset = L * (j + i * m)
-6.     tv = pseudo_random_bytes[elm_offset : (elm_offset + L)]
+6.     tv = substr(pseudo_random_bytes, elm_offset, L)
 7.     e_j = OS2IP(tv) mod p
 8.   u_i = (e_0, ..., e_(m - 1))
 9. return (u_0, ..., u_(count - 1))
@@ -1598,7 +1609,7 @@ It takes three arguments:
 
 This document defines two variants of expand\_message:
 
-- expand\_message\_md ({{hashtofield-expand-md}}) is appropriate for use
+- expand\_message\_xmd ({{hashtofield-expand-xmd}}) is appropriate for use
 with a wide range of hash functions, including SHA-2 {{FIPS180-4}}, SHA-3
 {{FIPS202}}, BLAKE2 {{?RFC7693}}, and others.
 
@@ -1606,7 +1617,7 @@ with a wide range of hash functions, including SHA-2 {{FIPS180-4}}, SHA-3
 with extensible-output functions (XOFs) including functions in the SHAKE
 {{FIPS202}} or BLAKE2X {{BLAKE2X}} families.
 
-These two variants should suffice for the vast majority of use cases, but other
+These variants should suffice for the vast majority of use cases, but other
 variants are possible; {{hashtofield-expand-other}} discusses requirements.
 
 The expand\_message variants defined in this section accept domain separation
@@ -1619,11 +1630,11 @@ a short domain separation tag by hashing, as follows:
 
 Here, a\_very\_long\_DST is the DST whose length is greater than 255 bytes,
 "H2C-OVERSIZE-DST-" is an ASCII string literal, and the hash function H MUST
-meet the criteria given in {{hashtofield-expand-md}}.
+meet the criteria given in {{hashtofield-expand-xmd}}.
 
-### expand\_message\_md {#hashtofield-expand-md}
+### expand\_message\_xmd {#hashtofield-expand-xmd}
 
-The expand\_message\_md function produces a pseudorandom byte string using
+The expand\_message\_xmd function produces a pseudorandom byte string using
 a cryptographic hash function H that outputs b bits.
 For security, H must meet the following requirements:
 
@@ -1633,7 +1644,7 @@ security level in bits. This ensures k-bit collision resistance.
 - H MAY be a Merkle-Damgaard hash function like SHA-2.
 In this case, security holds when the underlying compression function is
 modeled as a random oracle {{CDMP05}}.
-(See {{security-considerations-expand-md}} for discussion.)
+(See {{security-considerations-expand-xmd}} for discussion.)
 
 - H MAY be a sponge-based hash function like SHA-3 or BLAKE2.
 In this case, security holds when the inner function is modeled as a
@@ -1646,17 +1657,15 @@ SHA-2 {{FIPS180-4}} and SHA-3 {{FIPS202}} are typical and RECOMMENDED choices.
 As an example, for the 128-bit security level, b >= 256 bits and either SHA-256 or
 SHA3-256 would be an appropriate choice.
 
-The following procedure implements expand\_message\_md.
+The following procedure implements expand\_message\_xmd.
 
 ~~~
-expand_message_md(msg, DST, len_in_bytes)
+expand_message_xmd(msg, DST, len_in_bytes)
 
 Parameters:
 - H, a hash function (see requirements above).
 - b_in_bytes, ceil(b / 8) for b the output size of H in bits.
   For example, for b = 256, b_in_bytes = 32.
-- k_in_bytes, ceil(k / 8) for k the security parameter.
-  For example, for k = 128, k_in_bytes = 16.
 
 Input:
 - msg, a byte string.
@@ -1666,22 +1675,16 @@ Input:
 Output:
 - pseudo_random_bytes, a byte string
 
-Notation:
-- For a byte string str, let str[a : b] be the (b - a)
-  bytes starting at str[a]. For example, "ABC"[0 : 2] == "AB".
-- For a byte string str, let len(str) be the length
-  of str in bytes. For example, len("ABC") == 3.
-
 Steps:
-1. ell = ceil((len_in_bytes + k_in_bytes) / b_in_bytes)
-2. ABORT if ell > 256
+1. ell = ceil(len_in_bytes / b_in_bytes)
+2. ABORT if ell > 255
 3. DST_prime = I2OSP(len(DST), 1) || DST
 4. b_0 = H(DST_prime || I2OSP(0, 1) || I2OSP(len_in_bytes, 2) || msg)
-5. for i in (1, ..., ell - 1):
-6.   b_i = H(DST_prime || I2OSP(i, 1) || b_(i - 1))
-7. b_0_chopped = b_0[0 : (b_in_bytes - k_in_bytes)]
-8. pseudo_random_bytes = b_0_chopped || b_1 || ... || b_(ell - 1)
-9. return pseudo_random_bytes[0 : len_in_bytes]
+5. b_1 = H(DST_prime || I2OSP(1, 1) || b_0)
+6. for i in (2, ..., ell):
+7.   b_i = H(DST_prime || I2OSP(i, 1) || strxor(b_0, b_(i - 1)))
+8. pseudo_random_bytes = b_1 || ... || b_ell
+9. return substr(pseudo_random_bytes, 0, len_in_bytes)
 ~~~
 
 ### expand\_message\_xof {#hashtofield-expand-xof}
@@ -1698,7 +1701,7 @@ under a reasonable cryptographic assumption.
 The SHAKE {{FIPS202}} XOF family is a typical and RECOMMENDED choice.
 As an example, for 128-bit security, SHAKE-128 would be an appropriate choice.
 
-The following procedure implements expand\_message\_md.
+The following procedure implements expand\_message\_xof.
 
 ~~~
 expand_message_xof(msg, DST, len_in_bytes)
@@ -1714,10 +1717,6 @@ Input:
 
 Output:
 - pseudo_random_bytes, a byte string
-
-Notation:
-- For a byte string str, let len(str) be the length
-  of str in bytes. For example, len("ABC") == 3.
 
 Steps:
 1. DST_prime = I2OSP(len(DST), 1) || DST
@@ -2464,7 +2463,7 @@ P256-XMD:SHA.256-SSWU-RO- is defined as follows:
 - m: 1
 - k: 128
 - sgn0: sgn0\_le ({{sgn0-le}})
-- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
+- expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-256
 - L: 48
 - f: Simplified SWU method, {{simple-swu}}
@@ -2500,7 +2499,7 @@ P384-XMD:SHA.512-SSWU-RO- is defined as follows:
 - m: 1
 - k: 192
 - sgn0: sgn0\_le ({{sgn0-le}})
-- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
+- expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-512
 - L: 72
 - f: Simplified SWU method, {{simple-swu}}
@@ -2536,7 +2535,7 @@ P521-XMD:SHA.512-SSWU-RO- is defined as follows:
 - m: 1
 - k: 256
 - sgn0: sgn0\_le ({{sgn0-le}})
-- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
+- expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-512
 - L: 96
 - f: Simplified SWU method, {{simple-swu}}
@@ -2572,7 +2571,7 @@ curve25519-XMD:SHA.256-ELL2-RO- is defined as follows:
 - m: 1
 - k: 128
 - sgn0: sgn0\_le ({{sgn0-le}})
-- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
+- expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-256
 - L: 48
 - f: Elligator 2 method, {{elligator2}}
@@ -2624,7 +2623,7 @@ curve448-XMD:SHA.512-ELL2-RO- is defined as follows:
 - m: 1
 - k: 224
 - sgn0: sgn0\_le ({{sgn0-le}})
-- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
+- expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-512
 - L: 84
 - f: Elligator 2 method, {{elligator2}}
@@ -2662,7 +2661,7 @@ secp256k1-XMD:SHA.256-SSWU-RO- is defined as follows:
 - m: 1
 - k: 128
 - sgn0: sgn0\_le ({{sgn0-le}})
-- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
+- expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-256
 - L: 48
 - f: Simplified SWU for AB == 0, {{simple-swu-AB0}}
@@ -2705,7 +2704,7 @@ BLS12381G1-XMD:SHA.256-SSWU-RO- is defined as follows:
 - m: 1
 - k: 128
 - sgn0: sgn0\_be ({{sgn0-be}})
-- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
+- expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-256
 - L: 64
 - f: Simplified SWU for AB == 0, {{simple-swu-AB0}}
@@ -2750,7 +2749,7 @@ BLS12381G2-XMD:SHA.256-SSWU-RO- is defined as follows:
   - (1, I) is the basis for F, where I^2 + 1 == 0 in F
 - k: 128
 - sgn0: sgn0\_be ({{sgn0-be}})
-- expand\_message: expand\_message\_md ({{hashtofield-expand-md}})
+- expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-256
 - L: 64
 - f: Simplified SWU for AB == 0, {{simple-swu-AB0}}
@@ -2805,7 +2804,7 @@ The RECOMMENDED way to define a new hash-to-curve suite is:
 8. Construct a Suite ID following the guidelines in {{suiteIDformat}}.
 
 When hashing to an elliptic curve not listed in this section, corresponding
-hash-to-curve suites SHOULD be specified as described in this section.
+hash-to-curve suites SHOULD be fully specified as described above.
 
 ## Suite ID naming conventions {#suiteIDformat}
 
@@ -2824,7 +2823,7 @@ This helps to ensure that Suite IDs are prefix free.
 Suite IDs MUST include the final hyphen and MUST NOT include any characters
 after the final hyphen.
 
-Fields MUST be chosen as follows:
+Suite ID fields MUST be chosen as follows:
 
 - CURVE\_ID: a human-readable representation of the target elliptic curve.
 
@@ -2836,7 +2835,7 @@ Fields MUST be chosen as follows:
 
   EXP\_TAG indicates the expand\_message variant:
 
-    - "XMD" for expand\_message\_md ({{hashtofield-expand-md}}).
+    - "XMD" for expand\_message\_xmd ({{hashtofield-expand-xmd}}).
     - "XOF" for expand\_message\_xof ({{hashtofield-expand-xof}}).
 
   HASH\_NAME is a human-readable name for the underlying hash primitive.
@@ -2848,7 +2847,7 @@ Fields MUST be chosen as follows:
     1. For expand\_message\_xof ({{hashtofield-expand-xof}}) with SHAKE-128,
        HASH\_ID is "XOF:SHAKE.128".
 
-    2. For expand\_message\_md ({{hashtofield-expand-md}}) with SHA3-256,
+    2. For expand\_message\_xmd ({{hashtofield-expand-xmd}}) with SHA3-256,
        HASH\_ID is "XMD:SHA3.256".
 
 - MAP\_ID: a human-readable representation of the map\_to\_curve function
@@ -2898,7 +2897,7 @@ an output that is distinguishable from random.
 {{domain-separation}} describes considerations related to domain separation.
 
 {{hashtofield}} describes considerations for uniformly hashing to field elements;
-see {{security-considerations-hash-to-field}} and {{security-considerations-expand-md}}
+see {{security-considerations-hash-to-field}} and {{security-considerations-expand-xmd}}
 for further discussion.
 
 When the hash\_to\_curve function ({{roadmap}}) is instantiated with a
@@ -2932,7 +2931,7 @@ expand\_message is proved indifferentiable from a random oracle relative
 to an underlying primitive that is modeled as a random oracle.
 When following the guidelines in {{hashtofield-expand}}, both variants
 of expand\_message defined in that section meet this requirement
-(see also {{security-considerations-expand-md}}).
+(see also {{security-considerations-expand-xmd}}).
 
 We very briefly sketch the indifferentiability argument for hash\_to\_field.
 Notice that each integer mod p that hash\_to\_field returns (i.e., each element
@@ -2957,44 +2956,43 @@ Other expand\_message variants that follow the guidelines in
 {{hashtofield-expand-other}} are expected to have similar properties,
 but these should be analyzed on a case-by-case basis.
 
-## expand\_message\_md security {#security-considerations-expand-md}
+## expand\_message\_xmd security {#security-considerations-expand-xmd}
 
-The expand\_message\_md function defined in {{hashtofield-expand-md}} is indifferentiable
-from a random oracle {{MRH04}} when any of the following hold:
+The expand\_message\_xmd function defined in {{hashtofield-expand-xmd}} is
+indifferentiable from a random oracle {{MRH04}} when one of the following holds:
 
 1. H is indifferentiable from a random oracle,
 2. H is a sponge-based hash function whose inner function
    is modeled as a random transformation or random permutation {{BDPV08}}, or
-3. H is a Merkle-Damgaard hash function and the compression function is
+3. H is a Merkle-Damgaard hash function whose compression function is
    modeled as a random oracle {{CDMP05}}.
 
-The first and second cases are true by the composability of indifferentiability
-proofs.
-For the third case, we now briefly sketch an indifferentiability argument.
-Here, H is a Merkle-Damgaard function; we model H's underlying compression
-function as a random oracle.
+The indifferentiability of this construction follows from the security argument
+for the construction in {{CDMP05}}, Section 5.
+As in that construction, expand\_message\_xmd generates its output by first
+hashing the input message into a intermediate result (b\_0), then repeatedly
+applying an indifferentiable hash function to that result.
 
-First, we argue that each of the b\_i values, i >= 1, is generated by a hash
-function that is indifferentiable from a random oracle.
-This follows from Theorem 3.4 of {{CDMP05}} and the fact that each call to H
-that generates one of these b\_i values has a unique prefix, DST || I2OSP(i, 1).
+In particular, each of the output blocks b\_i, i >= 1 in expand\_message\_xmd
+is the result of invoking H on a unique, prefix-free encoding of b\_0.
+This is true, first, because the length of the input to all such invocations
+is equal and fixed by the choice of H and DST, and
+second, because each such input has a unique prefix (because of the inclusion
+of the counter byte I2OSP(i, 1)).
 
-Next, we argue that b\_0\_chopped is generated by a hash function that is
-indifferentiable from a random oracle.
-This follows from Theorem 3.3 of {{CDMP05}}; {{MT07}}, {{CN08}}, and {{DFL12}}
-improve the analysis, giving tighter security bounds.
-
-Finally, since b\_0\_chopped and all b\_i, i >= 1, are the outputs of hash
-functions indifferentiable from random oracles, their concatenation
-is also indifferentiable from a random oracle by the composability of
-indifferentiability proofs, as is a len\_in\_bytes prefix of this concatenation.
-(See also {{CDMP05}}, Section 5.)
+The essential difference between the construction of {{CDMP05}} and
+expand\_message\_xmd is that the latter hashes the concatenation of a counter
+with b\_0 XOR b\_(i - 1) (step 7), rather than simply hashing that counter
+prepended to b\_0.
+This approach increases the Hamming distance between invocations of H,
+which reduces the likelihood that nonidealities in H affect the distribution
+of the b\_i values.
 
 # Acknowledgements
 
 The authors would like to thank Adam Langley for his detailed writeup of Elligator 2 with
 Curve25519 {{L13}};
-Christopher Patton and Benjamin Lipp for educational discussions; and
+Dan Boneh, Christopher Patton, and Benjamin Lipp for educational discussions; and
 Sean Devlin, Justin Drake, Dan Harkins, Thomas Icart, Leonid Reyzin, Michael Scott,
 and Mathy Vanhoef for helpful feedback.
 
