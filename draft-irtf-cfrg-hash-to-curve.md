@@ -1651,7 +1651,7 @@ In this case, security holds when the inner function is modeled as a
 random transformation or as a random permutation {{BDPV08}}.
 
 - Otherwise, H MUST be a hash function that has been proved indifferentiable
-from a random oracle {{MRH04}} under a reasonable cryptographic assumption.
+from a random oracle {{MRH04}} under a widely accepted cryptographic assumption.
 
 SHA-2 {{FIPS180-4}} and SHA-3 {{FIPS202}} are typical and RECOMMENDED choices.
 As an example, for the 128-bit security level, b >= 256 bits and either SHA-256 or
@@ -1666,6 +1666,8 @@ Parameters:
 - H, a hash function (see requirements above).
 - b_in_bytes, ceil(b / 8) for b the output size of H in bits.
   For example, for b = 256, b_in_bytes = 32.
+- r_in_bytes, the input block size of H, measured in bytes.
+  For example, for SHA-256, r_in_bytes = 64.
 
 Input:
 - msg, a byte string.
@@ -1676,16 +1678,33 @@ Output:
 - pseudo_random_bytes, a byte string
 
 Steps:
-1. ell = ceil(len_in_bytes / b_in_bytes)
-2. ABORT if ell > 255
-3. DST_prime = I2OSP(len(DST), 1) || DST
-4. b_0 = H(msg || I2OSP(len_in_bytes, 2) || I2OSP(0, 1) || DST_prime)
-5. b_1 = H(b_0 || I2OSP(1, 1) || DST_prime)
-6. for i in (2, ..., ell):
-7.   b_i = H(strxor(b_0, b_(i - 1)) || I2OSP(i, 1) || DST_prime)
-8. pseudo_random_bytes = b_1 || ... || b_ell
-9. return substr(pseudo_random_bytes, 0, len_in_bytes)
+1.  ell = ceil(len_in_bytes / b_in_bytes)
+2.  ABORT if ell > 255
+3.  DST_prime = I2OSP(len(DST), 1) || DST
+4.  Z_pad = I2OSP(0, r_in_bytes)
+5.  l_i_b_str = I2OSP(len_in_bytes, 2)
+6.  b_0 = H(Z_pad || msg || l_i_b_str || I2OSP(0, 1) || DST_prime)
+7.  b_1 = H(b_0 || I2OSP(1, 1) || DST_prime)
+8.  for i in (2, ..., ell):
+9.    b_i = H(strxor(b_0, b_(i - 1)) || I2OSP(i, 1) || DST_prime)
+10. pseudo_random_bytes = b_1 || ... || b_ell
+11. return substr(pseudo_random_bytes, 0, len_in_bytes)
 ~~~
+
+Note that the string Z\_pad is prepended to msg when computing b\_0 (step 6).
+This is necessary for security when H is a Merkle-Damgaard hash, e.g., SHA-2
+(see {{security-considerations-expand-xmd}}).
+Hashing this additional data means that the cost of computing b\_0 is higher
+than the cost of simply computing H(msg).
+In most settings this overhead is negligible, because the cost of evaluating
+H is much less than the other costs involved in hashing to a curve.
+
+It is possible, however, to entirely avoid this overhead by taking advantage
+of the fact that Z\_pad depends only on H, and not on the arguments to
+expand\_message\_xmd.
+To do so, first precompute and save the internal state of H after ingesting
+Z\_pad; and then, when computing b\_0, initialize H using the saved state.
+Further details are beyond the scope of this document.
 
 ### expand\_message\_xof {#hashtofield-expand-xof}
 
@@ -2963,14 +2982,15 @@ indifferentiable from a random oracle {{MRH04}} when one of the following holds:
 3. H is a Merkle-Damgaard hash function whose compression function is
    modeled as a random oracle {{CDMP05}}.
 
-The indifferentiability of this construction follows from the security argument
-for the construction in {{CDMP05}}, Section 5.
-As in that construction, expand\_message\_xmd generates its output by first
-hashing the input message into a intermediate result (b\_0), then repeatedly
-applying an indifferentiable hash function to that result.
+For cases (1) and (2), the indifferentiability of expand\_message\_xmd follows
+directly from the indifferentiability of H.
 
-In particular, each of the output blocks b\_i, i >= 1 in expand\_message\_xmd
-is the result of invoking H on a unique, prefix-free encoding of b\_0.
+For case (3), i.e., for H a Merkle-Damgaard hash function, indifferentiability
+follows from {{CDMP05}}, Theorem 3.5.
+In particular, expand\_message\_xmd computes b\_0 by prepending a block of
+0 bytes to the message (plus auxiliary information).
+Then, each of the output blocks b\_i, i >= 1 in expand\_message\_xmd is the
+result of invoking H on a unique, prefix-free encoding of b\_0.
 This is true, first, because the length of the input to all such invocations
 is equal and fixed by the choice of H and DST, and
 second, because each such input has a unique suffix (because of the inclusion
@@ -2978,7 +2998,7 @@ of the counter byte I2OSP(i, 1)).
 
 The essential difference between the construction of {{CDMP05}} and
 expand\_message\_xmd is that the latter hashes a counter appended to
-strxor(b\_0, b\_(i - 1)) (step 7) rather than to b\_0.
+strxor(b\_0, b\_(i - 1)) (step 9) rather than to b\_0.
 This approach increases the Hamming distance between inputs to different
 invocations of H, which reduces the likelihood that nonidealities in H
 affect the distribution of the b\_i values.

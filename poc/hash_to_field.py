@@ -68,8 +68,10 @@ def expand_message_xof(msg, dst, len_in_bytes, hash_fn, _):
 # from draft-irtf-cfrg-hash-to-curve-06
 # hash_fn should be, e.g., hashlib.sha256
 def expand_message_xmd(msg, dst, len_in_bytes, hash_fn, security_param):
+    # sanity checks and basic parameters
     b_in_bytes = hash_fn().digest_size
-    assert 8 * b_in_bytes >= 2 * security_param    # sanity check
+    r_in_bytes = hash_fn().block_size
+    assert 8 * b_in_bytes >= 2 * security_param
     dst = _as_bytes(dst)
     if len(dst) > 255:
         raise ValueError("dst len should be at most 255 bytes")
@@ -83,9 +85,13 @@ def expand_message_xmd(msg, dst, len_in_bytes, hash_fn, security_param):
     dst_prime = I2OSP(len(dst), 1) + dst
     assert len(dst_prime) == len(dst) + 1
 
+    # padding and length strings
+    Z_pad = I2OSP(0, r_in_bytes)
+    l_i_b_str = I2OSP(len_in_bytes, 2)
+
     # compute blocks
     b_vals = [None] * ell
-    b_0 = hash_fn(_as_bytes(msg) + I2OSP(len_in_bytes, 2) + I2OSP(0, 1) + dst_prime).digest()
+    b_0 = hash_fn(Z_pad + _as_bytes(msg) + l_i_b_str + I2OSP(0, 1) + dst_prime).digest()
     b_vals[0] = hash_fn(b_0 + I2OSP(1, 1) + dst_prime).digest()
     for i in xrange(1, ell):
         b_vals[i] = hash_fn(_strxor(b_0, b_vals[i - 1]) + I2OSP(i + 1, 1) + dst_prime).digest()
