@@ -1679,10 +1679,10 @@ Steps:
 1. ell = ceil(len_in_bytes / b_in_bytes)
 2. ABORT if ell > 255
 3. DST_prime = I2OSP(len(DST), 1) || DST
-4. b_0 = H(DST_prime || I2OSP(0, 1) || I2OSP(len_in_bytes, 2) || msg)
-5. b_1 = H(DST_prime || I2OSP(1, 1) || b_0)
+4. b_0 = H(msg || I2OSP(len_in_bytes, 2) || I2OSP(0, 1) || DST_prime)
+5. b_1 = H(b_0 || I2OSP(1, 1) || DST_prime)
 6. for i in (2, ..., ell):
-7.   b_i = H(DST_prime || I2OSP(i, 1) || strxor(b_0, b_(i - 1)))
+7.   b_i = H(strxor(b_0, b_(i - 1)) || I2OSP(i, 1) || DST_prime)
 8. pseudo_random_bytes = b_1 || ... || b_ell
 9. return substr(pseudo_random_bytes, 0, len_in_bytes)
 ~~~
@@ -1720,7 +1720,7 @@ Output:
 
 Steps:
 1. DST_prime = I2OSP(len(DST), 1) || DST
-2. msg_prime = DST_prime || I2OSP(len_in_bytes, 2) || msg
+2. msg_prime = msg || I2OSP(len_in_bytes, 2) || DST_prime
 3. pseudo_random_bytes = H(msg_prime, len_in_bytes)
 4. return pseudo_random_bytes
 ~~~
@@ -1745,18 +1745,18 @@ primitive, whereas a Mersenne twister pseudorandom number generator is not.
 
 - MUST give independent values for distinct (msg, DST, length) inputs.
 Meeting this requirement is slightly subtle.
-As one example, simply hashing the concatenation DST || msg does not work,
-because in this case distinct (DST, msg) pairs whose concatenations are equal
+As a simplified example, hashing the concatenation msg || DST does not work,
+because in this case distinct (msg, DST) pairs whose concatenations are equal
 will return the same output (e.g., ("AB", "CDEF") and ("ABC", "DEF")).
-The variants defined in this document handle this issue by concatenating
-a prefix-free encoding of DST with msg.
+The variants defined in this document use a prefix-free encoding of DST
+to avoid this issue.
 
 - MUST use the domain separation tag DST to ensure that invocations of
 cryptographic primitives inside of expand\_message are domain separated
-from all invocations outside of expand\_message.
-For example, if the expand\_message variant uses a hash function H, (an encoding of) DST
-MUST be either prepended or appended to the input to each invocation of H
-(for consistency, prepending is the RECOMMENDED approach).
+from invocations outside of expand\_message.
+For example, if the expand\_message variant uses a hash function H, an encoding
+of DST MUST be either prepended or appended to the input to each invocation
+of H (appending is the RECOMMENDED approach).
 
 - SHOULD read msg exactly once, for efficiency when msg is long.
 
@@ -2889,16 +2889,16 @@ Defending against such leakage is outside the scope of this document, because
 the nature of the leakage and the appropriate defense depends on the protocol
 from which a hash-to-curve function is invoked.
 
-Each encoding variant ({{roadmap}}) accepts an arbitrary byte string and maps
-it to a pseudorandom point on the curve.
-Note, however, that directly evaluating the mappings of {{mappings}} produces
-an output that is distinguishable from random.
-
 {{domain-separation}} describes considerations related to domain separation.
 
 {{hashtofield}} describes considerations for uniformly hashing to field elements;
 see {{security-considerations-hash-to-field}} and {{security-considerations-expand-xmd}}
 for further discussion.
+
+Each encoding variant ({{roadmap}}) accepts an arbitrary byte string and maps
+it to a pseudorandom point on the curve.
+Note, however, that directly evaluating the mappings of {{mappings}} produces
+an output that is distinguishable from random.
 
 When the hash\_to\_curve function ({{roadmap}}) is instantiated with a
 hash\_to\_field function that is indifferentiable from a random oracle
@@ -2942,16 +2942,12 @@ one member of this equivalence class at random and outputs the byte string
 returned by I2OSP.
 (Notice that this is essentially the inverse of the hash\_to\_field procedure.)
 
-Finally, we note that in the expand\_message variants defined in this document
-({{hashtofield-expand}}), the argument to every invocation of H (the underlying
-hash or extensible output function) is prepended with a prefix-free encoding of
-the domain separation tag DST, namely,
-
-    DST_prime = I2OSP(len(DST), 1) || DST
-
-The reason for this design is that it allows invocations of H outside of hash\_to\_field
-to be separated from those inside of hash\_to\_field, just by prepending the outside
-invocations with some other tag distinct from DST\_prime.
+Finally, the expand\_message variants in this document ({{hashtofield-expand}})
+always append the domain separation tag DST to the strings hashed by H, the
+underlying hash or extensible output function.
+This means that invocations of H outside of hash\_to\_field can be separated
+from those inside of hash\_to\_field by appending a tag distinct from DST to
+their inputs.
 Other expand\_message variants that follow the guidelines in
 {{hashtofield-expand-other}} are expected to have similar properties,
 but these should be analyzed on a case-by-case basis.
@@ -2977,16 +2973,15 @@ In particular, each of the output blocks b\_i, i >= 1 in expand\_message\_xmd
 is the result of invoking H on a unique, prefix-free encoding of b\_0.
 This is true, first, because the length of the input to all such invocations
 is equal and fixed by the choice of H and DST, and
-second, because each such input has a unique prefix (because of the inclusion
+second, because each such input has a unique suffix (because of the inclusion
 of the counter byte I2OSP(i, 1)).
 
 The essential difference between the construction of {{CDMP05}} and
-expand\_message\_xmd is that the latter hashes the concatenation of a counter
-with b\_0 XOR b\_(i - 1) (step 7), rather than simply hashing that counter
-prepended to b\_0.
-This approach increases the Hamming distance between invocations of H,
-which reduces the likelihood that nonidealities in H affect the distribution
-of the b\_i values.
+expand\_message\_xmd is that the latter hashes a counter appended to
+strxor(b\_0, b\_(i - 1)) (step 7) rather than to b\_0.
+This approach increases the Hamming distance between inputs to different
+invocations of H, which reduces the likelihood that nonidealities in H
+affect the distribution of the b\_i values.
 
 # Acknowledgements
 
