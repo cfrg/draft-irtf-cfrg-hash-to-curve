@@ -40,7 +40,7 @@ curves in Weierstrass form). These are intended only for testing---they're slow!
 - `modulus` is p, the characteristic of the target field F.
 - `degree` is m, the extension degree of the target field F.
 - `blen` is L, the length in bytes of the values that are reduced modulo p.
-- `expand_fn` is either `expand_message_xof` or `expand_message_md`, which are also defined in `hash_to_field.py`.
+- `expand_fn` is either `expand_message_xof` or `expand_message_xmd`, which are also defined in `hash_to_field.py`.
 - `hash_fn` is a hash function or XOF from Python's hashlib, e.g., `hashlib.sha256` or `hashlib.shake_128`.
 - `security_param` is k, the target security level in bits (e.g., 128).
 

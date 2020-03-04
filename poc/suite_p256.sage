@@ -3,7 +3,7 @@
 
 import hashlib
 import sys
-from hash_to_field import expand_message_md
+from hash_to_field import expand_message_xmd
 try:
     from sagelib.common import sgn0_le
     from sagelib.h2c_suite import BasicH2CSuiteDef, BasicH2CSuite
@@ -18,7 +18,7 @@ F = GF(p)
 A = F(-3)
 B = F(0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b)
 
-p256_sswu_def = BasicH2CSuiteDef("P256", F, A, B, sgn0_le, expand_message_md, hashlib.sha256, 48, GenericSSWU, 1, 128, True, DST)
+p256_sswu_def = BasicH2CSuiteDef("P256", F, A, B, sgn0_le, expand_message_xmd, hashlib.sha256, 48, GenericSSWU, 1, 128, True, DST)
 p256_svdw_def = p256_sswu_def._replace(MapT=GenericSvdW)
 p256_sswu_ro = BasicH2CSuite("P256-XMD:SHA.256-SSWU-RO-",p256_sswu_def)
 p256_svdw_ro = BasicH2CSuite("P256-XMD:SHA.256-SVDW-RO-",p256_svdw_def)

@@ -3,7 +3,7 @@
 
 import hashlib
 import sys
-from hash_to_field import expand_message_md
+from hash_to_field import expand_message_xmd
 try:
     from sagelib.common import sgn0_le
     from sagelib.h2c_suite import BasicH2CSuiteDef, EdwH2CSuiteDef, EdwH2CSuite, MontyH2CSuite
@@ -37,7 +37,7 @@ def m2e_448(P):
         return (0, 1, 0)
     return (xn / xd, yn / yd, 1)
 
-monty_suite = BasicH2CSuiteDef("curve448", F, Ap, Bp, sgn0_le, expand_message_md, hashlib.sha512, 84, None, 4, 224, True, DST)
+monty_suite = BasicH2CSuiteDef("curve448", F, Ap, Bp, sgn0_le, expand_message_xmd, hashlib.sha512, 84, None, 4, 224, True, DST)
 edw_suite = EdwH2CSuiteDef(monty_suite._replace(E="edwards448",Aa=a, Bd=d), Ap, Bp, m2e_448)
 edw448_hash_ro = EdwH2CSuite("edwards448-XMD:SHA.512-EDELL2-RO-",edw_suite)
 monty448_hash_ro = MontyH2CSuite("curve448-XMD:SHA.512-ELL2-RO-",monty_suite)

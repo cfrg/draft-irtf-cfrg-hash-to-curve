@@ -3,7 +3,7 @@
 
 import hashlib
 import sys
-from hash_to_field import expand_message_md
+from hash_to_field import expand_message_xmd
 try:
     from sagelib.common import sgn0_le
     from sagelib.h2c_suite import BasicH2CSuiteDef, EdwH2CSuiteDef, EdwH2CSuite, MontyH2CSuite
@@ -39,7 +39,7 @@ def m2e_25519(P):
     assert a * v^2 + w^2 == 1 + d * v^2 * w^2, "bad output point"
     return (v, w, 1)
 
-monty_suite = BasicH2CSuiteDef("curve25519", F, Ap, Bp, sgn0_le, expand_message_md, hashlib.sha256, 48, None, 8, 128, True, DST)
+monty_suite = BasicH2CSuiteDef("curve25519", F, Ap, Bp, sgn0_le, expand_message_xmd, hashlib.sha256, 48, None, 8, 128, True, DST)
 edw_suite = EdwH2CSuiteDef(monty_suite._replace(E="edwards25519",Aa=a, Bd=d), Ap, Bp, m2e_25519)
 edw25519_sha256_ro = EdwH2CSuite("edwards25519-XMD:SHA.256-EDELL2-RO-",edw_suite)
 monty25519_sha256_ro = MontyH2CSuite("curve25519-XMD:SHA.256-ELL2-RO-",monty_suite)

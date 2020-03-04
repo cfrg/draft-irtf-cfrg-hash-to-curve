@@ -3,7 +3,7 @@
 
 import hashlib
 import sys
-from hash_to_field import expand_message_md
+from hash_to_field import expand_message_xmd
 try:
     from sagelib.common import sgn0_le
     from sagelib.h2c_suite import BasicH2CSuiteDef, BasicH2CSuite
@@ -19,7 +19,7 @@ F = GF(p)
 A = F(-3)
 B = F(0x51953eb9618e1c9a1f929a21a0b68540eea2da725b99b315f3b8b489918ef109e156193951ec7e937b1652c0bd3bb1bf073573df883d2c34f1ef451fd46b503f00)
 
-p521_sswu_def = BasicH2CSuiteDef("P521", F, A, B, sgn0_le, expand_message_md, hashlib.sha512, 96, GenericSSWU, 1, 256, True, DST)
+p521_sswu_def = BasicH2CSuiteDef("P521", F, A, B, sgn0_le, expand_message_xmd, hashlib.sha512, 96, GenericSSWU, 1, 256, True, DST)
 p521_svdw_def = p521_sswu_def._replace(MapT=GenericSvdW)
 p521_sswu_ro = BasicH2CSuite("P521-XMD:SHA.512-SSWU-RO-",p521_sswu_def)
 p521_svdw_ro = BasicH2CSuite("P521-XMD:SHA.512-SVDW-RO-",p521_svdw_def)
