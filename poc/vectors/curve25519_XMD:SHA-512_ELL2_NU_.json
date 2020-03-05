@@ -1,0 +1,47 @@
+{
+  "ciphersuite": "curve25519_XMD:SHA-512_ELL2_NU_",
+  "curve": "curve25519",
+  "dst": "QUUX-V01-CS02",
+  "expand": "XMD",
+  "field": {
+    "m": "0x1",
+    "p": "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed"
+  },
+  "hash": "sha512",
+  "k": "0x80",
+  "map": {
+    "name": "ELL2",
+    "sgn0": "sgn0_le"
+  },
+  "randomOracle": false,
+  "vectors": [
+    {
+      "P": {
+        "x": "0x3d86439149ebbd2130ef28c6ca68c95e4e25fb0fe6919eed525d7440c3816957",
+        "y": "0x5d63d279c62b0f7571cb90c5cfb29b24f9e06cded2be312b2802e858a599a42e"
+      },
+      "msg": ""
+    },
+    {
+      "P": {
+        "x": "0x4512f00a88fc4d733ddd04908b554b2294c7be2a1a71e05d2bc00d1a8891d596",
+        "y": "0x1af7c9980356c8619487aade5ea5b834e1b4ed313717e65be71735e5b555d9de"
+      },
+      "msg": "abc"
+    },
+    {
+      "P": {
+        "x": "0x04c20454e56bd0c3fa55ca02284b56b06081364bc6d61df316db92ac2f3f3681",
+        "y": "0x2a554a902e6e8dc624a6536eb754e9b349c70040b8b793c69a034da4cf7c784b"
+      },
+      "msg": "abcdef0123456789"
+    },
+    {
+      "P": {
+        "x": "0x5db2f17307a925ffc25329e6351f4dedb5ee308ba9a8508becefac15a87ace0b",
+        "y": "0x051539d816008d15982535ebeaf460d94b2ff90a75c02eb919f0742fddcba2bd"
+      },
+      "msg": "a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ]
+}

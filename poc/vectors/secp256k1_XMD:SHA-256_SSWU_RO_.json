@@ -1,0 +1,47 @@
+{
+  "ciphersuite": "secp256k1_XMD:SHA-256_SSWU_RO_",
+  "curve": "secp256k1",
+  "dst": "QUUX-V01-CS02",
+  "expand": "XMD",
+  "field": {
+    "m": "0x1",
+    "p": "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f"
+  },
+  "hash": "sha256",
+  "k": "0x80",
+  "map": {
+    "name": "SSWU",
+    "sgn0": "sgn0_le"
+  },
+  "randomOracle": true,
+  "vectors": [
+    {
+      "P": {
+        "x": "0xdd10c231034348fe35485d4b8af1662417b47d10a9283890646fc082e591ca50",
+        "y": "0x3dc2af65134696e948ab03e1579bf4296d99dc265845a5715bf2196cc69fd70a"
+      },
+      "msg": ""
+    },
+    {
+      "P": {
+        "x": "0x98da7867a9d7842444f30f064df975f4efb22f6ea3eaba07f08a94e5e35fcca4",
+        "y": "0xc077b6cf9ab45e76852965363d9c840e4a462140a6cdb13fb419ca274f90bb9b"
+      },
+      "msg": "abc"
+    },
+    {
+      "P": {
+        "x": "0x727055f43d8301257634b71758393fcbb4e1bb8a6fef5f693311f0ba35633ead",
+        "y": "0x7c4631f3d30c26835e0be02df06e03c97774fdafe2d5fc30ece46661e99364f3"
+      },
+      "msg": "abcdef0123456789"
+    },
+    {
+      "P": {
+        "x": "0x00a26ae4391010ae40874731f550106eb149196091f77618a7fee5a3c3fb8e73",
+        "y": "0x7363716fb51821b4495870d1a84ecdea0608c781ea20fe07339290b95fdd813a"
+      },
+      "msg": "a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ]
+}
