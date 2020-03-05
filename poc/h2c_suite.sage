@@ -66,7 +66,10 @@ class BasicH2CSuite(object):
         return x
 
     def __call__(self, msg):
-        return self.hash(msg)
+        self.vector = {}
+        self.vector["msg"] = msg
+        self.vector["P"] = self.hash(msg)
+        return self.vector
 
     def _hash_to_field(self, msg, count):
         xi_vals = hash_to_field(msg, count, self.dst, self.p, self.m, self.L, self.expand, self.H, self.k)

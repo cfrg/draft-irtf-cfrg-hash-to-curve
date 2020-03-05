@@ -61,8 +61,8 @@ def file_json(h2c, _vectors, path="vectors"):
     with open(path + "/" + h2c.suite_name + ".json", 'wt') as file:
         out = h2c.__dict__()
         all_vec = [{
-            "msg": vec[0],
-            "P": Printer.math.point(vec[1]), } for vec in _vectors]
+            "msg": vec["msg"],
+            "P": Printer.math.point(vec["P"]), } for vec in _vectors]
         out.update({"vectors": all_vec})
         json.dump(out, file, sort_keys=True, indent=2)
 
@@ -72,13 +72,13 @@ def file_ascii(h2c, _vectors, path="ascii"):
         file.write(Printer.tv.text("suite", h2c.suite_name)+"\n")
         file.write(Printer.tv.text("dst", h2c.dst)+"\n")
         for vec in _vectors:
-            file.write(Printer.tv.text("msg", vec[0])+"\n")
-            file.write(Printer.tv.point(vec[1])+"\n")
+            file.write(Printer.tv.text("msg", vec["msg"])+"\n")
+            file.write(Printer.tv.point(vec["P"])+"\n")
 
 
 def create_files(suite):
     print("Generating: " + suite.suite_name)
-    vectors = [(msg, suite(msg)) for msg in INPUTS]
+    vectors = [suite(msg) for msg in INPUTS]
     file_json(suite, vectors)
     file_ascii(suite, vectors)
 
