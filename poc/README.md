@@ -29,18 +29,20 @@ and the code in this directory.
 (but less full-featured than) the Sage EllipticCurve() object (which only supports
 curves in Weierstrass form). These are intended only for testing---they're slow!
 
-`hash_to_base.py` implements OS2IP and I2OSP.
+`hash_to_field.py` implements OS2IP and I2OSP.
 
 ## Hashing to a Finite Field (hash-to-curve-05 Section 5)
 
-`hash_to_base.py` implements the hash\_to\_base function. The arguments are as follows:
+`hash_to_field.py` implements the hash\_to\_field function. The arguments are as follows:
 
-- `msg` and `ctr` are the arguments to hash\_to\_base of the same name.
+- `msg` and `count` are the arguments to hash\_to\_field of the same name.
 - `dst` is the domain separation tag.
 - `modulus` is p, the characteristic of the target field F.
 - `degree` is m, the extension degree of the target field F.
 - `blen` is L, the length in bytes of the values that are reduced modulo p.
-- `hash_fn` is a hash function from Python's hashlib, e.g., `hashlib.sha256`.
+- `expand_fn` is either `expand_message_xof` or `expand_message_xmd`, which are also defined in `hash_to_field.py`.
+- `hash_fn` is a hash function or XOF from Python's hashlib, e.g., `hashlib.sha256` or `hashlib.shake_128`.
+- `security_param` is k, the target security level in bits (e.g., 128).
 
 ## Deterministic Mappings (hash-to-curve-05 Section 6)
 

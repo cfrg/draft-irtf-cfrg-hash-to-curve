@@ -3,6 +3,7 @@
 
 import hashlib
 import sys
+from hash_to_field import expand_message_xmd
 try:
     from sagelib.common import sgn0_le
     from sagelib.h2c_suite import BasicH2CSuiteDef, BasicH2CSuite, IsoH2CSuiteDef, IsoH2CSuite
@@ -23,12 +24,12 @@ Ap = F(0x3f8731abdd661adca08a5558f0f5d272e953d363cb6f0e5d405447c01a444533)
 Bp = F(1771)
 iso_map = iso_secp256k1()
 
-secp256k1_svdw_def = BasicH2CSuiteDef("secp256k1", F, A, B, sgn0_le, hashlib.sha256, 48, GenericSvdW, 1, True, DST)
+secp256k1_svdw_def = BasicH2CSuiteDef("secp256k1", F, A, B, sgn0_le, expand_message_xmd, hashlib.sha256, 48, GenericSvdW, 1, 128, True, DST)
 secp256k1_sswu_def = IsoH2CSuiteDef(secp256k1_svdw_def._replace(MapT=GenericSSWU), Ap, Bp, iso_map)
-secp256k1_sswu_ro = IsoH2CSuite("secp256k1-SHA256-SSWU-RO-",secp256k1_sswu_def)
-secp256k1_svdw_ro = BasicH2CSuite("secp256k1-SHA256-SVDW-RO-",secp256k1_svdw_def)
-secp256k1_sswu_nu = IsoH2CSuite("secp256k1-SHA256-SSWU-NU-",secp256k1_sswu_def._replace(base=secp256k1_sswu_def.base._replace(is_ro=False)))
-secp256k1_svdw_nu = BasicH2CSuite("secp256k1-SHA256-SVDW-NU-",secp256k1_svdw_def._replace(is_ro=False))
+secp256k1_sswu_ro = IsoH2CSuite("secp256k1_XMD:SHA-256_SSWU_RO_",secp256k1_sswu_def)
+secp256k1_svdw_ro = BasicH2CSuite("secp256k1_XMD:SHA-256_SVDW_RO_",secp256k1_svdw_def)
+secp256k1_sswu_nu = IsoH2CSuite("secp256k1_XMD:SHA-256_SSWU_NU_",secp256k1_sswu_def._replace(base=secp256k1_sswu_def.base._replace(is_ro=False)))
+secp256k1_svdw_nu = BasicH2CSuite("secp256k1_XMD:SHA-256_SVDW_NU_",secp256k1_svdw_def._replace(is_ro=False))
 assert secp256k1_sswu_ro.m2c.Z == secp256k1_sswu_nu.m2c.Z == -11
 assert secp256k1_svdw_ro.m2c.Z == secp256k1_svdw_nu.m2c.Z == 1
 

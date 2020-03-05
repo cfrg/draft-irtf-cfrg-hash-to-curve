@@ -3,6 +3,7 @@
 
 import hashlib
 import sys
+from hash_to_field import expand_message_xmd
 try:
     from sagelib.common import sgn0_le
     from sagelib.h2c_suite import BasicH2CSuiteDef, EdwH2CSuiteDef, EdwH2CSuite, MontyH2CSuite
@@ -38,17 +39,17 @@ def m2e_25519(P):
     assert a * v^2 + w^2 == 1 + d * v^2 * w^2, "bad output point"
     return (v, w, 1)
 
-monty_suite = BasicH2CSuiteDef("curve25519", F, Ap, Bp, sgn0_le, hashlib.sha256, 48, None, 8, True, DST)
+monty_suite = BasicH2CSuiteDef("curve25519", F, Ap, Bp, sgn0_le, expand_message_xmd, hashlib.sha256, 48, None, 8, 128, True, DST)
 edw_suite = EdwH2CSuiteDef(monty_suite._replace(E="edwards25519",Aa=a, Bd=d), Ap, Bp, m2e_25519)
-edw25519_sha256_ro = EdwH2CSuite("edwards25519-SHA256-EDELL2-RO-",edw_suite)
-monty25519_sha256_ro = MontyH2CSuite("curve25519-SHA256-ELL2-RO-",monty_suite)
-edw25519_sha256_nu = EdwH2CSuite("edwards25519-SHA256-EDELL2-NU-",edw_suite._replace(base=edw_suite.base._replace(is_ro=False)))
-monty25519_sha256_nu = MontyH2CSuite("curve25519-SHA256-ELL2-NU-",monty_suite._replace(is_ro=False))
+edw25519_sha256_ro = EdwH2CSuite("edwards25519_XMD:SHA-256_EDELL2_RO_",edw_suite)
+monty25519_sha256_ro = MontyH2CSuite("curve25519_XMD:SHA-256_ELL2_RO_",monty_suite)
+edw25519_sha256_nu = EdwH2CSuite("edwards25519_XMD:SHA-256_EDELL2_NU_",edw_suite._replace(base=edw_suite.base._replace(is_ro=False)))
+monty25519_sha256_nu = MontyH2CSuite("curve25519_XMD:SHA-256_ELL2_NU_",monty_suite._replace(is_ro=False))
 
-edw25519_sha512_ro = EdwH2CSuite("edwards25519-SHA512-EDELL2-RO-",edw_suite._replace(base=edw_suite.base._replace(H=hashlib.sha512)))
-monty25519_sha512_ro = MontyH2CSuite("curve25519-SHA512-ELL2-RO-",monty_suite._replace(H=hashlib.sha512))
-edw25519_sha512_nu = EdwH2CSuite("edwards25519-SHA512-EDELL2-NU-",edw_suite._replace(base=edw_suite.base._replace(H=hashlib.sha512,is_ro=False)))
-monty25519_sha512_nu = MontyH2CSuite("curve25519-SHA512-ELL2-NU-",monty_suite._replace(H=hashlib.sha512,is_ro=False))
+edw25519_sha512_ro = EdwH2CSuite("edwards25519_XMD:SHA-512_EDELL2_RO_",edw_suite._replace(base=edw_suite.base._replace(H=hashlib.sha512)))
+monty25519_sha512_ro = MontyH2CSuite("curve25519_XMD:SHA-512_ELL2_RO_",monty_suite._replace(H=hashlib.sha512))
+edw25519_sha512_nu = EdwH2CSuite("edwards25519_XMD:SHA-512_EDELL2_NU_",edw_suite._replace(base=edw_suite.base._replace(H=hashlib.sha512,is_ro=False)))
+monty25519_sha512_nu = MontyH2CSuite("curve25519_XMD:SHA-512_ELL2_NU_",monty_suite._replace(H=hashlib.sha512,is_ro=False))
 assert edw25519_sha256_ro.m2c.Z == edw25519_sha256_nu.m2c.Z == 2
 assert monty25519_sha256_ro.m2c.Z == monty25519_sha256_nu.m2c.Z == 2
 assert edw25519_sha512_ro.m2c.Z == edw25519_sha512_nu.m2c.Z == 2

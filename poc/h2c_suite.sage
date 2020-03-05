@@ -4,7 +4,7 @@
 from collections import namedtuple
 import sys
 
-from hash_to_base import hash_to_base
+from hash_to_field import hash_to_field, expand_message_xof
 
 try:
     from sagelib.curves import EdwardsCurve, MontgomeryCurve
@@ -12,7 +12,7 @@ try:
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
-BasicH2CSuiteDef = namedtuple("BasicH2CSuiteDef", "E F Aa Bd sgn0 H L MapT h_eff is_ro dst")
+BasicH2CSuiteDef = namedtuple("BasicH2CSuiteDef", "E F Aa Bd sgn0 expand H L MapT h_eff k is_ro dst")
 IsoH2CSuiteDef = namedtuple("IsoH2CSuiteDef", "base Ap Bp iso_map")
 EdwH2CSuiteDef = namedtuple("EdwH2CSuiteDef", "base Ap Bp rational_map")
 
@@ -32,13 +32,15 @@ class BasicH2CSuite(object):
         self.m2c = sdef.MapT(F, sdef.Aa, sdef.Bd)
         self.m2c.set_sgn0(sdef.sgn0)
 
-        # precompute vector basis for field, used by hash_to_base
+        # precompute vector basis for field, used by hash_to_field
         self.field_gens = tuple( F.gen()^k for k in range(0, self.m) )
 
         # save other params
+        self.expand = sdef.expand
         self.H = sdef.H
         self.L = sdef.L
         self.h_eff = sdef.h_eff
+        self.k = sdef.k
         self.is_ro = sdef.is_ro
         self.dst = sdef.dst
 
@@ -53,6 +55,8 @@ class BasicH2CSuite(object):
             "dst": self.dst,
             "hash": (self.H()).name,
             "map": self.m2c.__dict__(),
+            "k": '0x{0}'.format(ZZ(self.k).hex()),
+            "expand": "XOF" if self.expand == expand_message_xof else "XMD",
             "randomOracle": bool(self.is_ro),
         }
 
@@ -64,9 +68,9 @@ class BasicH2CSuite(object):
     def __call__(self, msg):
         return self.hash(msg)
 
-    def _hash_to_base(self, msg, ctr):
-        xi = hash_to_base(msg, ctr, self.dst, self.p, self.m, self.L, self.H)
-        return sum( a * b for (a, b) in zip(xi, self.field_gens) )
+    def _hash_to_field(self, msg, count):
+        xi_vals = hash_to_field(msg, count, self.dst, self.p, self.m, self.L, self.expand, self.H, self.k)
+        return [ sum( a * b for (a, b) in zip(xi, self.field_gens) ) for xi in xi_vals ]
 
     def map_to_curve(self, u):
         return self.to_self(self.m2c.map_to_curve(u))
@@ -79,31 +83,30 @@ class BasicH2CSuite(object):
     def _clear_cofactor(self, P):
         return P * self.h_eff
 
-    def _encode_to_curve(self, msg, hash_to_base=None, map_to_curve=None, clear_cofactor=None):
-        if hash_to_base is None:
-            hash_to_base = self._hash_to_base
+    def _encode_to_curve(self, msg, hash_to_field=None, map_to_curve=None, clear_cofactor=None):
+        if hash_to_field is None:
+            hash_to_field = self._hash_to_field
         if map_to_curve is None:
             map_to_curve = self.m2c.map_to_curve
         if clear_cofactor is None:
             clear_cofactor = self._clear_cofactor
 
-        u = hash_to_base(msg, 2)
-        Q = map_to_curve(u)
+        u = hash_to_field(msg, 1)
+        Q = map_to_curve(u[0])
         P = clear_cofactor(Q)
         return P
 
-    def _hash_to_curve(self, msg, hash_to_base=None, map_to_curve=None, clear_cofactor=None):
-        if hash_to_base is None:
-            hash_to_base = self._hash_to_base
+    def _hash_to_curve(self, msg, hash_to_field=None, map_to_curve=None, clear_cofactor=None):
+        if hash_to_field is None:
+            hash_to_field = self._hash_to_field
         if map_to_curve is None:
             map_to_curve = self.m2c.map_to_curve
         if clear_cofactor is None:
             clear_cofactor = self._clear_cofactor
 
-        u0 = hash_to_base(msg, 0)
-        u1 = hash_to_base(msg, 1)
-        Q0 = map_to_curve(u0)
-        Q1 = map_to_curve(u1)
+        u = hash_to_field(msg, 2)
+        Q0 = map_to_curve(u[0])
+        Q1 = map_to_curve(u[1])
         R = Q0 + Q1
         P = clear_cofactor(R)
         return P
@@ -120,18 +123,18 @@ class BasicH2CSuite(object):
         return res
 
     # may be overridden in descendents
-    hash_to_base = _hash_to_base
+    hash_to_field = _hash_to_field
 
     # may be overridden in descendents
     clear_cofactor = _clear_cofactor
 
-    # in descendents, automatically overrides with overridden hash_to_base, map_to_curve, clear_cofactor methods
+    # in descendents, automatically overrides with overridden hash_to_field, map_to_curve, clear_cofactor methods
     def encode_to_curve(self, msg):
-        return self._encode_to_curve(msg, self.hash_to_base, self.map_to_curve, self.clear_cofactor)
+        return self._encode_to_curve(msg, self.hash_to_field, self.map_to_curve, self.clear_cofactor)
 
-    # in descendents, automatically overrides with overridden hash_to_base, map_to_curve, clear_cofactor methods
+    # in descendents, automatically overrides with overridden hash_to_field, map_to_curve, clear_cofactor methods
     def hash_to_curve(self, msg):
-        return self._hash_to_curve(msg, self.hash_to_base, self.map_to_curve, self.clear_cofactor)
+        return self._hash_to_curve(msg, self.hash_to_field, self.map_to_curve, self.clear_cofactor)
 
 class IsoH2CSuite(BasicH2CSuite):
     def __init__(self, name, sdef):

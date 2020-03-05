@@ -3,6 +3,7 @@
 
 import hashlib
 import sys
+from hash_to_field import expand_message_xmd
 try:
     from sagelib.common import sgn0_be
     from sagelib.h2c_suite import BasicH2CSuiteDef, BasicH2CSuite, IsoH2CSuiteDef, IsoH2CSuite
@@ -24,12 +25,12 @@ Bp = F(0x12e2908d11688030018b12e8753eee3b2016c1f0f24f4070a0b9c14fcef35ef55a23215
 h_eff = 0xd201000000010001
 iso_map = iso_bls12381g1()
 
-bls12381g1_svdw_def = BasicH2CSuiteDef("BLS12381G1", F, A, B, sgn0_be, hashlib.sha256, 64, GenericSvdW, h_eff, True, DST)
+bls12381g1_svdw_def = BasicH2CSuiteDef("BLS12381G1", F, A, B, sgn0_be, expand_message_xmd, hashlib.sha256, 64, GenericSvdW, h_eff, 128, True, DST)
 bls12381g1_sswu_def = IsoH2CSuiteDef(bls12381g1_svdw_def._replace(MapT=GenericSSWU), Ap, Bp, iso_map)
-bls12381g1_svdw_ro = BasicH2CSuite("BLS12381G1-SHA256-SVDW-RO-",bls12381g1_svdw_def)
-bls12381g1_sswu_ro = IsoH2CSuite("BLS12381G1-SHA256-SSWU-RO-",bls12381g1_sswu_def)
-bls12381g1_svdw_nu = BasicH2CSuite("BLS12381G1-SHA256-SVDW-NU-",bls12381g1_svdw_def._replace(is_ro=False))
-bls12381g1_sswu_nu = IsoH2CSuite("BLS12381G1-SHA256-SSWU-NU-",bls12381g1_sswu_def._replace(base=bls12381g1_sswu_def.base._replace(is_ro=False)))
+bls12381g1_svdw_ro = BasicH2CSuite("BLS12381G1_XMD:SHA-256_SVDW_RO_",bls12381g1_svdw_def)
+bls12381g1_sswu_ro = IsoH2CSuite("BLS12381G1_XMD:SHA-256_SSWU_RO_",bls12381g1_sswu_def)
+bls12381g1_svdw_nu = BasicH2CSuite("BLS12381G1_XMD:SHA-256_SVDW_NU_",bls12381g1_svdw_def._replace(is_ro=False))
+bls12381g1_sswu_nu = IsoH2CSuite("BLS12381G1_XMD:SHA-256_SSWU_NU_",bls12381g1_sswu_def._replace(base=bls12381g1_sswu_def.base._replace(is_ro=False)))
 assert bls12381g1_sswu_ro.m2c.Z == bls12381g1_sswu_nu.m2c.Z == 11
 assert bls12381g1_svdw_ro.m2c.Z == bls12381g1_svdw_nu.m2c.Z == -3
 

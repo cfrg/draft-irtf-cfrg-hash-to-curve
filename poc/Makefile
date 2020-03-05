@@ -26,7 +26,7 @@ vectors: pyfiles
 
 .PHONY: clean
 clean:
-	rm -rf sagelib *.pyc *.sage.py *.log
+	rm -rf sagelib *.pyc *.sage.py *.log __pycache__
 
 .PHONY: distclean
 distclean: clean

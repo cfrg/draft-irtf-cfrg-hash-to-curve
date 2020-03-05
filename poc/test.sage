@@ -3,7 +3,7 @@
 
 import sys
 
-from hash_to_base import test_hkdf
+from hash_to_field import test_expand
 
 print("Importing modules...")
 
@@ -30,8 +30,8 @@ except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 if __name__ == "__main__":
-    print("Testing hkdf")
-    test_hkdf()
+    print("Testing expand_message functions")
+    test_expand()
 
     print("Testing Tonelli-Shanks")
     test_ts()
