@@ -30,10 +30,10 @@ assert p256_svdw_ro.m2c.Z == p256_svdw_nu.m2c.Z ==  -3
 p256_order = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551
 
 def _test_suite(suite, group_order, nreps=128):
-    accum = suite('asdf')
+    accum = suite('asdf')["P"]
     for _ in range(0, nreps):
         msg = ''.join( chr(randrange(32, 126)) for _ in range(0, 32) )
-        accum += suite(msg)
+        accum += suite(msg)["P"]
     assert (accum * group_order).is_zero()
 
 def test_suite_p256():
