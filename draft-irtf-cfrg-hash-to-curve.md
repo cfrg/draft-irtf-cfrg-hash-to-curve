@@ -637,14 +637,12 @@ informative:
        ins: F. Rodriguez-Henriquez
        org: Computer Science Department, CINVESTAV-IPN. Mexico
        name: Francisco Rodriguez-Henriquez
-  BP18:
-    title: Hashing to G2 on BLS pairing-friendly curves
+  BP17:
+    title: Efficient hash maps to G2 on BLS curves
     seriesinfo:
-        "In": ACM Communications in Computer Algebra
-        "pages": 63-66
-        DOI: 10.1145/3313880.3313884
-    target: https://doi.org/10.1145/3313880.3313884
-    date: Sep, 2018
+        "ePrint": 2017/419
+    target: https://eprint.iacr.org/2017/419
+    date: May, 2017
     author:
       -
        ins: A. Budroni
@@ -2396,7 +2394,7 @@ Examples of fast cofactor clearing methods include the following:
   field, Scott et al. {{SBCDK09}} describe a method for fast cofactor clearing
   that exploits an efficiently-computable endomorphism. Fuentes-Castaneda
   et al. {{FKR11}} propose an alternative method that is sometimes more efficient.
-  Budroni and Pintore {{BP18}} give concrete instantiations of these methods
+  Budroni and Pintore {{BP17}} give concrete instantiations of these methods
   for Barreto-Lynn-Scott pairing-friendly curves {{BLS03}}.
 
 - Wahby and Boneh ({{WB19}}, Section 5) describe a trick due to Scott for
@@ -2795,7 +2793,7 @@ except that the encoding type is encode\_to\_curve ({{roadmap}}).
 
 Note that the h\_eff values for these suites are chosen for compatibility
 with the fast cofactor clearing method described by
-Budroni and Pintore ({{BP18}}, Section 4.1).
+Budroni and Pintore ({{BP17}}, Section 4.1).
 
 ## Defining a new hash-to-curve suite {#new-suite}
 
