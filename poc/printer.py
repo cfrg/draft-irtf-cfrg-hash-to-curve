@@ -11,10 +11,10 @@ class Printer:
 
     @staticmethod
     def _pprint_hex(octet_string):
-        if type(octet_string) == str:
+        if isinstance(octet_string, str):
             return "".join("{:02x}".format(ord(c)) for c in octet_string)
-        if type(octet_string) == bytes:
-            return "".join("{:02x}".format(c) for c in octet_string)
+        assert isinstance(octet_string, bytes)
+        return "".join("{:02x}".format(c) for c in octet_string)
 
     @staticmethod
     def _tv_wrap(text):
@@ -55,7 +55,7 @@ class Printer:
         def point(point):
             if point.is_zero():
                 return "inf"
-            x, y, z = point
+            (x, y, _) = point
             length = Printer._get_length(point)
             return "\n".join([
                 Printer.tv.value("x", x, length),
@@ -70,6 +70,6 @@ class Printer:
         def point(point):
             if point.is_zero():
                 return {"inf": True}
-            x, y, z = point
+            (x, y, _) = point
             length = Printer._get_length(point)
             return {"x": Printer.math.gf(x, length), "y": Printer.math.gf(y, length)}

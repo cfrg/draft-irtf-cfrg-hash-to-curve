@@ -57,18 +57,18 @@ assert monty25519_sha512_ro.m2c.Z == monty25519_sha512_nu.m2c.Z == 2
 
 group_order = 2^252 + 0x14def9dea2f79cd65812631a5cf5d3ed
 
-def _test_suite(edw_hash, monty_hash, m2e, group_order, nreps=128):
+def _test_suite(edw_hash, monty_hash, m2e, grp_ord, nreps=128):
     accumE = edw_hash('asdf')["P"]
     accumM = monty_hash('asdf')["P"]
-    for _ in range(0, 128):
+    for _ in range(0, nreps):
         msg = ''.join( chr(randrange(32, 126)) for _ in range(0, 32) )
         edw_out = edw_hash(msg)["P"]
         monty_out = monty_hash(msg)["P"]
         assert tuple(edw_out) == m2e(monty_out)
         accumE += edw_out
         accumM += monty_out
-    assert (edw_out * group_order).is_zero()
-    assert (monty_out * group_order).is_zero()
+    assert (edw_out * grp_ord).is_zero()
+    assert (monty_out * grp_ord).is_zero()
 
 def test_suite_25519():
     _test_suite(edw25519_sha256_ro, monty25519_sha256_ro, m2e_25519, group_order)

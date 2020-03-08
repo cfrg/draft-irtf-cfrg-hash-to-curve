@@ -58,22 +58,22 @@ except ImportError:
 
 
 def file_json(h2c, _vectors, path="vectors"):
-    with open(path + "/" + h2c.suite_name + ".json", 'wt') as file:
+    with open(path + "/" + h2c.suite_name + ".json", 'wt') as f:
         out = h2c.__dict__()
         all_vec = [{
             "msg": vec["msg"],
             "P": Printer.math.point(vec["P"]), } for vec in _vectors]
         out.update({"vectors": all_vec})
-        json.dump(out, file, sort_keys=True, indent=2)
+        json.dump(out, f, sort_keys=True, indent=2)
 
 
 def file_ascii(h2c, _vectors, path="ascii"):
-    with open(path + "/" + h2c.suite_name + ".txt", 'wt') as file:
-        file.write(Printer.tv.text("suite", h2c.suite_name)+"\n")
-        file.write(Printer.tv.text("dst", h2c.dst)+"\n")
+    with open(path + "/" + h2c.suite_name + ".txt", 'wt') as f:
+        f.write(Printer.tv.text("suite", h2c.suite_name)+"\n")
+        f.write(Printer.tv.text("dst", h2c.dst)+"\n")
         for vec in _vectors:
-            file.write(Printer.tv.text("msg", vec["msg"])+"\n")
-            file.write(Printer.tv.point(vec["P"])+"\n")
+            f.write(Printer.tv.text("msg", vec["msg"])+"\n")
+            f.write(Printer.tv.point(vec["P"])+"\n")
 
 
 def create_files(suite):

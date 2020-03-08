@@ -40,7 +40,8 @@ class GenericEll2Edw(GenericMap):
         (s, t) = self.ell2_map.not_straight_line(u)
         return self.nsl_map(s, t)
 
-    def nsl_map(self, s, t):
+    @staticmethod
+    def nsl_map(s, t):
         vnum = s
         vden = t
         wnum = (s - 1)

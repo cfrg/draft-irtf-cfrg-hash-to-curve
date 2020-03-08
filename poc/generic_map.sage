@@ -9,6 +9,7 @@ except ImportError:
 
 class GenericMap(object):
     undefs = []
+    E = None
     F = None
     straight_line = None
     not_straight_line = None
@@ -72,7 +73,7 @@ class GenericMap(object):
                 # randomly pick sgn0_le or sgn0_be
                 if randint(0, 1) == 1:
                     ret.set_sgn0(sgn0_be)
-            except ValueError as e:
+            except ValueError:
                 # constructor threw ValueError: this curve is not valid for this map
                 continue
             return ret

@@ -17,6 +17,8 @@ IsoH2CSuiteDef = namedtuple("IsoH2CSuiteDef", "base Ap Bp iso_map")
 EdwH2CSuiteDef = namedtuple("EdwH2CSuiteDef", "base Ap Bp rational_map")
 
 class BasicH2CSuite(object):
+    vector = None
+
     def __init__(self, name, sdef):
         assert isinstance(sdef, BasicH2CSuiteDef)
 
@@ -86,32 +88,32 @@ class BasicH2CSuite(object):
     def _clear_cofactor(self, P):
         return P * self.h_eff
 
-    def _encode_to_curve(self, msg, hash_to_field=None, map_to_curve=None, clear_cofactor=None):
-        if hash_to_field is None:
-            hash_to_field = self._hash_to_field
-        if map_to_curve is None:
-            map_to_curve = self.m2c.map_to_curve
-        if clear_cofactor is None:
-            clear_cofactor = self._clear_cofactor
+    def _encode_to_curve(self, msg, h2f_fn=None, m2c_fn=None, ccf_fn=None):
+        if h2f_fn is None:
+            h2f_fn = self._hash_to_field
+        if m2c_fn is None:
+            m2c_fn = self.m2c.map_to_curve
+        if ccf_fn is None:
+            ccf_fn = self._clear_cofactor
 
-        u = hash_to_field(msg, 1)
-        Q = map_to_curve(u[0])
-        P = clear_cofactor(Q)
+        u = h2f_fn(msg, 1)
+        Q = m2c_fn(u[0])
+        P = ccf_fn(Q)
         return P
 
-    def _hash_to_curve(self, msg, hash_to_field=None, map_to_curve=None, clear_cofactor=None):
-        if hash_to_field is None:
-            hash_to_field = self._hash_to_field
-        if map_to_curve is None:
-            map_to_curve = self.m2c.map_to_curve
-        if clear_cofactor is None:
-            clear_cofactor = self._clear_cofactor
+    def _hash_to_curve(self, msg, h2f_fn=None, m2c_fn=None, ccf_fn=None):
+        if h2f_fn is None:
+            h2f_fn = self._hash_to_field
+        if m2c_fn is None:
+            m2c_fn = self.m2c.map_to_curve
+        if ccf_fn is None:
+            ccf_fn = self._clear_cofactor
 
-        u = hash_to_field(msg, 2)
-        Q0 = map_to_curve(u[0])
-        Q1 = map_to_curve(u[1])
+        u = h2f_fn(msg, 2)
+        Q0 = m2c_fn(u[0])
+        Q1 = m2c_fn(u[1])
         R = Q0 + Q1
-        P = clear_cofactor(R)
+        P = ccf_fn(R)
         return P
 
     # in descendents, test direct vs indirect hash to curve
