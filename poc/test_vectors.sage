@@ -78,7 +78,7 @@ def file_ascii(h2c, _vectors, path="ascii"):
 
 def create_files(suite):
     print("Generating: " + suite.suite_name)
-    vectors = [suite(msg) for msg in INPUTS]
+    vectors = [suite(msg, output_test_vector=True) for msg in INPUTS]
     file_json(suite, vectors)
     file_ascii(suite, vectors)
 

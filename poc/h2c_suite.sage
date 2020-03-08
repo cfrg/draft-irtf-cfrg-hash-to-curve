@@ -67,11 +67,13 @@ class BasicH2CSuite(object):
         # in descendents, overridden to convert points from map_to_curve repr to output repr
         return x
 
-    def __call__(self, msg):
+    def __call__(self, msg, output_test_vector=False):
         self.vector = {}
         self.vector["msg"] = msg
         self.vector["P"] = self.hash(msg)
-        return self.vector
+        if output_test_vector:
+            return self.vector
+        return self.vector["P"]
 
     def hash_to_field(self, msg, count):
         xi_vals = hash_to_field(msg, count, self.dst, self.p, self.m, self.L, self.expand, self.H, self.k)
