@@ -73,73 +73,37 @@ class BasicH2CSuite(object):
         self.vector["P"] = self.hash(msg)
         return self.vector
 
-    def _hash_to_field(self, msg, count):
+    def hash_to_field(self, msg, count):
         xi_vals = hash_to_field(msg, count, self.dst, self.p, self.m, self.L, self.expand, self.H, self.k)
         return [ sum( a * b for (a, b) in zip(xi, self.field_gens) ) for xi in xi_vals ]
 
     def map_to_curve(self, u):
         return self.to_self(self.m2c.map_to_curve(u))
 
-    def _hash(self, msg):
-        if self.is_ro:
-            return self._hash_to_curve(msg)
-        return self._encode_to_curve(msg)
-
-    def _clear_cofactor(self, P):
+    def clear_cofactor(self, P):
         return P * self.h_eff
 
-    def _encode_to_curve(self, msg, h2f_fn=None, m2c_fn=None, ccf_fn=None):
-        if h2f_fn is None:
-            h2f_fn = self._hash_to_field
-        if m2c_fn is None:
-            m2c_fn = self.m2c.map_to_curve
-        if ccf_fn is None:
-            ccf_fn = self._clear_cofactor
-
-        u = h2f_fn(msg, 1)
-        Q = m2c_fn(u[0])
-        P = ccf_fn(Q)
+    def encode_to_curve(self, msg):
+        u = self.hash_to_field(msg, 1)
+        Q = self.map_to_curve(u[0])
+        P = self.clear_cofactor(Q)
         return P
 
-    def _hash_to_curve(self, msg, h2f_fn=None, m2c_fn=None, ccf_fn=None):
-        if h2f_fn is None:
-            h2f_fn = self._hash_to_field
-        if m2c_fn is None:
-            m2c_fn = self.m2c.map_to_curve
-        if ccf_fn is None:
-            ccf_fn = self._clear_cofactor
-
-        u = h2f_fn(msg, 2)
-        Q0 = m2c_fn(u[0])
-        Q1 = m2c_fn(u[1])
+    def hash_to_curve(self, msg):
+        u = self.hash_to_field(msg, 2)
+        Q0 = self.map_to_curve(u[0])
+        Q1 = self.map_to_curve(u[1])
         R = Q0 + Q1
-        P = ccf_fn(R)
+        P = self.clear_cofactor(R)
         return P
 
     # in descendents, test direct vs indirect hash to curve
     def hash(self, msg):
-        res = self.to_self(self._hash(msg))
-        # double check correctness
         if self.is_ro:
-            res2 = self.hash_to_curve(msg)
+            res = self.hash_to_curve(msg)
         else:
-            res2 = self.encode_to_curve(msg)
-        assert res == res2
+            res = self.encode_to_curve(msg)
         return res
-
-    # may be overridden in descendents
-    hash_to_field = _hash_to_field
-
-    # may be overridden in descendents
-    clear_cofactor = _clear_cofactor
-
-    # in descendents, automatically overrides with overridden hash_to_field, map_to_curve, clear_cofactor methods
-    def encode_to_curve(self, msg):
-        return self._encode_to_curve(msg, self.hash_to_field, self.map_to_curve, self.clear_cofactor)
-
-    # in descendents, automatically overrides with overridden hash_to_field, map_to_curve, clear_cofactor methods
-    def hash_to_curve(self, msg):
-        return self._hash_to_curve(msg, self.hash_to_field, self.map_to_curve, self.clear_cofactor)
 
 class IsoH2CSuite(BasicH2CSuite):
     def __init__(self, name, sdef):
