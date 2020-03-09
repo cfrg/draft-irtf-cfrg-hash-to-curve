@@ -24,7 +24,7 @@ class Printer:
     def _lv(label, values):
         prefix = "{:7s} = ".format(label)
         sep_lines = "\n" + " " * 10
-        sep_extension = "\n" + " " * 7 + "+i*"
+        sep_extension = "\n" + " " * 4 + "+ I * "
         out = sep_extension.join([sep_lines.join(Printer._tv_wrap(value))
                                   for value in values])
         return prefix + out
