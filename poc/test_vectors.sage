@@ -78,7 +78,7 @@ def file_ascii(h2c, vectors, path="ascii"):
         f.write(Printer.tv.text("suite", h2c.suite_name) + "\n")
         f.write(Printer.tv.text("dst", h2c.dst) + "\n")
         for vec in vectors:
-            f.write(Printer.tv.text("msg", vec["msg"]) + "\n")
+            f.write("\n" + Printer.tv.text("msg", vec["msg"]) + "\n")
             f.write(Printer.tv.point("P", vec["P"]) + "\n")
             for idx in range(0, len(vec["u"])):
                 f.write(Printer.tv.gf("u[%d]" % idx, vec["u"][idx]) + "\n")
