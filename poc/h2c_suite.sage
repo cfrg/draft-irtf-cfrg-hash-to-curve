@@ -50,14 +50,14 @@ class BasicH2CSuite(object):
         return {
             "ciphersuite": self.suite_name,
             "field":{
-                "p" :  '0x{0}'.format(ZZ(self.p).hex()),
-                "m" :  '0x{0}'.format(ZZ(self.m).hex()),
+                "p" :  '0x%x' % ZZ(self.p),
+                "m" :  '0x%x' % ZZ(self.m),
             },
             "curve": self.curve_name,
             "dst": self.dst,
             "hash": (self.H()).name,
             "map": self.m2c.__dict__(),
-            "k": '0x{0}'.format(ZZ(self.k).hex()),
+            "k": '0x%x' % ZZ(self.k),
             "expand": "XOF" if self.expand == expand_message_xof else "XMD",
             "randomOracle": bool(self.is_ro),
         }
