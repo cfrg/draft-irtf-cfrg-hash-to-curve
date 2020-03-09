@@ -11,7 +11,6 @@ try:
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
-DST = "QUUX-V01-CS02"
 p = 2^448 - 2^224 - 1
 F = GF(p)
 Ap = F(156326)  # Bp * y^2 = x^3 + Ap * x^2 + x
@@ -37,12 +36,24 @@ def m2e_448(P):
         return (0, 1, 0)
     return (xn / xd, yn / yd, 1)
 
-monty_suite = BasicH2CSuiteDef("curve448", F, Ap, Bp, sgn0_le, expand_message_xmd, hashlib.sha512, 84, None, 4, 224, True, DST)
-edw_suite = EdwH2CSuiteDef(monty_suite._replace(E="edwards448",Aa=a, Bd=d), Ap, Bp, m2e_448)
-edw448_hash_ro = EdwH2CSuite("edwards448_XMD:SHA-512_ELL2_RO_",edw_suite)
-monty448_hash_ro = MontyH2CSuite("curve448_XMD:SHA-512_ELL2_RO_",monty_suite)
-edw448_hash_nu = EdwH2CSuite("edwards448_XMD:SHA-512_ELL2_NU_",edw_suite._replace(base=edw_suite.base._replace(is_ro=False)))
-monty448_hash_nu = MontyH2CSuite("curve448_XMD:SHA-512_ELL2_NU_",monty_suite._replace(is_ro=False))
+def monty_suite(suite_name, is_ro):
+    return BasicH2CSuiteDef("curve448", F, Ap, Bp, sgn0_le, expand_message_xmd, hashlib.sha512, 84, None, 4, 224, is_ro, "%sTESTGEN" % suite_name)
+
+def edw_suite(suite_name, is_ro):
+    return EdwH2CSuiteDef(monty_suite(suite_name, is_ro)._replace(E="edwards448",Aa=a, Bd=d), Ap, Bp, m2e_448)
+
+suite_name = "edwards448_XMD:SHA-512_ELL2_RO_"
+edw448_hash_ro = EdwH2CSuite(suite_name,edw_suite(suite_name, True))
+
+suite_name = "curve448_XMD:SHA-512_ELL2_RO_"
+monty448_hash_ro = MontyH2CSuite(suite_name,monty_suite(suite_name, True))
+
+suite_name = "edwards448_XMD:SHA-512_ELL2_NU_"
+edw448_hash_nu = EdwH2CSuite(suite_name,edw_suite(suite_name, False))
+
+suite_name = "curve448_XMD:SHA-512_ELL2_NU_"
+monty448_hash_nu = MontyH2CSuite(suite_name,monty_suite(suite_name, False))
+
 assert edw448_hash_ro.m2c.Z == edw448_hash_nu.m2c.Z == -1
 assert monty448_hash_ro.m2c.Z == monty448_hash_nu.m2c.Z == -1
 
@@ -51,6 +62,11 @@ group_order = 2^446 - 0x8335dc163bb124b65129c96fde933d8d723a70aadc873d6d54a7bb0d
 def test_suite_448():
     _test_suite(edw448_hash_ro, monty448_hash_ro, m2e_448, group_order)
     _test_suite(edw448_hash_nu, monty448_hash_nu, m2e_448, group_order)
+    # make sure that when we use the same DST, we get the same result from edw and monty
+    suite_name = "XXX_TEST_SUITE_XXX"
+    _test_suite(EdwH2CSuite(suite_name, edw_suite(suite_name, True)),
+                MontyH2CSuite(suite_name, monty_suite(suite_name, True)),
+                m2e_448, group_order, nreps=128, is_equal=True)
 
 if __name__ == "__main__":
     test_suite_448()

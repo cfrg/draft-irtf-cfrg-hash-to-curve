@@ -14,7 +14,6 @@ try:
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
-DST = "QUUX-V01-CS02"
 p = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
 F.<II> = GF(p^2, modulus=[1,0,1])
 A = F(0)
@@ -27,12 +26,24 @@ ell_u = 0xd201000000010000
 h_eff = h2 * (3 * ell_u^2 - 3)
 iso_map = iso_bls12381g2()
 
-bls12381g2_svdw_def = BasicH2CSuiteDef("BLS12381G2", F, A, B, sgn0_be, expand_message_xmd, hashlib.sha256, 64, GenericSvdW, h_eff, 128, True, DST)
-bls12381g2_sswu_def = IsoH2CSuiteDef(bls12381g2_svdw_def._replace(MapT=GenericSSWU), Ap, Bp, iso_map)
-bls12381g2_svdw_ro = BasicH2CSuite("BLS12381G2_XMD:SHA-256_SVDW_RO_",bls12381g2_svdw_def)
-bls12381g2_sswu_ro = IsoH2CSuite("BLS12381G2_XMD:SHA-256_SSWU_RO_",bls12381g2_sswu_def)
-bls12381g2_svdw_nu = BasicH2CSuite("BLS12381G2_XMD:SHA-256_SVDW_NU_",bls12381g2_svdw_def._replace(is_ro=False))
-bls12381g2_sswu_nu = IsoH2CSuite("BLS12381G2_XMD:SHA-256_SSWU_NU_",bls12381g2_sswu_def._replace(base=bls12381g2_sswu_def.base._replace(is_ro=False)))
+def bls12381g2_svdw(suite_name, is_ro):
+    return BasicH2CSuiteDef("BLS12381G2", F, A, B, sgn0_be, expand_message_xmd, hashlib.sha256, 64, GenericSvdW, h_eff, 128, is_ro, "%sTESTGEN" % suite_name)
+
+def bls12381g2_sswu(suite_name, is_ro):
+    return IsoH2CSuiteDef(bls12381g2_svdw(suite_name, is_ro)._replace(MapT=GenericSSWU), Ap, Bp, iso_map)
+
+suite_name = "BLS12381G2_XMD:SHA-256_SVDW_RO_"
+bls12381g2_svdw_ro = BasicH2CSuite(suite_name,bls12381g2_svdw(suite_name, True))
+
+suite_name = "BLS12381G2_XMD:SHA-256_SSWU_RO_"
+bls12381g2_sswu_ro = IsoH2CSuite(suite_name,bls12381g2_sswu(suite_name, True))
+
+suite_name = "BLS12381G2_XMD:SHA-256_SVDW_NU_"
+bls12381g2_svdw_nu = BasicH2CSuite(suite_name,bls12381g2_svdw(suite_name, False))
+
+suite_name = "BLS12381G2_XMD:SHA-256_SSWU_NU_"
+bls12381g2_sswu_nu = IsoH2CSuite(suite_name,bls12381g2_sswu(suite_name, False))
+
 assert bls12381g2_sswu_ro.m2c.Z == bls12381g2_sswu_nu.m2c.Z == F(-2 - II)
 assert bls12381g2_svdw_ro.m2c.Z == bls12381g2_svdw_nu.m2c.Z == F(II)
 

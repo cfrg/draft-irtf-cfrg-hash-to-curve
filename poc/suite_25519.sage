@@ -10,7 +10,6 @@ try:
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
-DST = "QUUX-V01-CS02"
 p = 2^255 - 19
 F = GF(p)
 Ap = F(486662)  # Bp * y^2 = x^3 + Ap * x^2 + x
@@ -39,17 +38,36 @@ def m2e_25519(P):
     assert a * v^2 + w^2 == 1 + d * v^2 * w^2, "bad output point"
     return (v, w, 1)
 
-monty_suite = BasicH2CSuiteDef("curve25519", F, Ap, Bp, sgn0_le, expand_message_xmd, hashlib.sha256, 48, None, 8, 128, True, DST)
-edw_suite = EdwH2CSuiteDef(monty_suite._replace(E="edwards25519",Aa=a, Bd=d), Ap, Bp, m2e_25519)
-edw25519_sha256_ro = EdwH2CSuite("edwards25519_XMD:SHA-256_ELL2_RO_",edw_suite)
-monty25519_sha256_ro = MontyH2CSuite("curve25519_XMD:SHA-256_ELL2_RO_",monty_suite)
-edw25519_sha256_nu = EdwH2CSuite("edwards25519_XMD:SHA-256_ELL2_NU_",edw_suite._replace(base=edw_suite.base._replace(is_ro=False)))
-monty25519_sha256_nu = MontyH2CSuite("curve25519_XMD:SHA-256_ELL2_NU_",monty_suite._replace(is_ro=False))
+def monty_suite(suite_name, hash_fn, is_ro):
+    return BasicH2CSuiteDef("curve25519", F, Ap, Bp, sgn0_le, expand_message_xmd, hash_fn, 48, None, 8, 128, is_ro, "%sTESTGEN" % suite_name)
 
-edw25519_sha512_ro = EdwH2CSuite("edwards25519_XMD:SHA-512_ELL2_RO_",edw_suite._replace(base=edw_suite.base._replace(H=hashlib.sha512)))
-monty25519_sha512_ro = MontyH2CSuite("curve25519_XMD:SHA-512_ELL2_RO_",monty_suite._replace(H=hashlib.sha512))
-edw25519_sha512_nu = EdwH2CSuite("edwards25519_XMD:SHA-512_ELL2_NU_",edw_suite._replace(base=edw_suite.base._replace(H=hashlib.sha512,is_ro=False)))
-monty25519_sha512_nu = MontyH2CSuite("curve25519_XMD:SHA-512_ELL2_NU_",monty_suite._replace(H=hashlib.sha512,is_ro=False))
+def edw_suite(suite_name, hash_fn, is_ro):
+    return EdwH2CSuiteDef(monty_suite(suite_name, hash_fn, is_ro)._replace(E="edwards25519",Aa=a, Bd=d), Ap, Bp, m2e_25519)
+
+suite_name = "edwards25519_XMD:SHA-256_ELL2_RO_"
+edw25519_sha256_ro = EdwH2CSuite(suite_name,edw_suite(suite_name, hashlib.sha256, True))
+
+suite_name = "curve25519_XMD:SHA-256_ELL2_RO_"
+monty25519_sha256_ro = MontyH2CSuite(suite_name,monty_suite(suite_name, hashlib.sha256, True))
+
+suite_name = "edwards25519_XMD:SHA-256_ELL2_NU_"
+edw25519_sha256_nu = EdwH2CSuite(suite_name,edw_suite(suite_name, hashlib.sha256, False))
+
+suite_name = "curve25519_XMD:SHA-256_ELL2_NU_"
+monty25519_sha256_nu = MontyH2CSuite(suite_name,monty_suite(suite_name, hashlib.sha256, False))
+
+suite_name = "edwards25519_XMD:SHA-512_ELL2_RO_"
+edw25519_sha512_ro = EdwH2CSuite(suite_name,edw_suite(suite_name, hashlib.sha512, True))
+
+suite_name = "curve25519_XMD:SHA-512_ELL2_RO_"
+monty25519_sha512_ro = MontyH2CSuite(suite_name,monty_suite(suite_name, hashlib.sha512, True))
+
+suite_name = "edwards25519_XMD:SHA-512_ELL2_NU_"
+edw25519_sha512_nu = EdwH2CSuite(suite_name,edw_suite(suite_name, hashlib.sha512, False))
+
+suite_name = "curve25519_XMD:SHA-512_ELL2_NU_"
+monty25519_sha512_nu = MontyH2CSuite(suite_name,monty_suite(suite_name, hashlib.sha512, False))
+
 assert edw25519_sha256_ro.m2c.Z == edw25519_sha256_nu.m2c.Z == 2
 assert monty25519_sha256_ro.m2c.Z == monty25519_sha256_nu.m2c.Z == 2
 assert edw25519_sha512_ro.m2c.Z == edw25519_sha512_nu.m2c.Z == 2
@@ -57,14 +75,14 @@ assert monty25519_sha512_ro.m2c.Z == monty25519_sha512_nu.m2c.Z == 2
 
 group_order = 2^252 + 0x14def9dea2f79cd65812631a5cf5d3ed
 
-def _test_suite(edw_hash, monty_hash, m2e, grp_ord, nreps=128):
+def _test_suite(edw_hash, monty_hash, m2e, grp_ord, nreps=128, is_equal=False):
     accumE = edw_hash('asdf')
     accumM = monty_hash('asdf')
     for _ in range(0, nreps):
         msg = ''.join( chr(randrange(32, 126)) for _ in range(0, 32) )
         edw_out = edw_hash(msg)
         monty_out = monty_hash(msg)
-        assert tuple(edw_out) == m2e(monty_out)
+        assert (tuple(edw_out) == m2e(monty_out)) == is_equal
         accumE += edw_out
         accumM += monty_out
     assert (edw_out * grp_ord).is_zero()
@@ -75,6 +93,11 @@ def test_suite_25519():
     _test_suite(edw25519_sha256_nu, monty25519_sha256_nu, m2e_25519, group_order)
     _test_suite(edw25519_sha512_ro, monty25519_sha512_ro, m2e_25519, group_order)
     _test_suite(edw25519_sha512_nu, monty25519_sha512_nu, m2e_25519, group_order)
+    # make sure that when we use the same DST, we get the same result from edw and monty
+    suite_name = "XXX_TEST_SUITE_XXX"
+    _test_suite(EdwH2CSuite(suite_name, edw_suite(suite_name, hashlib.sha512, True)),
+                MontyH2CSuite(suite_name, monty_suite(suite_name, hashlib.sha512, True)),
+                m2e_25519, group_order, nreps=128, is_equal=True)
 
 if __name__ == "__main__":
     test_suite_25519()

@@ -13,18 +13,29 @@ try:
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
-DST = "QUUX-V01-CS02"
 p = 2^521 - 1
 F = GF(p)
 A = F(-3)
 B = F(0x51953eb9618e1c9a1f929a21a0b68540eea2da725b99b315f3b8b489918ef109e156193951ec7e937b1652c0bd3bb1bf073573df883d2c34f1ef451fd46b503f00)
 
-p521_sswu_def = BasicH2CSuiteDef("P521", F, A, B, sgn0_le, expand_message_xmd, hashlib.sha512, 96, GenericSSWU, 1, 256, True, DST)
-p521_svdw_def = p521_sswu_def._replace(MapT=GenericSvdW)
-p521_sswu_ro = BasicH2CSuite("P521_XMD:SHA-512_SSWU_RO_",p521_sswu_def)
-p521_svdw_ro = BasicH2CSuite("P521_XMD:SHA-512_SVDW_RO_",p521_svdw_def)
-p521_sswu_nu = BasicH2CSuite("P521_XMD:SHA-512_SSWU_NU_",p521_sswu_def._replace(is_ro=False))
-p521_svdw_nu = BasicH2CSuite("P521_XMD:SHA-512_SVDW_NU_",p521_svdw_def._replace(is_ro=False))
+def p521_sswu(suite_name, is_ro):
+    return BasicH2CSuiteDef("P521", F, A, B, sgn0_le, expand_message_xmd, hashlib.sha512, 96, GenericSSWU, 1, 256, is_ro, "%sTESTGEN" % suite_name)
+
+def p521_svdw(suite_name, is_ro):
+    return p521_sswu(suite_name, is_ro)._replace(MapT=GenericSvdW)
+
+suite_name = "P521_XMD:SHA-512_SSWU_RO_"
+p521_sswu_ro = BasicH2CSuite(suite_name,p521_sswu(suite_name, True))
+
+suite_name = "P521_XMD:SHA-512_SVDW_RO_"
+p521_svdw_ro = BasicH2CSuite(suite_name,p521_svdw(suite_name, True))
+
+suite_name = "P521_XMD:SHA-512_SSWU_NU_"
+p521_sswu_nu = BasicH2CSuite(suite_name,p521_sswu(suite_name, False))
+
+suite_name = "P521_XMD:SHA-512_SVDW_NU_"
+p521_svdw_nu = BasicH2CSuite(suite_name,p521_svdw(suite_name, False))
+
 assert p521_sswu_ro.m2c.Z == p521_sswu_nu.m2c.Z == -4
 assert p521_svdw_ro.m2c.Z == p521_svdw_nu.m2c.Z == 1
 
