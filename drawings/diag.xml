@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mxfile host="www.draw.io" modified="2020-03-09T18:48:50.840Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36" version="12.8.1" etag="IDozrtpfFlCCzsoF9mZK">
+<mxfile host="www.draw.io" modified="2020-03-09T19:08:42.615Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36" version="12.8.1" etag="GoqB7NU_eOM-erKUw5eC">
   <diagram id="mYpvd7WgMRAQvSsUQeTU" name="Page-1">
-    <mxGraphModel dx="1296" dy="859" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="1" shadow="0">
+    <mxGraphModel dx="1296" dy="818" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="1" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -12,7 +12,7 @@
           <mxGeometry x="298" y="254.5" width="640" height="140" as="geometry" />
         </mxCell>
         <mxCell id="e5kPCjj8kIqCvvov5xjr-1" value="Start" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_1;whiteSpace=wrap;" parent="1" vertex="1">
-          <mxGeometry x="28" y="224.5" width="52" height="30" as="geometry" />
+          <mxGeometry x="36" y="224.5" width="52" height="30" as="geometry" />
         </mxCell>
         <mxCell id="e5kPCjj8kIqCvvov5xjr-2" value="Hashing to Elliptic Curves" style="text;html=1;resizable=0;autosize=1;align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;fontSize=28;fontStyle=1" parent="1" vertex="1">
           <mxGeometry x="28" y="15" width="360" height="40" as="geometry" />
@@ -25,8 +25,8 @@
         <mxCell id="e5kPCjj8kIqCvvov5xjr-10" value="Random &lt;br&gt;oracle&lt;br&gt;&amp;nbsp;model?" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;fontSize=12;verticalAlign=middle;fillColor=#FFE599;strokeColor=#23445d;" parent="1" vertex="1">
           <mxGeometry x="189.5" y="198.25000000000006" width="97.5" height="82.5" as="geometry" />
         </mxCell>
-        <mxCell id="e5kPCjj8kIqCvvov5xjr-14" value="alpha&amp;nbsp;&lt;span style=&quot;font-size: 12px ; text-align: left ; white-space: normal&quot;&gt;∈&amp;nbsp;&lt;/span&gt;{0,1}*" style="text;html=1;resizable=0;autosize=1;align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;fontSize=14;fontStyle=1" parent="1" vertex="1">
-          <mxGeometry x="76" y="216.5" width="110" height="20" as="geometry" />
+        <mxCell id="e5kPCjj8kIqCvvov5xjr-14" value="msg&amp;nbsp;&lt;span style=&quot;font-size: 12px ; text-align: left ; white-space: normal&quot;&gt;∈&amp;nbsp;&lt;/span&gt;{0,1}*" style="text;html=1;resizable=0;autosize=1;align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;fontSize=14;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="85" y="214.5" width="100" height="20" as="geometry" />
         </mxCell>
         <mxCell id="e5kPCjj8kIqCvvov5xjr-20" value="No&lt;br&gt;" style="text;html=1;resizable=0;autosize=1;align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;fontSize=12;" parent="1" vertex="1">
           <mxGeometry x="223.5" y="145" width="30" height="20" as="geometry" />
@@ -39,7 +39,7 @@
             <mxPoint x="613" y="169" as="sourcePoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e5kPCjj8kIqCvvov5xjr-23" value="&lt;div style=&quot;text-align: left&quot;&gt;U = Hash2Field(&lt;b&gt;alpha&lt;/b&gt;, 1)&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;fontSize=12;verticalAlign=middle;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+        <mxCell id="e5kPCjj8kIqCvvov5xjr-23" value="&lt;div style=&quot;text-align: left&quot;&gt;U = Hash2Field(&lt;b&gt;msg&lt;/b&gt;, 1)&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;fontSize=12;verticalAlign=middle;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
           <mxGeometry x="323" y="146.0000000000001" width="183" height="43" as="geometry" />
         </mxCell>
         <mxCell id="e5kPCjj8kIqCvvov5xjr-32" value="&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;Q=MapToCurve(U)&lt;/span&gt;&lt;/div&gt;&lt;span&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;&amp;nbsp; &amp;nbsp;=&lt;/span&gt;&lt;span&gt;(x,y)&lt;/span&gt;&lt;span&gt;&amp;nbsp;∈ E(F)&lt;/span&gt;&lt;/div&gt;&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;fontSize=12;verticalAlign=middle;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
@@ -83,7 +83,7 @@
             <mxGeometry x="615" y="20" width="450" height="30" as="geometry" />
           </mxCell>
         </UserObject>
-        <mxCell id="hH6OWWwSYyNsOQdXuhbv-1" value="&lt;div style=&quot;text-align: left&quot;&gt;(U&lt;sub&gt;0&lt;/sub&gt;,U&lt;sub&gt;1&lt;/sub&gt;) = Hash2Field(&lt;b&gt;alpha&lt;/b&gt;, 2)&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;fontSize=12;verticalAlign=middle;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+        <mxCell id="hH6OWWwSYyNsOQdXuhbv-1" value="&lt;div style=&quot;text-align: left&quot;&gt;(U&lt;sub&gt;0&lt;/sub&gt;,U&lt;sub&gt;1&lt;/sub&gt;) = Hash2Field(&lt;b&gt;msg&lt;/b&gt;, 2)&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;fontSize=12;verticalAlign=middle;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
           <mxGeometry x="323" y="304.5" width="183" height="43" as="geometry" />
         </mxCell>
         <mxCell id="hH6OWWwSYyNsOQdXuhbv-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=12;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="hH6OWWwSYyNsOQdXuhbv-1" target="hH6OWWwSYyNsOQdXuhbv-4">
@@ -93,7 +93,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="hH6OWWwSYyNsOQdXuhbv-4" value="&lt;div style=&quot;text-align: left&quot;&gt;Q&lt;sub&gt;0&lt;/sub&gt;=MapToCurve(U&lt;sub&gt;0&lt;/sub&gt;)&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&amp;nbsp; &amp;nbsp; =(x&lt;sub&gt;0&lt;/sub&gt;,y&lt;sub&gt;0&lt;/sub&gt;)&amp;nbsp;∈ E(F)&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;fontSize=12;verticalAlign=middle;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
-          <mxGeometry x="555.0000000000001" y="272" width="130" height="47" as="geometry" />
+          <mxGeometry x="555.0000000000001" y="269" width="130" height="47" as="geometry" />
         </mxCell>
         <mxCell id="hH6OWWwSYyNsOQdXuhbv-6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontSize=12;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="hH6OWWwSYyNsOQdXuhbv-1" target="hH6OWWwSYyNsOQdXuhbv-7">
           <mxGeometry relative="1" as="geometry">
@@ -102,7 +102,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="hH6OWWwSYyNsOQdXuhbv-7" value="&lt;div style=&quot;text-align: left&quot;&gt;Q&lt;sub&gt;1&lt;/sub&gt;=MapToCurve(U&lt;sub&gt;1&lt;/sub&gt;)&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&amp;nbsp; &amp;nbsp; =(x&lt;sub&gt;1&lt;/sub&gt;,y&lt;sub&gt;1&lt;/sub&gt;)&amp;nbsp;∈ E(F)&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;fontSize=12;verticalAlign=middle;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
-          <mxGeometry x="555.0000000000001" y="326.5" width="130" height="47" as="geometry" />
+          <mxGeometry x="555.0000000000001" y="331.5" width="130" height="47" as="geometry" />
         </mxCell>
         <mxCell id="hH6OWWwSYyNsOQdXuhbv-46" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;fontColor=#0000FF;strokeWidth=2;" edge="1" parent="1" source="hH6OWWwSYyNsOQdXuhbv-8" target="e5kPCjj8kIqCvvov5xjr-46">
           <mxGeometry relative="1" as="geometry">
@@ -197,7 +197,7 @@
           <mxGeometry x="555" y="467.5" width="510" height="142.5" as="geometry" />
         </mxCell>
         <mxCell id="hH6OWWwSYyNsOQdXuhbv-61" value="&lt;div class=&quot;author&quot; style=&quot;color: rgb(51 , 51 , 51) ; font-family: &amp;#34;helvetica neue&amp;#34; , &amp;#34;open sans&amp;#34; , &amp;#34;helvetica&amp;#34; , &amp;#34;calibri&amp;#34; , sans-serif ; font-size: 13px&quot;&gt;&lt;div class=&quot;author-name&quot;&gt;A. Faz-Hernandez,&amp;nbsp;&lt;span&gt;S. Scott,&amp;nbsp;&lt;/span&gt;&lt;span&gt;N. Sullivan,&amp;nbsp;&lt;/span&gt;&lt;span&gt;R. S. Wahby,&amp;nbsp;&lt;/span&gt;&lt;span&gt;C. A. Wood&lt;/span&gt;&lt;span&gt;.&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#000000;" vertex="1" parent="1">
-          <mxGeometry x="683" y="50" width="390" height="30" as="geometry" />
+          <mxGeometry x="683" y="42" width="390" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
