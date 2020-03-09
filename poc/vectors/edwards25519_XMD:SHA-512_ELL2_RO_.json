@@ -1,0 +1,95 @@
+{
+  "ciphersuite": "edwards25519_XMD:SHA-512_ELL2_RO_",
+  "curve": "edwards25519",
+  "dst": "QUUX-V01-CS02",
+  "expand": "XMD",
+  "field": {
+    "m": "0x1",
+    "p": "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed"
+  },
+  "hash": "sha512",
+  "k": "0x80",
+  "map": {
+    "name": "ELL2",
+    "sgn0": "sgn0_le"
+  },
+  "randomOracle": true,
+  "vectors": [
+    {
+      "P": {
+        "x": "0x57037091c5a16c4addba7c8f78a0ca86314e07c63107a2ef66110616bcf4af12",
+        "y": "0x71ff4e3ddbd8468c5ab61fe9f00cc19659c6b0f126f24eff5ef9592154257f9e"
+      },
+      "Q0": {
+        "x": "0x51befc0ca3de48ae45a9dda160f4c527f620891afe0fe79851d6a2fe8cf32d21",
+        "y": "0x48ef1adb3994aff56fb2c7d96303cb82c0a490610fd2971fe9feefff40e20921"
+      },
+      "Q1": {
+        "x": "0x2b16b3a406f7ab4f1f3af9d793cde4b5fcb1666aa04e207d0648fce0e14eac4b",
+        "y": "0x2684705936ab53c104d067cdf3caca892447591d8cb80a576b534886ca2e45a0"
+      },
+      "msg": "",
+      "u": [
+        "0x74b849ee651a4ef156f6f7659f4dfdc75501cbc5e98f8518eaaff9cfe3aebc64",
+        "0x02b8e26a4406d9da715a5aed84548a7481eb35d4bdd930e150865a03caca04ed"
+      ]
+    },
+    {
+      "P": {
+        "x": "0x26cce91e86d6c2bf23941c08a2f52fc9f129590b3268e7ce0e3d2841145ab9b1",
+        "y": "0x0fd69b853034c4af4cc28099ab1135d1cb635268271c7e0c055ce91dc163ff07"
+      },
+      "Q0": {
+        "x": "0x5983eee1e62b3d0b789e0e86201d3f022d68fe2453e40929b64c54cd8fb68ecb",
+        "y": "0x4058aa7731bfe5d079647e6b3df03417765b44182326a04b3fa734c85d591e38"
+      },
+      "Q1": {
+        "x": "0x345f23ab9f30203536608e1ad3f89bfdc199dbc5498d95ca2f7b1c9f2ed89214",
+        "y": "0x2a834c19176b1dd98e08f56bad6e4fde5f1c009e13c19c0325b367530b17e213"
+      },
+      "msg": "abc",
+      "u": [
+        "0x14f6705c05aa59ac53864526cb3620965b397a0b15ccd9ef2d7dd24f8ce6b2ad",
+        "0x2a437e78a5476c691e2c0e8c55efb94311f78542a32a65433f196ea12af9e556"
+      ]
+    },
+    {
+      "P": {
+        "x": "0x60cc30945299dae6ae4bcedda325ca564f902ffaa29936657e62fe45f221a271",
+        "y": "0x40327eb16dc2e7f439708fd85a153a5448c2f0df7789af08ca16a7c84fc21b6c"
+      },
+      "Q0": {
+        "x": "0x614c32aaf51e50f224ef1bd07bc6b85f10ca039f19684ba1fb1caf9f8ef44070",
+        "y": "0x13fb5c389c2a2fc9c81c93a329240e869c2522b4757f89c3c702d80c6afa0f29"
+      },
+      "Q1": {
+        "x": "0x357d280e593446c08d96a09b590b87dbf2f104ba51a063bf7bc7650f3d517020",
+        "y": "0x400807ad89630539078f9c1b8ebe0522a3344ff79a9bb743a32a89e0649b1a15"
+      },
+      "msg": "abcdef0123456789",
+      "u": [
+        "0x575effaab038eab33e8d7fc89dfb77c5534196b9e7ce7113e214c6d114405059",
+        "0x5316355c455d0f3e999106dfe03ae79473d1468e65610c608cd234084a8a7aab"
+      ]
+    },
+    {
+      "P": {
+        "x": "0x1dd67a6e966116cc81c37861aeb51381758f143733f3f63b0255193b4cf2f596",
+        "y": "0x47cda986e057e3b48b221932cad6349c02acc41e04885941ae3775e1ae1c6a2c"
+      },
+      "Q0": {
+        "x": "0x2d95a226998121a960b3e8789cc5f059536917a26b253c90cbab843313ef20f4",
+        "y": "0x757608246f4d0c891673c281b70f1da5d68246295b4df162ccd670e9fb8309da"
+      },
+      "Q1": {
+        "x": "0x2e22d778f545172f17fad7875f025801cd84ad5310cd8dbc36dc997436da581a",
+        "y": "0x4054985f74883f5d603f99ab3f67524a4cc50da7059b93d8c587ae456eabf89a"
+      },
+      "msg": "a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "u": [
+        "0x3b3575b3acbce2402fd216d474dfdf4979dd5b3dd6bb2407ea15ec283b189d98",
+        "0x29ac263706983a6750cdc6074d867c59670c4abda94c537cdf876eb9cfde2f52"
+      ]
+    }
+  ]
+}

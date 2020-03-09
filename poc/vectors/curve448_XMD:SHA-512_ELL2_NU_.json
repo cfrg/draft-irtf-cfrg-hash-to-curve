@@ -20,28 +20,56 @@
         "x": "0xbd022ef47c969f6a2c4675666a42be8a3c522139aaf87319666cd1584b83f886ff02ed7c6a46be5bcd81fb4340663fc6f689d9475b6146e7",
         "y": "0xc3139587cd1a9170be9ce4178003991311e4d225768e6426c78c1828c9194e76e972cac1338fd94c736d0a917252e58897b7888e2e60eb7f"
       },
-      "msg": ""
+      "Q": {
+        "x": "0xd15ae4aebecadaf34690fd07fc82a869e08460be945c9e36bf37d1cad24b97c9994c2bdaf912555ad38b9cb0e44d589d8b021bb83511dbf5",
+        "y": "0x6db3d488525cba33a77e0fc5122614f24e9ab2b5b2975260211e183c1c7f8e684798500d7093adb1e702a4641a92906e55521595af1aeefb"
+      },
+      "msg": "",
+      "u": [
+        "0xa8593d08c05bedcd5ca9f6856f0be04ff31fa12cdaf62574fcc67d4ea7a45faeb5b5439f24c763e469982a843361a209262f8a8c1bfee269"
+      ]
     },
     {
       "P": {
         "x": "0x2762dab354d850602c2bca411c4ef1303edafc5f2bbab8f373819075369ffd70dc4a33b8c3925eb201b45ee756523994a82ecd597a31a28a",
         "y": "0x745a72f1b4ce26ce2181388e00a1674cf6d8e32fb331d68c3b188457b1d20f580f595e243ba1277f5ec960414bb295c13b121798eb943fb4"
       },
-      "msg": "abc"
+      "Q": {
+        "x": "0xe03907dc84cc76dde306b92921589eb4d693ffebf5daedf75302d089c9509403b767c89f18543cf9a3f15d69e815c5d4e8b96643872a78fd",
+        "y": "0xe750ed2460d886c2f9834efc4740018266ddbbc9724ffe2b9401f96018e6336298da85ea080a8105c6669caa3a427ca2642b03381ce4246a"
+      },
+      "msg": "abc",
+      "u": [
+        "0xa48cd8a18d5e9f63704e18f08558f0a33faa944859b78823206aa224c7727fd35ac575a49a5a89ff6f5dd3fec51af90083dcfef45ce53bf6"
+      ]
     },
     {
       "P": {
         "x": "0x6697382c7717a0d36b3e1229d323d77505bb887e0a99a9a65436bec67a911f3b9ad0ef1fe029faf0fbe9657f0443a1016539280ae0139742",
         "y": "0x5d7ee3014de5f9d61cb84efbffc115b7e8e74126b365e80a70f5fe83e305be7c5c97b4b7f929f95a4f2875f1b796a386a50ffed7cfcc7b09"
       },
-      "msg": "abcdef0123456789"
+      "Q": {
+        "x": "0x58bb2cc8099c0a8b1304834b8795e76366c2434b848f87501c1f608e5d3d6224c0072f675ca10b13b564f27ba8c61c952960165b9556c2d1",
+        "y": "0x6f6f727fdb86155f6b6b63aaaf9da25037acc1b0c5b2c56492e3367d9f52ef5cb7c5fd0de3885c88f9a4fe8556eff83f1d592b7c6681796c"
+      },
+      "msg": "abcdef0123456789",
+      "u": [
+        "0x6446319164e2c8bf25ba0a01e7dc60c873452ac7620d571a9dff05954995e5b67ddfb1cda95946450a15bc509b84c833dffc32fda38f9618"
+      ]
     },
     {
       "P": {
         "x": "0xcb526a43ceb4db039c795c5f5a4fa5879ad23f3b4c9f775a9c7e1b6e44434726fa9e19a6921b1435d8b5f0fe27fccf4fbec571005d7bae51",
         "y": "0xd5812721e50bfa3179b31de35007369059c97ac9a9dd216bdb3a509e3a0320445010abaaf63787ae855d8c16471fdbb247b57fbd0385dc87"
       },
-      "msg": "a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "Q": {
+        "x": "0xbf1d10776ef0bd9184439eada6e93c1c0826f9d8ccf9e531b55f86804938687dd3315f0a1e13f8720095612419aba2bad5ccf0b60dc3888c",
+        "y": "0xb63952f9dc96b8c75fb8e2fd2f6061c39c1f1c7a57aa89a3180820367de1ff87faf89418921dbfa80ac5d1bf4904fb9334be66add8eb42f6"
+      },
+      "msg": "a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "u": [
+        "0x89913ea5af1e9f776b7ebab19ea588287237f1189e9637e3730d32435443d2d3ad52214d7e4cc64268273314d94f71da508d9f22843cac82"
+      ]
     }
   ]
 }

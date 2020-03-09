@@ -20,28 +20,56 @@
         "x": "0x3dd05bf8df3189e83db292e9a1bf3bdce56392c7c1f402815a18f5e3a98acc3e",
         "y": "0x9024ad7ef14256f4cf6b90af4709c2697eb4b1b9efe40dc2e82ae649a7239cee"
       },
-      "msg": ""
+      "Q": {
+        "x": "0x3dd05bf8df3189e83db292e9a1bf3bdce56392c7c1f402815a18f5e3a98acc3e",
+        "y": "0x9024ad7ef14256f4cf6b90af4709c2697eb4b1b9efe40dc2e82ae649a7239cee"
+      },
+      "msg": "",
+      "u": [
+        "0x256d8790b58ef7a039f6ea950845c866b707cdeb4aebc80ecea0b62692e874f6"
+      ]
     },
     {
       "P": {
         "x": "0x65b245e6c29e7c76111eac5db07a93570586b2ed25245c50e26d774759dc6463",
         "y": "0x883bc0edb4186a634da75d312a07ee56154b9c575e8fca310207b96c30657d75"
       },
-      "msg": "abc"
+      "Q": {
+        "x": "0x65b245e6c29e7c76111eac5db07a93570586b2ed25245c50e26d774759dc6463",
+        "y": "0x883bc0edb4186a634da75d312a07ee56154b9c575e8fca310207b96c30657d75"
+      },
+      "msg": "abc",
+      "u": [
+        "0xda932fcff2499610bc4882c9cf2e85ac3f22598498991de2df2b2f6014293343"
+      ]
     },
     {
       "P": {
         "x": "0x629a1ee9adfdecc305f5ab2f6ca3d3dd767f01de39d9df96e5487e056230e6cb",
         "y": "0x96f8aac9deb6b44dcc049f4a5d48fe9b2411f84ab18bca10067cdddbe67ec2f2"
       },
-      "msg": "abcdef0123456789"
+      "Q": {
+        "x": "0x629a1ee9adfdecc305f5ab2f6ca3d3dd767f01de39d9df96e5487e056230e6cb",
+        "y": "0x96f8aac9deb6b44dcc049f4a5d48fe9b2411f84ab18bca10067cdddbe67ec2f2"
+      },
+      "msg": "abcdef0123456789",
+      "u": [
+        "0xf86fb054b96763bd76c7995d29ea14342dbccc4a17cc60e5aa2a89f52576b9de"
+      ]
     },
     {
       "P": {
         "x": "0xbc02e1efb8ea962f60c22afd8d4a82a804479591cc7ffd07ab420435e3e019c4",
         "y": "0xcce5d71a9ed2b129d2ec8647532bd0a2411a473e76ab9b2304b28c42503ccf40"
       },
-      "msg": "a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "Q": {
+        "x": "0xbc02e1efb8ea962f60c22afd8d4a82a804479591cc7ffd07ab420435e3e019c4",
+        "y": "0xcce5d71a9ed2b129d2ec8647532bd0a2411a473e76ab9b2304b28c42503ccf40"
+      },
+      "msg": "a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "u": [
+        "0x2e5872e16dbfc567453c6af00b2ef8c113512f750f0b0c2c7327ab8178230240"
+      ]
     }
   ]
 }
