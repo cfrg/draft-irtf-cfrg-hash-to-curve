@@ -2620,7 +2620,7 @@ except that H is SHA-512.
 edwards25519\_XMD:SHA-512\_ELL2\_RO\_ is identical to edwards25519\_XMD:SHA-256\_ELL2\_RO\_,
 except that H is SHA-512.
 
-edwards25519\_XMD:SHA-512\_ELL2\_NU\_ is identical to edwards25519\_XMD:SHA-256\_ELL2\_NU\_;
+edwards25519\_XMD:SHA-512\_ELL2\_NU\_ is identical to edwards25519\_XMD:SHA-256\_ELL2\_NU\_,
 except that H is SHA-512.
 
 Optimized example implementations of the above mappings are given in
