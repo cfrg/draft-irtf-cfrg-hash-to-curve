@@ -33,11 +33,11 @@ See the
 
 ## Diagram
 
-Hashing an arbitrary string into a point of an elliptic curve group (or subgroup).
+Hashing an arbitrary string into a point on an elliptic curve.
 
-High resolution [PDF](./drawings/desc.pdf)
+High resolution [PDF](./drawings/diag.pdf)
 
-Sources: [XML draw.io](./drawings/desc.xml)
+Sources: [XML draw.io](./drawings/diag.xml)
 
 
-![Alt text](drawings/desc.png)
+![Alt text](drawings/diag.png)
