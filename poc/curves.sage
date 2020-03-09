@@ -33,6 +33,9 @@ class PointBase(object):
     def __repr__(self):
         return "(%d : %d : %d)" % (self.x, self.y, self.z)
 
+    def __getitem__(self, idx):
+        return (self.x, self.y, self.z)[idx]
+
     def curve(self):
         return self.E
 

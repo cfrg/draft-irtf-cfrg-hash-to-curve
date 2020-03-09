@@ -17,7 +17,7 @@ IsoH2CSuiteDef = namedtuple("IsoH2CSuiteDef", "base Ap Bp iso_map")
 EdwH2CSuiteDef = namedtuple("EdwH2CSuiteDef", "base Ap Bp rational_map")
 
 class BasicH2CSuite(object):
-    vector = None
+    test_vector = {}
 
     def __init__(self, name, sdef):
         assert isinstance(sdef, BasicH2CSuiteDef)
@@ -68,12 +68,12 @@ class BasicH2CSuite(object):
         return x
 
     def __call__(self, msg, output_test_vector=False):
-        self.vector = {}
-        self.vector["msg"] = msg
-        self.vector["P"] = self.hash(msg)
+        self.test_vector = {}
+        self.test_vector["msg"] = msg
+        self.test_vector["P"] = self.hash(msg)
         if output_test_vector:
-            return self.vector
-        return self.vector["P"]
+            return self.test_vector
+        return self.test_vector["P"]
 
     def hash_to_field(self, msg, count):
         xi_vals = hash_to_field(msg, count, self.dst, self.p, self.m, self.L, self.expand, self.H, self.k)
@@ -87,14 +87,19 @@ class BasicH2CSuite(object):
 
     def encode_to_curve(self, msg):
         u = self.hash_to_field(msg, 1)
+        self.test_vector["u"] = u
         Q = self.map_to_curve(u[0])
+        self.test_vector["Q"] = Q
         P = self.clear_cofactor(Q)
         return P
 
     def hash_to_curve(self, msg):
         u = self.hash_to_field(msg, 2)
+        self.test_vector["u"] = u
         Q0 = self.map_to_curve(u[0])
+        self.test_vector["Q0"] = Q0
         Q1 = self.map_to_curve(u[1])
+        self.test_vector["Q1"] = Q1
         R = Q0 + Q1
         P = self.clear_cofactor(R)
         return P

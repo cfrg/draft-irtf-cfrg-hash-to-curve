@@ -34,11 +34,13 @@ class Printer:
         return [Printer._pprint_hex(I2OSP(ni, length)) for ni in list(num.polynomial())]
 
     @staticmethod
-    def _get_length(point):
-        curve = point.curve()
-        field = curve.base_field()
-        prime = field.characteristic()
-        return len(prime.digits(2**8))
+    def _get_point_length(point):
+        return Printer._get_gf_length(point[0])
+
+    @staticmethod
+    def _get_gf_length(num):
+        prime = num.base_ring().characteristic()
+        return len(prime.digits(256))
 
     class tv:
         @staticmethod
@@ -47,23 +49,27 @@ class Printer:
             return Printer._lv(label, [value])
 
         @staticmethod
-        def value(label, value, length):
-            """ Prints a value """
-            return Printer._lv(label, Printer._gf_hex(value, length))
+        def gf(label, num, length=None):
+            """ Prints a field element """
+            if length is None:
+                length = Printer._get_gf_length(num)
+            return Printer._lv(label, Printer._gf_hex(num, length))
 
         @staticmethod
-        def point(point):
+        def point(label, point):
             if point.is_zero():
-                return "inf"
+                return Printer.tv.text(label, "inf")
             (x, y, _) = point
-            length = Printer._get_length(point)
+            length = Printer._get_point_length(point)
             return "\n".join([
-                Printer.tv.value("x", x, length),
-                Printer.tv.value("y", y, length)])
+                Printer.tv.gf("%s.x" % label, x, length),
+                Printer.tv.gf("%s.y" % label, y, length)])
 
     class math:
         @staticmethod
-        def gf(num, length):
+        def gf(num, length=None):
+            if length is None:
+                length = Printer._get_gf_length(num)
             return ",".join(["0x{0}".format(numi) for numi in Printer._gf_hex(num, length)])
 
         @staticmethod
@@ -71,5 +77,5 @@ class Printer:
             if point.is_zero():
                 return {"inf": True}
             (x, y, _) = point
-            length = Printer._get_length(point)
+            length = Printer._get_point_length(point)
             return {"x": Printer.math.gf(x, length), "y": Printer.math.gf(y, length)}

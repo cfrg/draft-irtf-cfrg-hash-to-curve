@@ -1254,13 +1254,13 @@ distributions of their outputs are different.
     The distribution of the output is not uniformly random in G.
 
 ~~~
-encode_to_curve(alpha)
+encode_to_curve(msg)
 
-Input: alpha, an arbitrary-length byte string.
+Input: msg, an arbitrary-length byte string.
 Output: P, a point in G.
 
 Steps:
-1. u = hash_to_field(alpha, 1)
+1. u = hash_to_field(msg, 1)
 2. Q = map_to_curve(u[0])
 3. P = clear_cofactor(Q)
 4. return P
@@ -1272,13 +1272,13 @@ Steps:
     All of the map\_to\_curve functions defined in {{mappings}} meet this requirement.
 
 ~~~
-hash_to_curve(alpha)
+hash_to_curve(msg)
 
-Input: alpha, an arbitrary-length byte string.
+Input: msg, an arbitrary-length byte string.
 Output: P, a point in G.
 
 Steps:
-1. u = hash_to_field(alpha, 2)
+1. u = hash_to_field(msg, 2)
 2. Q0 = map_to_curve(u[0])
 3. Q1 = map_to_curve(u[1])
 4. R = Q0 + Q1              # Point addition
@@ -3026,10 +3026,10 @@ This section briefly describes the background and research results
 that underly the recommendations in this document.
 This section is provided for informational purposes only.
 
-A naive but generally insecure method of mapping a string alpha to
+A naive but generally insecure method of mapping a string msg to
 a point on an elliptic curve E having n points is to first fix a point P that
 generates the elliptic curve group, and a hash function Hn from bit strings
-to integers less than n; then compute Hn(alpha) * P, where the * operator
+to integers less than n; then compute Hn(msg) * P, where the * operator
 represents scalar multiplication. The reason this approach is insecure is
 that the resulting point has a known discrete log relationship to P.
 Thus, except in cases where this method is specified by the protocol,
