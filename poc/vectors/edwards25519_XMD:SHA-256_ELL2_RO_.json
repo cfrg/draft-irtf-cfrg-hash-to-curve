@@ -1,4 +1,6 @@
 {
+  "L": "0x30",
+  "Z": "0x2",
   "ciphersuite": "edwards25519_XMD:SHA-256_ELL2_RO_",
   "curve": "edwards25519",
   "dst": "edwards25519_XMD:SHA-256_ELL2_RO_TESTGEN",

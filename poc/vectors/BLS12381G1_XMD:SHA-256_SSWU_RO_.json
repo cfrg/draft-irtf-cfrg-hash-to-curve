@@ -1,4 +1,6 @@
 {
+  "L": "0x40",
+  "Z": "0xb",
   "ciphersuite": "BLS12381G1_XMD:SHA-256_SSWU_RO_",
   "curve": "BLS12381G1",
   "dst": "BLS12381G1_XMD:SHA-256_SSWU_RO_TESTGEN",

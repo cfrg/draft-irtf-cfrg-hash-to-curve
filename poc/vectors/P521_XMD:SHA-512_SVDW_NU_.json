@@ -1,4 +1,6 @@
 {
+  "L": "0x60",
+  "Z": "0x1",
   "ciphersuite": "P521_XMD:SHA-512_SVDW_NU_",
   "curve": "P521",
   "dst": "P521_XMD:SHA-512_SVDW_NU_TESTGEN",

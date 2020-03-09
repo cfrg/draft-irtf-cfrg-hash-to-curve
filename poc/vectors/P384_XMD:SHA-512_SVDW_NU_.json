@@ -1,4 +1,6 @@
 {
+  "L": "0x48",
+  "Z": "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000fffffffe",
   "ciphersuite": "P384_XMD:SHA-512_SVDW_NU_",
   "curve": "P384",
   "dst": "P384_XMD:SHA-512_SVDW_NU_TESTGEN",

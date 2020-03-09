@@ -1,4 +1,6 @@
 {
+  "L": "0x54",
+  "Z": "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffffffffffffffffffffffffffffffffffffffffffffffffffffe",
   "ciphersuite": "curve448_XMD:SHA-512_ELL2_RO_",
   "curve": "curve448",
   "dst": "curve448_XMD:SHA-512_ELL2_RO_TESTGEN",

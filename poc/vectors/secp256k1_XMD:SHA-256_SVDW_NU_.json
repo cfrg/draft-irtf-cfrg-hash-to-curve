@@ -1,4 +1,6 @@
 {
+  "L": "0x30",
+  "Z": "0x1",
   "ciphersuite": "secp256k1_XMD:SHA-256_SVDW_NU_",
   "curve": "secp256k1",
   "dst": "secp256k1_XMD:SHA-256_SVDW_NU_TESTGEN",

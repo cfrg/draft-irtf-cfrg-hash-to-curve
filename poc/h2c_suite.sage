@@ -60,6 +60,8 @@ class BasicH2CSuite(object):
             "k": '0x%x' % ZZ(self.k),
             "expand": "XOF" if self.expand == expand_message_xof else "XMD",
             "randomOracle": bool(self.is_ro),
+            "L": '0x%x' % ZZ(self.L),
+            "Z": ','.join( '0x%x' % ZZ(z) for z in self.m2c.Z.polynomial() ),
         }
 
     @staticmethod
