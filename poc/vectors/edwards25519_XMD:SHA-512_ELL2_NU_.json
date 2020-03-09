@@ -1,0 +1,77 @@
+{
+  "L": "0x30",
+  "Z": "0x2",
+  "ciphersuite": "edwards25519_XMD:SHA-512_ELL2_NU_",
+  "curve": "edwards25519",
+  "dst": "edwards25519_XMD:SHA-512_ELL2_NU_TESTGEN",
+  "expand": "XMD",
+  "field": {
+    "m": "0x1",
+    "p": "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed"
+  },
+  "hash": "sha512",
+  "k": "0x80",
+  "map": {
+    "name": "ELL2",
+    "sgn0": "sgn0_le"
+  },
+  "randomOracle": false,
+  "vectors": [
+    {
+      "P": {
+        "x": "0x34110392cf2797c527e790379df1a910afa14ae2c368b246a26b9d9925ac0c71",
+        "y": "0x115fe9c145cec75332210f75537f89a5af2e9e81928ab63225fcf0db4b9f0b41"
+      },
+      "Q": {
+        "x": "0x672e3335e81eb42ac9d280a5799f073af446f5855a2214b4b32105b01b2a0e23",
+        "y": "0x69ca23a597a1b0a1f6f90e911af4e6f9457a903622cbb6b9452eb33b3d85a81c"
+      },
+      "msg": "",
+      "u": [
+        "0x50d07fff97e9f2984a1763dab82e1da8bf6628f4bcbd8a5a8b3bc21aac8ea907"
+      ]
+    },
+    {
+      "P": {
+        "x": "0x4a3cd9eca424168031e7c2ef6ea8872919ee1d109e9ca6e2f1dfd19563ff63eb",
+        "y": "0x2a78994752306e4a4eb1c629b3c8625cc26f143f1fe35fc728d295222eba7890"
+      },
+      "Q": {
+        "x": "0x5998e943fda82e321789226093300204ea96af8d183dd7146b775bf1d79d1e94",
+        "y": "0x7467d959e0f62a399197daf58f3d798ce21310d5a1f61e23151e9de278747421"
+      },
+      "msg": "abc",
+      "u": [
+        "0x569fc930f70c8b4e50f35c3ae893264757589f11e43aa8bf9956031a4fdec18f"
+      ]
+    },
+    {
+      "P": {
+        "x": "0x165abfd4e6ede6db0b8e90e40d4639ed5d7521e4779302c605ff430d0aa9747b",
+        "y": "0x0ca9e2b900bcdfc8b26d705040b6b6a6fd6bfadfd43982a2a59e1d069898ae6b"
+      },
+      "Q": {
+        "x": "0x3bc0e89d1f93a8c43d16d43ee390da0b60e42184180a4601333404296cb9cb8e",
+        "y": "0x1685bcdbbddd93475f5b0490beebc6a00db1c6ec019c1768ffd705246b1ace93"
+      },
+      "msg": "abcdef0123456789",
+      "u": [
+        "0x42bebc0bdffd5ce8f9b875e318a04e451fcfa323e146defc71937ea2ed43c839"
+      ]
+    },
+    {
+      "P": {
+        "x": "0x0544b2343ce246e25376db1ba4ab61bd91740ce3ca4ec8db31d8bed097fb4758",
+        "y": "0x511dee3fcc3a422738c453a58acdeafc08fc76f862e97d678adb26f03d0963b5"
+      },
+      "Q": {
+        "x": "0x3408ca8aad2b2f343a498ce85bc6e56cccf391bdfbac0b7c1782503d3b3b0a1d",
+        "y": "0x1ca5e123fba67a5f0fb433c3e2423df5518b9ccd74e6e01f652e89914f089907"
+      },
+      "msg": "a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "u": [
+        "0x6b143c02ab4a45c6a7e71b6a97a71a1fc8a089f7fb83164256518f40f15d96d3"
+      ]
+    }
+  ]
+}

@@ -113,7 +113,7 @@ def tonelli_shanks_ct(x):
     b = t
     for i in range(m, 1, -1):
         for _ in range(1, i - 1):
-             b = b * b
+            b = b * b
         z = CMOV(z, z * c, b != 1)
         c = c * c
         t = CMOV(t, t * c, b != 1)

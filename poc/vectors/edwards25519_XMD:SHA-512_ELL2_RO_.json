@@ -1,0 +1,97 @@
+{
+  "L": "0x30",
+  "Z": "0x2",
+  "ciphersuite": "edwards25519_XMD:SHA-512_ELL2_RO_",
+  "curve": "edwards25519",
+  "dst": "edwards25519_XMD:SHA-512_ELL2_RO_TESTGEN",
+  "expand": "XMD",
+  "field": {
+    "m": "0x1",
+    "p": "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed"
+  },
+  "hash": "sha512",
+  "k": "0x80",
+  "map": {
+    "name": "ELL2",
+    "sgn0": "sgn0_le"
+  },
+  "randomOracle": true,
+  "vectors": [
+    {
+      "P": {
+        "x": "0x355199593026fae01f068dcf79adb8dbf2da7b1f040bde080723feaa94b65042",
+        "y": "0x1af40833bed99ac42f445e9494dbcc489561b3995a40e3864a1b1bdb6ed6ecd0"
+      },
+      "Q0": {
+        "x": "0x09c5be10d8e2629cc5921040760ef8c8ddd7ffb8bd9cbcc6256f506e870381b9",
+        "y": "0x17929f5922ca2c188a2b6c7955c4e4618248c390be69e01b56cfdcb80bb8861a"
+      },
+      "Q1": {
+        "x": "0x04130b6e1f8dc7c32d2eb98d46395fff8579d3be4a91976e2b0614ed6f39f8e8",
+        "y": "0x65b1c3a24ebe11f4113b6f936f26d6f630de27c21ec0979b08334aa3a4349bc8"
+      },
+      "msg": "",
+      "u": [
+        "0x5561279bae7b4bffa30d2249dd56904af4e9b5844770979ae0b2c98f8af24082",
+        "0x05183b3cbbdd97689256838cde5c531baf7a95b1eb9943303706a363883638ea"
+      ]
+    },
+    {
+      "P": {
+        "x": "0x124b63773b748a096e505433ee596c120168623ca320910d8298e6d90a4a309c",
+        "y": "0x7bdb83b6322c4977ffbb69b18df168b56eec733a0254cac0e85eb790460ee4b2"
+      },
+      "Q0": {
+        "x": "0x48ec52ada1d034bed2941a3ebaca1bb3fc7018e4cfac62e5cb6a0582d85b4e87",
+        "y": "0x2769e1a74624974a71d543723bae513305c3c8b2ab8431a07f31fb35147e1184"
+      },
+      "Q1": {
+        "x": "0x23586e9d6a60c06eb7fbf3d66b6dd7c9ed5c8dba065d59b5a7157737ebf19415",
+        "y": "0x0c4118945ae99cfc6c56ab993488795f30826e7fff95febe3c923dc4a523d4ff"
+      },
+      "msg": "abc",
+      "u": [
+        "0x3af3dd59fb2b343e836c749290372ade32db6c6aefcfa8460bafe44913d16c17",
+        "0x0fbd9bb5c9446b308fd4e8d6d37bb40a85ec994fc156d9e2f27c6d3cbefbcffc"
+      ]
+    },
+    {
+      "P": {
+        "x": "0x5538ebb02b3351458ae3c37d4e59247be093fd2537f4e18605c34196a0b2b3a4",
+        "y": "0x2dd85e9585fba5ab3c22a07cf07b2cf4a19b10dcab49e1a4c8f952461e644bbc"
+      },
+      "Q0": {
+        "x": "0x066b6b75588b6d2532568b3683a7c1b24465be6fa3d06fe61e8bc142e04afb96",
+        "y": "0x222cf85e42efab0c89c6e210d774b26f2d05a4c4262f1bd124e622c6fe5c1dc5"
+      },
+      "Q1": {
+        "x": "0x220a2fcbd88a7fbe61f263ba6b12d37aee8bdfb5a40e6a4fe89ad7e438643432",
+        "y": "0x1ad7fb8388761fdcb8cc206d87cb5bd1bd6a316e66ce782e7a10eafc5284f412"
+      },
+      "msg": "abcdef0123456789",
+      "u": [
+        "0x13058c758c796708365f21094f489345f4e30e49b1d380ed064e9b7b8d107cad",
+        "0x319be66d0491de283eeab5f2745e6ab9b19eec8c13e6c8b7069e2e6aad42f8ba"
+      ]
+    },
+    {
+      "P": {
+        "x": "0x4b2083d31c45aa28a4e5759e73e35d5606be05d9c1090df93f09d0b23ceb21c0",
+        "y": "0x160e08388e85b6bcbec8f321ed1de259ffe88dc547a1ce506d61b30fd2378fc5"
+      },
+      "Q0": {
+        "x": "0x3a34b03ac9cfbccf869c4606664d2bab9f048d306bde0e73dc093c5818bc9674",
+        "y": "0x3e5593005148b6f4b9a6491610a288191e3264677b03d7e9c8c87033053f86d2"
+      },
+      "Q1": {
+        "x": "0x19031af03055a1efe13c6ef43d88e9ac713bb78cb985cd6198559424029f1d02",
+        "y": "0x42ece5969a9b335cdfaf2367451ec12c56dc0607f038606222d1132d078f0b4f"
+      },
+      "msg": "a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "u": [
+        "0x547dddae1d6f60997fcf95d741eccc7fe5cf60857585e125dfdf9cc6eb987a81",
+        "0x5dfdd58493b9fab32d3a39e0a9450c82b4308d7fb24ed43f585ce470581a4d93"
+      ]
+    }
+  ]
+}

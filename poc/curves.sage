@@ -2,6 +2,12 @@
 # vim: syntax=python
 
 class PointBase(object):
+    normalize = None
+    E = None
+    x = None
+    y = None
+    z = None
+
     def __eq__(self, other):
         self.normalize()
         other.normalize()
@@ -27,10 +33,22 @@ class PointBase(object):
     def __repr__(self):
         return "(%d : %d : %d)" % (self.x, self.y, self.z)
 
+    def __getitem__(self, idx):
+        return (self.x, self.y, self.z)[idx]
+
     def curve(self):
         return self.E
 
 class CurveBase(object):
+    _add = None
+    _dbl = None
+    E = None
+    F = None
+    PointT = None
+    get_random = None
+    to_self = None
+    to_weierstrass = None
+
     def __call__(self, x, y, z=1):
         return self.PointT(self, x, y, z)
 

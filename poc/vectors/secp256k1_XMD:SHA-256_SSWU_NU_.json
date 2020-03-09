@@ -1,7 +1,9 @@
 {
+  "L": "0x30",
+  "Z": "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc24",
   "ciphersuite": "secp256k1_XMD:SHA-256_SSWU_NU_",
   "curve": "secp256k1",
-  "dst": "QUUX-V01-CS02",
+  "dst": "secp256k1_XMD:SHA-256_SSWU_NU_TESTGEN",
   "expand": "XMD",
   "field": {
     "m": "0x1",
@@ -17,31 +19,59 @@
   "vectors": [
     {
       "P": {
-        "x": "0xc949c09bcc6140e49b0285b63631a1f9784938cc7dc8594739fa6b2fd8866e3e",
-        "y": "0x2ac7a218f66d839445fc8c0aae61f08d41a5deee6e7bf9ad8c944995ab6db897"
+        "x": "0xfbf556f8dd33ec00571f567ab0b366389f8e58e57daf9c0ffee2513dbe3b12b5",
+        "y": "0x8483a69cacd420ba70f49a28a6ea05964db89477954ccab7a5893143aa84daa8"
       },
-      "msg": ""
+      "Q": {
+        "x": "0xfbf556f8dd33ec00571f567ab0b366389f8e58e57daf9c0ffee2513dbe3b12b5",
+        "y": "0x8483a69cacd420ba70f49a28a6ea05964db89477954ccab7a5893143aa84daa8"
+      },
+      "msg": "",
+      "u": [
+        "0x59deac5afa2bfedf03f0275173a38da0af4779da257375a22f98ef06404e5f6a"
+      ]
     },
     {
       "P": {
-        "x": "0x8946cd8bd4dc793fb03464c2761075843ee83a4a1d37ff7e01ff81679f91e849",
-        "y": "0xaa96e7e83457c2129c1d2e5c6460759edbb142dadc326ead1c907567b3643071"
+        "x": "0x77858441c354c88ccb02c0743d081ae80df8ccaba688cb0bd3b0a902dfb55077",
+        "y": "0xe23759ff36fb09d5ca6c148d178058b48be637253d275c937323cbfcd08a1a1d"
       },
-      "msg": "abc"
+      "Q": {
+        "x": "0x77858441c354c88ccb02c0743d081ae80df8ccaba688cb0bd3b0a902dfb55077",
+        "y": "0xe23759ff36fb09d5ca6c148d178058b48be637253d275c937323cbfcd08a1a1d"
+      },
+      "msg": "abc",
+      "u": [
+        "0x8008e395ec68247cd1fea7cccb6ba6aabd0f58aae8f3937dc297b3e82bef9a4a"
+      ]
     },
     {
       "P": {
-        "x": "0xe43fdab15d039d9d4f73116957f31fc73bdd5f119b2538eaf5fc98e0cec4d5a2",
-        "y": "0xf6f94dbd89e4467588f8b9d0c7a7ab461c3297fb3cb531abb6c76211a2aff91c"
+        "x": "0xa505dac19323f3ec71aa84a5984146923c59b0720634e7667d675e506994bb52",
+        "y": "0x24c8166d66e7fb737696f37e818ce8656e7d32acf6d24ecddefe0ed15dde620d"
       },
-      "msg": "abcdef0123456789"
+      "Q": {
+        "x": "0xa505dac19323f3ec71aa84a5984146923c59b0720634e7667d675e506994bb52",
+        "y": "0x24c8166d66e7fb737696f37e818ce8656e7d32acf6d24ecddefe0ed15dde620d"
+      },
+      "msg": "abcdef0123456789",
+      "u": [
+        "0x7b846ac5db51b662ea619efea1fac238a5efbb1c124b2c2e39d112a62d01d267"
+      ]
     },
     {
       "P": {
-        "x": "0x49958057ec1b2983685e57a5f440e90322433f5f6dc96870a29bfdefded941b8",
-        "y": "0x4c517cb0f6d71178e91e97bca3795277364a837e9de3cbe70c434f5279f9edd9"
+        "x": "0x3e96c858026157c6f05132e4784aea7dd9d6c0d92f601f068a15283bb42252f1",
+        "y": "0xb110972547240d89f1bfa9af84bb1069876f8c96291395bfb0b5734e8339cc13"
       },
-      "msg": "a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "Q": {
+        "x": "0x3e96c858026157c6f05132e4784aea7dd9d6c0d92f601f068a15283bb42252f1",
+        "y": "0xb110972547240d89f1bfa9af84bb1069876f8c96291395bfb0b5734e8339cc13"
+      },
+      "msg": "a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "u": [
+        "0x83c53b55e8e12d06d2c82f94a3eb57349869f2736a7a340a8b8731089031b05f"
+      ]
     }
   ]
 }

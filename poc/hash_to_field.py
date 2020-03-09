@@ -3,6 +3,7 @@
 
 import hashlib
 import struct
+from random import choice
 import sys
 if sys.version_info[0] == 3:
     xrange = range
@@ -101,7 +102,6 @@ def expand_message_xmd(msg, dst, len_in_bytes, hash_fn, security_param):
     return pseudo_random_octets[0 : len_in_bytes]
 
 def _random_string(strlen):
-    from random import choice
     return ''.join( chr(choice(range(65, 65 + 26))) for _ in range(0, strlen))
 
 def _test_xmd():
