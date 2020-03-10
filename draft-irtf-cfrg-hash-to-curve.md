@@ -4,6 +4,7 @@ abbrev: hash-to-curve
 docname: draft-irtf-cfrg-hash-to-curve-latest
 date:
 category: info
+workgroup: CFRG
 
 ipr: trust200902
 keyword: Internet-Draft
