@@ -1743,11 +1743,15 @@ a short domain separation tag by hashing, as follows:
 
 - For expand\_message\_xmd using hash function H, DST is computed as
 
-    DST = H("H2C-OVERSIZE-DST-" || a_very_long_DST)
+~~~
+DST = H("H2C-OVERSIZE-DST-" || a_very_long_DST)
+~~~
 
 - For expand\_message\_xof using extensible-output function H, DST is computed as
 
-    DST = H("H2C-OVERSIZE-DST-" || a_very_long_DST, ceil(2 * k / 8))
+~~~
+DST = H("H2C-OVERSIZE-DST-" || a_very_long_DST, ceil(2 * k / 8))
+~~~
 
 Here, a\_very\_long\_DST is the DST whose length is greater than 255 bytes,
 "H2C-OVERSIZE-DST-" is a 17-byte ASCII string literal, and
