@@ -2397,6 +2397,8 @@ Examples of fast cofactor clearing methods include the following:
   et al. {{FKR11}} propose an alternative method that is sometimes more efficient.
   Budroni and Pintore {{BP17}} give concrete instantiations of these methods
   for Barreto-Lynn-Scott pairing-friendly curves {{BLS03}}.
+  This method is described for the specific case of BLS12-381 in
+  {{clear-cofactor-bls12381-g2}}.
 
 - Wahby and Boneh ({{WB19}}, Section 5) describe a trick due to Scott for
   fast cofactor clearing on any elliptic curve for which the prime
@@ -3368,47 +3370,39 @@ The constants used to compute y\_den are as follows:
 - k\_(4,1) = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffa9d3 * I
 - k\_(4,2) = 0x12 + 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaa99 * I
 
-# Cofactor Clearing {#clear-cofactor-suites}
 
-Some elliptic curve groups, e.g. G2 in BLS12-381, have a very large cofactor h\_eff (cf. {{cofactor-clearing}}).
-For these curves, we propose an alternative method for clearing the cofactor.
+# Cofactor Clearing for BLS12-381 G2 {#clear-cofactor-bls12381-g2}
 
-## Cofactor Clearing on E' for BLS12-381 {#clear-cofactor-bls12381-g2}
+For the pairing-friendly curve BLS12-381, whose parameters are defined in {{suites-bls12381-g2}},
+there is an efficiently-computable endomorphism `psi` that allows for fast cofactor clearing:
 
-This fast cofactor clearing function was introduced by Budroni and Pintore {{BP18}}.
-It is based on Fuentes et al.'s method {{FKR11}}, and makes use of an efficiently-computable
-curve endomorphism `psi`.
-For the pairing-friendly curve BLS12-381, defined by the following constants {{draft-yonezawa-pfc-01}}:
+~~~sage
+# Constants:
+# - c1 = Zp(1) / (1+I)^((p-1)/3)
+# - c2 = Zp(1) / (1+I)^((p-1)/2)
+# - c3 = Zp(2) / Zp(2)^((p-1)/3)
 
-~~~
-p = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
-r = 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001
-x = -0xd201000000010000
+def frobenius(x):
+	return x^p
 
-Zp = GF(p)
-Zp2.<i> = GF(p^2, modulus=[1, 0, 1])
-u = i+1
-
-E2 = EllipticCurve(Zp2, [0, 4*u])
-E1 = EllipticCurve(Zp, [0, 4])
-~~~
-
-the mapping `psi` can be expressed in jacobian (and homogeneous) projective coordinates as:
-
-~~~
 def psi(P):
     P_x, P_y, P_z = P
-    return E2(P_x.frobenius()/(u^((p-1)/3)), P_y.frobenius()/u^((p-1)/2), P_z.frobenius())
+	x = c1 * frobenius(P_x)
+	y = c2 * frobenius(P_y)
+	z = frobenius(P_z)
+    return E2(x, y, z)
 
 def psi2(P):
     # return psi(psi(P))
     P_x, P_y, P_z = P
-    return E2(P_x.frobenius(2)/Zp(2)^((p-1)/3), -P_y.frobenius(2), P_z)
+    x = c3 * P_x
+    y = -P_y
+    z = P_z
+    return E2(x, y, z)
 ~~~
 
-Note that constants in the multiplication can be pre-processed.
 In affine coordinates, one can just ignore the computations on `P_z`.
-The cofactor clearing function, mapping points from E' to G2, is:
+The cofactor clearing function, mapping points to G2, is:
 
 ~~~
 def clear_cofactor_bls12381_g2(P):
@@ -3416,11 +3410,11 @@ def clear_cofactor_bls12381_g2(P):
     # return h_eff * P
     t1 = x * P
     t2 = psi(P)
-    return (psi2(2 * P)    # psi(psi(P))
-            + x*(t1 + t2)  # psi(psi(P)) + x psi(P) + x^2 P
-            - t1           # psi(psi(P)) + x psi(P) + (x^2-x) P +
-            - t2           # psi(psi(P)) + (x-1) psi(P) + (x^2-x) P
-            - P)           # psi(psi(P)) + (x-1) psi(P) + (x^2-x-1) P
+    return (psi2(2 * P)    # psi(psi(2*P))
+            + x*(t1 + t2)  # psi(psi(2*P)) + x psi(P) + x^2 P
+            - t1           # psi(psi(2*P)) + x psi(P) + (x^2-x) P +
+            - t2           # psi(psi(2*P)) + (x-1) psi(P) + (x^2-x) P
+            - P)           # psi(psi(2*P)) + (x-1) psi(P) + (x^2-x-1) P
 ~~~
 
 
