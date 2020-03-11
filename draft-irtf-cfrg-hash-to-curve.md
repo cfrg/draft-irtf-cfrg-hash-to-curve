@@ -977,7 +977,7 @@ informative:
         org: Portland State University
   W19:
     title: An explicit, generic parameterization for the Shallue--van de Woestijne map
-    target: https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/doc/svdw_params.pdf
+    target: https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/raw/master/doc/svdw_params.pdf
     date: 2019
     author:
       -
