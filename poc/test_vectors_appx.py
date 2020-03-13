@@ -62,7 +62,7 @@ bls12381g2 = ("BLS12-381 G2",
 print("""
 # Test vectors {#testvectors}
 
-This section gives test vectors for each suite defined in {#suites}.
+This section gives test vectors for each suite defined in {{suites}}.
 The test vectors in this section were generated using code that is
 available from {{hash2curve-repo}}.
 

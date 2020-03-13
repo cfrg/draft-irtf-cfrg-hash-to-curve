@@ -150,56 +150,6 @@ informative:
         ins: P. Puniya
         name: Prashant Puniya
         org: New York University
-  MT07:
-    title: "Domain extension of public random functions: Beyond the birthday barrier"
-    seriesinfo:
-        "In": Advances in Cryptology - CRYPTO 2007
-        "pages": 187-204
-        DOI: 10.1007/978-3-540-74143-5_11
-    target: https://doi.org/10.1007/978-3-540-74143-5_11
-    date: 2007
-    author:
-      -
-        ins: U. Maurer
-        name: Ueli Maurer
-        org: ETH Zurich
-      -
-        ins: S. Tessaro
-        name: Stefano Tessaro
-        org: ETH Zurich
-  CN08:
-    title: "Improved indifferentiability security analysis for ChopMD hash function"
-    seriesinfo:
-        "In": FSE
-        "pages": 429-443
-        DOI: 10.1007/978-3-540-71039-4_27
-    target: https://doi.org/10.1007/978-3-540-71039-4_27
-    date: 2008
-    author:
-      -
-        ins: D. Chang
-        name: Donghoon Chang
-      -
-        ins: M. Nandi
-        name: Mridul Nandi
-  DFL12:
-    title: Generic indifferentiability proofs of hash designs
-    seriesinfo:
-        "In": CSF
-        "pages": 340-353
-        DOI: 10.1109/CSF.2012.13
-    target: https://doi.org/10.1109/CSF.2012.13
-    date: 2012
-    author:
-      -
-        ins: M. Daubignard
-        name: Marion Daubignard
-      -
-        ins: P-A. Fouque
-        name: Pierre-Alain Fouque
-      -
-        ins: Y. Lakhnech
-        name: Yassine Lakhnech
   BLAKE2X:
     title: BLAKE2X
     target: https://blake2.net/blake2x.pdf
@@ -977,7 +927,7 @@ informative:
         org: Portland State University
   W19:
     title: An explicit, generic parameterization for the Shallue--van de Woestijne map
-    target: https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/doc/svdw_params.pdf
+    target: https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/raw/master/doc/svdw_params.pdf
     date: 2019
     author:
       -
@@ -1329,7 +1279,7 @@ The following requirements apply:
    For independent encodings based on the same suite, each tag should
    also include a distinct identifier, e.g., "ENC1" and "ENC2".
 
- As an example, consider a fictional protocol named Quux
+As an example, consider a fictional protocol named Quux
 that defines several different ciphersuites.
 A reasonable choice of tag is "QUUX-V\<xx\>-CS\<yy\>", where \<xx\> and \<yy\>
 are two-digit numbers indicating the version and ciphersuite, respectively.
@@ -1619,18 +1569,6 @@ with extensible-output functions (XOFs) including functions in the SHAKE
 These variants should suffice for the vast majority of use cases, but other
 variants are possible; {{hashtofield-expand-other}} discusses requirements.
 
-The expand\_message variants defined in this section accept domain separation
-tags of at most 255 bytes.
-If a domain separation tag longer than 255 bytes must be used (e.g., because
-of requirements imposed by an invoking protocol), implementors MUST compute
-a short domain separation tag by hashing, as follows:
-
-    DST = H("H2C-OVERSIZE-DST-" || a_very_long_DST)
-
-Here, a\_very\_long\_DST is the DST whose length is greater than 255 bytes,
-"H2C-OVERSIZE-DST-" is an ASCII string literal, and the hash function H MUST
-meet the criteria given in {{hashtofield-expand-xmd}}.
-
 ### expand\_message\_xmd {#hashtofield-expand-xmd}
 
 The expand\_message\_xmd function produces a pseudorandom byte string using
@@ -1671,6 +1609,7 @@ Parameters:
 Input:
 - msg, a byte string.
 - DST, a byte string of at most 255 bytes.
+  See below for information on using longer DSTs.
 - len_in_bytes, the length of the requested output in bytes.
 
 Output:
@@ -1731,6 +1670,7 @@ Parameters:
 Input:
 - msg, a byte string.
 - DST, a byte string of at most 255 bytes.
+  See below for information on using longer DSTs.
 - len_in_bytes, the length of the requested output in bytes.
 
 Output:
@@ -1742,6 +1682,30 @@ Steps:
 3. pseudo_random_bytes = H(msg_prime, len_in_bytes)
 4. return pseudo_random_bytes
 ~~~
+
+### Using DSTs longer than 255 bytes {#hashtofield-expand-dst}
+
+The expand\_message variants defined in this section accept domain separation
+tags of at most 255 bytes.
+If a domain separation tag longer than 255 bytes must be used (e.g., because
+of requirements imposed by an invoking protocol), implementors MUST compute
+a short domain separation tag by hashing, as follows:
+
+- For expand\_message\_xmd using hash function H, DST is computed as
+
+~~~
+DST = H("H2C-OVERSIZE-DST-" || a_very_long_DST)
+~~~
+
+- For expand\_message\_xof using extensible-output function H, DST is computed as
+
+~~~
+DST = H("H2C-OVERSIZE-DST-" || a_very_long_DST, ceil(2 * k / 8))
+~~~
+
+Here, a\_very\_long\_DST is the DST whose length is greater than 255 bytes,
+"H2C-OVERSIZE-DST-" is a 17-byte ASCII string literal, and
+k is the target security level in bits.
 
 ### Defining other expand\_message variants {#hashtofield-expand-other}
 
@@ -3874,7 +3838,7 @@ Procedure:
 
 # Test vectors {#testvectors}
 
-This section gives test vectors for each suite defined in {#suites}.
+This section gives test vectors for each suite defined in {{suites}}.
 The test vectors in this section were generated using code that is
 available from {{hash2curve-repo}}.
 
