@@ -150,56 +150,6 @@ informative:
         ins: P. Puniya
         name: Prashant Puniya
         org: New York University
-  MT07:
-    title: "Domain extension of public random functions: Beyond the birthday barrier"
-    seriesinfo:
-        "In": Advances in Cryptology - CRYPTO 2007
-        "pages": 187-204
-        DOI: 10.1007/978-3-540-74143-5_11
-    target: https://doi.org/10.1007/978-3-540-74143-5_11
-    date: 2007
-    author:
-      -
-        ins: U. Maurer
-        name: Ueli Maurer
-        org: ETH Zurich
-      -
-        ins: S. Tessaro
-        name: Stefano Tessaro
-        org: ETH Zurich
-  CN08:
-    title: "Improved indifferentiability security analysis for ChopMD hash function"
-    seriesinfo:
-        "In": FSE
-        "pages": 429-443
-        DOI: 10.1007/978-3-540-71039-4_27
-    target: https://doi.org/10.1007/978-3-540-71039-4_27
-    date: 2008
-    author:
-      -
-        ins: D. Chang
-        name: Donghoon Chang
-      -
-        ins: M. Nandi
-        name: Mridul Nandi
-  DFL12:
-    title: Generic indifferentiability proofs of hash designs
-    seriesinfo:
-        "In": CSF
-        "pages": 340-353
-        DOI: 10.1109/CSF.2012.13
-    target: https://doi.org/10.1109/CSF.2012.13
-    date: 2012
-    author:
-      -
-        ins: M. Daubignard
-        name: Marion Daubignard
-      -
-        ins: P-A. Fouque
-        name: Pierre-Alain Fouque
-      -
-        ins: Y. Lakhnech
-        name: Yassine Lakhnech
   BLAKE2X:
     title: BLAKE2X
     target: https://blake2.net/blake2x.pdf
