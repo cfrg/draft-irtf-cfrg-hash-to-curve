@@ -1060,8 +1060,8 @@ Summary of quantities:
 | E | Elliptic curve. | E is specified by an equation and a field F. |
 | n | Number of points on the elliptic curve E. | n = h * r, for h and r defined below. |
 | G | A subgroup of the elliptic curve. | Destination group to which byte strings are encoded. |
-| r | Order of G. | This number MUST be prime.  |
-| h | Cofactor, h >= 1. | An integer satisfying n = h * r.  |
+| r | Order of G. | This number MUST be prime. |
+| h | Cofactor, h >= 1. | An integer satisfying n = h * r. |
 
 ## Terminology
 
@@ -1494,7 +1494,9 @@ the range \[0, p / 3\] with probability roughly 1/2, meaning that this value
 is statistically far from uniform in \[0, p - 1\].
 
 To control bias, hash\_to\_field instead uses pseudorandom integers whose
-length is at least ceil(log2(p)) + k bits.
+length is at least ceil(log2(p)) + k bits, where k is the target security level
+for the suite in bits. (Note that k is an upper bound on the security level for
+the corresponding curve. See {{security-considerations-targets}} for more details.)
 Reducing such integers mod p gives bias at most 2^-k for any p; this bias
 is appropriate when targeting k-bit security.
 To obtain such integers, hash\_to\_field uses expand\_message to obtain
@@ -1523,7 +1525,7 @@ Parameters:
 - p, the characteristic of F (see immediately above).
 - m, the extension degree of F, m >= 1 (see immediately above).
 - L = ceil((ceil(log2(p)) + k) / 8), where k is the security
-  parameter of the cryptosystem (e.g., k = 128).
+  parameter of the suite (e.g., k = 128).
 - expand_message, a function that expands a byte string and
   domain separation tag into a pseudorandom byte string
   (see discussion above).
@@ -2231,8 +2233,8 @@ uses the constant sqrt\_neg\_486664 = sqrt(-486664) (mod 2^255 - 19).
 To ensure compatibility, this constant MUST be chosen such that
 sgn0(sqrt\_neg\_486664) == 1.
 Analogous ambiguities in other standardized rational maps MUST be
-resolved in the same way: for any constant k whose sign is ambiguous,
-k MUST be chosen such that sgn0(k) == 1.
+resolved in the same way: for any constant c whose sign is ambiguous,
+c MUST be chosen such that sgn0(c) == 1.
 
 The 4-isogeny map from curve448 to edwards448 ({{RFC7748}}, Section 4.2)
 is unambiguous with respect to sign.
@@ -2763,7 +2765,7 @@ Budroni and Pintore ({{BP17}}, Section 4.1).
 The RECOMMENDED way to define a new hash-to-curve suite is:
 
 1. E, F, p, and m are determined by the elliptic curve and its base field;
-   k is determined by the security level of the elliptic curve.
+   k is determined by the target security level of the suite.
 
 2. Choose encoding type, either hash\_to\_curve or encode\_to\_curve ({{roadmap}}).
 
@@ -2960,6 +2962,16 @@ strxor(b\_0, b\_(i - 1)) (step 9) rather than to b\_0.
 This approach increases the Hamming distance between inputs to different
 invocations of H, which reduces the likelihood that nonidealities in H
 affect the distribution of the b\_i values.
+
+## Target Security Levels {#security-considerations-targets}
+
+Each ciphersuite specifies a target security level (in bits) for the underlying
+curve. This parameter ensures the corresponding hash\_to\_field instantiation is
+conservative and correct. We stress that this parameter is only an upper bound on
+the security level of the curve. It is neither a guarantee nor endorsement of its
+longevity. Mathematical and cryptographic advancements may lower the security level
+for any curve. In such cases, applications SHOULD choose curves and, consequently,
+ciphersuites with higher security levels.
 
 # Acknowledgements
 
@@ -3857,7 +3869,7 @@ output point P.
 suite   = P256_XMD:SHA-256_SSWU_RO_
 dst     = P256_XMD:SHA-256_SSWU_RO_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 03f6cd48873763fc0eb06947d0dcb35aea09599df5652ab3585eb3
           b0fe5dc5f8
 P.y     = fda9972c0a5c1bb0b9ac1b1590404f7793d3523a194b6283c0cbb8
@@ -3945,7 +3957,7 @@ Q1.y    = f36f6d9c0168659be9a0e58b168ae2e0e98189448adc9e88b75332
 suite   = P256_XMD:SHA-256_SSWU_NU_
 dst     = P256_XMD:SHA-256_SSWU_NU_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 2b1b6eb1989d3fb644a4d2962e5adab24444abf37963e3ee5c3a47
           aa864c0899
 P.y     = 6b49f459088caf7588cde4650fba46f72870fe5bde98d170153bd8
@@ -4009,7 +4021,7 @@ Q.y     = 73aa23cfb08dd1ed92d770152d59b7e2b63176ceb664bdcae8153d
 suite   = P256_XMD:SHA-256_SVDW_RO_
 dst     = P256_XMD:SHA-256_SVDW_RO_TESTGEN
 
-msg     = 
+msg     =
 P.x     = be9400f16f7a1ec3fb526872919f4f9af94c6ac3e8fe5787c0f415
           e9def825ff
 P.y     = d14b462afed314ca7c20b1f6f3e501a610b79e0ca8adfce841b9c6
@@ -4097,7 +4109,7 @@ Q1.y    = f165f1b2b2cb47a3fdab38fb41d8947a2c565e685737c8ab6ec095
 suite   = P256_XMD:SHA-256_SVDW_NU_
 dst     = P256_XMD:SHA-256_SVDW_NU_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 8501dd0a6f2313cbe3adea8991bc7ce09400fe0ed9fe4ab2930bf6
           325cdb35f1
 P.y     = fe28c7d2476ab1464e7b097d77ad527c3ef7265759bbb01bd690f0
@@ -4163,7 +4175,7 @@ Q.y     = eab90502eb73fc640ef054f108cb40c9e89bbaf3b1cbe35735200a
 suite   = P384_XMD:SHA-512_SSWU_RO_
 dst     = P384_XMD:SHA-512_SSWU_RO_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 619d4168877421106aecb16ec35d84b7fdfa215cdb446d82bac49f
           6eab51a34b4d5314823f7639293cf6471c6c981a99
 P.y     = e5035c694665ca25b2c57542673af6b91288110b0b0689657cd031
@@ -4251,7 +4263,7 @@ Q1.y    = ef067ae93f7a1e7ffe39e47e02038a6571ce53e17ae166555f0228
 suite   = P384_XMD:SHA-512_SSWU_NU_
 dst     = P384_XMD:SHA-512_SSWU_NU_TESTGEN
 
-msg     = 
+msg     =
 P.x     = e301de73b2aa0d7d10916a1c96fbb5b257a763e07af63b5070eeae
           a5b5802e95e8dbe2d781bb2b071393d7076dd05ddd
 P.y     = 54fc88309ad1877a0161d3306248f79b740f10f10006b05a47f81a
@@ -4315,7 +4327,7 @@ Q.y     = 32e3251f9869e546ef37311696fa047c8e45e60a809de166ecda3c
 suite   = P384_XMD:SHA-512_SVDW_RO_
 dst     = P384_XMD:SHA-512_SVDW_RO_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 116b610b993a485a113916f5be8bb682263f8a2110484ee985c8cd
           5c11ecd52d617742a2f3c16dcfb3bb60de53151ac2
 P.y     = e1fb2f2de9297eaea87b6552682b04c59ab5419b291477a85a26a1
@@ -4403,7 +4415,7 @@ Q1.y    = fa7df2fb5c0b9e462b237e75749842ffadc43f0cd57fcd9b863716
 suite   = P384_XMD:SHA-512_SVDW_NU_
 dst     = P384_XMD:SHA-512_SVDW_NU_TESTGEN
 
-msg     = 
+msg     =
 P.x     = a2c7fd2c9097273267214a8031b0fdc7c5e3475a08ad27940ce6da
           329f55ceeb19046cd9f3f3dc2043ed1e0633f848aa
 P.y     = 4c6d2e0a28bb0b2c68c4116a11896b235eba951f222e7966b86e3a
@@ -4469,7 +4481,7 @@ Q.y     = 2f59cbe11b24e0c13c5318ef52438576d7109079ca0590e923cdbb
 suite   = P521_XMD:SHA-512_SSWU_RO_
 dst     = P521_XMD:SHA-512_SSWU_RO_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 00ad6cb736cb0565a2b6c52dd9e53f76a9a40a44c73bfaacef03c3
           ef62a9a23920b7df4de1b92754de7bb3013d9d36049da001136e7f
           4b1b0ba10beac862a2b3d3c5
@@ -4589,7 +4601,7 @@ Q1.y    = 015a551e61b60bb10183089d6a1355a8f24c082aacdf9e2e9b23ad
 suite   = P521_XMD:SHA-512_SSWU_NU_
 dst     = P521_XMD:SHA-512_SSWU_NU_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 0074dff9ec0371e4de820fc4b2a8a5e71498434a458a4805ba11d6
           2ac80da2049fbccc3e4bf20a45efcd04344528fc1cbbfdbed6b2e0
           5c5cc3d4fe55e00fb2647dcd
@@ -4673,7 +4685,7 @@ Q.y     = 00b422a44a249e3c4d2b534bce9d2aba782f7d81679b786ab4f5c9
 suite   = P521_XMD:SHA-512_SVDW_RO_
 dst     = P521_XMD:SHA-512_SVDW_RO_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 01150883968dacf7ce208286699234a0bb3f791683db216b768a07
           1ad25a5246fee1f57bf9744eef50c35115743e07f639f202d2d571
           25720fb78d7c89291e6f59de
@@ -4793,7 +4805,7 @@ Q1.y    = 006e24d9bcc739a4e9502fbf3ddf24968c8b0ee15f63ede187056b
 suite   = P521_XMD:SHA-512_SVDW_NU_
 dst     = P521_XMD:SHA-512_SVDW_NU_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 012d13741acd676d6fba94126ad8c1fea0458b1748252642d322b0
           5cd70eed21ec04d82632ad7465b90c567d88c986a504b7971476ee
           e7c57f52c65d1f1380437ed2
@@ -4879,7 +4891,7 @@ Q.y     = 01ecc97ba7e7638e5e2b0d1c789bb77a8c4478a9f9df7e746fa8b8
 suite   = curve25519_XMD:SHA-256_ELL2_RO_
 dst     = curve25519_XMD:SHA-256_ELL2_RO_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 551e22c9bb52b7c92bf6de89ed0342ed88ebc745b56f41df76d330
           9ace9ecb1d
 P.y     = 391fb59b7632b095ac0ba86e5e4bd26d3a0e8a6785507f9e6028f6
@@ -4967,7 +4979,7 @@ Q1.y    = 1b2db02fd39064c6d2716f7c775787b5201029f8ab20cd108c8682
 suite   = curve25519_XMD:SHA-256_ELL2_NU_
 dst     = curve25519_XMD:SHA-256_ELL2_NU_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 384822128c05f38a5139a72781ee71c90c9b837870746200d9a027
           d5f7fa2c56
 P.y     = 3db0b7ac1691801416ba8a76cbc49acfd41f1e31becb97eedfaf7f
@@ -5031,7 +5043,7 @@ Q.y     = 1f246d036efc124b21ba899e3aa870bac4a7c3c731bcabf5cd3268
 suite   = curve25519_XMD:SHA-512_ELL2_RO_
 dst     = curve25519_XMD:SHA-512_ELL2_RO_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 145f1a4a2cdbb00f721af9fc0720755d082dd3309d585413bdc57b
           79deed66a4
 P.y     = 265318a216a4eaed4db4dd4e27abe71b94d558e1b60a0363f8194d
@@ -5119,7 +5131,7 @@ Q1.y    = 06c4ba3124d13c9f69752387a55977acb5ef410bdf475f8868eb6f
 suite   = curve25519_XMD:SHA-512_ELL2_NU_
 dst     = curve25519_XMD:SHA-512_ELL2_NU_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 3d97d9b446926250ae3112ecb6cb6e610c53a9cecee5b55c1ab35b
           6f07a082dc
 P.y     = 07df167ef93c7842c6561b707025d500d8b560139a83eeef03fb31
@@ -5185,7 +5197,7 @@ Q.y     = 2348578fee0d3c353a6efb0c20f02ee50f69cf50626f3558b99424
 suite   = edwards25519_XMD:SHA-256_ELL2_RO_
 dst     = edwards25519_XMD:SHA-256_ELL2_RO_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 046f7ac05fd7748eb4cb99043af9e7a7209d8372e27034fd4f6cd2
           58c5557711
 P.y     = 0ab78b10ee6f33f339ed388ce1393f80b0b27817b89dbf6ae943a7
@@ -5273,7 +5285,7 @@ Q1.y    = 3a4a99bd1b4c83330eed3d02c6e63349f3dd0a36a1260a99ed4c04
 suite   = edwards25519_XMD:SHA-256_ELL2_NU_
 dst     = edwards25519_XMD:SHA-256_ELL2_NU_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 08226f0a827eb3bb0f0589709b9bd2e6e8107a685d80c6c9cdb40c
           7230fc97be
 P.y     = 055d178a04b891dcbeae89f6daf1360a48683a6ee37599fb90d0a0
@@ -5337,7 +5349,7 @@ Q.y     = 4a3846b73f87fa9e46c4aae0bf2634699adcd324d85d0478989aa8
 suite   = edwards25519_XMD:SHA-512_ELL2_RO_
 dst     = edwards25519_XMD:SHA-512_ELL2_RO_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 355199593026fae01f068dcf79adb8dbf2da7b1f040bde080723fe
           aa94b65042
 P.y     = 1af40833bed99ac42f445e9494dbcc489561b3995a40e3864a1b1b
@@ -5425,7 +5437,7 @@ Q1.y    = 42ece5969a9b335cdfaf2367451ec12c56dc0607f038606222d113
 suite   = edwards25519_XMD:SHA-512_ELL2_NU_
 dst     = edwards25519_XMD:SHA-512_ELL2_NU_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 34110392cf2797c527e790379df1a910afa14ae2c368b246a26b9d
           9925ac0c71
 P.y     = 115fe9c145cec75332210f75537f89a5af2e9e81928ab63225fcf0
@@ -5491,7 +5503,7 @@ Q.y     = 1ca5e123fba67a5f0fb433c3e2423df5518b9ccd74e6e01f652e89
 suite   = curve448_XMD:SHA-512_ELL2_RO_
 dst     = curve448_XMD:SHA-512_ELL2_RO_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 21f78478bd717f5fdf648512597ff9f3c2a4bf5800d4dd813018fb
           047286af69cd8cfc3b4380c9dc93f3b560b4e63d4bf19c41fcd6ff
           393a
@@ -5611,7 +5623,7 @@ Q1.y    = ef6ed1bada9b7261695ca14282c5956d8e4df3c9a3d6bd7606e15d
 suite   = curve448_XMD:SHA-512_ELL2_NU_
 dst     = curve448_XMD:SHA-512_ELL2_NU_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 2183d97000fd3ee7e910b7cfe21d9996168d4f4c8b0a711e66170b
           d1829a35eeeeb9200932e7ca4cc7faddc1b716c4808a4adc9a68a8
           59c5
@@ -5697,7 +5709,7 @@ Q.y     = 1fdc90b44483cc5a5c90e83954366456a2762938b7e88b3c8dd09a
 suite   = edwards448_XMD:SHA-512_ELL2_RO_
 dst     = edwards448_XMD:SHA-512_ELL2_RO_TESTGEN
 
-msg     = 
+msg     =
 P.x     = e54af3058170d7b465db0cf48ce21e28659aa04a5b490f868b65f3
           8c95d83164a19b47ee029c2b64e1e5a446dab02bab4be161c11e18
           2ec0
@@ -5817,7 +5829,7 @@ Q1.y    = 49715e3ce7f5f9200f527c0c703119023df3463c242d114f6b0ce0
 suite   = edwards448_XMD:SHA-512_ELL2_NU_
 dst     = edwards448_XMD:SHA-512_ELL2_NU_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 47fb0126fc722d16fc3d7bfc3b0b801571f058290408ecae2bf8c8
           cc35e0fd702d0a169f6d9cb0cbe24ad226ae78aaf2f77dd906806d
           3de3
@@ -5903,7 +5915,7 @@ Q.y     = c29bb3c5305c70c482ab2ef87a8e81b0335f7d84982f57615661c8
 suite   = secp256k1_XMD:SHA-256_SSWU_RO_
 dst     = secp256k1_XMD:SHA-256_SSWU_RO_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 733fddf3612d3516dc9ec8b61759c242df573668f43bac67b0cc2b
           b8ebda7b72
 P.y     = bb633f8a914f1dd1da988b49cf11250c2fe66a396f6c8bf72981d9
@@ -5991,7 +6003,7 @@ Q1.y    = 2f20daceb860082bf39bc17831e90ced55416d54737b0af30a8db7
 suite   = secp256k1_XMD:SHA-256_SSWU_NU_
 dst     = secp256k1_XMD:SHA-256_SSWU_NU_TESTGEN
 
-msg     = 
+msg     =
 P.x     = fbf556f8dd33ec00571f567ab0b366389f8e58e57daf9c0ffee251
           3dbe3b12b5
 P.y     = 8483a69cacd420ba70f49a28a6ea05964db89477954ccab7a58931
@@ -6055,7 +6067,7 @@ Q.y     = b110972547240d89f1bfa9af84bb1069876f8c96291395bfb0b573
 suite   = secp256k1_XMD:SHA-256_SVDW_RO_
 dst     = secp256k1_XMD:SHA-256_SVDW_RO_TESTGEN
 
-msg     = 
+msg     =
 P.x     = dbc32a97a6da03a615b70cd6e0d58f2653c03394513634e977db70
           a9195345a8
 P.y     = adb868f0f9be71c8765063883adb65733635a206434b8114d98786
@@ -6143,7 +6155,7 @@ Q1.y    = 265f01d0f5907d426ea805acc38eb22847c0800ad6d2cc62b6d6c2
 suite   = secp256k1_XMD:SHA-256_SVDW_NU_
 dst     = secp256k1_XMD:SHA-256_SVDW_NU_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 51da4962212a8025a5a849706970cfbfe471f681c049405086a7df
           5a2db652be
 P.y     = 649a8ba766c9ccb8232d665a731c59bcd06a918801fc106ebfc889
@@ -6209,7 +6221,7 @@ Q.y     = 82b74662cfd559e77c915848dcd4ca77e75b80802c6bfba2fd4aba
 suite   = BLS12381G1_XMD:SHA-256_SSWU_RO_
 dst     = BLS12381G1_XMD:SHA-256_SSWU_RO_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 14738daf70f5142df038c9e3be76f5d71b0db6613e5ef55cfe8e43
           e27f840dc75de97092da617376a9f598e7a0920c47
 P.y     = 12645b7cb071943631d062b22ca61a8a3df2a8bdac4e6fcd2c1864
@@ -6297,7 +6309,7 @@ Q1.y    = 0bcbd9df3505f049476f060c1d1c958fe8b34e426fd7e75424c9e2
 suite   = BLS12381G1_XMD:SHA-256_SSWU_NU_
 dst     = BLS12381G1_XMD:SHA-256_SSWU_NU_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 115281bd55a4103f31c8b12000d98149598b72e5da14e953277def
           263a24bc2e9fd8fa151df73ea3800f9c8cbb9b245c
 P.y     = 0796506faf9edbf1957ba8d667a079cab0d3a37e302e5132bd2566
@@ -6361,7 +6373,7 @@ Q.y     = 059047d83b5ea1ff7f0665b406acede27f233d3414055cbff25b37
 suite   = BLS12381G1_XMD:SHA-256_SVDW_RO_
 dst     = BLS12381G1_XMD:SHA-256_SVDW_RO_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 045f87745ff759f9197e131ad83d47d635dc36a3e0c7e4a1be5e1e
           ffe5e63ac69c8f34e6c3aef9c5cf28224922788367
 P.y     = 06125886a03f883740a078313d5fa6e4a68b9c0394eb75f77c65fc
@@ -6449,7 +6461,7 @@ Q1.y    = 066bbc62980e8bf7664f2b84ee69f3ed2c1a49ef1f8c0d35d709ef
 suite   = BLS12381G1_XMD:SHA-256_SVDW_NU_
 dst     = BLS12381G1_XMD:SHA-256_SVDW_NU_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 126690faf7d2cc7838d18f58ae94e9eab1d042fb93ed7245aee5a1
           a3ecac3f1935df62b807f9bd7be1018492b4ccd087
 P.y     = 0d2fe772107e935ddfb916da6dd69cb3c9b112cbd7452a3da77e16
@@ -6515,7 +6527,7 @@ Q.y     = 04d0dbee266de33d9bee538d188e209476ebe3b34e58a19d0ea6ae
 suite   = BLS12381G2_XMD:SHA-256_SSWU_RO_
 dst     = BLS12381G2_XMD:SHA-256_SSWU_RO_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 0d3b02ee071b12d1e79138c3900ca3da7b8021ac462fe6ed68080d
           c9a5f1c5de46b7fe171e8b3e4e7537e7746757aeca
     + I * 0d4733459fead6a1f30e5f92df08ecfd0db9bcd0f3e2f2de0f00c8
@@ -6667,7 +6679,7 @@ Q1.y    = 11e8a23425631218f3249f1870a8b1a17d82f3224602e433ff04a5
 suite   = BLS12381G2_XMD:SHA-256_SSWU_NU_
 dst     = BLS12381G2_XMD:SHA-256_SSWU_NU_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 170919c7845a9e623cef297e17484606a3eb2ae21ed8a21ff2b258
           861daefa3ac36955c0b374c6f4925868920d9c5f0b
     + I * 04264ddf941f7c9ea5ad62027c72b194c6c3f62a92fcdb56ddc9de
@@ -6771,7 +6783,7 @@ Q.y     = 07bba42c7be028acf9111e51cfa6d98f2949f12635847e938b0f79
 suite   = BLS12381G2_XMD:SHA-256_SVDW_RO_
 dst     = BLS12381G2_XMD:SHA-256_SVDW_RO_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 0d2b7cb4e1b0f001de23bda54652814186434637442e61bd7ae665
           f78e3e8429a3b0abf727b6ffc1a7d5d7f5683c2517
     + I * 0c6519468850b1b6b34c2ac7a67166d9c2b842df09105c8644d6d9
@@ -6923,7 +6935,7 @@ Q1.y    = 13192225f9eea2cb2c342e39654a115e5f4b002943cea6067d429e
 suite   = BLS12381G2_XMD:SHA-256_SVDW_NU_
 dst     = BLS12381G2_XMD:SHA-256_SVDW_NU_TESTGEN
 
-msg     = 
+msg     =
 P.x     = 164c24901348f035811139a2ad95042bc85bb4b4481309431cd985
           03c951e9cb8f29d3c4ad0abeb31a3da4062f4b9027
     + I * 0cbca2904d96a263308df43e2767c4165f0357a5f0abf3419acab6
