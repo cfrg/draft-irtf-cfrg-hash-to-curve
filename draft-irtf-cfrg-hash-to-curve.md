@@ -1060,8 +1060,8 @@ Summary of quantities:
 | E | Elliptic curve. | E is specified by an equation and a field F. |
 | n | Number of points on the elliptic curve E. | n = h * r, for h and r defined below. |
 | G | A subgroup of the elliptic curve. | Destination group to which byte strings are encoded. |
-| r | Order of G. | This number MUST be prime.  |
-| h | Cofactor, h >= 1. | An integer satisfying n = h * r.  |
+| r | Order of G. | This number MUST be prime. |
+| h | Cofactor, h >= 1. | An integer satisfying n = h * r. |
 
 ## Terminology
 
@@ -1494,7 +1494,9 @@ the range \[0, p / 3\] with probability roughly 1/2, meaning that this value
 is statistically far from uniform in \[0, p - 1\].
 
 To control bias, hash\_to\_field instead uses pseudorandom integers whose
-length is at least ceil(log2(p)) + k bits.
+length is at least ceil(log2(p)) + k bits, where k is the target security level
+for the suite in bits. (Note that k is an upper bound on the security level for
+the corresponding curve. See {{security-considerations-targets}} for more details.)
 Reducing such integers mod p gives bias at most 2^-k for any p; this bias
 is appropriate when targeting k-bit security.
 To obtain such integers, hash\_to\_field uses expand\_message to obtain
@@ -2231,8 +2233,8 @@ uses the constant sqrt\_neg\_486664 = sqrt(-486664) (mod 2^255 - 19).
 To ensure compatibility, this constant MUST be chosen such that
 sgn0(sqrt\_neg\_486664) == 1.
 Analogous ambiguities in other standardized rational maps MUST be
-resolved in the same way: for any constant k whose sign is ambiguous,
-k MUST be chosen such that sgn0(k) == 1.
+resolved in the same way: for any constant c whose sign is ambiguous,
+c MUST be chosen such that sgn0(c) == 1.
 
 The 4-isogeny map from curve448 to edwards448 ({{RFC7748}}, Section 4.2)
 is unambiguous with respect to sign.
@@ -2399,9 +2401,7 @@ Each suite comprises the following parameters:
 - E, the target elliptic curve over a field F.
 - p, the characteristic of the field F.
 - m, the extension degree of the field F.
-- k, the target security level of the suite in bits. Note that this is an
-  upper bound on the security level for the underlying curve. See
-  {{security-considerations-targets}} for more details.
+- k, the target security level of the suite in bits.
 - sgn0, one of the variants specified in {{sgn0-variants}}.
 - L, the length parameter for hash\_to\_field ({{hashtofield-sec}}).
 - expand\_message, one of the variants specified in {{hashtofield-expand}}
@@ -2765,7 +2765,7 @@ Budroni and Pintore ({{BP17}}, Section 4.1).
 The RECOMMENDED way to define a new hash-to-curve suite is:
 
 1. E, F, p, and m are determined by the elliptic curve and its base field;
-   k is determined by the security level of the elliptic curve.
+   k is determined by the target security level of the suite.
 
 2. Choose encoding type, either hash\_to\_curve or encode\_to\_curve ({{roadmap}}).
 
