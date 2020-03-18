@@ -1525,7 +1525,7 @@ Parameters:
 - p, the characteristic of F (see immediately above).
 - m, the extension degree of F, m >= 1 (see immediately above).
 - L = ceil((ceil(log2(p)) + k) / 8), where k is the security
-  parameter of the cryptosystem (e.g., k = 128).
+  parameter of the suite (e.g., k = 128).
 - expand_message, a function that expands a byte string and
   domain separation tag into a pseudorandom byte string
   (see discussion above).
