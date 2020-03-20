@@ -2402,6 +2402,7 @@ Each suite comprises the following parameters:
 - p, the characteristic of the field F.
 - m, the extension degree of the field F.
 - k, the target security level of the suite in bits.
+  (See {{security-considerations-targets}} for discussion.)
 - sgn0, one of the variants specified in {{sgn0-variants}}.
 - L, the length parameter for hash\_to\_field ({{hashtofield-sec}}).
 - expand\_message, one of the variants specified in {{hashtofield-expand}}
