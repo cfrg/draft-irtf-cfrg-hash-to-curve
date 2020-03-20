@@ -2765,26 +2765,30 @@ Budroni and Pintore ({{BP17}}, Section 4.1).
 
 The RECOMMENDED way to define a new hash-to-curve suite is:
 
-1. E, F, p, and m are determined by the elliptic curve and its base field;
-   k is determined by the target security level of the suite.
+1. E, F, p, and m are determined by the elliptic curve and its base field.
 
-2. Choose encoding type, either hash\_to\_curve or encode\_to\_curve ({{roadmap}}).
+2. k is an upper bound on the target security level of the suite
+   ({{security-considerations-targets}}).
+   A reasonable choice of k is ceil(log2(r) / 2), where r is
+   the order of the subgroup G of the curve E ({{bg-curves}}).
 
-3. Choose a sgn0 variant following the guidelines in {{sgn0-variants}}.
+3. Choose encoding type, either hash\_to\_curve or encode\_to\_curve ({{roadmap}}).
 
-4. Compute L as described in {{hashtofield-sec}}.
+4. Choose a sgn0 variant following the guidelines in {{sgn0-variants}}.
 
-5. Choose an expand\_message variant from {{hashtofield-expand}} plus any
+5. Compute L as described in {{hashtofield-sec}}.
+
+6. Choose an expand\_message variant from {{hashtofield-expand}} plus any
    underlying cryptographic primitives (e.g., a hash function H).
 
-6. Choose a mapping following the guidelines in {{choosing-mapping}},
+7. Choose a mapping following the guidelines in {{choosing-mapping}},
    and select any required parameters for that mapping.
 
-7. Choose h\_eff to be either the cofactor of E or, if a fast cofactor
+8. Choose h\_eff to be either the cofactor of E or, if a fast cofactor
    clearing method is to be used, a value appropriate to that method
    as discussed in {{cofactor-clearing}}.
 
-8. Construct a Suite ID following the guidelines in {{suiteIDformat}}.
+9. Construct a Suite ID following the guidelines in {{suiteIDformat}}.
 
 When hashing to an elliptic curve not listed in this section, corresponding
 hash-to-curve suites SHOULD be fully specified as described above.
