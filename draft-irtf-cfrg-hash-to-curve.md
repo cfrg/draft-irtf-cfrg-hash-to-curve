@@ -1751,9 +1751,9 @@ See {{suiteIDformat}} for more information.
 # Deterministic Mappings {#mappings}
 
 The mappings in this section are suitable for constructing either nonuniform
- or random oracle encodings using the constructions of {{roadmap}}.
- Certain mappings restrict the form of the curve or its parameters.
- For each mapping presented, this document lists the relevant restrictions.
+or random oracle encodings using the constructions of {{roadmap}}.
+Certain mappings restrict the form of the curve or its parameters.
+For each mapping presented, this document lists the relevant restrictions.
 
 Note that mappings in this section are not interchangeable: different mappings
 will almost certainly output different points when evaluated on the same input.
