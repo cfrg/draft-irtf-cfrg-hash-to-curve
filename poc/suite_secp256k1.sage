@@ -5,7 +5,6 @@ import hashlib
 import sys
 from hash_to_field import expand_message_xmd
 try:
-    from sagelib.common import sgn0_le
     from sagelib.h2c_suite import BasicH2CSuiteDef, BasicH2CSuite, IsoH2CSuiteDef, IsoH2CSuite
     from sagelib.svdw_generic import GenericSvdW
     from sagelib.sswu_generic import GenericSSWU
@@ -24,7 +23,7 @@ Bp = F(1771)
 iso_map = iso_secp256k1()
 
 def secp256k1_svdw(suite_name, is_ro):
-    return BasicH2CSuiteDef("secp256k1", F, A, B, sgn0_le, expand_message_xmd, hashlib.sha256, 48, GenericSvdW, 1, 128, is_ro, "%sTESTGEN" % suite_name)
+    return BasicH2CSuiteDef("secp256k1", F, A, B, expand_message_xmd, hashlib.sha256, 48, GenericSvdW, 1, 128, is_ro, "%sTESTGEN" % suite_name)
 
 def secp256k1_sswu(suite_name, is_ro):
     return IsoH2CSuiteDef(secp256k1_svdw(suite_name, is_ro)._replace(MapT=GenericSSWU), Ap, Bp, iso_map)

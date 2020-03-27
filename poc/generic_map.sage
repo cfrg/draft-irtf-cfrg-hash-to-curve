@@ -3,7 +3,7 @@
 
 import sys
 try:
-    from sagelib.common import sgn0_be, sgn0_le, square_root, square_root_random_sign
+    from sagelib.common import sgn0, square_root, square_root_random_sign
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
@@ -13,18 +13,14 @@ class GenericMap(object):
     F = None
     straight_line = None
     not_straight_line = None
-    sgn0 = staticmethod(sgn0_le)
+    sgn0 = staticmethod(sgn0)
     sqrt = staticmethod(square_root)
     name = None
 
     def __dict__(self):
         return {
             "name" :  self.name,
-            "sgn0": "sgn0_le" if self.sgn0 == sgn0_le else "sgn0_be",
         }
-
-    def set_sgn0(self, fn):
-        self.sgn0 = fn
 
     def set_sqrt(self, fn):
         self.sqrt = fn
@@ -70,9 +66,6 @@ class GenericMap(object):
                 ret = cls(F, A, B)
                 # sign of sqrt shouldn't matter --- make sure by returning random sign
                 ret.set_sqrt(square_root_random_sign)
-                # randomly pick sgn0_le or sgn0_be
-                if randint(0, 1) == 1:
-                    ret.set_sgn0(sgn0_be)
             except ValueError:
                 # constructor threw ValueError: this curve is not valid for this map
                 continue

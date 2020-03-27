@@ -3,7 +3,7 @@
 
 import sys
 try:
-    from sagelib.common import CMOV, sgn0_be
+    from sagelib.common import CMOV
     from sagelib.sswu_generic import GenericSSWU
     from sagelib.z_selection import find_z_sswu
 except ImportError:
@@ -122,7 +122,6 @@ p_bls12381 = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241
 Ap_bls12381g1 = 0x144698a3b8e9433d693a02c96d4982b0ea985383ee66a8d8e8981aefd881ac98936f8da0e0f97f5cf428082d584c1d
 Bp_bls12381g1 = 0x12e2908d11688030018b12e8753eee3b2016c1f0f24f4070a0b9c14fcef35ef55a23215a316ceaa5d1cc48e98e172be0
 test_bls12381g1 = OptimizedSSWU(p_bls12381, Ap_bls12381g1, Bp_bls12381g1)
-test_bls12381g1.ref_map.set_sgn0(sgn0_be)
 assert test_bls12381g1.Z == GF(p_bls12381)(11)
 
 def test_sswu():

@@ -5,7 +5,7 @@ import hashlib
 import sys
 from hash_to_field import expand_message_xmd
 try:
-    from sagelib.common import sgn0_le
+    from sagelib.common import sgn0
     from sagelib.h2c_suite import BasicH2CSuiteDef, EdwH2CSuiteDef, EdwH2CSuite, MontyH2CSuite
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
@@ -14,8 +14,9 @@ p = 2^255 - 19
 F = GF(p)
 Ap = F(486662)  # Bp * y^2 = x^3 + Ap * x^2 + x
 Bp = F(1)
-sqrt486664 = F(-486664).sqrt()
-sqrt486664 *= sgn0_le(sqrt486664)
+sqrt_minus_486664 = F(-486664).sqrt()
+if sgn0(sqrt_minus_486664) == 1:
+    sqrt_minus_486664 = -sqrt_minus_486664
 a = F(-1)       # a * v^2 + w^2 = 1 + d * v^2 * w^2
 d = F(0x52036cee2b6ffe738cc740797779e89800700a4d4141d8ab75eb4dca135978a3)
 
@@ -33,13 +34,13 @@ def m2e_25519(P):
         return (0, -1, 0)
     if y == 0 or x == -1:
         return (0, 1, 0)
-    v = sqrt486664 * x / y
+    v = sqrt_minus_486664 * x / y
     w = (x - 1) / (x + 1)
     assert a * v^2 + w^2 == 1 + d * v^2 * w^2, "bad output point"
     return (v, w, 1)
 
 def monty_suite(suite_name, hash_fn, is_ro):
-    return BasicH2CSuiteDef("curve25519", F, Ap, Bp, sgn0_le, expand_message_xmd, hash_fn, 48, None, 8, 128, is_ro, "%sTESTGEN" % suite_name)
+    return BasicH2CSuiteDef("curve25519", F, Ap, Bp, expand_message_xmd, hash_fn, 48, None, 8, 128, is_ro, "%sTESTGEN" % suite_name)
 
 def edw_suite(suite_name, hash_fn, is_ro):
     return EdwH2CSuiteDef(monty_suite(suite_name, hash_fn, is_ro)._replace(E="edwards25519",Aa=a, Bd=d), Ap, Bp, m2e_25519)

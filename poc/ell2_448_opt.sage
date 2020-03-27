@@ -3,7 +3,7 @@
 
 import sys
 try:
-    from sagelib.common import CMOV, sgn0_le, square_root_random_sign
+    from sagelib.common import CMOV, sgn0, square_root_random_sign
     from sagelib.ell2_generic import GenericEll2
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
@@ -13,8 +13,6 @@ F = GF(p)
 A = F(156326)
 B = F(1)
 ref_map = GenericEll2(F, A, B)
-sgn0 = sgn0_le
-ref_map.set_sgn0(sgn0)
 sqrt = square_root_random_sign
 ref_map.set_sqrt(sqrt)
 
