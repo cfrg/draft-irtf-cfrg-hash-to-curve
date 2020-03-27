@@ -12,8 +12,7 @@
   "hash": "sha256",
   "k": "0x80",
   "map": {
-    "name": "SVDW",
-    "sgn0": "sgn0_le"
+    "name": "SVDW"
   },
   "randomOracle": true,
   "vectors": [

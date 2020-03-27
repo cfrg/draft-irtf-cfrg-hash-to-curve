@@ -12,8 +12,7 @@
   "hash": "sha512",
   "k": "0xe0",
   "map": {
-    "name": "ELL2",
-    "sgn0": "sgn0_le"
+    "name": "ELL2"
   },
   "randomOracle": true,
   "vectors": [

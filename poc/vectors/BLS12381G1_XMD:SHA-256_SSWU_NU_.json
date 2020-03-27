@@ -12,19 +12,18 @@
   "hash": "sha256",
   "k": "0x80",
   "map": {
-    "name": "SSWU",
-    "sgn0": "sgn0_be"
+    "name": "SSWU"
   },
   "randomOracle": false,
   "vectors": [
     {
       "P": {
         "x": "0x115281bd55a4103f31c8b12000d98149598b72e5da14e953277def263a24bc2e9fd8fa151df73ea3800f9c8cbb9b245c",
-        "y": "0x0796506faf9edbf1957ba8d667a079cab0d3a37e302e5132bd25665b66b26ea8556a0cfb92d6ae2c4890df0029b455ce"
+        "y": "0x126ac17a89e10aa8b59ffedfdbab330cb3a3a806c356c18caa0b6c458ffe877bc941f3031e7d51d3716e20ffd64b54dd"
       },
       "Q": {
         "x": "0x0dddf77f320e7848a457358ab8d3b84cbaf19307be26b91a10c211651691cd736b1f59d77aed3954f857f108d6966f5b",
-        "y": "0x0450ab32020649f22a2fca166a1d8a59d4c93f1eb078a4bedd6c48027b9933507a2a8ae4d915305f58ede781283325a9"
+        "y": "0x15b066b837799ca820ebdd9fd92e227d8fae0c66430c6e0089c48a9e7b17c2d3a4817519d83ecfa06111187ed7cc8502"
       },
       "msg": "",
       "u": [
@@ -48,11 +47,11 @@
     {
       "P": {
         "x": "0x05c59faaf88187f51cd9cc6c20ca47ac66cc38d99af88aef2e82d7f35104168916f200a79562e64bc843f83cdc8a4675",
-        "y": "0x0b10472100a4aaa665f35f044b14a234b8f74990fa029e3dd06aa60b232fd9c232564ceead8cdb72a8a0320fc1071845"
+        "y": "0x0ef0cac938db3bf3e52848b1f8370aa2ab8001f3f982748196c62c95d3811c61ec55b31003c7248d115ecdf03ef89266"
       },
       "Q": {
         "x": "0x08459bd42a955d6e247fce6c81eda0ad9645f9e666d141a71f0afa3fbc509b2c58550fe077d073cc752493400399fddd",
-        "y": "0x169d35a8c6bb915ae910f4c6cde359622746b0c8b2b241b411d0e92ef991d3e6a7b0fafabb93c1de2e3997d6e362ce8a"
+        "y": "0x0363dc4172c4553f620ab2ef756853753d309abc40d2d10b555fe971fd1f223d76fb0503f5c03e218bc568291c9cdc21"
       },
       "msg": "abcdef0123456789",
       "u": [
