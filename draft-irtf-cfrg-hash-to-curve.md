@@ -1331,12 +1331,10 @@ is_square(x) := { True,  if x^((q - 1) / 2) is 0 or 1 in F;
     Regardless of the method chosen, the sqrt function should be implemented
     in a way that resists timing side channels, i.e., in constant time.
 
--   sgn0(x): This function returns either +1 or -1 indicating the "sign" of x,
-    where sgn0(x) == -1 just when x is "negative".
-    In other words, this function always considers 0 to be positive.
-    This function may be implemented in multiple ways; {{sgn0-variants}} defines two variants.
-    Throughout the document, sgn0 is used generically to mean either of these variants.
-    Each suite in {{suites}} specifies the sgn0 variant to be used.
+-   sgn0(x): This function returns either 0 or 1 indicating the "sign" of x,
+    where sgn0(x) == 1 just when x is "negative".
+    (In other words, this function always considers 0 to be positive.)
+    {{sgn0-function}} defines this function and discusses its implementation.
 
 -   inv0(x): This function returns the multiplicative inverse of x in F,
     extended to all of F by fixing inv0(0) == 0.
@@ -1363,24 +1361,39 @@ is_square(x) := { True,  if x^((q - 1) / 2) is 0 or 1 in F;
     are ASCII literals, but strxor is defined for arbitrary byte strings).
     In this document, strxor is only applied to inputs of equal length.
 
-## sgn0 variants {#sgn0-variants}
+## The sgn0 function {#sgn0-function}
 
-This section defines two ways of determining the "sign" of an element of F.
-The variant that should be used is a matter of convention.
-Other sgn0 variants are possible, but the two given below cover
-commonly used notions of sign.
+This section defines a generic sgn0 implementation that applies to any field F = GF(p^m).
+It also gives simplified implementations for the cases F = GF(p) and F = GF(p^2).
 
-It is RECOMMENDED to select the variant that matches the point decompression
-method of the target curve.
-In particular, since point decompression requires computing a square root
-and then choosing the sign of the resulting point, all decompression methods
-specify, implicitly or explicitly, a method for determining the sign of an
-element of F.
-It is convenient for hash-to-curve and decompression to agree on a notion of
-sign, since this may permit simpler implementations.
+See {{bg-curves}} for a discussion of representing elements of extension fields as vectors.
 
-See {{bg-curves}} for a discussion of representing elements of extension fields
-as vectors; this representation is used in both of the sgn0 variants below.
+~~~
+sgn0(x)
+
+Parameters:
+- F, a finite field of characteristic p and order q = p^m.
+- p, the characteristic of F (see immediately above).
+- m, the extension degree of F, m >= 1 (see immediately above).
+
+Input: x, an element of F.
+Output: 0 or 1.
+
+Notation:
+- x_i is the i'th element of the vector representation of x.
+- OR and AND are logical operators. Short-circuit operators
+  MUST be avoided in constant-time implementations.
+
+Steps:
+1. sign = 0
+2. zero = 1
+3. for i in (1, 2, ..., m):
+4.   sign_i = x_i mod 2
+5.   zero_i = x_i == 0
+6.   sign = sign OR (zero AND sign_i)
+7.   zero = zero AND zero_i
+6. return sign
+~~~
 
 Note that any valid sgn0 function for extension fields must iterate over
 the entire vector representation of the input element.
@@ -1388,76 +1401,37 @@ To see why, imagine a function sgn0\* that ignores the final entry in its
 input vector, and consider a field element x = (0, x\_2).
 Since sgn0\* ignores x\_2, sgn0\*(x) == sgn0\*(-x), which is incorrect
 when x\_2 != 0.
-The same argument applies to all entries of any x, establishing the claim.
+A similar argument applies to any entry of the vector representation of x.
 
-### Big endian variant {#sgn0-be}
-
-The following sgn0 variant is defined such that sgn0\_be(x) = -1
-just when the big-endian encoding of x is lexically greater than
-the encoding of -x.
-
-This variant SHOULD be used when points on the target elliptic curve
-are serialized using the SORT compression method given in
-IEEE 1363a-2004 {{p1363a}}, Section 5.5.6.1.2, and other similar methods.
+When m == 1, sgn0 can be significantly simplified:
 
 ~~~
-sgn0_be(x)
+sgn0_m_eq_1(x)
 
-Parameters:
-- F, a finite field of characteristic p and order q = p^m.
-- p, the characteristic of F (see immediately above).
-- m, the extension degree of F, m >= 1 (see immediately above).
-
-Input: x, an element of F.
-Output: -1 or 1 (an integer).
-
-Notation: x_i is the i^th element of the vector representation of x.
+Input: x, an element of GF(p).
+Output: 0 or 1.
 
 Steps:
-1. sign = 0
-2. for i in (m, m - 1, ..., 1):
-3.   sign_i = CMOV(1, -1, x_i > ((p - 1) / 2))
-4.   sign_i = CMOV(sign_i, 0, x_i == 0)
-5.   sign = CMOV(sign, sign_i, sign == 0)
-6. return CMOV(sign, 1, sign == 0)      # Regard x == 0 as positive
+1. return x mod 2
 ~~~
 
-### Little endian variant {#sgn0-le}
-
-The following sgn0 variant is defined such that sgn0\_le(x) = -1
-just when x != 0 and the parity of the least significant nonzero
-entry of the vector representation of x is 1.
-
-This variant SHOULD be used when points on the target elliptic curve are serialized
-using any of the following methods:
-
-- the LSB compression method given in IEEE 1363a-2004 {{p1363a}}, Section 5.5.6.1.1,
-- the method given in {{SEC1}} Section 2.3.3, or
-- the method given in ANSI X9.62-1998 {{x9.62}}, Section 4.2.1.
-
-This variant is also compatible with the compression method specified for the
-Ed25519 and Ed448 elliptic curves {{!RFC8032}}.
+The case m == 2 is only slightly more complicated:
 
 ~~~
-sgn0_le(x)
+sgn0_m_eq_2(x)
 
-Parameters:
-- F, a finite field of characteristic p and order q = p^m.
-- p, the characteristic of F (see immediately above).
-- m, the extension degree of F, m >= 1 (see immediately above).
+Input: x an element of GF(p^2).
+Output: 0 or 1.
 
-Input: x, an element of F.
-Output: -1 or 1 (an integer).
-
-Notation: x_i is the i^th element of the vector representation of x.
+Notation:
+- OR and AND are logical operators. Short-circuit operators
+  MUST be avoided in constant-time implementations.
 
 Steps:
-1. sign = 0
-2. for i in (1, 2, ..., m):
-3.   sign_i = CMOV(1, -1, x_i mod 2 == 1)
-4.   sign_i = CMOV(sign_i, 0, x_i == 0)
-5.   sign = CMOV(sign, sign_i, sign == 0)
-6. return CMOV(sign, 1, sign == 0)      # Regard x == 0 as positive
+1. sign_0 = x_0 mod 2
+2. zero_0 = x_0 == 0
+3. sign_1 = x_1 mod 2
+4. return sign_0 OR (zero_0 AND sign_1)
 ~~~
 
 # Hashing to a Finite Field {#hashtofield}
@@ -1900,7 +1874,7 @@ Operations:
 3. tv1 = 1 - tv1
 4. tv3 = inv0(tv1 * tv2)
 5. tv4 = sqrt(-g(Z) * (3 * Z^2 + 4 * A))
-6. tv4 = tv4 * sgn0(tv4)                    # sgn0(tv4) MUST equal 1
+6. If sgn0(tv4) == 1, set tv4 = -tv4        # sgn0(tv4) MUST equal 0
 7. tv5 = u * tv1 * tv3 * tv4
 8.  x1 = -Z / 2 - tv5
 9.  x2 = -Z / 2 + tv5
@@ -1925,7 +1899,7 @@ Output: (x, y), a point on E.
 Constants:
 1. c1 = g(Z)
 2. c2 = -Z / 2
-3. c3 = sqrt(-g(Z) * (3 * Z^2 + 4 * A))     # sgn0(c3) MUST equal 1
+3. c3 = sqrt(-g(Z) * (3 * Z^2 + 4 * A))     # sgn0(c3) MUST equal 0
 4. c4 = -4 * g(Z) / (3 * Z^2 + 4 * A)
 
 Steps:
@@ -2231,10 +2205,10 @@ forms and gives the corresponding rational maps.
 The rational map for edwards25519 ({{RFC7748}}, Section 4.1)
 uses the constant sqrt\_neg\_486664 = sqrt(-486664) (mod 2^255 - 19).
 To ensure compatibility, this constant MUST be chosen such that
-sgn0(sqrt\_neg\_486664) == 1.
+sgn0(sqrt\_neg\_486664) == 0.
 Analogous ambiguities in other standardized rational maps MUST be
 resolved in the same way: for any constant c whose sign is ambiguous,
-c MUST be chosen such that sgn0(c) == 1.
+c MUST be chosen such that sgn0(c) == 0.
 
 The 4-isogeny map from curve448 to edwards448 ({{RFC7748}}, Section 4.2)
 is unambiguous with respect to sign.
@@ -2403,7 +2377,6 @@ Each suite comprises the following parameters:
 - m, the extension degree of the field F.
 - k, the target security level of the suite in bits.
   (See {{security-considerations-targets}} for discussion.)
-- sgn0, one of the variants specified in {{sgn0-variants}}.
 - L, the length parameter for hash\_to\_field ({{hashtofield-sec}}).
 - expand\_message, one of the variants specified in {{hashtofield-expand}}
   plus any parameters required for the specified variant (for example, H,
@@ -2447,7 +2420,6 @@ P256\_XMD:SHA-256\_SSWU\_RO\_ is defined as follows:
 - p: 2^256 - 2^224 + 2^192 + 2^96 - 1
 - m: 1
 - k: 128
-- sgn0: sgn0\_le ({{sgn0-le}})
 - expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-256
 - L: 48
@@ -2483,7 +2455,6 @@ P384\_XMD:SHA-512\_SSWU\_RO\_ is defined as follows:
 - p: 2^384 - 2^128 - 2^96 + 2^32 - 1
 - m: 1
 - k: 192
-- sgn0: sgn0\_le ({{sgn0-le}})
 - expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-512
 - L: 72
@@ -2519,7 +2490,6 @@ P521\_XMD:SHA-512\_SSWU\_RO\_ is defined as follows:
 - p: 2^521 - 1
 - m: 1
 - k: 256
-- sgn0: sgn0\_le ({{sgn0-le}})
 - expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-512
 - L: 96
@@ -2555,7 +2525,6 @@ curve25519\_XMD:SHA-256\_ELL2\_RO\_ is defined as follows:
 - p: 2^255 - 19
 - m: 1
 - k: 128
-- sgn0: sgn0\_le ({{sgn0-le}})
 - expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-256
 - L: 48
@@ -2607,7 +2576,6 @@ curve448\_XMD:SHA-512\_ELL2\_RO\_ is defined as follows:
 - p: 2^448 - 2^224 - 1
 - m: 1
 - k: 224
-- sgn0: sgn0\_le ({{sgn0-le}})
 - expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-512
 - L: 84
@@ -2645,7 +2613,6 @@ secp256k1\_XMD:SHA-256\_SSWU\_RO\_ is defined as follows:
 - p: 2^256 - 2^32 - 2^9 - 2^8 - 2^7 - 2^6 - 2^4 - 1
 - m: 1
 - k: 128
-- sgn0: sgn0\_le ({{sgn0-le}})
 - expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-256
 - L: 48
@@ -2688,7 +2655,6 @@ BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_ is defined as follows:
 - p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
 - m: 1
 - k: 128
-- sgn0: sgn0\_be ({{sgn0-be}})
 - expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-256
 - L: 64
@@ -2731,7 +2697,6 @@ BLS12381G2\_XMD:SHA-256\_SSWU\_RO\_ is defined as follows:
   - m: 2
   - (1, I) is the basis for F, where I^2 + 1 == 0 in F
 - k: 128
-- sgn0: sgn0\_be ({{sgn0-be}})
 - expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-256
 - L: 64
@@ -2774,21 +2739,19 @@ The RECOMMENDED way to define a new hash-to-curve suite is:
 
 3. Choose encoding type, either hash\_to\_curve or encode\_to\_curve ({{roadmap}}).
 
-4. Choose a sgn0 variant following the guidelines in {{sgn0-variants}}.
+4. Compute L as described in {{hashtofield-sec}}.
 
-5. Compute L as described in {{hashtofield-sec}}.
-
-6. Choose an expand\_message variant from {{hashtofield-expand}} plus any
+5. Choose an expand\_message variant from {{hashtofield-expand}} plus any
    underlying cryptographic primitives (e.g., a hash function H).
 
-7. Choose a mapping following the guidelines in {{choosing-mapping}},
+6. Choose a mapping following the guidelines in {{choosing-mapping}},
    and select any required parameters for that mapping.
 
-8. Choose h\_eff to be either the cofactor of E or, if a fast cofactor
+7. Choose h\_eff to be either the cofactor of E or, if a fast cofactor
    clearing method is to be used, a value appropriate to that method
    as discussed in {{cofactor-clearing}}.
 
-9. Construct a Suite ID following the guidelines in {{suiteIDformat}}.
+8. Construct a Suite ID following the guidelines in {{suiteIDformat}}.
 
 When hashing to an elliptic curve not listed in this section, corresponding
 hash-to-curve suites SHOULD be fully specified as described above.
@@ -3532,7 +3495,7 @@ Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on edwards25519.
 
 Constants:
-1. c1 = sqrt(-486664)    # sgn0(c1) MUST equal 1
+1. c1 = sqrt(-486664)    # sgn0(c1) MUST equal 0
 
 Steps:
 1.  (xMn, xMd, yMn, yMd) = map_to_curve_elligator2_curve25519(u)
