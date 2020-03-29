@@ -27,6 +27,16 @@ These implementations are for reference only. They MUST NOT be used in productio
  - [Go](https://github.com/armfazh/h2c-go-ref): [v06](https://github.com/armfazh/h2c-go-ref/tree/v6.0.0), [v05](https://github.com/armfazh/h2c-go-ref/tree/v5.0.0)
  - [Rust](https://github.com/armfazh/h2c-rust-ref): [v06](https://github.com/armfazh/h2c-rust-ref/tree/v6.0.0), [v05](https://github.com/armfazh/h2c-rust-ref/tree/v5.0.0)
 
+### Other Implementations
+
+This is a (likely incomplete) list of other libraries that have implemented hash-to-curve per the standard.
+
+ - [MIRACL Core](https://github.com/miracl/core)
+ - [pairing-plus](https://github.com/algorand/pairing-plus)
+ - [RELIC](https://github.com/relic-toolkit/relic)
+
+If you know of another library that supports a compliant hash-to-curve implementation and would like us to list it here, please open a PR.
+
 ## Contributing
 
 See the
