@@ -971,7 +971,7 @@ given scheme is not necessarily included in the description of the protocol.
 Compounding this problem is the need to pick a suitable curve for the specific
 protocol.
 
-This document aims to bridge this gap by providing a thorough set of
+This document aims to bridge this gap by providing a comprehensive set of
 recommended algorithms for a range of curve types.
 Each algorithm conforms to a common interface: it takes as input an arbitrary-length
 byte string and produces as output a point on an elliptic curve.
@@ -979,28 +979,16 @@ We provide implementation details for each algorithm, describe
 the security rationale behind each recommendation, and give guidance for
 elliptic curves that are not explicitly covered.
 
+Readers wishing to quickly specify or implement a conforming hash function
+should consult {{suites}}, which lists recommended hash-to-curve suites
+and describes both how to implement an existing suite and how to specify
+a new one.
+
 This document does not cover rejection sampling methods, sometimes known
 as "try-and-increment" or "hunt-and-peck," because the goal is to describe
 algorithms that can plausibly be made constant time. Use of these rejection
 methods is NOT RECOMMENDED, because they have been a perennial cause of
 side-channel vulnerabilities.
-
-## How to use this document {#howto}
-
-This document is intended for use by both implementors and protocol designers.
-
-For implementors, the necessary and sufficient level of specification is
-a hash-to-curve suite, which fixes all of the parameters listed in {{suites}},
-plus a domain separation tag ({{domain-separation}}).
-Starting from working operations on the target elliptic curve and its base field,
-a hash-to-curve suite requires implementing the specified encoding function ({{roadmap}}),
-its constituent subroutines ({{hashtofield}}, {{mappings}}, {{cofactor-clearing}}), and
-a few utility functions ({{utility}}).
-
-Correspondingly, designers specifying a protocol that requires hashing to an elliptic curve
-should either choose an existing hash-to-curve suite or specify a new one (see {{new-suite}}).
-In addition, designers should choose a domain separation tag following the guidelines in
-{{domain-separation}}.
 
 ## Requirements
 
@@ -1179,13 +1167,13 @@ they ensure that queries to RO1 and RO2 cannot result in identical
 queries to RO.
 Thus, it is safe to treat RO1 and RO2 as independent oracles.
 
-# Roadmap {#roadmap}
+# Encoding byte strings to elliptic curves {#roadmap}
 
 This section presents a general framework for encoding byte strings to points
 on an elliptic curve. To construct these encodings, we rely on three basic
 functions:
 
--   The function hash\_to\_field, {0, 1}^\* x {0, 1, 2} -> F, hashes arbitrary-length byte strings
+-   The function hash\_to\_field, {0, 1}^\* x {1, 2, ...} -> F, hashes arbitrary-length byte strings
     to elements of a finite field; its implementation is defined in
     {{hashtofield}}.
 
@@ -2364,9 +2352,20 @@ generally give the same result as the fast method, and SHOULD NOT be used.
 
 This section lists recommended suites for hashing to standard elliptic curves.
 
-A suite fully specifies the procedure for hashing byte strings to
-points on a specific elliptic curve group.
-Each suite comprises the following parameters:
+A hash-to-curve suite fully specifies the procedure for hashing byte strings
+to points on a specific elliptic curve group.
+{{suites-howto}} describes how to implement a suite.
+Designers specifying a protocol that requires hashing to an elliptic curve
+should either choose an existing suite or specify a new one as described
+in {{new-suite}}.
+
+All protocols and applications using a hash-to-curve suite MUST choose a domain
+separation tag (DST) in accordance with the guidelines in {{domain-separation}}.
+In addition, protocols and applications whose security requires a random oracle
+that returns points on the target curve MUST use a suite whose encoding type
+is hash\_to\_curve; see {{roadmap}} and immediately below for more information.
+
+A hash-to-curve suite comprises the following parameters:
 
 - Suite ID, a short name used to refer to a given suite.
   {{suiteIDformat}} discusses the naming conventions for suite IDs.
@@ -2388,12 +2387,6 @@ In addition to the above parameters, the mapping f may require
 additional parameters Z, M, rational\_map, E', and/or iso\_map.
 These MUST be specified when applicable.
 
-All applications MUST choose a domain separation tag (DST)
-in accordance with the guidelines in {{domain-separation}}.
-In addition, applications whose security requires a random oracle
-that returns points on the target curve MUST use a suite whose
-encoding type is hash\_to\_curve ({{roadmap}}); see {{suiteIDformat}}.
-
 The below table lists the curves for which suites are defined and
 the subsection that gives the corresponding parameters.
 
@@ -2406,6 +2399,26 @@ the subsection that gives the corresponding parameters.
 | curve448 / edwards448     | {{suites-448}}       |
 | secp256k1                 | {{suites-secp256k1}} |
 | BLS12-381                 | {{suites-bls12381}}  |
+
+## Implementing a hash-to-curve suite {#suites-howto}
+
+A hash-to-curve suite requires the following functions.
+Note that some of these require utility functions from {{utility}}.
+
+1. Working operations on the target elliptic curve (e.g., point addition,
+   scalar multiplication) and in the curve's base field (e.g., addition,
+   multiplication, square root).
+
+2. The hash-to-field function ({{hashtofield}}), including the expand\_message
+   variant ({{hashtofield-expand}}) and any constituent hash function or XOF.
+
+3. The mapping function specified by the suite; see {{mappings}}.
+
+4. A cofactor clearing function, which may be implemented as scalar multiplication
+   by h\_eff or as a faster equivalent method; see {{cofactor-clearing}}.
+
+5. The encoding function, either hash\_to\_curve or encode\_to\_curve; see
+   {{roadmap}}.
 
 ## Suites for NIST P-256 {#suites-p256}
 
@@ -2842,7 +2855,7 @@ from which a hash-to-curve function is invoked.
 see {{security-considerations-hash-to-field}} and {{security-considerations-expand-xmd}}
 for further discussion.
 
-Each encoding variant ({{roadmap}}) accepts an arbitrary byte string and maps
+Each encoding type ({{roadmap}}) accepts an arbitrary byte string and maps
 it to a pseudorandom point on the curve.
 Note, however, that directly evaluating the mappings of {{mappings}} produces
 an output that is distinguishable from random.
