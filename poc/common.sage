@@ -10,7 +10,7 @@ def CMOV(x, y, b):
 ZZR = PolynomialRing(ZZ, name='XX')
 def sgn0_be(x):
     """
-    Returns -1 if x is 'negative', else 1.
+    Returns -1 if x is 'negative' (big-endian sense), else 1.
     """
     p = x.base_ring().order()
     threshold = ZZ((p-1) // 2)
@@ -32,9 +32,9 @@ def sgn0_be(x):
         sign = CMOV(sign, sign_i, sign == 0)
     return CMOV(sign, 1, sign == 0)
 
-def sgn0_le(x):
+def sgn0(x):
     """
-    Returns -1 if x is 'negative' (little-endian sense), else 1.
+    Returns 1 if x is 'negative' (little-endian sense), else 0.
     """
     degree = x.parent().degree()
     if degree == 1:
@@ -44,15 +44,17 @@ def sgn0_le(x):
         # field extension
         xi_values = ZZR(x)  # extract vector repr of field element (faster than x._vector_())
     sign = 0
+    zero = 1
     # compute the sign in constant time
     for i in range(0, degree):
         zz_xi = xi_values[i]
         # sign of this digit
-        sign_i = CMOV(1, -1, zz_xi % 2 == 1)
-        sign_i = CMOV(sign_i, 0, zz_xi == 0)
-        # set sign to this digit's sign if sign == 0
-        sign = CMOV(sign, sign_i, sign == 0)
-    return CMOV(sign, 1, sign == 0)
+        sign_i = zz_xi % 2
+        zero_i = zz_xi == 0
+        # update sign and zero
+        sign = sign | (zero & sign_i)
+        zero = zero & zero_i
+    return sign
 
 def square_root_random_sign(x):
     a = square_root(x)

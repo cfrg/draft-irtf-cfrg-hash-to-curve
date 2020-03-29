@@ -7,7 +7,7 @@ from random import choice
 import sys
 if sys.version_info[0] == 3:
     xrange = range
-    _as_bytes = lambda x: bytes(x, "utf-8")
+    _as_bytes = lambda x: x if isinstance(x, bytes) else bytes(x, "utf-8")
     _strxor = lambda str1, str2: bytes( s1 ^ s2 for (s1, s2) in zip(str1, str2) )
 else:
     _as_bytes = lambda x: x

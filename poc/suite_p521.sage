@@ -5,7 +5,6 @@ import hashlib
 import sys
 from hash_to_field import expand_message_xmd
 try:
-    from sagelib.common import sgn0_le
     from sagelib.h2c_suite import BasicH2CSuiteDef, BasicH2CSuite
     from sagelib.svdw_generic import GenericSvdW
     from sagelib.sswu_generic import GenericSSWU
@@ -19,7 +18,7 @@ A = F(-3)
 B = F(0x51953eb9618e1c9a1f929a21a0b68540eea2da725b99b315f3b8b489918ef109e156193951ec7e937b1652c0bd3bb1bf073573df883d2c34f1ef451fd46b503f00)
 
 def p521_sswu(suite_name, is_ro):
-    return BasicH2CSuiteDef("P521", F, A, B, sgn0_le, expand_message_xmd, hashlib.sha512, 96, GenericSSWU, 1, 256, is_ro, "%sTESTGEN" % suite_name)
+    return BasicH2CSuiteDef("P521", F, A, B, expand_message_xmd, hashlib.sha512, 96, GenericSSWU, 1, 256, is_ro, "%sTESTGEN" % suite_name)
 
 def p521_svdw(suite_name, is_ro):
     return p521_sswu(suite_name, is_ro)._replace(MapT=GenericSvdW)

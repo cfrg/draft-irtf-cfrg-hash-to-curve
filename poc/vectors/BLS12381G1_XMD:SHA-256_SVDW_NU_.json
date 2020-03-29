@@ -12,8 +12,7 @@
   "hash": "sha256",
   "k": "0x80",
   "map": {
-    "name": "SVDW",
-    "sgn0": "sgn0_be"
+    "name": "SVDW"
   },
   "randomOracle": false,
   "vectors": [
@@ -48,11 +47,11 @@
     {
       "P": {
         "x": "0x107485fecc3be4b92f8cc35f1782c67742d055c379e6bcb77836396edebe728aec4ecad0290bd1bbd5be7047ccb8554c",
-        "y": "0x0603d69e02982c8a0edc6fd84848fa9d9c75a0d7a372eb1ea2672245ee2d9ed672cd1a564fec3cb77758b966316d5c09"
+        "y": "0x13fd3b4c36e7ba103c3f37ddfb02b239c801aaad501227a0c4c9b05b0883574dabdee5a86167c34842a64699ce924ea2"
       },
       "Q": {
         "x": "0x09c7ef760508a7d4a226869cae2c556a8773ebf5d4bbba33b0cffbbba598105bf7549cd33d52ded62be72f718ab0ac9c",
-        "y": "0x0aa4882a7806cac7bb3bd6404000066b7c6ff14dc590efa26f2740b1af2f3be2b50e1d5b99b37d723d9d3b0cf089bf62"
+        "y": "0x0f5c89bfc1791bd28fdfd176034ba66be8075a372df4231cf80991ef4781ba41699de2a317a0828d7c61c4f30f75eb49"
       },
       "msg": "abcdef0123456789",
       "u": [

@@ -26,7 +26,8 @@ class GenericSvdW(GenericMap):
         self.c1 = self.g(self.Z)
         self.c2 = F(-self.Z / F(2))
         self.c3 = (mgZ * (3 * self.Z^2 + 4 * A)).sqrt()
-        self.c3 *= self.sgn0(self.c3)
+        if self.sgn0(self.c3) == 1:
+            self.c3 = -self.c3
         self.c4 = F(4) * mgZ / (3 * self.Z^2 + 4 * A)
 
         # values at which the map is undefined
@@ -35,10 +36,6 @@ class GenericSvdW(GenericMap):
             if zz.is_square():
                 sqrt_zz = zz.sqrt()
                 self.undefs += [sqrt_zz, -sqrt_zz]
-
-    def set_sgn0(self, fn):
-        super(GenericSvdW, self).set_sgn0(fn)
-        self.c3 *= self.sgn0(self.c3)
 
     def straight_line(self, u):
         u = self.F(u)
@@ -106,7 +103,8 @@ class GenericSvdW(GenericMap):
         tv1 = 1 - tv1
         tv3 = inv0(tv1 * tv2)
         tv4 = sqrt(-g(Z) * (3 * Z^2 + 4 * A))
-        tv4 = tv4 * sgn0(tv4)                    # sgn0(tv4) MUST equal 1
+        if sgn0(tv4) == 1:
+            tv4 = -tv4          # sgn0(tv4) MUST equal 1
         tv5 = u * tv1 * tv3 * tv4
         x1 = -Z / 2 - tv5
         x2 = -Z / 2 + tv5

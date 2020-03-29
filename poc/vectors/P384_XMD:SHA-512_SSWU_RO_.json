@@ -12,8 +12,7 @@
   "hash": "sha512",
   "k": "0xc0",
   "map": {
-    "name": "SSWU",
-    "sgn0": "sgn0_le"
+    "name": "SSWU"
   },
   "randomOracle": true,
   "vectors": [

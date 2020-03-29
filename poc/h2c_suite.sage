@@ -12,7 +12,7 @@ try:
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
-BasicH2CSuiteDef = namedtuple("BasicH2CSuiteDef", "E F Aa Bd sgn0 expand H L MapT h_eff k is_ro dst")
+BasicH2CSuiteDef = namedtuple("BasicH2CSuiteDef", "E F Aa Bd expand H L MapT h_eff k is_ro dst")
 IsoH2CSuiteDef = namedtuple("IsoH2CSuiteDef", "base Ap Bp iso_map")
 EdwH2CSuiteDef = namedtuple("EdwH2CSuiteDef", "base Ap Bp rational_map")
 
@@ -32,7 +32,6 @@ class BasicH2CSuite(object):
 
         # set up the map-to-curve instance
         self.m2c = sdef.MapT(F, sdef.Aa, sdef.Bd)
-        self.m2c.set_sgn0(sdef.sgn0)
 
         # precompute vector basis for field, used by hash_to_field
         self.field_gens = tuple( F.gen()^k for k in range(0, self.m) )

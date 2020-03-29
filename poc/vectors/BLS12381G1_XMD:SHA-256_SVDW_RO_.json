@@ -12,19 +12,18 @@
   "hash": "sha256",
   "k": "0x80",
   "map": {
-    "name": "SVDW",
-    "sgn0": "sgn0_be"
+    "name": "SVDW"
   },
   "randomOracle": true,
   "vectors": [
     {
       "P": {
-        "x": "0x045f87745ff759f9197e131ad83d47d635dc36a3e0c7e4a1be5e1effe5e63ac69c8f34e6c3aef9c5cf28224922788367",
-        "y": "0x06125886a03f883740a078313d5fa6e4a68b9c0394eb75f77c65fc8b44db3f4ef933ac6adf341bc45fabc7907afcb832"
+        "x": "0x16585794bf1d38f6d4652ea760ec454f0da43fdba33782cda8f9bcddb46b2ff01155db0eba2b6f4da30743274fc8c539",
+        "y": "0x0dac22dea5a99d4c983a0d97e1b7a6a3d14265f11298645a619eb96c35bb95bb95e6200dcd100927b08b218f65a5b2ae"
       },
       "Q0": {
         "x": "0x0d8deaf1a9fe87c5710466d0cd554b243a041a97c15228f1c65be6244b5e1a575f4ab2762a1cc9ff18d45d4f1494e2c6",
-        "y": "0x090dce51930eff6bccfc7cc2920f180c398b0a97085ff9e4841367e701a0f28616bef537203d27b0656f3b7ee52ee0ac"
+        "y": "0x10f34398a670e72e7e1f2af3b13c94cb2aec40edeb2518dae31d6ab9f510039e07ed0ac79116d84f548fc4811ad0c9ff"
       },
       "Q1": {
         "x": "0x0a36d0d4051eb32d253b069d1d15c5b69cefbb75bf38d66d43b37432b34f88b2553bf063c6533ca87112c3e95c295ebf",
