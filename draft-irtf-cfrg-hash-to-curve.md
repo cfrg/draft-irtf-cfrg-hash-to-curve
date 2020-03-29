@@ -2979,6 +2979,8 @@ Andy Polyakov, Leonid Reyzin, Michael Scott, and Mathy Vanhoef for helpful feedb
 *   Ela Lee \\
     Royal Holloway, University of London \\
     Ela.Lee.2010@live.rhul.ac.uk
+*   Michele Orru \\
+    michele.orru@ens.fr
 
 --- back
 
