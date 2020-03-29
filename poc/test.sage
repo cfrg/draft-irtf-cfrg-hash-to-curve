@@ -9,6 +9,7 @@ print("Importing modules...")
 
 try:
     from sagelib.common import test_sqrt_issq
+    from sagelib.clear_h_bls12381g2 import test_clear_cofactor_bls12381_g2
     from sagelib.ell2_generic import GenericEll2
     from sagelib.ell2edw_generic import GenericEll2Edw
     from sagelib.sswu_generic import GenericSSWU
@@ -38,6 +39,9 @@ if __name__ == "__main__":
 
     print("Checking maps")
     map_check()
+
+    print("Checking clear_cofactor_bls12381_g2")
+    test_clear_cofactor_bls12381_g2(8)
 
     print("Testing 'native' Montgomery curve impl")
     MontgomeryCurve.test()
