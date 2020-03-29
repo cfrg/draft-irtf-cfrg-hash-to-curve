@@ -1851,14 +1851,14 @@ Constants:
 
 - A and B, the parameter of the Weierstrass curve.
 
-- Z, an element of F meeting the below criteria.
+- Z, a non-zero element of F meeting the below criteria.
   {{svdw-z-code}} gives a Sage {{SAGE}} script that outputs the RECOMMENDED Z.
   1. g(Z) != 0 in F.
   2. -(3 * Z^2 + 4 * A) / (4 * g(Z)) != 0 in F.
   3. -(3 * Z^2 + 4 * A) / (4 * g(Z)) is square in F.
   4. At least one of g(Z) and g(-Z / 2) is square in F.
 
-Sign of y: Inputs u and -u give the same x-coordinate.
+Sign of y: Inputs u and -u give the same x-coordinate for many values of u.
 Thus, we set sgn0(y) == sgn0(u).
 
 Exceptions: The exceptional cases for u occur when
