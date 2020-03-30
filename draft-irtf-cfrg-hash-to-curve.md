@@ -1173,8 +1173,8 @@ This section presents a general framework for encoding byte strings to points
 on an elliptic curve. To construct these encodings, we rely on three basic
 functions:
 
--   The function hash\_to\_field, {0, 1}^\* x {1, 2, ...} -> F, hashes arbitrary-length byte strings
-    to elements of a finite field; its implementation is defined in
+-   The function hash\_to\_field, {0, 1}^\* x {1, 2, ...} -> (F, F, ...), hashes arbitrary-length byte strings
+    to a list of one or more elements of a finite field; its implementation is defined in
     {{hashtofield}}.
 
 -   The function map\_to\_curve, F -> E, calculates a point on the elliptic curve E
@@ -2405,20 +2405,20 @@ the subsection that gives the corresponding parameters.
 A hash-to-curve suite requires the following functions.
 Note that some of these require utility functions from {{utility}}.
 
-1. Working operations on the target elliptic curve (e.g., point addition,
-   scalar multiplication) and in the curve's base field (e.g., addition,
-   multiplication, square root).
+1. Target elliptic curve operations, e.g., point addition and scalar multiplication.
 
-2. The hash-to-field function ({{hashtofield}}), including the expand\_message
+2. Target elliptic curve base field operations, e.g., addition, multiplication, and square root.
+
+3. The hash-to-field function; see {{hashtofield}}. This includes the expand\_message
    variant ({{hashtofield-expand}}) and any constituent hash function or XOF.
 
-3. The mapping function specified by the suite; see {{mappings}}.
+4. The suite-specific mapping function; see {{mappings}}.
 
-4. A cofactor clearing function, which may be implemented as scalar multiplication
-   by h\_eff or as a faster equivalent method; see {{cofactor-clearing}}.
+5. A cofactor clearing function; see {{cofactor-clearing}}. This may be implemented as 
+   scalar multiplication by h\_eff or as a faster equivalent method.
 
-5. The encoding function, either hash\_to\_curve or encode\_to\_curve; see
-   {{roadmap}}.
+6. The desired encoding function; see {{roadmap}}. This is either hash\_to\_curve or 
+   encode\_to\_curve.
 
 ## Suites for NIST P-256 {#suites-p256}
 
