@@ -2405,14 +2405,16 @@ the subsection that gives the corresponding parameters.
 A hash-to-curve suite requires the following functions.
 Note that some of these require utility functions from {{utility}}.
 
-1. Target elliptic curve operations, e.g., point addition and scalar multiplication.
+1. Base field arithmetic operations for the target elliptic curve, e.g.,
+   addition, multiplication, and square root.
 
-2. Target elliptic curve base field operations, e.g., addition, multiplication, and square root.
+2. Elliptic curve point operations for the target curve, e.g.,
+   point addition and scalar multiplication.
 
 3. The hash-to-field function; see {{hashtofield}}. This includes the expand\_message
    variant ({{hashtofield-expand}}) and any constituent hash function or XOF.
 
-4. The suite-specific mapping function; see {{mappings}}.
+4. The suite-specified mapping function; see the corresponding subsection of {{mappings}}.
 
 5. A cofactor clearing function; see {{cofactor-clearing}}. This may be implemented as 
    scalar multiplication by h\_eff or as a faster equivalent method.
