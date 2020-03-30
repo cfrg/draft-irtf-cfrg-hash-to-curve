@@ -31,6 +31,7 @@ These implementations are for reference only. They MUST NOT be used in productio
 
 This is a (likely incomplete) list of other libraries that have implemented hash-to-curve per the standard.
 
+ - [libsodium](https://github.com/jedisct1/libsodium)
  - [MIRACL Core](https://github.com/miracl/core)
  - [pairing-plus](https://github.com/algorand/pairing-plus)
  - [RELIC](https://github.com/relic-toolkit/relic)
