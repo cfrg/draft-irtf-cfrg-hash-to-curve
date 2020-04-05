@@ -28,8 +28,7 @@ def map_to_curve_elligator2_curve25519(u):
     x1n = -486662             # x1 = x1n / xd = -486662 / (1 + 2 * u^2)
     tv2 = xd^2
     gxd = tv2 * xd            # gxd = xd^3
-    gx1 = 486662 * xd         # 486662 * xd
-    gx1 = gx1 + x1n           # x1n + 486662 * xd
+    gx1 = 486662 * tv1        # x1n + 486662 * xd
     gx1 = gx1 * x1n           # x1n^2 + 486662 * x1n * xd
     gx1 = gx1 + tv2           # x1n^2 + 486662 * x1n * xd + xd^2
     gx1 = gx1 * x1n           # x1n^3 + 486662 * x1n^2 * xd + x1n * xd^2

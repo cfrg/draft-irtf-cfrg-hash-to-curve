@@ -3475,40 +3475,39 @@ Steps:
 4.  x1n = -486662             # x1 = x1n / xd = -486662 / (1 + 2 * u^2)
 5.  tv2 = xd^2
 6.  gxd = tv2 * xd            # gxd = xd^3
-7.  gx1 = 486662 * xd         # 486662 * xd
-8.  gx1 = gx1 + x1n           # x1n + 486662 * xd
-9.  gx1 = gx1 * x1n           # x1n^2 + 486662 * x1n * xd
-10. gx1 = gx1 + tv2           # x1n^2 + 486662 * x1n * xd + xd^2
-11. gx1 = gx1 * x1n           # x1n^3 + 486662 * x1n^2 * xd + x1n * xd^2
-12. tv3 = gxd^2
-13. tv2 = tv3^2               # gxd^4
-14. tv3 = tv3 * gxd           # gxd^3
-15. tv3 = tv3 * gx1           # gx1 * gxd^3
-16. tv2 = tv2 * tv3           # gx1 * gxd^7
-17. y11 = tv2^c4              # (gx1 * gxd^7)^((p - 5) / 8)
-18. y11 = y11 * tv3           # gx1 * gxd^3 * (gx1 * gxd^7)^((p - 5) / 8)
-19. y12 = y11 * c3
-20. tv2 = y11^2
-21. tv2 = tv2 * gxd
-22.  e1 = tv2 == gx1
-23.  y1 = CMOV(y12, y11, e1)  # If g(x1) is square, this is its sqrt
-24. x2n = x1n * tv1           # x2 = x2n / xd = 2 * u^2 * x1n / xd
-25. y21 = y11 * u
-26. y21 = y21 * c2
-27. y22 = y21 * c3
-28. gx2 = gx1 * tv1           # g(x2) = gx2 / gxd = 2 * u^2 * g(x1)
-29. tv2 = y21^2
-30. tv2 = tv2 * gxd
-31.  e2 = tv2 == gx2
-32.  y2 = CMOV(y22, y21, e2)  # If g(x2) is square, this is its sqrt
-33. tv2 = y1^2
-34. tv2 = tv2 * gxd
-35.  e3 = tv2 == gx1
-36.  xn = CMOV(x2n, x1n, e3)  # If e3, x = x1, else x = x2
-37.   y = CMOV(y2, y1, e3)    # If e3, y = y1, else y = y2
-38.  e4 = sgn0(u) == sgn0(y)  # Fix sign of y
-39.   y = CMOV(-y, y, e4)
-40. return (xn, xd, y, 1)
+7.  gx1 = 486662 * tv1        # x1n + 486662 * xd
+8.  gx1 = gx1 * x1n           # x1n^2 + 486662 * x1n * xd
+9.  gx1 = gx1 + tv2           # x1n^2 + 486662 * x1n * xd + xd^2
+10. gx1 = gx1 * x1n           # x1n^3 + 486662 * x1n^2 * xd + x1n * xd^2
+11. tv3 = gxd^2
+12. tv2 = tv3^2               # gxd^4
+13. tv3 = tv3 * gxd           # gxd^3
+14. tv3 = tv3 * gx1           # gx1 * gxd^3
+15. tv2 = tv2 * tv3           # gx1 * gxd^7
+16. y11 = tv2^c4              # (gx1 * gxd^7)^((p - 5) / 8)
+17. y11 = y11 * tv3           # gx1 * gxd^3 * (gx1 * gxd^7)^((p - 5) / 8)
+18. y12 = y11 * c3
+19. tv2 = y11^2
+20. tv2 = tv2 * gxd
+21.  e1 = tv2 == gx1
+22.  y1 = CMOV(y12, y11, e1)  # If g(x1) is square, this is its sqrt
+23. x2n = x1n * tv1           # x2 = x2n / xd = 2 * u^2 * x1n / xd
+24. y21 = y11 * u
+25. y21 = y21 * c2
+26. y22 = y21 * c3
+27. gx2 = gx1 * tv1           # g(x2) = gx2 / gxd = 2 * u^2 * g(x1)
+28. tv2 = y21^2
+29. tv2 = tv2 * gxd
+30.  e2 = tv2 == gx2
+31.  y2 = CMOV(y22, y21, e2)  # If g(x2) is square, this is its sqrt
+32. tv2 = y1^2
+33. tv2 = tv2 * gxd
+34.  e3 = tv2 == gx1
+35.  xn = CMOV(x2n, x1n, e3)  # If e3, x = x1, else x = x2
+36.   y = CMOV(y2, y1, e3)    # If e3, y = y1, else y = y2
+37.  e4 = sgn0(u) == sgn0(y)  # Fix sign of y
+38.   y = CMOV(-y, y, e4)
+39. return (xn, xd, y, 1)
 ~~~
 
 ## edwards25519 (Elligator 2) {#map-to-edwards25519}
