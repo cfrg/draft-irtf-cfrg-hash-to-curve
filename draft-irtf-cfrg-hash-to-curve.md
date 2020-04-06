@@ -3450,6 +3450,100 @@ Steps:
 34. return (xn, xd, y, 1)
 ~~~
 
+## Simplified SWU for GF(p^2), p^2 = 9 (mod 16) {#sswu-map-to-9mod16}
+
+The following is a straight-line implementation of the Simplified SWU
+mapping that applies to curves over a base field F = GF(p^2) with basis
+(1, I) where I^2 + 1 == 0 in F and p^2 = 9 (mod 16).
+This includes the curve isogenous to BLS12-381 G2 ({{suites-bls12381-g2}}).
+
+~~~
+map_to_curve_simple_swu_g2(u)
+
+Input: u, an element of F.
+Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
+        point on the target curve.
+
+Constants: defined in terms of Z, the distinguished element of F
+           used in the Simplified SWU mapping.
+1. c1 = (p^2 - 9) / 16                      # Integer arithmetic
+2. c2 = sqrt(I)
+3. c3 = sqrt(Z^3 / c2)
+4. c4 = sqrt(Z^3 / (I * c2))
+
+Steps:
+1.  tv1 = u^2
+2.  tv3 = Z * tv1
+3.  tv5 = tv3^2
+4.   xd = tv5 + tv3
+5.  x1n = xd + 1
+6.  x1n = x1n * B
+7.   xd = -A * xd
+8.   e1 = xd == 0
+9.   xd = CMOV(xd, Z * A, e1)   # If xd == 0, set xd = Z * A
+10. tv2 = xd^2
+11. gxd = tv2 * xd              # gxd == xd^3
+12. tv2 = A * tv2
+13. gx1 = x1n^2
+14. gx1 = gx1 + tv2             # x1n^2 + A * xd^2
+15. gx1 = gx1 * x1n             # x1n^3 + A * x1n * xd^2
+16. tv2 = B * gxd
+17. gx1 = gx1 + tv2             # x1n^3 + A * x1n * xd^2 + B * xd^3
+18. tv4 = gxd^2
+19. tv2 = tv4 * gxd             # gxd^3
+20. tv4 = tv4^2                 # gxd^4
+21. tv2 = tv2 * tv4             # gxd^7
+22. tv2 = tv2 * gx1             # gx1 * gxd^7
+23. tv4 = tv4^2                 # gxd^8
+24. tv4 = tv2 * tv4             # gx1 * gxd^15
+25.   y = tv4^c1                # (gx1 * gxd^15)^((p - 9) / 16)
+26.   y = y * tv2               # This is almost sqrt(gx1)
+27. tv4 = y * I                 # check the four possible sqrts
+28. tv2 = tv4^2
+29. tv2 = tv2 * gxd
+30.  e2 = tv2 == gx1
+31.   y = CMOV(y, tv4, e2)
+32. tv4 = y * c2
+33. tv2 = tv4^2
+34. tv2 = tv2 * gxd
+35.  e3 = tv2 == gx1
+36.   y = CMOV(y, tv4, e3)
+37. tv4 = tv4 * I
+38. tv2 = tv4^2
+39. tv2 = tv2 * gxd
+40.  e4 = tv2 == gx1
+41.   y = CMOV(y, tv4, e4)      # if x1 is square, this is its sqrt
+42. gx2 = gx1 * tv5
+43. gx2 = gx2 * tv3             # gx2 = gx1 * Z^3 * u^6
+44. tv5 = y * tv1
+45. tv5 = tv5 * u               # This is almost sqrt(gx2)
+46. tv1 = tv5 * c3              # check the four possible sqrts
+47. tv4 = tv1 * I
+48. tv2 = tv4^2
+49. tv2 = tv2 * gxd
+50.  e5 = tv2 == gx2
+51. tv1 = CMOV(tv1, tv4, e5)
+52. tv4 = tv5 * c4
+53. tv2 = tv4^2
+54. tv2 = tv2 * gxd
+55.  e6 = tv2 == gx2
+56. tv1 = CMOV(tv1, tv4, e6)
+57. tv4 = tv4 * I
+58. tv2 = tv4^2
+59. tv2 = tv2 * gxd
+60.  e7 = tv2 == gx2
+61. tv1 = CMOV(tv1, tv4, e7)
+62. tv2 = y^2
+63. tv2 = tv2 * gxd
+64.  e8 = tv2 == gx1
+65.   y = CMOV(tv1, y, e8)      # choose correct y-coordinate
+66. tv2 = tv3 * x1n             # x2n = x2n / xd = Z * u^2 * x1n / xd
+67.  xn = CMOV(tv2, x1n, e8)    # choose correct x-coordinate
+68.  e1 = sgn0(u) == sgn0(y)    # Fix sign of y
+69.   y = CMOV(-y, y, e1)
+70. return (xn, xd, y, 1)
+~~~
+
 ## curve25519 (Elligator 2) {#map-to-curve25519}
 
 The following is a straight-line implementation of Elligator 2
