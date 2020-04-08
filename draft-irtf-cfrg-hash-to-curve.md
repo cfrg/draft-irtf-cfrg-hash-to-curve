@@ -2416,10 +2416,10 @@ Note that some of these require utility functions from {{utility}}.
 
 4. The suite-specified mapping function; see the corresponding subsection of {{mappings}}.
 
-5. A cofactor clearing function; see {{cofactor-clearing}}. This may be implemented as 
+5. A cofactor clearing function; see {{cofactor-clearing}}. This may be implemented as
    scalar multiplication by h\_eff or as a faster equivalent method.
 
-6. The desired encoding function; see {{roadmap}}. This is either hash\_to\_curve or 
+6. The desired encoding function; see {{roadmap}}. This is either hash\_to\_curve or
    encode\_to\_curve.
 
 ## Suites for NIST P-256 {#suites-p256}
@@ -2507,7 +2507,7 @@ P521\_XMD:SHA-512\_SSWU\_RO\_ is defined as follows:
 - k: 256
 - expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-512
-- L: 96
+- L: 98
 - f: Simplified SWU method, {{simple-swu}}
 - Z: -4
 - h\_eff: 1
