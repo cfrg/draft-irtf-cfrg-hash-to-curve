@@ -3385,10 +3385,10 @@ and the corresponding conversions:
   To convert (xn, xd, yn, yd) to Jacobian projective coordinates,
   compute (X', Y', Z') = (xn * xd * yd^2, yn * yd^2 * xd^3, xd * yd).
 
-## Simplified SWU for p = 3 (mod 4) {#sswu-map-to-3mod4}
+## Simplified SWU for q = 3 (mod 4) {#sswu-map-to-3mod4}
 
 The following is a straight-line implementation of the Simplified SWU
-mapping that applies to any curve over GF(p) for p = 3 (mod 4).
+mapping that applies to any curve over GF(q) where q = 3 (mod 4).
 This includes the ciphersuites for NIST curves P-256, P-384, and P-521 {{FIPS186-4}} given in {{suites}}.
 It also includes the curves isogenous to secp256k1 ({{suites-secp256k1}}) and BLS12-381 G1 ({{suites-bls12381-g1}}).
 
@@ -3409,8 +3409,8 @@ Input: u, an element of F.
 Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on the target curve.
 
-Constants: defined per curve; see above.
-1.  c1 = (p - 3) / 4           # Integer arithmetic
+Constants:
+1.  c1 = (q - 3) / 4           # Integer arithmetic
 2.  c2 = sqrt(-Z^3)
 
 Steps:
@@ -3434,8 +3434,8 @@ Steps:
 18. tv4 = gxd^2
 19. tv2 = gx1 * gxd
 20. tv4 = tv4 * tv2            # gx1 * gxd^3
-21.  y1 = tv4^c1               # (gx1 * gxd^3)^((p - 3) / 4)
-22.  y1 = y1 * tv2             # gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
+21.  y1 = tv4^c1               # (gx1 * gxd^3)^((q - 3) / 4)
+22.  y1 = y1 * tv2             # gx1 * gxd * (gx1 * gxd^3)^((q - 3) / 4)
 23. x2n = tv3 * x1n            # x2 = x2n / xd = Z * u^2 * x1n / xd
 24.  y2 = y1 * c2              # y2 = y1 * sqrt(-Z^3)
 25.  y2 = y2 * tv1
@@ -3450,26 +3450,25 @@ Steps:
 34. return (xn, xd, y, 1)
 ~~~
 
-## Simplified SWU for GF(p^2), p^2 = 9 (mod 16) {#sswu-map-to-9mod16}
+## Simplified SWU for q = 9 (mod 16) {#sswu-map-to-9mod16}
 
 The following is a straight-line implementation of the Simplified SWU
-mapping that applies to curves over a base field F = GF(p^2) with basis
-(1, I) where I^2 + 1 == 0 in F and p^2 = 9 (mod 16).
+mapping that applies to any curve over GF(q) where q = 9 (mod 16).
 This includes the curve isogenous to BLS12-381 G2 ({{suites-bls12381-g2}}).
 
 ~~~
-map_to_curve_simple_swu_g2(u)
+map_to_curve_simple_swu_9mod16(u)
 
 Input: u, an element of F.
 Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on the target curve.
 
-Constants: defined in terms of Z, the distinguished element of F
-           used in the Simplified SWU mapping.
-1. c1 = (p^2 - 9) / 16                      # Integer arithmetic
-2. c2 = sqrt(I)
-3. c3 = sqrt(Z^3 / c2)
-4. c4 = sqrt(Z^3 / (I * c2))
+Constants:
+1. c1 = (q - 9) / 16            # Integer arithmetic
+2. c2 = sqrt(-1)
+3. c3 = sqrt(c2)
+4. c4 = sqrt(Z^3 / c3)
+5. c5 = sqrt(Z^3 / (c2 * c3))
 
 Steps:
 1.  tv1 = u^2
@@ -3496,19 +3495,19 @@ Steps:
 22. tv2 = tv2 * gx1             # gx1 * gxd^7
 23. tv4 = tv4^2                 # gxd^8
 24. tv4 = tv2 * tv4             # gx1 * gxd^15
-25.   y = tv4^c1                # (gx1 * gxd^15)^((p - 9) / 16)
+25.   y = tv4^c1                # (gx1 * gxd^15)^((q - 9) / 16)
 26.   y = y * tv2               # This is almost sqrt(gx1)
-27. tv4 = y * I                 # check the four possible sqrts
+27. tv4 = y * c2                # check the four possible sqrts
 28. tv2 = tv4^2
 29. tv2 = tv2 * gxd
 30.  e2 = tv2 == gx1
 31.   y = CMOV(y, tv4, e2)
-32. tv4 = y * c2
+32. tv4 = y * c3
 33. tv2 = tv4^2
 34. tv2 = tv2 * gxd
 35.  e3 = tv2 == gx1
 36.   y = CMOV(y, tv4, e3)
-37. tv4 = tv4 * I
+37. tv4 = tv4 * c2
 38. tv2 = tv4^2
 39. tv2 = tv2 * gxd
 40.  e4 = tv2 == gx1
@@ -3517,18 +3516,18 @@ Steps:
 43. gx2 = gx2 * tv3             # gx2 = gx1 * Z^3 * u^6
 44. tv5 = y * tv1
 45. tv5 = tv5 * u               # This is almost sqrt(gx2)
-46. tv1 = tv5 * c3              # check the four possible sqrts
-47. tv4 = tv1 * I
+46. tv1 = tv5 * c4              # check the four possible sqrts
+47. tv4 = tv1 * c2
 48. tv2 = tv4^2
 49. tv2 = tv2 * gxd
 50.  e5 = tv2 == gx2
 51. tv1 = CMOV(tv1, tv4, e5)
-52. tv4 = tv5 * c4
+52. tv4 = tv5 * c5
 53. tv2 = tv4^2
 54. tv2 = tv2 * gxd
 55.  e6 = tv2 == gx2
 56. tv1 = CMOV(tv1, tv4, e6)
-57. tv4 = tv4 * I
+57. tv4 = tv4 * c2
 58. tv2 = tv4^2
 59. tv2 = tv2 * gxd
 60.  e7 = tv2 == gx2

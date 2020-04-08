@@ -17,7 +17,7 @@ try:
     from sagelib.ell2_opt_25519 import test_ell2_25519
     from sagelib.ell2_opt_448 import test_ell2_448
     from sagelib.sswu_opt_3mod4 import test_sswu_3mod4
-    from sagelib.sswu_opt_bls12381g2 import test_sswu_g2
+    from sagelib.sswu_opt_9mod16 import test_sswu_9mod16
     from sagelib.map_check import map_check
     from sagelib.curves import MontgomeryCurve, EdwardsCurve
     from sagelib.suite_25519 import test_suite_25519
@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
     print("Testing optimized SSWU")
     test_sswu_3mod4()
-    test_sswu_g2
+    test_sswu_9mod16()
 
     print("Testing generic maps")
     for m in (GenericEll2, GenericEll2Edw, GenericSSWU, GenericSvdW):

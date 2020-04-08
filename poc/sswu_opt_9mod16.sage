@@ -9,7 +9,7 @@ try:
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
-class OptimizedSSWU_G2(object):
+class OptimizedSSWU_9mod16(object):
     def __init__(self, F, A, B):
         assert F.degree() == 2
         assert F.order() % 16 == 9
@@ -20,15 +20,15 @@ class OptimizedSSWU_G2(object):
         self.B = F(B)
 
         # constants
-        I = F.gen()
-        p = F.characteristic()
+        q = F.order()
         Z = find_z_sswu(F, self.A, self.B)
         self.Z = Z
-        c1 = (p^2 - 9) / 16                      # Integer arithmetic
-        c2 = sqrt(I)
-        c3 = sqrt(Z^3 / c2)
-        c4 = sqrt(Z^3 / (I * c2))
-        (self.c1, self.c2, self.c3, self.c4) = (c1, c2, c3, c4)
+        c1 = (q - 9) // 16            # Integer arithmetic
+        c2 = sqrt(F(-1))
+        c3 = sqrt(c2)
+        c4 = sqrt(Z^3 / c3)
+        c5 = sqrt(Z^3 / (c2 * c3))
+        (self.c1, self.c2, self.c3, self.c4, self.c5) = (c1, c2, c3, c4, c5)
 
         # map for testing
         self.ref_map = GenericSSWU(F, self.A, self.B)
@@ -38,12 +38,12 @@ class OptimizedSSWU_G2(object):
         A = self.A
         B = self.B
         F = self.F
-        I = F.gen()
         Z = self.Z
         c1 = self.c1
         c2 = self.c2
         c3 = self.c3
         c4 = self.c4
+        c5 = self.c5
         u = F(u)
 
         tv1 = u^2
@@ -70,19 +70,19 @@ class OptimizedSSWU_G2(object):
         tv2 = tv2 * gx1             # gx1 * gxd^7
         tv4 = tv4^2                 # gxd^8
         tv4 = tv2 * tv4             # gx1 * gxd^15
-        y = tv4^c1                # (gx1 * gxd^15)^((p - 9) / 16)
+        y = tv4^c1                # (gx1 * gxd^15)^((q - 9) / 16)
         y = y * tv2               # This is almost sqrt(gx1)
-        tv4 = y * I                 # check the four possible sqrts
+        tv4 = y * c2                # check the four possible sqrts
         tv2 = tv4^2
         tv2 = tv2 * gxd
         e2 = tv2 == gx1
         y = CMOV(y, tv4, e2)
-        tv4 = y * c2
+        tv4 = y * c3
         tv2 = tv4^2
         tv2 = tv2 * gxd
         e3 = tv2 == gx1
         y = CMOV(y, tv4, e3)
-        tv4 = tv4 * I
+        tv4 = tv4 * c2
         tv2 = tv4^2
         tv2 = tv2 * gxd
         e4 = tv2 == gx1
@@ -91,18 +91,18 @@ class OptimizedSSWU_G2(object):
         gx2 = gx2 * tv3             # gx2 = gx1 * Z^3 * u^6
         tv5 = y * tv1
         tv5 = tv5 * u               # This is almost sqrt(gx2)
-        tv1 = tv5 * c3              # check the four possible sqrts
-        tv4 = tv1 * I
+        tv1 = tv5 * c4              # check the four possible sqrts
+        tv4 = tv1 * c2
         tv2 = tv4^2
         tv2 = tv2 * gxd
         e5 = tv2 == gx2
         tv1 = CMOV(tv1, tv4, e5)
-        tv4 = tv5 * c4
+        tv4 = tv5 * c5
         tv2 = tv4^2
         tv2 = tv2 * gxd
         e6 = tv2 == gx2
         tv1 = CMOV(tv1, tv4, e6)
-        tv4 = tv4 * I
+        tv4 = tv4 * c2
         tv2 = tv4^2
         tv2 = tv2 * gxd
         e7 = tv2 == gx2
@@ -141,13 +141,13 @@ class OptimizedSSWU_G2(object):
 
 # curve isogenous to BLS12-381 G2
 p_bls12381 = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
-F2.<X> = GF(p_bls12381^2, modulus=[1,0,1])
-Ap_bls12381g2 = 240 * X
-Bp_bls12381g2 = 1012 * (1 + X)
-test_bls12381g2 = OptimizedSSWU_G2(F2, Ap_bls12381g2, Bp_bls12381g2)
-assert test_bls12381g2.Z == -2 - X
+F.<II> = GF(p_bls12381^2, modulus=[1,0,1])
+Ap_bls12381g2 = 240 * II
+Bp_bls12381g2 = 1012 * (1 + II)
+test_bls12381g2 = OptimizedSSWU_9mod16(F, Ap_bls12381g2, Bp_bls12381g2)
+assert test_bls12381g2.Z == -2 - II
 
-def test_sswu_g2():
+def test_sswu_9mod16():
     print("Testing BLS12-381 G2 isogeny")
     test_bls12381g2.test()
 
