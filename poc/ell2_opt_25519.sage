@@ -120,7 +120,7 @@ def test_edwards25519(u=None):
     assert xp == x
     assert yp == y
 
-def test_25519():
+def test_ell2_25519():
     test_curve25519(F(0))
     test_edwards25519(F(0))
     for und in ref_map.undefs:
@@ -131,4 +131,4 @@ def test_25519():
         test_edwards25519()
 
 if __name__ == "__main__":
-    test_25519()
+    test_ell2_25519()

@@ -14,9 +14,10 @@ try:
     from sagelib.ell2edw_generic import GenericEll2Edw
     from sagelib.sswu_generic import GenericSSWU
     from sagelib.svdw_generic import GenericSvdW
-    from sagelib.ell2_25519_opt import test_25519
-    from sagelib.ell2_448_opt import test_448
-    from sagelib.sswu_opt import test_sswu
+    from sagelib.ell2_opt_25519 import test_ell2_25519
+    from sagelib.ell2_opt_448 import test_ell2_448
+    from sagelib.sswu_opt_3mod4 import test_sswu_3mod4
+    from sagelib.sswu_opt_bls12381g2 import test_sswu_g2
     from sagelib.map_check import map_check
     from sagelib.curves import MontgomeryCurve, EdwardsCurve
     from sagelib.suite_25519 import test_suite_25519
@@ -51,12 +52,13 @@ if __name__ == "__main__":
 
     print("Testing optimized Elligator2")
     print("Testing Curve25519")
-    test_25519()
+    test_ell2_25519()
     print("Testing Curve448")
-    test_448()
+    test_ell2_448()
 
     print("Testing optimized SSWU")
-    test_sswu()
+    test_sswu_3mod4()
+    test_sswu_g2
 
     print("Testing generic maps")
     for m in (GenericEll2, GenericEll2Edw, GenericSSWU, GenericSvdW):

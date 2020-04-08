@@ -124,7 +124,7 @@ Bp_bls12381g1 = 0x12e2908d11688030018b12e8753eee3b2016c1f0f24f4070a0b9c14fcef35e
 test_bls12381g1 = OptimizedSSWU(p_bls12381, Ap_bls12381g1, Bp_bls12381g1)
 assert test_bls12381g1.Z == GF(p_bls12381)(11)
 
-def test_sswu():
+def test_sswu_3mod4():
     print("Testing P-256")
     test_p256.test()
     print("Testing P-384")
@@ -137,4 +137,4 @@ def test_sswu():
     test_bls12381g1.test()
 
 if __name__ == "__main__":
-    test_sswu()
+    test_sswu_3mod4()

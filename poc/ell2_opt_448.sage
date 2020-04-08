@@ -122,7 +122,7 @@ def test_edwards448(u=None):
     assert xp == x
     assert yp == y
 
-def test_448():
+def test_ell2_448():
     test_curve448(F(0))
     test_edwards448(F(0))
     for und in ref_map.undefs:
@@ -133,4 +133,4 @@ def test_448():
         test_edwards448()
 
 if __name__ == "__main__":
-    test_448()
+    test_ell2_448()
