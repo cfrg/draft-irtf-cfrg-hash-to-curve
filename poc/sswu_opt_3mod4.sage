@@ -3,7 +3,7 @@
 
 import sys
 try:
-    from sagelib.common import CMOV
+    from sagelib.common import CMOV, square_root_random_sign
     from sagelib.sswu_generic import GenericSSWU
     from sagelib.z_selection import find_z_sswu
 except ImportError:
@@ -22,12 +22,13 @@ class OptimizedSSWU_3mod4(object):
         Z = find_z_sswu(F, self.A, self.B)
         q = F.order()
         self.Z = Z
-        c1 = (q - 3) / 4           # Integer arithmetic
+        c1 = (q - 3) // 4           # Integer arithmetic
         c2 = sqrt(-Z^3)
         (self.c1, self.c2) = (c1, c2)
 
         # map for testing
         self.ref_map = GenericSSWU(F, self.A, self.B)
+        self.ref_map.set_sqrt(square_root_random_sign)
 
     def map_to_curve(self, u):
         sgn0 = self.ref_map.sgn0

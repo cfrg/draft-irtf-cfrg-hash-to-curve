@@ -3,7 +3,7 @@
 
 import sys
 try:
-    from sagelib.common import CMOV
+    from sagelib.common import CMOV, square_root_random_sign
     from sagelib.sswu_generic import GenericSSWU
     from sagelib.z_selection import find_z_sswu
 except ImportError:
@@ -29,6 +29,7 @@ class OptimizedSSWU_5mod8(object):
 
         # map for testing
         self.ref_map = GenericSSWU(F, self.A, self.B)
+        self.ref_map.set_sqrt(square_root_random_sign)
 
     def map_to_curve(self, u):
         sgn0 = self.ref_map.sgn0

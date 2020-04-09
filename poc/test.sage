@@ -14,8 +14,8 @@ try:
     from sagelib.ell2edw_generic import GenericEll2Edw
     from sagelib.sswu_generic import GenericSSWU
     from sagelib.svdw_generic import GenericSvdW
+    from sagelib.ell2_opt_3mod4 import test_ell2_3mod4
     from sagelib.ell2_opt_5mod8 import test_ell2_5mod8
-    from sagelib.ell2_opt_448 import test_ell2_448
     from sagelib.sswu_opt_3mod4 import test_sswu_3mod4
     from sagelib.sswu_opt_9mod16 import test_sswu_9mod16
     from sagelib.map_check import map_check
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     EdwardsCurve.test()
 
     print("Testing optimized Elligator2")
-    test_ell2_448()
+    test_ell2_3mod4()
     test_ell2_5mod8()
 
     print("Testing optimized SSWU")

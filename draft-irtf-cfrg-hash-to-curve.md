@@ -3385,7 +3385,9 @@ and the corresponding conversions:
   To convert (xn, xd, yn, yd) to Jacobian projective coordinates,
   compute (X', Y', Z') = (xn * xd * yd^2, yn * yd^2 * xd^3, xd * yd).
 
-## Simplified SWU for q = 3 (mod 4) {#sswu-map-to-3mod4}
+## Simplified SWU {#sswu-opt}
+
+### q = 3 (mod 4) {#sswu-map-to-3mod4}
 
 The following is a straight-line implementation of the Simplified SWU
 mapping that applies to any curve over GF(q) where q = 3 (mod 4).
@@ -3450,7 +3452,7 @@ Steps:
 34. return (xn, xd, y, 1)
 ~~~
 
-## Simplified SWU for q = 5 (mod 8) {#sswu-map-to-5mod8}
+### q = 5 (mod 8) {#sswu-map-to-5mod8}
 
 The following is a straight-line implementation of the Simplified SWU
 mapping that applied to any curve over GF(q) where q = 5 (mod 8).
@@ -3518,7 +3520,7 @@ Steps:
 48. return (xn, xd, y, 1)
 ~~~
 
-## Simplified SWU for q = 9 (mod 16) {#sswu-map-to-9mod16}
+### q = 9 (mod 16) {#sswu-map-to-9mod16}
 
 The following is a straight-line implementation of the Simplified SWU
 mapping that applies to any curve over GF(q) where q = 9 (mod 16).
@@ -3611,7 +3613,9 @@ Steps:
 70. return (xn, xd, y, 1)
 ~~~
 
-## curve25519 (Elligator 2) {#map-to-curve25519}
+## Elligator 2 {#ell2-opt}
+
+### curve25519 (q = 5 (mod 8), K = 1) {#map-to-curve25519}
 
 The following is a straight-line implementation of Elligator 2
 for curve25519 {{RFC7748}} as specified in {{suites-25519}}.
@@ -3627,10 +3631,10 @@ Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on curve25519.
 
 Constants:
-1. c1 = (p + 3) / 8           # Integer arithmetic
+1. c1 = (q + 3) / 8           # Integer arithmetic
 2. c2 = 2^c1
 3. c3 = sqrt(-1)
-4. c4 = (p - 5) / 8           # Integer arithmetic
+4. c4 = (q - 5) / 8           # Integer arithmetic
 
 Steps:
 1.  tv1 = u^2
@@ -3674,7 +3678,7 @@ Steps:
 39. return (xn, xd, y, 1)
 ~~~
 
-## edwards25519 (Elligator 2) {#map-to-edwards25519}
+### edwards25519 {#map-to-edwards25519}
 
 The following is a straight-line implementation of Elligator 2
 for edwards25519 {{RFC7748}} as specified in {{suites-25519}}.
@@ -3707,7 +3711,7 @@ Steps:
 13. return (xn, xd, yn, yd)
 ~~~
 
-## curve448 (Elligator 2) {#map-to-curve448}
+### curve448 (q = 3 (mod 4), K = 1) {#map-to-curve448}
 
 The following is a straight-line implementation of Elligator 2
 for curve448 {{RFC7748}} as specified in {{suites-448}}.
@@ -3723,7 +3727,7 @@ Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on curve448.
 
 Constants:
-1. c1 = (p - 3) / 4           # Integer arithmetic
+1. c1 = (q - 3) / 4           # Integer arithmetic
 
 Steps:
 1.  tv1 = u^2
@@ -3756,7 +3760,7 @@ Steps:
 28. return (xn, xd, y, 1)
 ~~~
 
-## edwards448 (Elligator 2) {#map-to-edwards448}
+### edwards448 {#map-to-edwards448}
 
 The following is a straight-line implementation of Elligator 2
 for edwards448 {{RFC7748}} as specified in {{suites-448}}.
@@ -3811,16 +3815,67 @@ Steps:
 38. return (xEn, xEd, yEn, yEd)
 ~~~
 
-## Elligator 2 for q = 3 (mod 4) {#ell2-map-to-3mod4}
+### q = 3 (mod 4) {#ell2-map-to-3mod4}
 
+The following is a straight-line implementation of Elligator 2
+that applies to any curve over GF(q) where q = 3 (mod 4).
 
+For curves where K = 1, the implementation given in {{map-to-curve448}}
+gives identical results with slightly reduced cost.
 
-## Elligator 2 for q = 5 (mod 8) {#ell2-map-to-5mod8}
+~~~
+map_to_curve_elligator2_3mod4(u)
+
+Input: u, an element of F.
+Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
+        point on the target curve.
+
+Constants:
+1. c1 = (q - 3) / 4           # Integer arithmetic
+2. c2 = K^2
+
+Steps:
+1.  tv1 = u^2
+2.   e1 = tv1 == 1
+3.  tv1 = CMOV(tv1, 0, e1)    # If Z * u^2 == -1, set tv1 = 0
+4.   xd = 1 - tv1
+5.   xd = xd * K
+6.  x1n = -J                  # x1 = x1n / xd = -J / (K * (1 + 2 * u^2))
+7.  tv2 = xd^2
+8.  gxd = tv2 * xd
+9.  gxd = gxd * c2            # gxd = xd^3 * K^2
+10. gx1 = x1n * K
+11. tv3 = xd * J
+12. tv3 = gx1 + tv3           # x1n * K + xd * J
+13. gx1 = gx1 * tv3           # K^2 * x1n^2 + J * K * x1n * xd
+14. gx1 = gx1 + tv2           # K^2 * x1n^2 + J * K * x1n * xd + xd^2
+15. gx1 = gx1 * x1n           # K^2 * x1n^3 + J * K * x1n^2 * xd + x1n * xd^2
+16. tv3 = gxd^2
+17. tv2 = gx1 * gxd           # gx1 * gxd
+18. tv3 = tv3 * tv2           # gx1 * gxd^3
+19.  y1 = tv3^c1              # (gx1 * gxd^3)^((q - 3) / 4)
+20.  y1 = y1 * tv2            # gx1 * gxd * (gx1 * gxd^3)^((q - 3) / 4)
+21. x2n = -tv1 * x1n          # x2 = x2n / xd = -1 * u^2 * x1n / xd
+22.  y2 = y1 * u
+23.  y2 = CMOV(y2, 0, e1)
+24. tv2 = y1^2
+25. tv2 = tv2 * gxd
+26.  e2 = tv2 == gx1
+27.  xn = CMOV(x2n, x1n, e2)  # If e2, x = x1, else x = x2
+28.  xn = xn * K
+29.   y = CMOV(y2, y1, e2)    # If e2, y = y1, else y = y2
+30.   y = y * K
+31.  e3 = sgn0(u) == sgn0(y)  # Fix sign of y
+32.   y = CMOV(-y, y, e3)
+33. return (xn, xd, y, 1)
+~~~
+
+### q = 5 (mod 8) {#ell2-map-to-5mod8}
 
 The following is a straight-line implementation of Elligator 2
 that applies to any curve over GF(q) where q = 5 (mod 8).
 
-For curves where K = 1, the implementation from {{map-to-curve25519}}
+For curves where K = 1, the implementation given in {{map-to-curve25519}}
 gives identical results with slightly reduced cost.
 
 ~~~
@@ -3846,7 +3901,7 @@ Steps:
 6.  tv2 = xd^2
 7.  gxd = tv2 * xd
 8.  gxd = gxd * c5            # gxd = xd^3 * K^2
-9.  gx1 = x1n * K             # k * x1n
+9.  gx1 = x1n * K
 10. tv3 = xd * J
 11. tv3 = gx1 + tv3           # x1n * K + xd * J
 12. gx1 = gx1 * tv3           # K^2 * x1n^2 + J * K * x1n * xd
@@ -3857,8 +3912,8 @@ Steps:
 17. tv3 = tv3 * gxd           # gxd^3
 18. tv3 = tv3 * gx1           # gx1 * gxd^3
 19. tv2 = tv2 * tv3           # gx1 * gxd^7
-20. y11 = tv2^c4              # (gx1 * gxd^7)^((p - 5) / 8)
-21. y11 = y11 * tv3           # gx1 * gxd^3 * (gx1 * gxd^7)^((p - 5) / 8)
+20. y11 = tv2^c4              # (gx1 * gxd^7)^((q - 5) / 8)
+21. y11 = y11 * tv3           # gx1 * gxd^3 * (gx1 * gxd^7)^((q - 5) / 8)
 22. y12 = y11 * c3
 23. tv2 = y11^2
 24. tv2 = tv2 * gxd

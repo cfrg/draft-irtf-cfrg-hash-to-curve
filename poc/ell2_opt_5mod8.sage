@@ -19,6 +19,7 @@ class OptimizedEll2_K1_5mod8(object):
         self.F = F
         self.J = J
 
+        # constants
         q = F.order()
         c1 = (q + 3) // 8           # Integer arithmetic
         c2 = F(2)^c1
@@ -26,6 +27,7 @@ class OptimizedEll2_K1_5mod8(object):
         c4 = (q - 5) // 8           # Integer arithmetic
         (self.c1, self.c2, self.c3, self.c4) = (c1, c2, c3, c4)
 
+        # reference map for testing
         self.ref_map = GenericEll2(F, self.J, 1)
         self.ref_map.set_sqrt(square_root_random_sign)
 
@@ -145,7 +147,7 @@ class OptimizedEll2_5mod8(object):
         tv2 = xd^2
         gxd = tv2 * xd
         gxd = gxd * c5            # gxd = xd^3 * K^2
-        gx1 = x1n * K             # k * x1n
+        gx1 = x1n * K
         tv3 = xd * J
         tv3 = gx1 + tv3           # x1n * K + xd * J
         gx1 = gx1 * tv3           # K^2 * x1n^2 + J * K * x1n * xd
@@ -156,8 +158,8 @@ class OptimizedEll2_5mod8(object):
         tv3 = tv3 * gxd           # gxd^3
         tv3 = tv3 * gx1           # gx1 * gxd^3
         tv2 = tv2 * tv3           # gx1 * gxd^7
-        y11 = tv2^c4              # (gx1 * gxd^7)^((p - 5) / 8)
-        y11 = y11 * tv3           # gx1 * gxd^3 * (gx1 * gxd^7)^((p - 5) / 8)
+        y11 = tv2^c4              # (gx1 * gxd^7)^((q - 5) / 8)
+        y11 = y11 * tv3           # gx1 * gxd^3 * (gx1 * gxd^7)^((q - 5) / 8)
         y12 = y11 * c3
         tv2 = y11^2
         tv2 = tv2 * gxd
@@ -212,7 +214,7 @@ K_25519 = F_25519(1)
 test_curve25519 = OptimizedEll2_K1_5mod8(F_25519, J_25519)
 test2_curve25519 = OptimizedEll2_5mod8(F_25519, J_25519, K_25519)
 
-def map_to_curve_ell2_edwards25519(u):
+def map_to_curve_elligator2_edwards25519(u):
     F = test_curve25519.F
     c1 = sqrt(F(-486664))
     if sgn0(c1) == 1:
@@ -255,7 +257,7 @@ def test_edwards25519(u=None):
 
     if u is None:
         u = F.random_element()
-    (xn, xd, yn, yd) = map_to_curve_ell2_edwards25519(u)
+    (xn, xd, yn, yd) = map_to_curve_elligator2_edwards25519(u)
     x = xn / xd
     y = yn / yd
     assert a * x^2 + y^2 == 1 + d * x^2 * y^2
