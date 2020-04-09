@@ -11,7 +11,6 @@ except ImportError:
 
 class OptimizedSSWU_9mod16(object):
     def __init__(self, F, A, B):
-        assert F.degree() == 2
         assert F.order() % 16 == 9
         assert A != 0
         assert B != 0
