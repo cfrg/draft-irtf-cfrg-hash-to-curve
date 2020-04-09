@@ -3538,8 +3538,8 @@ Steps:
 65.   y = CMOV(tv1, y, e8)      # choose correct y-coordinate
 66. tv2 = tv3 * x1n             # x2n = x2n / xd = Z * u^2 * x1n / xd
 67.  xn = CMOV(tv2, x1n, e8)    # choose correct x-coordinate
-68.  e1 = sgn0(u) == sgn0(y)    # Fix sign of y
-69.   y = CMOV(-y, y, e1)
+68.  e9 = sgn0(u) == sgn0(y)    # Fix sign of y
+69.   y = CMOV(-y, y, e9)
 70. return (xn, xd, y, 1)
 ~~~
 

@@ -112,8 +112,8 @@ class OptimizedSSWU_9mod16(object):
         y = CMOV(tv1, y, e8)      # choose correct y-coordinate
         tv2 = tv3 * x1n             # x2n = x2n / xd = Z * u^2 * x1n / xd
         xn = CMOV(tv2, x1n, e8)    # choose correct x-coordinate
-        e1 = sgn0(u) == sgn0(y)    # Fix sign of y
-        y = CMOV(-y, y, e1)
+        e9 = sgn0(u) == sgn0(y)    # Fix sign of y
+        y = CMOV(-y, y, e9)
         return (xn, xd, y, 1)
 
     def test_map(self, u=None):
@@ -151,4 +151,4 @@ def test_sswu_9mod16():
     test_bls12381g2.test()
 
 if __name__ == "__main__":
-    test_sswu_g2()
+    test_sswu_9mod16()
