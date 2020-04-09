@@ -3450,6 +3450,74 @@ Steps:
 34. return (xn, xd, y, 1)
 ~~~
 
+## Simplified SWU for q = 5 (mod 8) {#sswu-map-to-5mod8}
+
+The following is a straight-line implementation of the Simplified SWU
+mapping that applied to any curve over GF(q) where q = 5 (mod 8).
+
+~~~
+map_to_curve_simple_sswu_5mod8(u)
+
+Input: u, an element of F.
+Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
+        point on the target curve.
+
+Constants:
+1. c1 = (q - 5) / 8             # Integer arithmetic
+2. c2 = sqrt(-1)
+3. c3 = sqrt(Z^3 / c2)
+
+Steps:
+1.  tv1 = u^2
+2.  tv3 = Z * tv1
+3.  tv5 = tv3^2
+4.   xd = tv5 + tv3
+5.  x1n = xd + 1
+6.  x1n = x1n * B
+7.   xd = -A * xd
+8.   e1 = xd == 0
+9.   xd = CMOV(xd, Z * A, e1)   # If xd == 0, set xd = Z * A
+10. tv2 = xd^2
+11. gxd = tv2 * xd              # gxd == xd^3
+12. tv2 = A * tv2
+13. gx1 = x1n^2
+14. gx1 = gx1 + tv2             # x1n^2 + A * xd^2
+15. gx1 = gx1 * x1n             # x1n^3 + A * x1n * xd^2
+16. tv2 = B * gxd
+17. gx1 = gx1 + tv2             # x1n^3 + A * x1n * xd^2 + B * xd^3
+18. tv4 = gxd^2
+19. tv2 = tv4 * gxd             # gxd^3
+20. tv4 = tv4^2                 # gxd^4
+21. tv2 = tv2 * gx1             # gx1 * gxd^3
+22. tv4 = tv4 * tv2             # gx1 * gxd^7
+23.   y = tv4^c1                # (gx1 * gxd^7)^((q - 5) / 8)
+24.   y = y * tv2               # This is almost sqrt(gx1)
+25. tv4 = y * c2                # check the two possible sqrts
+26. tv2 = tv4^2
+27. tv2 = tv2 * gxd
+28.  e2 = tv2 == gx1
+29.   y = CMOV(y, tv4, e2)
+30. gx2 = gx1 * tv5
+31. gx2 = gx2 * tv3             # gx2 = gx1 * Z^3 * u^6
+32. tv1 = y * tv1
+33. tv1 = tv1 * u               # This is almost sqrt(gx2)
+34. tv1 = tv1 * c3              # check the two possible sqrts
+35. tv4 = tv1 * c2
+36. tv2 = tv4^2
+37. tv2 = tv2 * gxd
+38.  e3 = tv2 == gx2
+39. tv1 = CMOV(tv1, tv4, e3)
+40. tv2 = y^2
+41. tv2 = tv2 * gxd
+42.  e4 = tv2 == gx1
+43.   y = CMOV(tv1, y, e4)      # choose correct y-coordinate
+44. tv2 = tv3 * x1n             # x2n = x2n / xd = Z * u^2 * x1n / xd
+45.  xn = CMOV(tv2, x1n, e4)    # choose correct x-coordinate
+46.  e5 = sgn0(u) == sgn0(y)    # Fix sign of y
+47.   y = CMOV(-y, y, e5)
+48. return (xn, xd, y, 1)
+~~~
+
 ## Simplified SWU for q = 9 (mod 16) {#sswu-map-to-9mod16}
 
 The following is a straight-line implementation of the Simplified SWU
