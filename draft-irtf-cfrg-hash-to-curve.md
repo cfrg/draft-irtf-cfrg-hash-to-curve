@@ -3616,6 +3616,9 @@ Steps:
 The following is a straight-line implementation of Elligator 2
 for curve25519 {{RFC7748}} as specified in {{suites-25519}}.
 
+This implementation can also be used for any Montgomery curve
+with K = 1 over GF(q) where q = 5 (mod 8).
+
 ~~~
 map_to_curve_elligator2_curve25519(u)
 
@@ -3633,13 +3636,13 @@ Steps:
 1.  tv1 = u^2
 2.  tv1 = 2 * tv1
 3.   xd = tv1 + 1             # Nonzero: -1 is square (mod p), tv1 is not
-4.  x1n = -486662             # x1 = x1n / xd = -486662 / (1 + 2 * u^2)
+4.  x1n = -J                  # x1 = x1n / xd = -J / (1 + 2 * u^2)
 5.  tv2 = xd^2
 6.  gxd = tv2 * xd            # gxd = xd^3
-7.  gx1 = 486662 * tv1        # x1n + 486662 * xd
-8.  gx1 = gx1 * x1n           # x1n^2 + 486662 * x1n * xd
-9.  gx1 = gx1 + tv2           # x1n^2 + 486662 * x1n * xd + xd^2
-10. gx1 = gx1 * x1n           # x1n^3 + 486662 * x1n^2 * xd + x1n * xd^2
+7.  gx1 = J * tv1             # x1n + J * xd
+8.  gx1 = gx1 * x1n           # x1n^2 + J * x1n * xd
+9.  gx1 = gx1 + tv2           # x1n^2 + J * x1n * xd + xd^2
+10. gx1 = gx1 * x1n           # x1n^3 + J * x1n^2 * xd + x1n * xd^2
 11. tv3 = gxd^2
 12. tv2 = tv3^2               # gxd^4
 13. tv3 = tv3 * gxd           # gxd^3
@@ -3709,6 +3712,9 @@ Steps:
 The following is a straight-line implementation of Elligator 2
 for curve448 {{RFC7748}} as specified in {{suites-448}}.
 
+This implementation can also be used for any Montgomery curve
+with K = 1 over GF(q) where q = 3 (mod 4).
+
 ~~~
 map_to_curve_elligator2_curve448(u)
 
@@ -3724,14 +3730,14 @@ Steps:
 2.   e1 = tv1 == 1
 3.  tv1 = CMOV(tv1, 0, e1)    # If Z * u^2 == -1, set tv1 = 0
 4.   xd = 1 - tv1
-5.  x1n = -156326
+5.  x1n = -J
 6.  tv2 = xd^2
 7.  gxd = tv2 * xd            # gxd = xd^3
-8.  gx1 = 156326 * xd         # 156326 * xd
-9.  gx1 = gx1 + x1n           # x1n + 156326 * xd
-10. gx1 = gx1 * x1n           # x1n^2 + 156326 * x1n * xd
-11. gx1 = gx1 + tv2           # x1n^2 + 156326 * x1n * xd + xd^2
-12. gx1 = gx1 * x1n           # x1n^3 + 156326 * x1n^2 * xd + x1n * xd^2
+8.  gx1 = J * xd              # J * xd
+9.  gx1 = gx1 + x1n           # x1n + J * xd
+10. gx1 = gx1 * x1n           # x1n^2 + J * x1n * xd
+11. gx1 = gx1 + tv2           # x1n^2 + J * x1n * xd + xd^2
+12. gx1 = gx1 * x1n           # x1n^3 + J * x1n^2 * xd + x1n * xd^2
 13. tv3 = gxd^2
 14. tv2 = gx1 * gxd           # gx1 * gxd
 15. tv3 = tv3 * tv2           # gx1 * gxd^3
@@ -3803,6 +3809,80 @@ Steps:
 36. yEn = CMOV(yEn, 1, e)
 37. yEd = CMOV(yEd, 1, e)
 38. return (xEn, xEd, yEn, yEd)
+~~~
+
+## Elligator 2 for q = 3 (mod 4) {#ell2-map-to-3mod4}
+
+
+
+## Elligator 2 for q = 5 (mod 8) {#ell2-map-to-5mod8}
+
+The following is a straight-line implementation of Elligator 2
+that applies to any curve over GF(q) where q = 5 (mod 8).
+
+For curves where K = 1, the implementation from {{map-to-curve25519}}
+gives identical results with slightly reduced cost.
+
+~~~
+map_to_curve_elligator2_5mod8(u)
+
+Input: u, an element of F.
+Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
+        point on the target curve.
+
+Constants:
+1. c1 = (q + 3) / 8           # Integer arithmetic
+2. c2 = 2^c1
+3. c3 = sqrt(-1)
+4. c4 = (q - 5) / 8           # Integer arithmetic
+5. c5 = K^2
+
+Steps:
+1.  tv1 = u^2
+2.  tv1 = 2 * tv1
+3.   xd = tv1 + 1             # Nonzero: -1 is square (mod p), tv1 is not
+4.   xd = xd * K
+5.  x1n = -J                  # x1 = x1n / xd = -J / (K * (1 + 2 * u^2))
+6.  tv2 = xd^2
+7.  gxd = tv2 * xd
+8.  gxd = gxd * c5            # gxd = xd^3 * K^2
+9.  gx1 = x1n * K             # k * x1n
+10. tv3 = xd * J
+11. tv3 = gx1 + tv3           # x1n * K + xd * J
+12. gx1 = gx1 * tv3           # K^2 * x1n^2 + J * K * x1n * xd
+13. gx1 = gx1 + tv2           # K^2 * x1n^2 + J * K * x1n * xd + xd^2
+14. gx1 = gx1 * x1n           # K^2 * x1n^3 + J * K * x1n^2 * xd + x1n * xd^2
+15. tv3 = gxd^2
+16. tv2 = tv3^2               # gxd^4
+17. tv3 = tv3 * gxd           # gxd^3
+18. tv3 = tv3 * gx1           # gx1 * gxd^3
+19. tv2 = tv2 * tv3           # gx1 * gxd^7
+20. y11 = tv2^c4              # (gx1 * gxd^7)^((p - 5) / 8)
+21. y11 = y11 * tv3           # gx1 * gxd^3 * (gx1 * gxd^7)^((p - 5) / 8)
+22. y12 = y11 * c3
+23. tv2 = y11^2
+24. tv2 = tv2 * gxd
+25.  e1 = tv2 == gx1
+26.  y1 = CMOV(y12, y11, e1)  # If g(x1) is square, this is its sqrt
+27. x2n = x1n * tv1           # x2 = x2n / xd = 2 * u^2 * x1n / xd
+28. y21 = y11 * u
+29. y21 = y21 * c2
+30. y22 = y21 * c3
+31. gx2 = gx1 * tv1           # g(x2) = gx2 / gxd = 2 * u^2 * g(x1)
+32. tv2 = y21^2
+33. tv2 = tv2 * gxd
+34.  e2 = tv2 == gx2
+35.  y2 = CMOV(y22, y21, e2)  # If g(x2) is square, this is its sqrt
+36. tv2 = y1^2
+37. tv2 = tv2 * gxd
+38.  e3 = tv2 == gx1
+39.  xn = CMOV(x2n, x1n, e3)  # If e3, x = x1, else x = x2
+40.  xn = xn * K
+41.   y = CMOV(y2, y1, e3)    # If e3, y = y1, else y = y2
+42.   y = y * K
+43.  e4 = sgn0(u) == sgn0(y)  # Fix sign of y
+44.   y = CMOV(-y, y, e4)
+45. return (xn, xd, y, 1)
 ~~~
 
 ## Cofactor Clearing for BLS12-381 G2 {#clear-cofactor-bls12381-g2}

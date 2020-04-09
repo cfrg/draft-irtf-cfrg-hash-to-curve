@@ -113,7 +113,7 @@ class OptimizedSSWU_5mod8(object):
             self.test_map()
 
 def test_sswu_5mod8():
-    print("Testing random curves: ", end="")
+    print("Testing random curves (q = 5 mod 8): ", end="")
     for _ in range(0, 8):
         p = 0
         while p % 8 != 5:
