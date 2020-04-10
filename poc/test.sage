@@ -8,7 +8,7 @@ from hash_to_field import test_expand
 print("Importing modules...")
 
 try:
-    from sagelib.common import test_ts
+    from sagelib.common import test_sqrt_issq
     from sagelib.ell2_generic import GenericEll2
     from sagelib.ell2edw_generic import GenericEll2Edw
     from sagelib.sswu_generic import GenericSSWU
@@ -33,8 +33,8 @@ if __name__ == "__main__":
     print("Testing expand_message functions")
     test_expand()
 
-    print("Testing Tonelli-Shanks")
-    test_ts()
+    print("Testing sqrt and is_square functions")
+    test_sqrt_issq()
 
     print("Checking maps")
     map_check()
