@@ -17,6 +17,7 @@ try:
     from sagelib.ell2_opt_3mod4 import test_ell2_3mod4
     from sagelib.ell2_opt_5mod8 import test_ell2_5mod8
     from sagelib.sswu_opt_3mod4 import test_sswu_3mod4
+    from sagelib.sswu_opt_5mod8 import test_sswu_5mod8
     from sagelib.sswu_opt_9mod16 import test_sswu_9mod16
     from sagelib.map_check import map_check
     from sagelib.curves import MontgomeryCurve, EdwardsCurve

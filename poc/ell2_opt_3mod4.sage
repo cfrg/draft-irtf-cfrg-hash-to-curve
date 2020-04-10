@@ -299,7 +299,10 @@ def test_ell2_3mod4_random():
         sys.stdout.flush()
     print()
 
-if __name__ == "__main__":
+def test_ell2_3mod4():
     test_ell2_448()
     test_ell2_K1_3mod4_random()
     test_ell2_3mod4_random()
+
+if __name__ == "__main__":
+    test_ell2_3mod4()
