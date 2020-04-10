@@ -1983,7 +1983,7 @@ Operations:
 #### Implementation
 
 The following procedure implements the simplified SWU mapping in a straight-line fashion.
-{{samplecode}} gives an optimized straight-line procedure for P-256 {{FIPS186-4}}.
+{{sswu-opt}} gives optimized straight-line procedures that apply to many curves.
 For more information on optimizing this mapping, see
 {{WB19}} Section 4 or the example code found at {{hash2curve-repo}}.
 
@@ -2125,8 +2125,8 @@ Operations:
 #### Implementation
 
 The following procedure implements Elligator 2 in a straight-line fashion.
-{{samplecode}} gives optimized straight-line procedures for curve25519 and
-curve448 {{RFC7748}}.
+{{ell2-opt}} gives optimized straight-line procedures that apply to many curves,
+including curve25519 and curve448 {{RFC7748}}.
 
 ~~~
 map_to_curve_elligator2(u)
@@ -2754,6 +2754,9 @@ except that the encoding type is encode\_to\_curve ({{roadmap}}).
 Note that the h\_eff values for these suites are chosen for compatibility
 with the fast cofactor clearing method described by
 Budroni and Pintore ({{BP17}}, Section 4.1), and summarized in {{clear-cofactor-bls12381-g2}}.
+
+An optimized example implementation of the Simplified SWU mapping
+to the curve E' isogenous to BLS12-381 G2 is given in {{sswu-map-to-9mod16}}.
 
 ## Defining a new hash-to-curve suite {#new-suite}
 
