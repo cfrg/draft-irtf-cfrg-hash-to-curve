@@ -1582,7 +1582,7 @@ Output:
 Steps:
 1.  ell = ceil(len_in_bytes / b_in_bytes)
 2.  ABORT if ell > 255
-3.  DST_prime = I2OSP(len(DST), 1) || DST
+3.  DST_prime = DST || I2OSP(len(DST), 1)
 4.  Z_pad = I2OSP(0, r_in_bytes)
 5.  l_i_b_str = I2OSP(len_in_bytes, 2)
 6.  b_0 = H(Z_pad || msg || l_i_b_str || I2OSP(0, 1) || DST_prime)
@@ -1641,7 +1641,7 @@ Output:
 - pseudo_random_bytes, a byte string
 
 Steps:
-1. DST_prime = I2OSP(len(DST), 1) || DST
+1. DST_prime = DST || I2OSP(len(DST), 1)
 2. msg_prime = msg || I2OSP(len_in_bytes, 2) || DST_prime
 3. pseudo_random_bytes = H(msg_prime, len_in_bytes)
 4. return pseudo_random_bytes
@@ -1694,7 +1694,7 @@ Meeting this requirement is slightly subtle.
 As a simplified example, hashing the concatenation msg || DST does not work,
 because in this case distinct (msg, DST) pairs whose concatenations are equal
 will return the same output (e.g., ("AB", "CDEF") and ("ABC", "DEF")).
-The variants defined in this document use a prefix-free encoding of DST
+The variants defined in this document use a suffix-free encoding of DST
 to avoid this issue.
 
 - MUST use the domain separation tag DST to ensure that invocations of
