@@ -3856,7 +3856,7 @@ Input: x, an element of F.
 Output: True if x is square in F, and False otherwise.
 
 Constants:
-1. c1 = (p - 1) / 2          # Integer arithmetic
+1. c1 = (p - 1) / 2         # Integer arithmetic
 
 Procedure:
 1. tv1 = x_1^2
@@ -3864,7 +3864,7 @@ Procedure:
 3. tv2 = tv2^2
 4. tv1 = tv1 - tv2
 5. tv1 = tv1^c1
-6.  e1 = tv1 != -1
+6.  e1 = tv1 != -1          # Note: -1 in F
 7. return e1
 ~~~
 
