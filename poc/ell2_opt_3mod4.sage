@@ -43,8 +43,7 @@ class OptimizedEll2_K1_3mod4(object):
         x1n = -J
         tv2 = xd^2
         gxd = tv2 * xd            # gxd = xd^3
-        gx1 = J * xd              # J * xd
-        gx1 = gx1 + x1n           # x1n + J * xd
+        gx1 = -J * tv1            # x1n + J * xd
         gx1 = gx1 * x1n           # x1n^2 + J * x1n * xd
         gx1 = gx1 + tv2           # x1n^2 + J * x1n * xd + xd^2
         gx1 = gx1 * x1n           # x1n^3 + J * x1n^2 * xd + x1n * xd^2

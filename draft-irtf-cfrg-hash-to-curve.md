@@ -3740,27 +3740,26 @@ Steps:
 5.  x1n = -J
 6.  tv2 = xd^2
 7.  gxd = tv2 * xd            # gxd = xd^3
-8.  gx1 = J * xd              # J * xd
-9.  gx1 = gx1 + x1n           # x1n + J * xd
-10. gx1 = gx1 * x1n           # x1n^2 + J * x1n * xd
-11. gx1 = gx1 + tv2           # x1n^2 + J * x1n * xd + xd^2
-12. gx1 = gx1 * x1n           # x1n^3 + J * x1n^2 * xd + x1n * xd^2
-13. tv3 = gxd^2
-14. tv2 = gx1 * gxd           # gx1 * gxd
-15. tv3 = tv3 * tv2           # gx1 * gxd^3
-16.  y1 = tv3^c1              # (gx1 * gxd^3)^((p - 3) / 4)
-17.  y1 = y1 * tv2            # gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
-18. x2n = -tv1 * x1n          # x2 = x2n / xd = -1 * u^2 * x1n / xd
-19.  y2 = y1 * u
-20.  y2 = CMOV(y2, 0, e1)
-21. tv2 = y1^2
-22. tv2 = tv2 * gxd
-23.  e2 = tv2 == gx1
-24.  xn = CMOV(x2n, x1n, e2)  # If e2, x = x1, else x = x2
-25.   y = CMOV(y2, y1, e2)    # If e2, y = y1, else y = y2
-26.  e3 = sgn0(u) == sgn0(y)  # Fix sign of y
-27.   y = CMOV(-y, y, e3)
-28. return (xn, xd, y, 1)
+8.  gx1 = -J * tv1            # x1n + J * xd
+9.  gx1 = gx1 * x1n           # x1n^2 + J * x1n * xd
+10. gx1 = gx1 + tv2           # x1n^2 + J * x1n * xd + xd^2
+11. gx1 = gx1 * x1n           # x1n^3 + J * x1n^2 * xd + x1n * xd^2
+12. tv3 = gxd^2
+13. tv2 = gx1 * gxd           # gx1 * gxd
+14. tv3 = tv3 * tv2           # gx1 * gxd^3
+15.  y1 = tv3^c1              # (gx1 * gxd^3)^((p - 3) / 4)
+16.  y1 = y1 * tv2            # gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
+17. x2n = -tv1 * x1n          # x2 = x2n / xd = -1 * u^2 * x1n / xd
+18.  y2 = y1 * u
+19.  y2 = CMOV(y2, 0, e1)
+20. tv2 = y1^2
+21. tv2 = tv2 * gxd
+22.  e2 = tv2 == gx1
+23.  xn = CMOV(x2n, x1n, e2)  # If e2, x = x1, else x = x2
+24.   y = CMOV(y2, y1, e2)    # If e2, y = y1, else y = y2
+25.  e3 = sgn0(u) == sgn0(y)  # Fix sign of y
+26.   y = CMOV(-y, y, e3)
+27. return (xn, xd, y, 1)
 ~~~
 
 ### edwards448 {#map-to-edwards448}
