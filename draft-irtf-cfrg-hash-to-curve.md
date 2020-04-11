@@ -2961,8 +2961,8 @@ ciphersuites with higher security levels.
 The authors would like to thank Adam Langley for his detailed writeup of Elligator 2 with
 Curve25519 {{L13}};
 Dan Boneh, Christopher Patton, and Benjamin Lipp for educational discussions; and
-Sean Devlin, Justin Drake, Dan Harkins, Thomas Icart, Andy Polyakov, Leonid Reyzin, Michael Scott,
-and Mathy Vanhoef for helpful feedback.
+David Benjamin, Frank Denis, Sean Devlin, Justin Drake, Dan Harkins, Thomas Icart,
+Andy Polyakov, Leonid Reyzin, Michael Scott, and Mathy Vanhoef for helpful feedback.
 
 # Contributors
 
