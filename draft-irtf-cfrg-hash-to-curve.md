@@ -3657,7 +3657,7 @@ represented as ratios, i.e., (xn, xd, yn, yd) corresponds to the point
 (xn / xd, yn / yd); see {{projective-coords}} for further discussion of
 projective coordinates.
 When points are represented in affine coordinates, one can simply ignore
-the denominators xd == yd == 1.
+the denominators (xd == 1 and yd == 1).
 
 The following function computes the Frobenius endomorphism for an element
 of F = GF(p^2) with basis (1, I), where I^2 + 1 == 0 in F.
@@ -3698,7 +3698,7 @@ Steps:
 5. return (qxn, qxd, qyn, qyd)
 ~~~
 
-The following function computes psi(psi(P)).
+The following function efficiently computes psi(psi(P)).
 
 ~~~
 psi2(xn, xd, yn, yd)
