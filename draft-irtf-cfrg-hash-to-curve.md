@@ -1298,13 +1298,18 @@ beyond the scope of this document.
     either 0 if all bits of C are zero, or 1 if at least one bit of C is 1.
 
 -   is\_square(x): This function returns True whenever the value x is a
-    square in the field F. Due to Euler's criterion, this function can be
+    square in the field F. By Euler's criterion, this function can be
     calculated in constant time as
 
 ~~~
 is_square(x) := { True,  if x^((q - 1) / 2) is 0 or 1 in F;
                 { False, otherwise.
 ~~~
+
+    In certain extension fields, is\_square can be computed in constant
+    time more quickly than by the above exponentiation.
+    {{AR13}} and {{S85}} describe optimized methods for extension fields.
+    {{appx-sqrt-issq}} gives an optimized straight-line method for GF(p^2).
 
 -   sqrt(x): The sqrt operation is a multi-valued function, i.e. there exist
     two roots of x in the field F whenever x is square.
@@ -3709,13 +3714,13 @@ def find_z_ell2(F):
         ctr += 1
 ~~~
 
-# sqrt functions {#appx-sqrt}
+# sqrt and is\_square functions {#appx-sqrt}
 
 This section defines special-purpose sqrt functions for the three most common cases,
-q = 3 (mod 4), q = 5 (mod 8), and q = 9 (mod 16).
-In addition, it gives a generic constant-time algorithm that works for any prime modulus.
+q = 3 (mod 4), q = 5 (mod 8), and q = 9 (mod 16),
+plus a generic constant-time algorithm that works for any prime modulus.
 
-{{AR13}} and {{S85}} describe optimized methods for extension fields.
+In addition, it gives an optimized is\_square method for GF(p^2).
 
 ## q = 3 (mod 4) {#sqrt-3mod4}
 
@@ -3829,6 +3834,38 @@ Procedure:
 11.     t = CMOV(t, t * c, b != 1)
 12.     b = t
 13. return z
+~~~
+
+## is\_square for F = GF(p^2) {#appx-sqrt-issq}
+
+The following is\_square method applies to any field F = GF(p^2)
+with basis (1, I) represented as described in {{bg-curves}}, i.e.,
+an element x = (x\_1, x\_2) = x\_1 + x\_2 * I.
+
+Other optimizations of this type are possible in other even-order
+extension fields; see {{AR13}}.
+
+~~~
+is_square(x)
+
+Parameters:
+- F, an extension field of characteristic p and order q = p^2
+  with basis (1, I).
+
+Input: x, an element of F.
+Output: True if x is square in F, and False otherwise.
+
+Constants:
+1. c1 = (p - 1) / 2         # Integer arithmetic
+
+Procedure:
+1. tv1 = x_1^2
+2. tv2 = I * x_2
+3. tv2 = tv2^2
+4. tv1 = tv1 - tv2
+5. tv1 = tv1^c1
+6.  e1 = tv1 != -1          # Note: -1 in F
+7. return e1
 ~~~
 
 # Test vectors {#testvectors}

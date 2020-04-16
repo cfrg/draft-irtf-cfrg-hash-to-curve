@@ -140,7 +140,23 @@ def ts_precompute(p, F):
     assert p == q * 2**m + 1
     sqrt_cache[p] = (q, m, c)
 
+def is_square_quadratic(x):
+    F = x.parent()
+    I = F.gen()
+    (x_1, x_2) = (list(x.polynomial()) + [0, 0])[:2]
+    p = F.characteristic()
+    c1 = (p - 1) // 2               # Integer arithmetic
+
+    tv1 = x_1^2
+    tv2 = I * x_2
+    tv2 = tv2^2
+    tv1 = tv1 - tv2
+    tv1 = tv1^c1
+    e1 = tv1 != -1
+    return e1
+
 def test_ts():
+    print("Testing Tonelli-Shanks")
     def _test(F):
         for _ in range(0, 256):
             x = F.random_element()
@@ -165,5 +181,25 @@ def test_ts():
         F = GF(p^3)
         _test(F)
 
-if __name__ == "__main__":
+def test_issq():
+    print("Testing is_square for quadratic extensions")
+    for _ in range(0, 8):
+        p = random_prime(1<<64)
+        b = 2
+        while True:
+            try:
+                F.<X> = GF(p^2, modulus=[b,0,1])
+            except:
+                b += 1
+                continue
+            break
+        for _ in range(0, 128):
+            a = F.random_element()
+            assert a.is_square() == is_square_quadratic(a)
+
+def test_sqrt_issq():
     test_ts()
+    test_issq()
+
+if __name__ == "__main__":
+    test_sqrt_issq()
