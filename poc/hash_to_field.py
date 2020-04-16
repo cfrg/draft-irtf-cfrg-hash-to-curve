@@ -59,7 +59,7 @@ def expand_message_xof(msg, dst, len_in_bytes, hash_fn, _):
         raise ValueError("dst len should be at most 255 bytes")
 
     # compute prefix-free encoding of DST
-    dst_prime = I2OSP(len(dst), 1) + dst
+    dst_prime = dst + I2OSP(len(dst), 1)
     assert len(dst_prime) == len(dst) + 1
 
     msg_prime = _as_bytes(msg) + I2OSP(len_in_bytes, 2) + dst_prime
@@ -83,7 +83,7 @@ def expand_message_xmd(msg, dst, len_in_bytes, hash_fn, security_param):
         raise ValueError("bad expand_message_xmd call: ell was %d" % ell)
 
     # compute prefix-free encoding of DST
-    dst_prime = I2OSP(len(dst), 1) + dst
+    dst_prime = dst + I2OSP(len(dst), 1)
     assert len(dst_prime) == len(dst) + 1
 
     # padding and length strings
