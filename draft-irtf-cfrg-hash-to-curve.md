@@ -3663,7 +3663,7 @@ the denominators (xd == 1 and yd == 1).
 
 The following function computes the Frobenius endomorphism for an element
 of F = GF(p^2) with basis (1, I), where I^2 + 1 == 0 in F.
-(This is the base field of the BLS12-381 curve containing the subgroup G2.)
+(This is the base field of the elliptic curve E defined in {{suites-bls12381-g2}}.)
 
 ~~~
 frobenius(x)
@@ -3678,14 +3678,13 @@ Steps:
 2. return a
 ~~~
 
-The following function computes the endomorphism psi for points on the BLS12-381
-curve defined over GF(p^2).
+The following function computes the endomorphism psi for points on the
+elliptic curve E defined in {{suites-bls12381-g2}}.
 
 ~~~
 psi(xn, xd, yn, yd)
 
-Input: P, the point (xn / xd, yn / yd) on the BLS12-381 curve
-       containing the subgroup G2.
+Input: P, the point (xn / xd, yn / yd) on the curve E (see above).
 Output: Q, a point on the same curve.
 
 Constants:
@@ -3705,8 +3704,7 @@ The following function efficiently computes psi(psi(P)).
 ~~~
 psi2(xn, xd, yn, yd)
 
-Input: P, the point (xn / xd, yn / yd) on the BLS12-381 curve
-       containing the subgroup G2.
+Input: P, the point (xn / xd, yn / yd) on the curve E (see above).
 Output: Q, a point on the same curve.
 
 Constants:
@@ -3718,7 +3716,7 @@ Steps:
 3. return (qxn, xd, qyn, yd)
 ~~~
 
-The following function maps any point on the BLS12-381 curve defined over GF(p^2)
+The following function maps any point on the elliptic curve E ({{suites-bls12381-g2}})
 into the prime-order subgroup G2.
 This function returns a point equal to h\_eff * G2, where h\_eff is the parameter
 given in {{suites-bls12381-g2}}.
@@ -3726,8 +3724,7 @@ given in {{suites-bls12381-g2}}.
 ~~~
 clear_cofactor_bls12381_g2(P)
 
-Input: P, the point (xn / xd, yn / yd) on the BLS12-381 curve
-       containing the subgroup G2.
+Input: P, the point (xn / xd, yn / yd) on the curve E (see above).
 Output: Q, a point in the subgroup G2 of BLS12-381.
 
 Constants:
