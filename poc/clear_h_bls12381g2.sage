@@ -89,7 +89,7 @@ def test_frobenius(ntests):
 def test_psi(ntests):
     for _ in range(0, ntests):
         P = Ell.random_element()
-        Q = psi(P)
+        assert psi(psi(P)) - (bls12381_x + 1) * psi(P) + p * P == Ell(0, 1, 0)
 
 def test_psi2(ntests):
     for _ in range(0, ntests):
@@ -106,7 +106,7 @@ def test_clear_cofactor_bls12381_g2(ntests):
         assert Q1 == Q2
 
 if __name__ == "__main__":
-    test_frobenius(2)
-    test_psi(2)
-    test_psi2(2)
+    test_frobenius(4)
+    test_psi(4)
+    test_psi2(4)
     test_clear_cofactor_bls12381_g2(8)
