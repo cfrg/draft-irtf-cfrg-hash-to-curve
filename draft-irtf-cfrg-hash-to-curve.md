@@ -1886,6 +1886,7 @@ straight-line fashion.
 
 ~~~
 map_to_curve_svdw(u)
+
 Input: u, an element of F.
 Output: (x, y), a point on E.
 
@@ -1988,6 +1989,7 @@ For more information on optimizing this mapping, see
 
 ~~~
 map_to_curve_simple_swu(u)
+
 Input: u, an element of F.
 Output: (x, y), a point on E.
 
@@ -2128,6 +2130,7 @@ curve448 {{RFC7748}}.
 
 ~~~
 map_to_curve_elligator2(u)
+
 Input: u, an element of F.
 Output: (s, t), a point on M.
 
@@ -2256,6 +2259,7 @@ are analogous.
 
 ~~~
 rational_map(s, t)
+
 Input: (s, t), a point on the curve K * t^2 = s^3 + J * s^2 + s.
 Output: (v, w), a point on an equivalent twisted Edwards curve.
 
@@ -2298,6 +2302,7 @@ the target twisted Edwards curve.)
 
 ~~~
 map_to_curve_elligator2_edwards(u)
+
 Input: u, an element of F.
 Output: (v, w), a point on E.
 
@@ -2330,6 +2335,8 @@ Examples of fast cofactor clearing methods include the following:
   et al. {{FKR11}} propose an alternative method that is sometimes more efficient.
   Budroni and Pintore {{BP17}} give concrete instantiations of these methods
   for Barreto-Lynn-Scott pairing-friendly curves {{BLS03}}.
+  This method is described for the specific case of BLS12-381 in
+  {{clear-cofactor-bls12381-g2}}.
 
 - Wahby and Boneh ({{WB19}}, Section 5) describe a trick due to Scott for
   fast cofactor clearing on any elliptic curve for which the prime
@@ -2665,6 +2672,8 @@ to the curve E' isogenous to secp256k1 is given in {{sswu-map-to-3mod4}}.
 
 This section defines ciphersuites for groups G1 and G2 of
 the BLS12-381 elliptic curve {{BLS12-381}}.
+The curve parameters in this section match the ones listed in
+{{!I-D.irtf-cfrg-pairing-friendly-curves}}, Appendix C.
 
 ### BLS12-381 G1 {#suites-bls12381-g1}
 
@@ -2744,7 +2753,7 @@ except that the encoding type is encode\_to\_curve ({{roadmap}}).
 
 Note that the h\_eff values for these suites are chosen for compatibility
 with the fast cofactor clearing method described by
-Budroni and Pintore ({{BP17}}, Section 4.1).
+Budroni and Pintore ({{BP17}}, Section 4.1), and summarized in {{clear-cofactor-bls12381-g2}}.
 
 ## Defining a new hash-to-curve suite {#new-suite}
 
@@ -2977,6 +2986,8 @@ Andy Polyakov, Leonid Reyzin, Michael Scott, and Mathy Vanhoef for helpful feedb
 *   Ela Lee \\
     Royal Holloway, University of London \\
     Ela.Lee.2010@live.rhul.ac.uk
+*   Michele Orru \\
+    michele.orru@ens.fr
 
 --- back
 
@@ -3632,6 +3643,110 @@ Steps:
 36. yEn = CMOV(yEn, 1, e)
 37. yEd = CMOV(yEd, 1, e)
 38. return (xEn, xEd, yEn, yEd)
+~~~
+
+## Cofactor Clearing for BLS12-381 G2 {#clear-cofactor-bls12381-g2}
+
+The curve BLS12-381, whose parameters are defined in {{suites-bls12381-g2}},
+admits an efficiently-computable endomorphism psi that can be used to
+speed up cofactor clearing for G2 {{SBCDK09}} {{FKR11}} {{BP17}} (see also
+{{cofactor-clearing}}).
+This section implements the endomorphism psi and a fast cofactor clearing
+method described by Budroni and Pintore {{BP17}}.
+
+The functions in this section operate on points whose coordinates are
+represented as ratios, i.e., (xn, xd, yn, yd) corresponds to the point
+(xn / xd, yn / yd); see {{projective-coords}} for further discussion of
+projective coordinates.
+When points are represented in affine coordinates, one can simply ignore
+the denominators (xd == 1 and yd == 1).
+
+The following function computes the Frobenius endomorphism for an element
+of F = GF(p^2) with basis (1, I), where I^2 + 1 == 0 in F.
+(This is the base field of the elliptic curve E defined in {{suites-bls12381-g2}}.)
+
+~~~
+frobenius(x)
+
+Input: x, an element of GF(p^2).
+Output: a, an element of GF(p^2).
+
+Notation: x = x0 + I * x1, where x0 and x1 are elements of GF(p).
+
+Steps:
+1. a = x0 - I * x1
+2. return a
+~~~
+
+The following function computes the endomorphism psi for points on the
+elliptic curve E defined in {{suites-bls12381-g2}}.
+
+~~~
+psi(xn, xd, yn, yd)
+
+Input: P, the point (xn / xd, yn / yd) on the curve E (see above).
+Output: Q, a point on the same curve.
+
+Constants:
+1. c1 = 1 / (1 + I)^((p - 1) / 3)           # in GF(p^2)
+2. c2 = 1 / (1 + I)^((p - 1) / 2)           # in GF(p^2)
+
+Steps:
+1. qxn = c1 * frobenius(xn)
+2. qxd = frobenius(xd)
+3. qyn = c2 * frobenius(yn)
+4. qyd = frobenius(yd)
+5. return (qxn, qxd, qyn, qyd)
+~~~
+
+The following function efficiently computes psi(psi(P)).
+
+~~~
+psi2(xn, xd, yn, yd)
+
+Input: P, the point (xn / xd, yn / yd) on the curve E (see above).
+Output: Q, a point on the same curve.
+
+Constants:
+1. c1 = 1 / 2^((p - 1) / 3)                 # in GF(p^2)
+
+Steps:
+1. qxn = c1 * xn
+2. qyn = -yn
+3. return (qxn, xd, qyn, yd)
+~~~
+
+The following function maps any point on the elliptic curve E ({{suites-bls12381-g2}})
+into the prime-order subgroup G2.
+This function returns a point equal to h\_eff * G2, where h\_eff is the parameter
+given in {{suites-bls12381-g2}}.
+
+~~~
+clear_cofactor_bls12381_g2(P)
+
+Input: P, the point (xn / xd, yn / yd) on the curve E (see above).
+Output: Q, a point in the subgroup G2 of BLS12-381.
+
+Constants:
+1. c1 = -15132376222941642752       # the BLS parameter for BLS12-381
+                                    # i.e., -0xd201000000010000
+
+Notation: in this procedure, + and - represent elliptic curve point
+addition and subtraction, respectively, and * represents scalar
+multiplication.
+
+Steps:
+1.  t1 = c1 * P
+2.  t2 = psi(P)
+3.  t3 = 2 * P
+4.  t3 = psi2(t3)
+5.  t3 = t3 - t2
+6.  t2 = t1 + t2
+7.  t2 = c1 * t2
+8.  t3 = t3 + t2
+9.  t3 = t3 - t1
+10.  Q = t3 - P
+11. return Q
 ~~~
 
 # Scripts for parameter generation {#paramgen}
