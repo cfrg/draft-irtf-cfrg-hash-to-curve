@@ -3729,6 +3729,7 @@ Output: Q, a point in the subgroup G2 of BLS12-381.
 
 Constants:
 1. c1 = -15132376222941642752       # the BLS parameter for BLS12-381
+                                    # i.e., -0xd201000000010000
 
 Notation: in this procedure, + and - represent elliptic curve point
 addition and subtraction, respectively, and * represents scalar
