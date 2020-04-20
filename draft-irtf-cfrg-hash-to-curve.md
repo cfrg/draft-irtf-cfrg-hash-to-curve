@@ -1461,16 +1461,20 @@ the range \[0, p / 3\] with probability roughly 1/2, meaning that this value
 is statistically far from uniform in \[0, p - 1\].
 
 To control bias, hash\_to\_field instead uses pseudorandom integers whose
-length is at least ceil(log2(p)) + k bits, where k is the target security level
-for the suite in bits. (Note that k is an upper bound on the security level for
-the corresponding curve. See {{security-considerations-targets}} for more details.)
+length is at least ceil(log2(p)) + k bits, where k is the target security
+level for the suite in bits.
 Reducing such integers mod p gives bias at most 2^-k for any p; this bias
 is appropriate when targeting k-bit security.
-To obtain such integers, hash\_to\_field uses expand\_message to obtain
+For each such integer, hash\_to\_field uses expand\_message to obtain
 L pseudorandom bytes, where L = ceil((ceil(log2(p)) + k) / 8); this
 byte string is then interpreted as an integer via OS2IP {{RFC8017}}.
 For example, for a 255-bit prime p, and k = 128-bit security,
 L = ceil((255 + 128) / 8) = 48 bytes.
+
+Note that k is an upper bound on the security level for the
+corresponding curve.
+See {{security-considerations-targets}} for more details, and
+{{new-suite}} for guidelines on choosing k for a given curve.
 
 ## hash\_to\_field implementation {#hashtofield-impl}
 
