@@ -1983,7 +1983,7 @@ Operations:
 #### Implementation
 
 The following procedure implements the simplified SWU mapping in a straight-line fashion.
-{{samplecode}} gives an optimized straight-line procedure for P-256 {{FIPS186-4}}.
+{{sswu-opt}} gives optimized straight-line procedures that apply to many curves.
 For more information on optimizing this mapping, see
 {{WB19}} Section 4 or the example code found at {{hash2curve-repo}}.
 
@@ -2125,8 +2125,8 @@ Operations:
 #### Implementation
 
 The following procedure implements Elligator 2 in a straight-line fashion.
-{{samplecode}} gives optimized straight-line procedures for curve25519 and
-curve448 {{RFC7748}}.
+{{ell2-opt}} gives optimized straight-line procedures that apply to many curves,
+including curve25519 and curve448 {{RFC7748}}.
 
 ~~~
 map_to_curve_elligator2(u)
@@ -2754,6 +2754,9 @@ except that the encoding type is encode\_to\_curve ({{roadmap}}).
 Note that the h\_eff values for these suites are chosen for compatibility
 with the fast cofactor clearing method described by
 Budroni and Pintore ({{BP17}}, Section 4.1), and summarized in {{clear-cofactor-bls12381-g2}}.
+
+An optimized example implementation of the Simplified SWU mapping
+to the curve E' isogenous to BLS12-381 G2 is given in {{sswu-map-to-9mod16}}.
 
 ## Defining a new hash-to-curve suite {#new-suite}
 
@@ -3385,10 +3388,12 @@ and the corresponding conversions:
   To convert (xn, xd, yn, yd) to Jacobian projective coordinates,
   compute (X', Y', Z') = (xn * xd * yd^2, yn * yd^2 * xd^3, xd * yd).
 
-## Simplified SWU for p = 3 (mod 4) {#sswu-map-to-3mod4}
+## Simplified SWU {#sswu-opt}
+
+### q = 3 (mod 4) {#sswu-map-to-3mod4}
 
 The following is a straight-line implementation of the Simplified SWU
-mapping that applies to any curve over GF(p) for p = 3 (mod 4).
+mapping that applies to any curve over GF(q) where q = 3 (mod 4).
 This includes the ciphersuites for NIST curves P-256, P-384, and P-521 {{FIPS186-4}} given in {{suites}}.
 It also includes the curves isogenous to secp256k1 ({{suites-secp256k1}}) and BLS12-381 G1 ({{suites-bls12381-g1}}).
 
@@ -3409,8 +3414,8 @@ Input: u, an element of F.
 Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on the target curve.
 
-Constants: defined per curve; see above.
-1.  c1 = (p - 3) / 4           # Integer arithmetic
+Constants:
+1.  c1 = (q - 3) / 4           # Integer arithmetic
 2.  c2 = sqrt(-Z^3)
 
 Steps:
@@ -3434,8 +3439,8 @@ Steps:
 18. tv4 = gxd^2
 19. tv2 = gx1 * gxd
 20. tv4 = tv4 * tv2            # gx1 * gxd^3
-21.  y1 = tv4^c1               # (gx1 * gxd^3)^((p - 3) / 4)
-22.  y1 = y1 * tv2             # gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
+21.  y1 = tv4^c1               # (gx1 * gxd^3)^((q - 3) / 4)
+22.  y1 = y1 * tv2             # gx1 * gxd * (gx1 * gxd^3)^((q - 3) / 4)
 23. x2n = tv3 * x1n            # x2 = x2n / xd = Z * u^2 * x1n / xd
 24.  y2 = y1 * c2              # y2 = y1 * sqrt(-Z^3)
 25.  y2 = y2 * tv1
@@ -3450,10 +3455,176 @@ Steps:
 34. return (xn, xd, y, 1)
 ~~~
 
-## curve25519 (Elligator 2) {#map-to-curve25519}
+### q = 5 (mod 8) {#sswu-map-to-5mod8}
+
+The following is a straight-line implementation of the Simplified SWU
+mapping that applied to any curve over GF(q) where q = 5 (mod 8).
+
+~~~
+map_to_curve_simple_sswu_5mod8(u)
+
+Input: u, an element of F.
+Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
+        point on the target curve.
+
+Constants:
+1. c1 = (q - 5) / 8             # Integer arithmetic
+2. c2 = sqrt(-1)
+3. c3 = sqrt(Z^3 / c2)
+
+Steps:
+1.  tv1 = u^2
+2.  tv3 = Z * tv1
+3.  tv5 = tv3^2
+4.   xd = tv5 + tv3
+5.  x1n = xd + 1
+6.  x1n = x1n * B
+7.   xd = -A * xd
+8.   e1 = xd == 0
+9.   xd = CMOV(xd, Z * A, e1)   # If xd == 0, set xd = Z * A
+10. tv2 = xd^2
+11. gxd = tv2 * xd              # gxd == xd^3
+12. tv2 = A * tv2
+13. gx1 = x1n^2
+14. gx1 = gx1 + tv2             # x1n^2 + A * xd^2
+15. gx1 = gx1 * x1n             # x1n^3 + A * x1n * xd^2
+16. tv2 = B * gxd
+17. gx1 = gx1 + tv2             # x1n^3 + A * x1n * xd^2 + B * xd^3
+18. tv4 = gxd^2
+19. tv2 = tv4 * gxd             # gxd^3
+20. tv4 = tv4^2                 # gxd^4
+21. tv2 = tv2 * gx1             # gx1 * gxd^3
+22. tv4 = tv4 * tv2             # gx1 * gxd^7
+23.   y = tv4^c1                # (gx1 * gxd^7)^((q - 5) / 8)
+24.   y = y * tv2               # This is almost sqrt(gx1)
+25. tv4 = y * c2                # check the two possible sqrts
+26. tv2 = tv4^2
+27. tv2 = tv2 * gxd
+28.  e2 = tv2 == gx1
+29.   y = CMOV(y, tv4, e2)
+30. gx2 = gx1 * tv5
+31. gx2 = gx2 * tv3             # gx2 = gx1 * Z^3 * u^6
+32. tv1 = y * tv1
+33. tv1 = tv1 * u               # This is almost sqrt(gx2)
+34. tv1 = tv1 * c3              # check the two possible sqrts
+35. tv4 = tv1 * c2
+36. tv2 = tv4^2
+37. tv2 = tv2 * gxd
+38.  e3 = tv2 == gx2
+39. tv1 = CMOV(tv1, tv4, e3)
+40. tv2 = y^2
+41. tv2 = tv2 * gxd
+42.  e4 = tv2 == gx1
+43.   y = CMOV(tv1, y, e4)      # choose correct y-coordinate
+44. tv2 = tv3 * x1n             # x2n = x2n / xd = Z * u^2 * x1n / xd
+45.  xn = CMOV(tv2, x1n, e4)    # choose correct x-coordinate
+46.  e5 = sgn0(u) == sgn0(y)    # Fix sign of y
+47.   y = CMOV(-y, y, e5)
+48. return (xn, xd, y, 1)
+~~~
+
+### q = 9 (mod 16) {#sswu-map-to-9mod16}
+
+The following is a straight-line implementation of the Simplified SWU
+mapping that applies to any curve over GF(q) where q = 9 (mod 16).
+This includes the curve isogenous to BLS12-381 G2 ({{suites-bls12381-g2}}).
+
+~~~
+map_to_curve_simple_swu_9mod16(u)
+
+Input: u, an element of F.
+Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
+        point on the target curve.
+
+Constants:
+1. c1 = (q - 9) / 16            # Integer arithmetic
+2. c2 = sqrt(-1)
+3. c3 = sqrt(c2)
+4. c4 = sqrt(Z^3 / c3)
+5. c5 = sqrt(Z^3 / (c2 * c3))
+
+Steps:
+1.  tv1 = u^2
+2.  tv3 = Z * tv1
+3.  tv5 = tv3^2
+4.   xd = tv5 + tv3
+5.  x1n = xd + 1
+6.  x1n = x1n * B
+7.   xd = -A * xd
+8.   e1 = xd == 0
+9.   xd = CMOV(xd, Z * A, e1)   # If xd == 0, set xd = Z * A
+10. tv2 = xd^2
+11. gxd = tv2 * xd              # gxd == xd^3
+12. tv2 = A * tv2
+13. gx1 = x1n^2
+14. gx1 = gx1 + tv2             # x1n^2 + A * xd^2
+15. gx1 = gx1 * x1n             # x1n^3 + A * x1n * xd^2
+16. tv2 = B * gxd
+17. gx1 = gx1 + tv2             # x1n^3 + A * x1n * xd^2 + B * xd^3
+18. tv4 = gxd^2
+19. tv2 = tv4 * gxd             # gxd^3
+20. tv4 = tv4^2                 # gxd^4
+21. tv2 = tv2 * tv4             # gxd^7
+22. tv2 = tv2 * gx1             # gx1 * gxd^7
+23. tv4 = tv4^2                 # gxd^8
+24. tv4 = tv2 * tv4             # gx1 * gxd^15
+25.   y = tv4^c1                # (gx1 * gxd^15)^((q - 9) / 16)
+26.   y = y * tv2               # This is almost sqrt(gx1)
+27. tv4 = y * c2                # check the four possible sqrts
+28. tv2 = tv4^2
+29. tv2 = tv2 * gxd
+30.  e2 = tv2 == gx1
+31.   y = CMOV(y, tv4, e2)
+32. tv4 = y * c3
+33. tv2 = tv4^2
+34. tv2 = tv2 * gxd
+35.  e3 = tv2 == gx1
+36.   y = CMOV(y, tv4, e3)
+37. tv4 = tv4 * c2
+38. tv2 = tv4^2
+39. tv2 = tv2 * gxd
+40.  e4 = tv2 == gx1
+41.   y = CMOV(y, tv4, e4)      # if x1 is square, this is its sqrt
+42. gx2 = gx1 * tv5
+43. gx2 = gx2 * tv3             # gx2 = gx1 * Z^3 * u^6
+44. tv5 = y * tv1
+45. tv5 = tv5 * u               # This is almost sqrt(gx2)
+46. tv1 = tv5 * c4              # check the four possible sqrts
+47. tv4 = tv1 * c2
+48. tv2 = tv4^2
+49. tv2 = tv2 * gxd
+50.  e5 = tv2 == gx2
+51. tv1 = CMOV(tv1, tv4, e5)
+52. tv4 = tv5 * c5
+53. tv2 = tv4^2
+54. tv2 = tv2 * gxd
+55.  e6 = tv2 == gx2
+56. tv1 = CMOV(tv1, tv4, e6)
+57. tv4 = tv4 * c2
+58. tv2 = tv4^2
+59. tv2 = tv2 * gxd
+60.  e7 = tv2 == gx2
+61. tv1 = CMOV(tv1, tv4, e7)
+62. tv2 = y^2
+63. tv2 = tv2 * gxd
+64.  e8 = tv2 == gx1
+65.   y = CMOV(tv1, y, e8)      # choose correct y-coordinate
+66. tv2 = tv3 * x1n             # x2n = x2n / xd = Z * u^2 * x1n / xd
+67.  xn = CMOV(tv2, x1n, e8)    # choose correct x-coordinate
+68.  e9 = sgn0(u) == sgn0(y)    # Fix sign of y
+69.   y = CMOV(-y, y, e9)
+70. return (xn, xd, y, 1)
+~~~
+
+## Elligator 2 {#ell2-opt}
+
+### curve25519 (q = 5 (mod 8), K = 1) {#map-to-curve25519}
 
 The following is a straight-line implementation of Elligator 2
 for curve25519 {{RFC7748}} as specified in {{suites-25519}}.
+
+This implementation can also be used for any Montgomery curve
+with K = 1 over GF(q) where q = 5 (mod 8).
 
 ~~~
 map_to_curve_elligator2_curve25519(u)
@@ -3463,55 +3634,54 @@ Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on curve25519.
 
 Constants:
-1. c1 = (p + 3) / 8           # Integer arithmetic
+1. c1 = (q + 3) / 8           # Integer arithmetic
 2. c2 = 2^c1
 3. c3 = sqrt(-1)
-4. c4 = (p - 5) / 8           # Integer arithmetic
+4. c4 = (q - 5) / 8           # Integer arithmetic
 
 Steps:
 1.  tv1 = u^2
 2.  tv1 = 2 * tv1
 3.   xd = tv1 + 1             # Nonzero: -1 is square (mod p), tv1 is not
-4.  x1n = -486662             # x1 = x1n / xd = -486662 / (1 + 2 * u^2)
+4.  x1n = -J                  # x1 = x1n / xd = -J / (1 + 2 * u^2)
 5.  tv2 = xd^2
 6.  gxd = tv2 * xd            # gxd = xd^3
-7.  gx1 = 486662 * xd         # 486662 * xd
-8.  gx1 = gx1 + x1n           # x1n + 486662 * xd
-9.  gx1 = gx1 * x1n           # x1n^2 + 486662 * x1n * xd
-10. gx1 = gx1 + tv2           # x1n^2 + 486662 * x1n * xd + xd^2
-11. gx1 = gx1 * x1n           # x1n^3 + 486662 * x1n^2 * xd + x1n * xd^2
-12. tv3 = gxd^2
-13. tv2 = tv3^2               # gxd^4
-14. tv3 = tv3 * gxd           # gxd^3
-15. tv3 = tv3 * gx1           # gx1 * gxd^3
-16. tv2 = tv2 * tv3           # gx1 * gxd^7
-17. y11 = tv2^c4              # (gx1 * gxd^7)^((p - 5) / 8)
-18. y11 = y11 * tv3           # gx1 * gxd^3 * (gx1 * gxd^7)^((p - 5) / 8)
-19. y12 = y11 * c3
-20. tv2 = y11^2
-21. tv2 = tv2 * gxd
-22.  e1 = tv2 == gx1
-23.  y1 = CMOV(y12, y11, e1)  # If g(x1) is square, this is its sqrt
-24. x2n = x1n * tv1           # x2 = x2n / xd = 2 * u^2 * x1n / xd
-25. y21 = y11 * u
-26. y21 = y21 * c2
-27. y22 = y21 * c3
-28. gx2 = gx1 * tv1           # g(x2) = gx2 / gxd = 2 * u^2 * g(x1)
-29. tv2 = y21^2
-30. tv2 = tv2 * gxd
-31.  e2 = tv2 == gx2
-32.  y2 = CMOV(y22, y21, e2)  # If g(x2) is square, this is its sqrt
-33. tv2 = y1^2
-34. tv2 = tv2 * gxd
-35.  e3 = tv2 == gx1
-36.  xn = CMOV(x2n, x1n, e3)  # If e3, x = x1, else x = x2
-37.   y = CMOV(y2, y1, e3)    # If e3, y = y1, else y = y2
-38.  e4 = sgn0(u) == sgn0(y)  # Fix sign of y
-39.   y = CMOV(-y, y, e4)
-40. return (xn, xd, y, 1)
+7.  gx1 = J * tv1             # x1n + J * xd
+8.  gx1 = gx1 * x1n           # x1n^2 + J * x1n * xd
+9.  gx1 = gx1 + tv2           # x1n^2 + J * x1n * xd + xd^2
+10. gx1 = gx1 * x1n           # x1n^3 + J * x1n^2 * xd + x1n * xd^2
+11. tv3 = gxd^2
+12. tv2 = tv3^2               # gxd^4
+13. tv3 = tv3 * gxd           # gxd^3
+14. tv3 = tv3 * gx1           # gx1 * gxd^3
+15. tv2 = tv2 * tv3           # gx1 * gxd^7
+16. y11 = tv2^c4              # (gx1 * gxd^7)^((p - 5) / 8)
+17. y11 = y11 * tv3           # gx1 * gxd^3 * (gx1 * gxd^7)^((p - 5) / 8)
+18. y12 = y11 * c3
+19. tv2 = y11^2
+20. tv2 = tv2 * gxd
+21.  e1 = tv2 == gx1
+22.  y1 = CMOV(y12, y11, e1)  # If g(x1) is square, this is its sqrt
+23. x2n = x1n * tv1           # x2 = x2n / xd = 2 * u^2 * x1n / xd
+24. y21 = y11 * u
+25. y21 = y21 * c2
+26. y22 = y21 * c3
+27. gx2 = gx1 * tv1           # g(x2) = gx2 / gxd = 2 * u^2 * g(x1)
+28. tv2 = y21^2
+29. tv2 = tv2 * gxd
+30.  e2 = tv2 == gx2
+31.  y2 = CMOV(y22, y21, e2)  # If g(x2) is square, this is its sqrt
+32. tv2 = y1^2
+33. tv2 = tv2 * gxd
+34.  e3 = tv2 == gx1
+35.  xn = CMOV(x2n, x1n, e3)  # If e3, x = x1, else x = x2
+36.   y = CMOV(y2, y1, e3)    # If e3, y = y1, else y = y2
+37.  e4 = sgn0(u) == sgn0(y)  # Fix sign of y
+38.   y = CMOV(-y, y, e4)
+39. return (xn, xd, y, 1)
 ~~~
 
-## edwards25519 (Elligator 2) {#map-to-edwards25519}
+### edwards25519 {#map-to-edwards25519}
 
 The following is a straight-line implementation of Elligator 2
 for edwards25519 {{RFC7748}} as specified in {{suites-25519}}.
@@ -3544,10 +3714,13 @@ Steps:
 13. return (xn, xd, yn, yd)
 ~~~
 
-## curve448 (Elligator 2) {#map-to-curve448}
+### curve448 (q = 3 (mod 4), K = 1) {#map-to-curve448}
 
 The following is a straight-line implementation of Elligator 2
 for curve448 {{RFC7748}} as specified in {{suites-448}}.
+
+This implementation can also be used for any Montgomery curve
+with K = 1 over GF(q) where q = 3 (mod 4).
 
 ~~~
 map_to_curve_elligator2_curve448(u)
@@ -3557,40 +3730,39 @@ Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on curve448.
 
 Constants:
-1. c1 = (p - 3) / 4           # Integer arithmetic
+1. c1 = (q - 3) / 4           # Integer arithmetic
 
 Steps:
 1.  tv1 = u^2
 2.   e1 = tv1 == 1
 3.  tv1 = CMOV(tv1, 0, e1)    # If Z * u^2 == -1, set tv1 = 0
 4.   xd = 1 - tv1
-5.  x1n = -156326
+5.  x1n = -J
 6.  tv2 = xd^2
 7.  gxd = tv2 * xd            # gxd = xd^3
-8.  gx1 = 156326 * xd         # 156326 * xd
-9.  gx1 = gx1 + x1n           # x1n + 156326 * xd
-10. gx1 = gx1 * x1n           # x1n^2 + 156326 * x1n * xd
-11. gx1 = gx1 + tv2           # x1n^2 + 156326 * x1n * xd + xd^2
-12. gx1 = gx1 * x1n           # x1n^3 + 156326 * x1n^2 * xd + x1n * xd^2
-13. tv3 = gxd^2
-14. tv2 = gx1 * gxd           # gx1 * gxd
-15. tv3 = tv3 * tv2           # gx1 * gxd^3
-16.  y1 = tv3^c1              # (gx1 * gxd^3)^((p - 3) / 4)
-17.  y1 = y1 * tv2            # gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
-18. x2n = -tv1 * x1n          # x2 = x2n / xd = -1 * u^2 * x1n / xd
-19.  y2 = y1 * u
-20.  y2 = CMOV(y2, 0, e1)
-21. tv2 = y1^2
-22. tv2 = tv2 * gxd
-23.  e2 = tv2 == gx1
-24.  xn = CMOV(x2n, x1n, e2)  # If e2, x = x1, else x = x2
-25.   y = CMOV(y2, y1, e2)    # If e2, y = y1, else y = y2
-26.  e3 = sgn0(u) == sgn0(y)  # Fix sign of y
-27.   y = CMOV(-y, y, e3)
-28. return (xn, xd, y, 1)
+8.  gx1 = -J * tv1            # x1n + J * xd
+9.  gx1 = gx1 * x1n           # x1n^2 + J * x1n * xd
+10. gx1 = gx1 + tv2           # x1n^2 + J * x1n * xd + xd^2
+11. gx1 = gx1 * x1n           # x1n^3 + J * x1n^2 * xd + x1n * xd^2
+12. tv3 = gxd^2
+13. tv2 = gx1 * gxd           # gx1 * gxd
+14. tv3 = tv3 * tv2           # gx1 * gxd^3
+15.  y1 = tv3^c1              # (gx1 * gxd^3)^((p - 3) / 4)
+16.  y1 = y1 * tv2            # gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
+17. x2n = -tv1 * x1n          # x2 = x2n / xd = -1 * u^2 * x1n / xd
+18.  y2 = y1 * u
+19.  y2 = CMOV(y2, 0, e1)
+20. tv2 = y1^2
+21. tv2 = tv2 * gxd
+22.  e2 = tv2 == gx1
+23.  xn = CMOV(x2n, x1n, e2)  # If e2, x = x1, else x = x2
+24.   y = CMOV(y2, y1, e2)    # If e2, y = y1, else y = y2
+25.  e3 = sgn0(u) == sgn0(y)  # Fix sign of y
+26.   y = CMOV(-y, y, e3)
+27. return (xn, xd, y, 1)
 ~~~
 
-## edwards448 (Elligator 2) {#map-to-edwards448}
+### edwards448 {#map-to-edwards448}
 
 The following is a straight-line implementation of Elligator 2
 for edwards448 {{RFC7748}} as specified in {{suites-448}}.
@@ -3643,6 +3815,131 @@ Steps:
 36. yEn = CMOV(yEn, 1, e)
 37. yEd = CMOV(yEd, 1, e)
 38. return (xEn, xEd, yEn, yEd)
+~~~
+
+### q = 3 (mod 4) {#ell2-map-to-3mod4}
+
+The following is a straight-line implementation of Elligator 2
+that applies to any curve over GF(q) where q = 3 (mod 4).
+
+For curves where K = 1, the implementation given in {{map-to-curve448}}
+gives identical results with slightly reduced cost.
+
+~~~
+map_to_curve_elligator2_3mod4(u)
+
+Input: u, an element of F.
+Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
+        point on the target curve.
+
+Constants:
+1. c1 = (q - 3) / 4           # Integer arithmetic
+2. c2 = K^2
+
+Steps:
+1.  tv1 = u^2
+2.   e1 = tv1 == 1
+3.  tv1 = CMOV(tv1, 0, e1)    # If Z * u^2 == -1, set tv1 = 0
+4.   xd = 1 - tv1
+5.   xd = xd * K
+6.  x1n = -J                  # x1 = x1n / xd = -J / (K * (1 + 2 * u^2))
+7.  tv2 = xd^2
+8.  gxd = tv2 * xd
+9.  gxd = gxd * c2            # gxd = xd^3 * K^2
+10. gx1 = x1n * K
+11. tv3 = xd * J
+12. tv3 = gx1 + tv3           # x1n * K + xd * J
+13. gx1 = gx1 * tv3           # K^2 * x1n^2 + J * K * x1n * xd
+14. gx1 = gx1 + tv2           # K^2 * x1n^2 + J * K * x1n * xd + xd^2
+15. gx1 = gx1 * x1n           # K^2 * x1n^3 + J * K * x1n^2 * xd + x1n * xd^2
+16. tv3 = gxd^2
+17. tv2 = gx1 * gxd           # gx1 * gxd
+18. tv3 = tv3 * tv2           # gx1 * gxd^3
+19.  y1 = tv3^c1              # (gx1 * gxd^3)^((q - 3) / 4)
+20.  y1 = y1 * tv2            # gx1 * gxd * (gx1 * gxd^3)^((q - 3) / 4)
+21. x2n = -tv1 * x1n          # x2 = x2n / xd = -1 * u^2 * x1n / xd
+22.  y2 = y1 * u
+23.  y2 = CMOV(y2, 0, e1)
+24. tv2 = y1^2
+25. tv2 = tv2 * gxd
+26.  e2 = tv2 == gx1
+27.  xn = CMOV(x2n, x1n, e2)  # If e2, x = x1, else x = x2
+28.  xn = xn * K
+29.   y = CMOV(y2, y1, e2)    # If e2, y = y1, else y = y2
+30.   y = y * K
+31.  e3 = sgn0(u) == sgn0(y)  # Fix sign of y
+32.   y = CMOV(-y, y, e3)
+33. return (xn, xd, y, 1)
+~~~
+
+### q = 5 (mod 8) {#ell2-map-to-5mod8}
+
+The following is a straight-line implementation of Elligator 2
+that applies to any curve over GF(q) where q = 5 (mod 8).
+
+For curves where K = 1, the implementation given in {{map-to-curve25519}}
+gives identical results with slightly reduced cost.
+
+~~~
+map_to_curve_elligator2_5mod8(u)
+
+Input: u, an element of F.
+Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
+        point on the target curve.
+
+Constants:
+1. c1 = (q + 3) / 8           # Integer arithmetic
+2. c2 = 2^c1
+3. c3 = sqrt(-1)
+4. c4 = (q - 5) / 8           # Integer arithmetic
+5. c5 = K^2
+
+Steps:
+1.  tv1 = u^2
+2.  tv1 = 2 * tv1
+3.   xd = tv1 + 1             # Nonzero: -1 is square (mod p), tv1 is not
+4.   xd = xd * K
+5.  x1n = -J                  # x1 = x1n / xd = -J / (K * (1 + 2 * u^2))
+6.  tv2 = xd^2
+7.  gxd = tv2 * xd
+8.  gxd = gxd * c5            # gxd = xd^3 * K^2
+9.  gx1 = x1n * K
+10. tv3 = xd * J
+11. tv3 = gx1 + tv3           # x1n * K + xd * J
+12. gx1 = gx1 * tv3           # K^2 * x1n^2 + J * K * x1n * xd
+13. gx1 = gx1 + tv2           # K^2 * x1n^2 + J * K * x1n * xd + xd^2
+14. gx1 = gx1 * x1n           # K^2 * x1n^3 + J * K * x1n^2 * xd + x1n * xd^2
+15. tv3 = gxd^2
+16. tv2 = tv3^2               # gxd^4
+17. tv3 = tv3 * gxd           # gxd^3
+18. tv3 = tv3 * gx1           # gx1 * gxd^3
+19. tv2 = tv2 * tv3           # gx1 * gxd^7
+20. y11 = tv2^c4              # (gx1 * gxd^7)^((q - 5) / 8)
+21. y11 = y11 * tv3           # gx1 * gxd^3 * (gx1 * gxd^7)^((q - 5) / 8)
+22. y12 = y11 * c3
+23. tv2 = y11^2
+24. tv2 = tv2 * gxd
+25.  e1 = tv2 == gx1
+26.  y1 = CMOV(y12, y11, e1)  # If g(x1) is square, this is its sqrt
+27. x2n = x1n * tv1           # x2 = x2n / xd = 2 * u^2 * x1n / xd
+28. y21 = y11 * u
+29. y21 = y21 * c2
+30. y22 = y21 * c3
+31. gx2 = gx1 * tv1           # g(x2) = gx2 / gxd = 2 * u^2 * g(x1)
+32. tv2 = y21^2
+33. tv2 = tv2 * gxd
+34.  e2 = tv2 == gx2
+35.  y2 = CMOV(y22, y21, e2)  # If g(x2) is square, this is its sqrt
+36. tv2 = y1^2
+37. tv2 = tv2 * gxd
+38.  e3 = tv2 == gx1
+39.  xn = CMOV(x2n, x1n, e3)  # If e3, x = x1, else x = x2
+40.  xn = xn * K
+41.   y = CMOV(y2, y1, e3)    # If e3, y = y1, else y = y2
+42.   y = y * K
+43.  e4 = sgn0(u) == sgn0(y)  # Fix sign of y
+44.   y = CMOV(-y, y, e4)
+45. return (xn, xd, y, 1)
 ~~~
 
 ## Cofactor Clearing for BLS12-381 G2 {#clear-cofactor-bls12381-g2}
