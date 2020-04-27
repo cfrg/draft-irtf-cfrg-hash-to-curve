@@ -45,11 +45,11 @@ author:
  -
     ins: C. A. Wood
     name: Christopher A. Wood
-    org: Apple Inc.
-    street: One Apple Park Way
-    city: Cupertino, California 95014
+    org: Cloudflare
+    street: 101 Townsend St
+    city: San Francisco
     country: United States of America
-    email: cawood@apple.com
+    email: caw@heapingbits.net
 
 normative:
   RFC2119:
