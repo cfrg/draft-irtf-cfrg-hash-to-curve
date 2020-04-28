@@ -1287,7 +1287,7 @@ Reasonable choices of tags for the E1 and E2 oracles are
 "BAZ-V\<xx\>-CS\<yy\>-E1" and "BAZ-V\<xx\>-CS\<yy\>-E2", respectively,
 where \<xx\> and \<yy\> are as described above.
 
-# Utility Functions {#utility}
+# Utility functions {#utility}
 
 Algorithms in this document make use of utility functions described below.
 
@@ -1435,7 +1435,7 @@ Steps:
 4. return sign_0 OR (zero_0 AND sign_1)
 ~~~
 
-# Hashing to a Finite Field {#hashtofield}
+# Hashing to a finite field {#hashtofield}
 
 The hash\_to\_field function hashes a byte string msg of any length into
 one or more elements of a field F.
@@ -1727,7 +1727,7 @@ In addition, an expand\_message variant MUST specify a unique EXP\_TAG
 that identifies that variant in a Suite ID.
 See {{suiteIDformat}} for more information.
 
-# Deterministic Mappings {#mappings}
+# Deterministic mappings {#mappings}
 
 The mappings in this section are suitable for constructing either nonuniform
 or random oracle encodings using the constructions of {{roadmap}}.
@@ -1834,7 +1834,7 @@ The mappings in this section apply to a target curve E defined by the equation
 
 where 4 * A^3 + 27 * B^2 != 0.
 
-### Shallue-van de Woestijne Method {#svdw}
+### Shallue-van de Woestijne method {#svdw}
 
 Shallue and van de Woestijne {{SW06}} describe a mapping that applies to
 essentially any elliptic curve.
@@ -1947,7 +1947,7 @@ Steps:
 36. return (x, y)
 ~~~
 
-### Simplified Shallue-van de Woestijne-Ulas Method {#simple-swu}
+### Simplified Shallue-van de Woestijne-Ulas method {#simple-swu}
 
 The function map\_to\_curve\_simple\_swu(u) implements a simplification
 of the Shallue-van de Woestijne-Ulas mapping {{U07}} described by Brier et
@@ -2099,7 +2099,7 @@ The mapping defined in this section applies to a target curve M defined by the e
     K * t^2 = s^3 + J * s^2 + s
 ~~~
 
-### Elligator 2 Method {#elligator2}
+### Elligator 2 method {#elligator2}
 
 Preconditions: A Montgomery curve K * t^2 = s^3 + J * s^2 + s where
 J != 0, K != 0, and (J^2 - 4) / K^2 is non-zero and non-square in F.
@@ -2175,7 +2175,7 @@ Steps:
 22. return (s, t)
 ~~~
 
-## Mappings for Twisted Edwards curves {#twisted-edwards}
+## Mappings for twisted Edwards curves {#twisted-edwards}
 
 Twisted Edwards curves (a class of curves that includes Edwards curves)
 are given by the equation
@@ -2224,7 +2224,7 @@ with existing software.
 Montgomery form or rational map, the map given in {{appx-rational-map}}
 SHOULD be used.
 
-### Elligator 2 Method {#ell2edwards}
+### Elligator 2 method {#ell2edwards}
 
 Preconditions: A twisted Edwards curve E and an equivalent Montgomery
 curve M meeting the requirements in {{rational-map}}.
@@ -2308,7 +2308,7 @@ by the equivalent h\_eff; these two methods give the same result.
 Note that in this case scalar multiplication by the cofactor h does not
 generally give the same result as the fast method, and SHOULD NOT be used.
 
-# Suites for Hashing {#suites}
+# Suites for hashing {#suites}
 
 This section lists recommended suites for hashing to standard elliptic curves.
 
@@ -2801,11 +2801,11 @@ Suite ID fields MUST be chosen as follows:
     version of a random-oracle suite, while "RO:V02:FOO01:BAR17" might be
     used to indicate a variant of that suite.
 
-# IANA Considerations
+# IANA considerations
 
 This document has no IANA actions.
 
-# Security Considerations {#security-considerations}
+# Security considerations {#security-considerations}
 
 When constant-time implementations are required, all basic operations and
 utility functions must be implemented in constant time, as discussed in
@@ -2911,7 +2911,7 @@ This approach increases the Hamming distance between inputs to different
 invocations of H, which reduces the likelihood that nonidealities in H
 affect the distribution of the b\_i values.
 
-## Target Security Levels {#security-considerations-targets}
+## Target security levels {#security-considerations-targets}
 
 Each ciphersuite specifies a target security level (in bits) for the underlying
 curve. This parameter ensures the corresponding hash\_to\_field instantiation is
@@ -2943,7 +2943,7 @@ Andy Polyakov, Leonid Reyzin, Michael Scott, and Mathy Vanhoef for helpful feedb
 --- back
 
 
-# Related Work {#related}
+# Related work {#related}
 
 The problem of mapping arbitrary bit strings to elliptic curve points
 has been the subject of both practical and theoretical research.
@@ -3166,7 +3166,11 @@ The inverse map, from the point (x, y) to the point (s, t), is given by
 - s = (3 * K * x - J) / 3
 - t = y * K
 
-# Isogeny maps for Suites {#appx-iso}
+This mapping can be used to apply the Shallue-van de Woestijne
+({{svdw}}) or Simplified SWU ({{simple-swu}}) method to
+Montgomery curves.
+
+# Isogeny maps for suites {#appx-iso}
 
 This section specifies the isogeny maps for the secp256k1 and BLS12-381
 suites listed in {{suites}}.
@@ -3332,7 +3336,7 @@ The constants used to compute y\_den are as follows:
 - k\_(4,1) = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffa9d3 * I
 - k\_(4,2) = 0x12 + 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaa99 * I
 
-# Sample Code {#samplecode}
+# Optimized sample code {#samplecode}
 
 This section gives sample implementations optimized for some of the
 elliptic curves listed in {{suites}}.
@@ -3932,7 +3936,7 @@ Steps:
 45. return (xn, xd, y, 1)
 ~~~
 
-## Cofactor Clearing for BLS12-381 G2 {#clear-cofactor-bls12381-g2}
+## Cofactor clearing for BLS12-381 G2 {#clear-cofactor-bls12381-g2}
 
 The curve BLS12-381, whose parameters are defined in {{suites-bls12381-g2}},
 admits an efficiently-computable endomorphism psi that can be used to
@@ -4040,7 +4044,7 @@ Steps:
 
 This section gives Sage {{SAGE}} scripts used to generate parameters for the mappings of {{mappings}}.
 
-## Finding Z for the Shallue and van de Woestijne map {#svdw-z-code}
+## Finding Z for the Shallue-van de Woestijne map {#svdw-z-code}
 
 The below function outputs an appropriate Z for the Shallue and van de Woestijne map ({{svdw}}).
 
