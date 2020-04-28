@@ -1891,61 +1891,8 @@ Operations:
 15. return (x, y)
 ~~~
 
-#### Implementation
-
-The following procedure implements the Shallue and van de Woestijne method in a
-straight-line fashion.
-
-~~~
-map_to_curve_svdw(u)
-
-Input: u, an element of F.
-Output: (x, y), a point on E.
-
-Constants:
-1. c1 = g(Z)
-2. c2 = -Z / 2
-3. c3 = sqrt(-g(Z) * (3 * Z^2 + 4 * A))     # sgn0(c3) MUST equal 0
-4. c4 = -4 * g(Z) / (3 * Z^2 + 4 * A)
-
-Steps:
-1.  tv1 = u^2
-2.  tv1 = tv1 * c1
-3.  tv2 = 1 + tv1
-4.  tv1 = 1 - tv1
-5.  tv3 = tv1 * tv2
-6.  tv3 = inv0(tv3)
-7.  tv4 = u * tv1
-8.  tv4 = tv4 * tv3
-9.  tv4 = tv4 * c3
-10.  x1 = c2 - tv4
-11. gx1 = x1^2
-12. gx1 = gx1 + A
-13. gx1 = gx1 * x1
-14. gx1 = gx1 + B
-15.  e1 = is_square(gx1)
-16.  x2 = c2 + tv4
-17. gx2 = x2^2
-18. gx2 = gx2 + A
-19. gx2 = gx2 * x2
-20. gx2 = gx2 + B
-21.  e2 = is_square(gx2) AND NOT e1     # Avoid short-circuit logic ops
-22.  x3 = tv2^2
-23.  x3 = x3 * tv3
-24.  x3 = x3^2
-25.  x3 = x3 * c4
-26.  x3 = x3 + Z
-27.   x = CMOV(x3, x1, e1)      # x = x1 if gx1 is square, else x = x3
-28.   x = CMOV(x, x2, e2)       # x = x2 if gx2 is square and gx1 is not
-29.  gx = x^2
-30.  gx = gx + A
-31.  gx = gx * x
-32.  gx = gx + B
-33.   y = sqrt(gx)
-34.  e3 = sgn0(u) == sgn0(y)
-35.   y = CMOV(-y, y, e3)       # Select correct sign of y
-36. return (x, y)
-~~~
+{{straightline-svdw}} gives an example straight-line implementation of this
+mapping.
 
 ### Simplified Shallue-van de Woestijne-Ulas method {#simple-swu}
 
@@ -1992,47 +1939,12 @@ Operations:
 10. return (x, y)
 ~~~
 
-#### Implementation
-
-The following procedure implements the simplified SWU mapping in a straight-line fashion.
-{{sswu-opt}} gives optimized straight-line procedures that apply to many curves.
+{{straightline-sswu}} gives an example straight-line implementation of this
+mapping.
+{{sswu-opt}} gives optimized straight-line procedures that apply to specific
+classes of curves and base fields.
 For more information on optimizing this mapping, see
 {{WB19}} Section 4 or the example code found at {{hash2curve-repo}}.
-
-~~~
-map_to_curve_simple_swu(u)
-
-Input: u, an element of F.
-Output: (x, y), a point on E.
-
-Constants:
-1.  c1 = -B / A
-2.  c2 = -1 / Z
-
-Steps:
-1.  tv1 = Z * u^2
-2.  tv2 = tv1^2
-3.   x1 = tv1 + tv2
-4.   x1 = inv0(x1)
-5.   e1 = x1 == 0
-6.   x1 = x1 + 1
-7.   x1 = CMOV(x1, c2, e1)    # If (tv1 + tv2) == 0, set x1 = -1 / Z
-8.   x1 = x1 * c1      # x1 = (-B / A) * (1 + (1 / (Z^2 * u^4 + Z * u^2)))
-9.  gx1 = x1^2
-10. gx1 = gx1 + A
-11. gx1 = gx1 * x1
-12. gx1 = gx1 + B             # gx1 = g(x1) = x1^3 + A * x1 + B
-13.  x2 = tv1 * x1            # x2 = Z * u^2 * x1
-14. tv2 = tv1 * tv2
-15. gx2 = gx1 * tv2           # gx2 = (Z * u^2)^3 * gx1
-16.  e2 = is_square(gx1)
-17.   x = CMOV(x2, x1, e2)    # If is_square(gx1), x = x1, else x = x2
-18.  y2 = CMOV(gx2, gx1, e2)  # If is_square(gx1), y2 = gx1, else y2 = gx2
-19.   y = sqrt(y2)
-20.  e3 = sgn0(u) == sgn0(y)  # Fix sign of y
-21.   y = CMOV(-y, y, e3)
-22. return (x, y)
-~~~
 
 ### Simplified SWU for AB == 0 {#simple-swu-AB0}
 
@@ -2089,7 +2001,7 @@ Operations:
 3. return (x, y)
 ~~~
 
-See {{hash2curve-repo}} or {{WB19}}, Section 4.3 for details on implementing the isogeny map.
+See {{hash2curve-repo}} or {{WB19}} Section 4.3 for details on implementing the isogeny map.
 
 ## Mappings for Montgomery curves {#montgomery}
 
@@ -2134,46 +2046,10 @@ Operations:
 11. return (s, t)
 ~~~
 
-#### Implementation
-
-The following procedure implements Elligator 2 in a straight-line fashion.
-{{ell2-opt}} gives optimized straight-line procedures that apply to many curves,
-including curve25519 and curve448 {{RFC7748}}.
-
-~~~
-map_to_curve_elligator2(u)
-
-Input: u, an element of F.
-Output: (s, t), a point on M.
-
-Constants:
-1.   c1 = J / K
-2.   c2 = 1 / K^2
-
-Steps:
-1.  tv1 = u^2
-2.  tv1 = Z * tv1             # Z * u^2
-3.   e1 = tv1 == -1           # exceptional case: Z * u^2 == -1
-4.  tv1 = CMOV(tv1, 0, e1)    # if tv1 == -1, set tv1 = 0
-5.   x1 = tv1 + 1
-6.   x1 = inv0(x1)
-7.   x1 = -c1 * x1             # x1 = -(J / K) / (1 + Z * u^2)
-8.  gx1 = x1 + c1
-9.  gx1 = gx1 * x1
-10. gx1 = gx1 + c2
-11. gx1 = gx1 * x1            # gx1 = x1^3 + (J / K) * x1^2 + x1 / K^2
-12.  x2 = -x1 - c1
-13. gx2 = tv1 * gx1
-14.  e2 = is_square(gx1)
-15.   x = CMOV(x2, x1, e2)    # If is_square(gx1), x = x1, else x = x2
-16.  y2 = CMOV(gx2, gx1, e2)  # If is_square(gx1), y2 = gx1, else y2 = gx2
-17.   y = sqrt(y2)
-18.   s = x * K
-19.   t = y * K
-20.  e3 = sgn0(u) == sgn0(t)  # Fix sign of t
-21.   t = CMOV(-t, t, e3)
-22. return (s, t)
-~~~
+{{straightline-ell2}} gives an example straight-line implementation of this
+mapping.
+{{ell2-opt}} gives optimized straight-line procedures that apply to specific
+classes of curves and base fields.
 
 ## Mappings for twisted Edwards curves {#twisted-edwards}
 
@@ -3335,6 +3211,161 @@ The constants used to compute y\_den are as follows:
 - k\_(4,0) = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffa8fb + 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffa8fb * I
 - k\_(4,1) = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffa9d3 * I
 - k\_(4,2) = 0x12 + 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaa99 * I
+
+
+# Straight-line implementations of deterministic mappings {#straightline}
+
+This section gives straight-line implementations of the mappings of {{mappings}}.
+These implementations are generic, i.e., they are defined for any curve and field.
+{{samplecode}} gives example implementations that are optimized for specific
+classes of curves and fields.
+
+## Shallue-van de Woestijne method {#straightline-svdw}
+
+This section gives a straight-line implementation of the Shallue and van
+de Woestijne method for any Weierstrass curve of the form given in
+{{weierstrass}}.
+See {{svdw}} for information on the constants used in this mapping.
+
+~~~
+map_to_curve_svdw(u)
+
+Input: u, an element of F.
+Output: (x, y), a point on E.
+
+Constants:
+1. c1 = g(Z)
+2. c2 = -Z / 2
+3. c3 = sqrt(-g(Z) * (3 * Z^2 + 4 * A))     # sgn0(c3) MUST equal 0
+4. c4 = -4 * g(Z) / (3 * Z^2 + 4 * A)
+
+Steps:
+1.  tv1 = u^2
+2.  tv1 = tv1 * c1
+3.  tv2 = 1 + tv1
+4.  tv1 = 1 - tv1
+5.  tv3 = tv1 * tv2
+6.  tv3 = inv0(tv3)
+7.  tv4 = u * tv1
+8.  tv4 = tv4 * tv3
+9.  tv4 = tv4 * c3
+10.  x1 = c2 - tv4
+11. gx1 = x1^2
+12. gx1 = gx1 + A
+13. gx1 = gx1 * x1
+14. gx1 = gx1 + B
+15.  e1 = is_square(gx1)
+16.  x2 = c2 + tv4
+17. gx2 = x2^2
+18. gx2 = gx2 + A
+19. gx2 = gx2 * x2
+20. gx2 = gx2 + B
+21.  e2 = is_square(gx2) AND NOT e1     # Avoid short-circuit logic ops
+22.  x3 = tv2^2
+23.  x3 = x3 * tv3
+24.  x3 = x3^2
+25.  x3 = x3 * c4
+26.  x3 = x3 + Z
+27.   x = CMOV(x3, x1, e1)      # x = x1 if gx1 is square, else x = x3
+28.   x = CMOV(x, x2, e2)       # x = x2 if gx2 is square and gx1 is not
+29.  gx = x^2
+30.  gx = gx + A
+31.  gx = gx * x
+32.  gx = gx + B
+33.   y = sqrt(gx)
+34.  e3 = sgn0(u) == sgn0(y)
+35.   y = CMOV(-y, y, e3)       # Select correct sign of y
+36. return (x, y)
+~~~
+
+## Simplified SWU method {#straightline-sswu}
+
+This section gives a straight-line implementation of the simplified
+SWU method for any Weierstrass curve of the form given in {{weierstrass}}.
+See {{simple-swu}} for information on the constants used in this mapping.
+
+{{sswu-opt}} gives optimized straight-line procedures that apply to specific
+classes of curves and base fields.
+
+~~~
+map_to_curve_simple_swu(u)
+
+Input: u, an element of F.
+Output: (x, y), a point on E.
+
+Constants:
+1.  c1 = -B / A
+2.  c2 = -1 / Z
+
+Steps:
+1.  tv1 = Z * u^2
+2.  tv2 = tv1^2
+3.   x1 = tv1 + tv2
+4.   x1 = inv0(x1)
+5.   e1 = x1 == 0
+6.   x1 = x1 + 1
+7.   x1 = CMOV(x1, c2, e1)    # If (tv1 + tv2) == 0, set x1 = -1 / Z
+8.   x1 = x1 * c1      # x1 = (-B / A) * (1 + (1 / (Z^2 * u^4 + Z * u^2)))
+9.  gx1 = x1^2
+10. gx1 = gx1 + A
+11. gx1 = gx1 * x1
+12. gx1 = gx1 + B             # gx1 = g(x1) = x1^3 + A * x1 + B
+13.  x2 = tv1 * x1            # x2 = Z * u^2 * x1
+14. tv2 = tv1 * tv2
+15. gx2 = gx1 * tv2           # gx2 = (Z * u^2)^3 * gx1
+16.  e2 = is_square(gx1)
+17.   x = CMOV(x2, x1, e2)    # If is_square(gx1), x = x1, else x = x2
+18.  y2 = CMOV(gx2, gx1, e2)  # If is_square(gx1), y2 = gx1, else y2 = gx2
+19.   y = sqrt(y2)
+20.  e3 = sgn0(u) == sgn0(y)  # Fix sign of y
+21.   y = CMOV(-y, y, e3)
+22. return (x, y)
+~~~
+
+## Elligator 2 method {#straightline-ell2}
+
+This section gives a straight-line implementation of the Elligator 2
+method for any Montgomery curve of the form given in {{montgomery}}.
+See {{elligator2}} for information on the constants used in this mapping.
+
+{{ell2-opt}} gives optimized straight-line procedures that apply to specific
+classes of curves and base fields, including curve25519 and curve448 {{RFC7748}}.
+
+~~~
+map_to_curve_elligator2(u)
+
+Input: u, an element of F.
+Output: (s, t), a point on M.
+
+Constants:
+1.   c1 = J / K
+2.   c2 = 1 / K^2
+
+Steps:
+1.  tv1 = u^2
+2.  tv1 = Z * tv1             # Z * u^2
+3.   e1 = tv1 == -1           # exceptional case: Z * u^2 == -1
+4.  tv1 = CMOV(tv1, 0, e1)    # if tv1 == -1, set tv1 = 0
+5.   x1 = tv1 + 1
+6.   x1 = inv0(x1)
+7.   x1 = -c1 * x1             # x1 = -(J / K) / (1 + Z * u^2)
+8.  gx1 = x1 + c1
+9.  gx1 = gx1 * x1
+10. gx1 = gx1 + c2
+11. gx1 = gx1 * x1            # gx1 = x1^3 + (J / K) * x1^2 + x1 / K^2
+12.  x2 = -x1 - c1
+13. gx2 = tv1 * gx1
+14.  e2 = is_square(gx1)
+15.   x = CMOV(x2, x1, e2)    # If is_square(gx1), x = x1, else x = x2
+16.  y2 = CMOV(gx2, gx1, e2)  # If is_square(gx1), y2 = gx1, else y2 = gx2
+17.   y = sqrt(y2)
+18.   s = x * K
+19.   t = y * K
+20.  e3 = sgn0(u) == sgn0(t)  # Fix sign of t
+21.   t = CMOV(-t, t, e3)
+22. return (s, t)
+~~~
+
 
 # Optimized sample code {#samplecode}
 
