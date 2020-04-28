@@ -2221,7 +2221,7 @@ with existing software.
     explicitly.
 
 2. When hashing to a twisted Edwards curve that does not have a standardized
-Montgomery form or rational map, one of the maps given in {{appx-rational-map}}
+Montgomery form or rational map, the map given in {{appx-rational-map}}
 SHOULD be used.
 
 ### Elligator 2 Method {#ell2edwards}
@@ -3036,13 +3036,13 @@ This document does not deal with this complementary problem.
 This section gives rational maps that can be used when hashing to
 twisted Edwards or Montgomery curves.
 
-Starting from a given twisted Edwards curve, {{appx-rational-map-edw}} and
-{{appx-rational-map-edw-opt}} show how to derive a corresponding Montgomery
+Given a twisted Edwards curve, {{appx-rational-map-edw}}
+shows how to derive a corresponding Montgomery
 curve and how to map from that curve to the twisted Edwards curve.
-Either of these mappings may be used when hashing to twisted Edwards curves
+This mapping may be used when hashing to twisted Edwards curves
 as described in {{twisted-edwards}}.
 
-Starting from a given Montgomery curve, {{appx-rational-map-mont}} shows
+Given a Montgomery curve, {{appx-rational-map-mont}} shows
 how to derive a corresponding Weierstrass curve and how to map from that
 curve to the Montgomery curve.
 This mapping can be used to hash to Montgomery or twisted Edwards curves
@@ -3052,18 +3052,17 @@ method, as follows:
 - For Montgomery curves, first map to the Weierstrass curve, then convert
 to Montgomery coordinates via the mapping.
 
-- For twisted Edwards curves, compose the Weierstrass to Montgomery mapping with
-either of the Montgomery to twisted Edwards mappings to obtain a Weierstrass
-curve and a mapping to the target twisted Edwards curve.
-Map to this Weierstrass curve, then use the mapping to convert to Edwards
-coordinates.
+- For twisted Edwards curves, compose the Weierstrass to Montgomery mapping
+with the Montgomery to twisted Edwards mapping
+({{appx-rational-map-edw}}) to obtain a Weierstrass curve and a mapping
+to the target twisted Edwards curve.
+Map to this Weierstrass curve, then convert to Edwards coordinates
+via the mapping.
 
 ## Generic Montgomery to twisted Edwards map {#appx-rational-map-edw}
 
 This section gives a generic birational map between twisted Edwards
 and Montgomery curves.
-{{appx-rational-map-edw-opt}} gives a slightly optimized map that
-applies only to certain curves.
 
 The map in this section is a simplified version of the map given in
 {{BBJLP08}}, Theorem 3.2.
@@ -3140,67 +3139,6 @@ The mapping is undefined when v == 0 or w == 1.
 When the goal is to map into the prime-order subgroup of the Montgomery
 curve, it suffices to return the identity point on the Montgomery curve
 in the exceptional cases.
-
-## Optimized Montgomery to twisted Edwards map {#appx-rational-map-edw-opt}
-
-This section gives a mapping between certain twisted Edwards curves
-and a simpler Montgomery curve.
-The definitions of all constants in this section are as given in
-{{appx-rational-map-edw}}.
-
-When 4 / (a - d) is square in F, the twisted Edwards curve
-
-~~~
-    a * v^2 + w^2 = 1 + d * v^2 * w^2
-~~~
-
-is birationally equiavlent to the Montgomery curve
-
-~~~
-    t^2 = s^3 + J * s^2 + s
-~~~
-
-The rational map from the point (s, t) on the above Montgomery curve
-to the point (v, w) on the twisted Edwards curve is given by
-
-- v = sqrt(K) * s / t
-- w = (s - 1) / (s + 1)
-
-The constant sqrt(K) MUST be chosen such that sgn0(sqrt(K)) == 0.
-
-As in {{appx-rational-map-edw}}, this mapping is undefined when
-t == 0 or s == -1; implementations MUST detect exceptional cases
-and return the value (v, w) = (0, 1).
-
-The following straight-line implementation of the above rational map
-handles the exceptional cases.
-The function edw\_to\_monty\_generic is defined in {{appx-rational-map-edw}}.
-
-~~~
-edw_to_monty_opt(s, t)
-
-Input: (s, t), a point on the curve t^2 = s^3 + J * s^2 + s.
-Output: (v, w), a point on an equivalent twisted Edwards curve.
-
-Constants:
-1.  c1 = sqrt(K)        # sgn0(c1) MUST equal 0
-                        # Note: K = 4 / (a - d)
-
-Steps:
-1. (v, w) = edw_to_monty_generic(s, t)
-2. v = c1 * v           # sqrt(K) * s / t
-3. return (v, w)
-~~~
-
-For completeness, we also give the inverse relations.
-The rational map from the point (v, w) on the twisted Edwards
-curve to the point (s, t) on the Montgomery curve is given by
-
-- s = (1 + w) / (1 - w)
-- t = sqrt(K) * (1 + w) / (v * (1 - w))
-
-As in {{appx-rational-map-edw}}, when w == 1 or v == 0 implementations
-should return the identity point on the Montgomery curve.
 
 ## Weierstrass to Montgomery map {#appx-rational-map-mont}
 
