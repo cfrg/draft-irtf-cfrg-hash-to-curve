@@ -55,6 +55,14 @@ normative:
   RFC2119:
   RFC8017:
   RFC7748:
+  EID4730:
+    target: https://www.rfc-editor.org/errata/eid4730
+    title: "RFC 7748, Errata ID 4730"
+    date: July, 2016
+    author:
+      -
+        ins: A. Langley
+        name: Adam Langley
 informative:
   BLS12-381:
     target: https://electriccoin.co/blog/new-snark-curve/
@@ -1461,16 +1469,20 @@ the range \[0, p / 3\] with probability roughly 1/2, meaning that this value
 is statistically far from uniform in \[0, p - 1\].
 
 To control bias, hash\_to\_field instead uses pseudorandom integers whose
-length is at least ceil(log2(p)) + k bits, where k is the target security level
-for the suite in bits. (Note that k is an upper bound on the security level for
-the corresponding curve. See {{security-considerations-targets}} for more details.)
+length is at least ceil(log2(p)) + k bits, where k is the target security
+level for the suite in bits.
 Reducing such integers mod p gives bias at most 2^-k for any p; this bias
 is appropriate when targeting k-bit security.
-To obtain such integers, hash\_to\_field uses expand\_message to obtain
+For each such integer, hash\_to\_field uses expand\_message to obtain
 L pseudorandom bytes, where L = ceil((ceil(log2(p)) + k) / 8); this
 byte string is then interpreted as an integer via OS2IP {{RFC8017}}.
 For example, for a 255-bit prime p, and k = 128-bit security,
 L = ceil((255 + 128) / 8) = 48 bytes.
+
+Note that k is an upper bound on the security level for the
+corresponding curve.
+See {{security-considerations-targets}} for more details, and
+{{new-suite}} for guidelines on choosing k for a given curve.
 
 ## hash\_to\_field implementation {#hashtofield-impl}
 
@@ -2186,95 +2198,31 @@ We describe how to identify such a curve and map immediately below.
 
 ### Rational maps from Montgomery to twisted Edwards curves {#rational-map}
 
-There are two ways to identify the correct Montgomery curve and
-rational map for use when hashing to a given twisted Edwards curve.
+There are two ways to select a Montgomery curve and rational map
+for use when hashing to a given twisted Edwards curve.
+The selected Montgomery curve and rational map MUST be specified as part of
+the hash-to-curve suite for a given twisted Edwards curve; see {{suites}}.
 
-When hashing to a standardized twisted Edwards curve for which a corresponding
+1. When hashing to a standardized twisted Edwards curve for which a corresponding
 Montgomery form and rational map are also standardized, the standard
-Montgomery form and rational map MUST be used to ensure compatibility
+Montgomery form and rational map SHOULD be used to ensure compatibility
 with existing software.
-Two such standardized curves are the edwards25519 and edwards448 curves,
-which correspond to the Montgomery curves curve25519 and curve448, respectively.
-For both of these curves, {{RFC7748}} lists both the Montgomery and twisted Edwards
-forms and gives the corresponding rational maps.
 
-The rational map for edwards25519 ({{RFC7748}}, Section 4.1)
-uses the constant sqrt\_neg\_486664 = sqrt(-486664) (mod 2^255 - 19).
-To ensure compatibility, this constant MUST be chosen such that
-sgn0(sqrt\_neg\_486664) == 0.
-Analogous ambiguities in other standardized rational maps MUST be
-resolved in the same way: for any constant c whose sign is ambiguous,
-c MUST be chosen such that sgn0(c) == 0.
+    In certain cases, e.g., edwards25519 {{RFC7748}}, the sign of the rational
+    map from the twisted Edwards curve to its corresponding Montgomery curve
+    is not given explicitly.
+    In this case, the sign MUST be fixed such that applying the rational map
+    to the twisted Edwards curve's base point yields the Montgomery curve's
+    base point with correct sign.
+    (For edwards25519, see {{RFC7748}} and {{EID4730}}.)
 
-The 4-isogeny map from curve448 to edwards448 ({{RFC7748}}, Section 4.2)
-is unambiguous with respect to sign.
+    When defining new twisted Edwards curves, a Montgomery equivalent and rational
+    map SHOULD also be specified, and the sign of the rational map SHOULD be stated
+    explicitly.
 
-When defining new twisted Edwards curves, a Montgomery equivalent and rational
-map SHOULD be specified, and the sign of the rational map SHOULD be stated
-unambiguously.
-
-When hashing to a twisted Edwards curve that does not have a standardized
-Montgomery form or rational map, the following procedure MUST be
-used to derive them.
-For a twisted Edwards curve given by
-
-~~~
-    a * v^2 + w^2 = 1 + d * v^2 * w^2
-~~~
-
-first compute J and K, the parameters of the equivalent Montgomery
-curve given by
-
-~~~
-    K * t^2 = s^3 + J * s^2 + s
-~~~
-
-as follows:
-
-- J = 2 * (a + d) / (a - d)
-- K = 4 / (a - d)
-
-Note that this curve has the form required by the Elligator 2
-mapping of {{elligator2}}.
-The rational map from the point (s, t) on this Montgomery curve
-to the point (v, w) on the twisted Edwards curve is given by
-
-- v = s / t
-- w = (s - 1) / (s + 1)
-
-(For completeness, we give the inverse map in {{appx-rational-map-edw}}.
-Note that the inverse map is not used when hashing to a twisted Edwards curve.)
-
-Rational maps may be undefined on certain inputs, e.g., when the
-denominator of one of the rational functions is zero.
-In the map described above, the exceptional cases are t == 0 or s == -1.
-Implementations MUST detect exceptional cases and return the value
-(v, w) = (0, 1), which is the identity point
-on all twisted Edwards curves.
-
-The following straight-line implementation of the above rational map
-handles the exceptional cases.
-Implementations of other rational maps (e.g., the ones give in {{RFC7748}})
-are analogous.
-
-~~~
-rational_map(s, t)
-
-Input: (s, t), a point on the curve K * t^2 = s^3 + J * s^2 + s.
-Output: (v, w), a point on an equivalent twisted Edwards curve.
-
-1. tv1 = s + 1
-2. tv2 = tv1 * t        # (s + 1) * t
-3. tv2 = inv0(tv2)      # 1 / ((s + 1) * t)
-4.   v = tv2 * tv1      # 1 / t
-5.   v = v * s          # s / t
-6.   w = tv2 * t        # 1 / (s + 1)
-7. tv1 = s - 1
-8.   w = w * tv1        # (s - 1) / (s + 1)
-9.   e = tv2 == 0
-10.  w = CMOV(w, 1, e)  # handle exceptional case
-11. return (v, w)
-~~~
+2. When hashing to a twisted Edwards curve that does not have a standardized
+Montgomery form or rational map, the map given in {{appx-rational-map}}
+SHOULD be used.
 
 ### Elligator 2 Method {#ell2edwards}
 
@@ -3085,14 +3033,42 @@ This document does not deal with this complementary problem.
 
 # Rational maps {#appx-rational-map}
 
-This section gives several useful rational maps.
+This section gives rational maps that can be used when hashing to
+twisted Edwards or Montgomery curves.
 
-## Twisted Edwards to Montgomery curves {#appx-rational-map-edw}
+Given a twisted Edwards curve, {{appx-rational-map-edw}}
+shows how to derive a corresponding Montgomery
+curve and how to map from that curve to the twisted Edwards curve.
+This mapping may be used when hashing to twisted Edwards curves
+as described in {{twisted-edwards}}.
+
+Given a Montgomery curve, {{appx-rational-map-mont}} shows
+how to derive a corresponding Weierstrass curve and how to map from that
+curve to the Montgomery curve.
+This mapping can be used to hash to Montgomery or twisted Edwards curves
+via the Shallue-van de Woestijne ({{svdw}}) or Simplified SWU ({{simple-swu}})
+method, as follows:
+
+- For Montgomery curves, first map to the Weierstrass curve, then convert
+to Montgomery coordinates via the mapping.
+
+- For twisted Edwards curves, compose the Weierstrass to Montgomery mapping
+with the Montgomery to twisted Edwards mapping
+({{appx-rational-map-edw}}) to obtain a Weierstrass curve and a mapping
+to the target twisted Edwards curve.
+Map to this Weierstrass curve, then convert to Edwards coordinates
+via the mapping.
+
+## Generic Montgomery to twisted Edwards map {#appx-rational-map-edw}
 
 This section gives a generic birational map between twisted Edwards
 and Montgomery curves.
-This birational map comprises the rational map specified in
-{{rational-map}} and its inverse.
+
+The map in this section is a simplified version of the map given in
+{{BBJLP08}}, Theorem 3.2.
+Specifically, this section's map handles exceptional cases in a
+simplified way that is geared towards hashing to a twisted Edwards
+curve's prime-order subgroup.
 
 The twisted Edwards curve
 
@@ -3106,51 +3082,65 @@ is birationally equivalent to the Montgomery curve
     K * t^2 = s^3 + J * s^2 + s
 ~~~
 
-by the following mappings ({{BBJLP08}}, Theorem 3.2).
-To convert from twisted Edwards to Montgomery form, the mapping is
+which has the form required by the Elligator 2 mapping of {{elligator2}}.
+The coefficients of the Montgomery curve are
 
 - J = 2 * (a + d) / (a - d)
 - K = 4 / (a - d)
-- s = (1 + w) / (1 - w)
-- t = (1 + w) / (v * (1 - w))
 
-This mapping is defined when a != d, which is guaranteed by the definition
-of twisted Edwards curves.
-The mapping is undefined when v == 0 or w == 1.
-If (v, w) == (0, -1), return the point (s, t) = (0, 0).
-For all other undefined inputs, return the identity point on the Montgomery curve.
-(This follows from [BBJLP08], Section 3.)
+The rational map from the point (s, t) on the above Montgomery curve
+to the point (v, w) on the twisted Edwards curve is given by
 
-To convert from Montgomery to twisted Edwards form, the mapping is
-
-- a = (J + 2) / K
-- d = (J - 2) / K
 - v = s / t
 - w = (s - 1) / (s + 1)
 
-This mapping is defined when J != 2, J != -2, and K != 0; all Montgomery
-curves meet these criteria.
-The mapping is undefined when t == 0 or s == -1.
-If (s, t) == (0, 0), return the point (v, w) = (0, -1).
-For all other undefined inputs, return the identity point on the twisted
-Edwards curve, namely, (v, w) = (0, 1).
-(This follows from [BBJLP08], Section 3.)
+This mapping is undefined when t == 0 or s == -1, i.e., when
+the denominator of either of the above rational functions is zero.
+Implementations MUST detect exceptional cases and return the value
+(v, w) = (0, 1), which is the identity point on all twisted Edwards curves.
 
-(Note that {{rational-map}} gives a simpler rule for handling undefined
-inputs to this rational map: always return the identity point.
-The simpler rule gives the same result when used as part of an encoding
-function ({{roadmap}}), because the cofactor clearing step will always
-map the point (v, w) = (0, -1) to the identity point.)
+The following straight-line implementation of the above rational map
+handles the exceptional cases.
 
-Composing the mapping of this section with the mapping from
-Montgomery to Weierstrass curves in {{appx-rational-map-mont}}
-yields a mapping from twisted Edwards curves to Weierstrass curves,
-which is the form required by the mappings in {{weierstrass}}.
-This composition of mappings can be used to apply the Shallue-van
-de Woestijne ({{svdw}}) or Simplified SWU ({{simple-swu}}) method
-to twisted Edwards curves.
+~~~
+edw_to_monty_generic(s, t)
 
-## Montgomery to Weierstrass curves {#appx-rational-map-mont}
+Input: (s, t), a point on the curve K * t^2 = s^3 + J * s^2 + s.
+Output: (v, w), a point on an equivalent twisted Edwards curve.
+
+1. tv1 = s + 1
+2. tv2 = tv1 * t        # (s + 1) * t
+3. tv2 = inv0(tv2)      # 1 / ((s + 1) * t)
+4.   v = tv2 * tv1      # 1 / t
+5.   v = v * s          # s / t
+6.   w = tv2 * t        # 1 / (s + 1)
+7. tv1 = s - 1
+8.   w = w * tv1        # (s - 1) / (s + 1)
+9.   e = tv2 == 0
+10.  w = CMOV(w, 1, e)  # handle exceptional case
+11. return (v, w)
+~~~
+
+For completeness, we also give the inverse relations.
+(Note that this map is not required when hashing to twisted Edwards curves.)
+The coefficients of the twisted Edwards curve corresponding to
+the above Montgomery curve are
+
+- a = (J + 2) / K
+- d = (J - 2) / K
+
+The rational map from the point (v, w) on the twisted Edwards
+curve to the point (s, t) on the Montgomery curve is given by
+
+- s = (1 + w) / (1 - w)
+- t = (1 + w) / (v * (1 - w))
+
+The mapping is undefined when v == 0 or w == 1.
+When the goal is to map into the prime-order subgroup of the Montgomery
+curve, it suffices to return the identity point on the Montgomery curve
+in the exceptional cases.
+
+## Weierstrass to Montgomery map {#appx-rational-map-mont}
 
 The rational map from the point (s, t) on the Montgomery curve
 
@@ -3175,10 +3165,6 @@ The inverse map, from the point (x, y) to the point (s, t), is given by
 
 - s = (3 * K * x - J) / 3
 - t = y * K
-
-This mapping can be used to apply the Shallue-van de Woestijne
-({{svdw}}) or Simplified SWU ({{simple-swu}}) method to
-Montgomery curves.
 
 # Isogeny maps for Suites {#appx-iso}
 
@@ -3687,6 +3673,10 @@ The following is a straight-line implementation of Elligator 2
 for edwards25519 {{RFC7748}} as specified in {{suites-25519}}.
 The subroutine map\_to\_curve\_elligator2\_curve25519
 is defined in {{map-to-curve25519}}.
+
+Note that the sign of the constant c1 below is chosen as specified
+in {{rational-map}}, i.e., applying the rational map to the edwards25519
+base point yields the curve25519 base point (see erratum {{EID4730}}).
 
 ~~~
 map_to_curve_elligator2_edwards25519(u)
