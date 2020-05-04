@@ -1393,7 +1393,7 @@ Steps:
 5.   zero_i = x_i == 0
 6.   sign = sign OR (zero AND sign_i)
 7.   zero = zero AND zero_i
-6. return sign
+8. return sign
 ~~~
 
 Note that any valid sgn0 function for extension fields must iterate over
