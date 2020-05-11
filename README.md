@@ -24,8 +24,8 @@ The purpose of these implementations is for generating test vectors and enabling
 These implementations are for reference only. They MUST NOT be used in production systems.
 
  - [Sage](https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/tree/master/poc)
- - [Go](https://github.com/armfazh/h2c-go-ref): [v06](https://github.com/armfazh/h2c-go-ref/tree/v6.0.0), [v05](https://github.com/armfazh/h2c-go-ref/tree/v5.0.0)
- - [Rust](https://github.com/armfazh/h2c-rust-ref): [v06](https://github.com/armfazh/h2c-rust-ref/tree/v6.0.0), [v05](https://github.com/armfazh/h2c-rust-ref/tree/v5.0.0)
+ - [Go](https://github.com/armfazh/h2c-go-ref): [v05](https://github.com/armfazh/h2c-go-ref/tree/v5.0.0), [v06](https://github.com/armfazh/h2c-go-ref/tree/v6.0.0), **[v07](https://github.com/armfazh/h2c-go-ref/tree/v7.0.0)**.
+ - [Rust](https://github.com/armfazh/h2c-rust-ref): [v05](https://github.com/armfazh/h2c-rust-ref/tree/v5.0.0), [v06](https://github.com/armfazh/h2c-rust-ref/tree/v6.0.0), **[v07](https://github.com/armfazh/h2c-rust-ref/tree/v7.0.0)**.
 
 ### Other Implementations
 
