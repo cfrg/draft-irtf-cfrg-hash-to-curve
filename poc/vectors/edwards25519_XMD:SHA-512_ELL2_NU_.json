@@ -18,11 +18,11 @@
   "vectors": [
     {
       "P": {
-        "x": "0x1dadc9fffc2bc7ee9ef2c60980f5b863b3ad0743aea183196f84a76b15fbf7b8",
+        "x": "0x6252360003d43811610d39f67f0a479c4c52f8bc515e7ce6907b5894ea040835",
         "y": "0x4af6284e3cc7116df104f6708e0c44d79b0e294ccd89b87c4c3c892ebd2f03b1"
       },
       "Q": {
-        "x": "0x2720eda378f35270b6ca39f3da49bbf406244e393eb1423b1bf6936061cca504",
+        "x": "0x58df125c870cad8f4935c60c25b6440bf9dbb1c6c14ebdc4e4096c9f9e335ae9",
         "y": "0x2e93babc6eeb31123cf939fba6578dc2e2924a2fcf9c6900d28c52c287cb1c22"
       },
       "msg": "",
@@ -46,11 +46,11 @@
     },
     {
       "P": {
-        "x": "0x472370c66329c64bbb40b2a5a7f7b78b0b51b2c6c55f8260258c079a19c94527",
+        "x": "0x38dc8f399cd639b444bf4d5a58084874f4ae4d393aa07d9fda73f865e636bac6",
         "y": "0x34b8a16b923101f2d4caa48d9bb86fef4f92be0ce0f55c8ba9db55da23ad623e"
       },
       "Q": {
-        "x": "0x31631c01d4162e4d3545d731f827313356012c53b4324e55a884eba10b872572",
+        "x": "0x4e9ce3fe2be9d1b2caba28ce07d8cecca9fed3ac4bcdb1aa577b145ef478da7b",
         "y": "0x2a8b6a47187ac2483fd8d1b10908da0e156386cdfc50fa2c511dc360105970be"
       },
       "msg": "abcdef0123456789",
