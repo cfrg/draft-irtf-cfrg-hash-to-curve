@@ -3700,8 +3700,8 @@ Steps:
 34.  e3 = tv2 == gx1
 35.  xn = CMOV(x2n, x1n, e3)  # If e3, x = x1, else x = x2
 36.   y = CMOV(y2, y1, e3)    # If e3, y = y1, else y = y2
-37.  e4 = sgn0(u) == sgn0(y)  # Fix sign of y
-38.   y = CMOV(-y, y, e4)
+37.  e4 = sgn0(y) == 1        # Fix sign of y
+38.   y = CMOV(y, -y, e3 XOR e4)
 39. return (xn, xd, y, 1)
 ~~~
 
@@ -3785,8 +3785,8 @@ Steps:
 22.  e2 = tv2 == gx1
 23.  xn = CMOV(x2n, x1n, e2)  # If e2, x = x1, else x = x2
 24.   y = CMOV(y2, y1, e2)    # If e2, y = y1, else y = y2
-25.  e3 = sgn0(u) == sgn0(y)  # Fix sign of y
-26.   y = CMOV(-y, y, e3)
+25.  e3 = sgn0(y) == 1        # Fix sign of y
+26.   y = CMOV(y, -y, e2 XOR e3)
 27. return (xn, xd, y, 1)
 ~~~
 
@@ -3894,9 +3894,9 @@ Steps:
 27.  xn = CMOV(x2n, x1n, e2)  # If e2, x = x1, else x = x2
 28.  xn = xn * K
 29.   y = CMOV(y2, y1, e2)    # If e2, y = y1, else y = y2
-30.   y = y * K
-31.  e3 = sgn0(u) == sgn0(y)  # Fix sign of y
-32.   y = CMOV(-y, y, e3)
+30.  e3 = sgn0(y) == 1        # Fix sign of y
+31.   y = CMOV(y, -y, e2 XOR e3)
+32.   y = y * K
 33. return (xn, xd, y, 1)
 ~~~
 
@@ -3964,9 +3964,9 @@ Steps:
 39.  xn = CMOV(x2n, x1n, e3)  # If e3, x = x1, else x = x2
 40.  xn = xn * K
 41.   y = CMOV(y2, y1, e3)    # If e3, y = y1, else y = y2
-42.   y = y * K
-43.  e4 = sgn0(u) == sgn0(y)  # Fix sign of y
-44.   y = CMOV(-y, y, e4)
+42.  e4 = sgn0(y) == 1        # Fix sign of y
+43.   y = CMOV(y, -y, e3 XOR e4)
+44.   y = y * K
 45. return (xn, xd, y, 1)
 ~~~
 
