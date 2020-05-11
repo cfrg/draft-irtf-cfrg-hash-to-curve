@@ -1802,16 +1802,17 @@ As a rough guide, the following conventions are used in pseudocode:
 ## Sign of the resulting point {#point-sign}
 
 In general, elliptic curves have equations of the form y^2 = g(x).
-Most of the mappings in this section first identify an x such that
+The mappings in this section first identify an x such that
 g(x) is square, then take a square root to find y. Since there
-are two square roots when g(x) != 0, this results in an ambiguity
+are two square roots when g(x) != 0, this may result in an ambiguity
 regarding the sign of y.
 
-To resolve this ambiguity, the mappings in this section specify
-the sign of the y-coordinate in terms of the input to the mapping function.
-Two main reasons support this approach. First, this covers elliptic curves over
-any field in a uniform way, and second, it gives implementors leeway to optimize
-their square-root implementations.
+When necessary, the mappings in this section resolve this ambiguity by
+specifying the sign of the y-coordinate in terms of the input to the mapping
+function.
+Two main reasons support this approach: first, this covers elliptic curves
+over any field in a uniform way, and second, it gives implementors leeway
+to optimize their square-root implementations.
 
 ## Exceptional cases {#map-exceptions}
 
@@ -2013,6 +2014,9 @@ The mapping defined in this section applies to a target curve M defined by the e
 
 ### Elligator 2 method {#elligator2}
 
+Bernstein, Hamburg, Krasnova, and Lange give a mapping that applies to any
+curve with a point of order 2 {{BHKL13}}, which they call Elligator 2.
+
 Preconditions: A Montgomery curve K * t^2 = s^3 + J * s^2 + s where
 J != 0, K != 0, and (J^2 - 4) / K^2 is non-zero and non-square in F.
 
@@ -2023,8 +2027,8 @@ Constants:
 - Z, a non-square element of F.
   {{elligator-z-code}} gives a Sage {{SAGE}} script that outputs the RECOMMENDED Z.
 
-Sign of t: Inputs u and -u give the same s-coordinate.
-Thus, we set sgn0(t) == sgn0(u).
+Sign of t: this mapping fixes the sign of t as specified in {{BHKL13}}.
+No additional adjustment is required.
 
 Exceptions: The exceptional case is Z * u^2 == -1, i.e., 1 + Z * u^2 == 0.
 Implementations must detect this case and set x1 = -(J / K).
@@ -2038,12 +2042,11 @@ Operations:
 3. gx1 = x1^3 + (J / K) * x1^2 + x1 / K^2
 4.  x2 = -x1 - (J / K)
 5. gx2 = x2^3 + (J / K) * x2^2 + x2 / K^2
-6.  If is_square(gx1), set x = x1 and y = sqrt(gx1)
-7.  Else set x = x2 and y = sqrt(gx2)
+6.  If is_square(gx1), set x = x1, y = sqrt(gx1), and sgn0(y) == 1.
+7.  Else set x = x2, y = sqrt(gx2), and sgn0(y) == 0.
 8.   s = x * K
 9.   t = y * K
-10. If sgn0(u) != sgn0(t), set t = -t
-11. return (s, t)
+10. return (s, t)
 ~~~
 
 {{straightline-ell2}} gives an example straight-line implementation of this
@@ -3359,10 +3362,10 @@ Steps:
 15.   x = CMOV(x2, x1, e2)    # If is_square(gx1), x = x1, else x = x2
 16.  y2 = CMOV(gx2, gx1, e2)  # If is_square(gx1), y2 = gx1, else y2 = gx2
 17.   y = sqrt(y2)
-18.   s = x * K
-19.   t = y * K
-20.  e3 = sgn0(u) == sgn0(t)  # Fix sign of t
-21.   t = CMOV(-t, t, e3)
+18.  e3 = sgn0(y) == 1
+19.   y = CMOV(y, -y, e2 XOR e3)    # fix sign of y
+20.   s = x * K
+21.   t = y * K
 22. return (s, t)
 ~~~
 
