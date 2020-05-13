@@ -35,6 +35,7 @@ This is a (likely incomplete) list of other libraries that have implemented hash
  - [MIRACL Core](https://github.com/miracl/core)
  - [pairing-plus](https://github.com/algorand/pairing-plus)
  - [RELIC](https://github.com/relic-toolkit/relic)
+ - [Apache Milagro Crypto Library - Rust](https://github.com/apache/incubator-milagro-crypto-rust)
 
 If you know of another library that supports a compliant hash-to-curve implementation and would like us to list it here, please open a PR.
 
