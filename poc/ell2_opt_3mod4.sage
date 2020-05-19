@@ -60,8 +60,8 @@ class OptimizedEll2_K1_3mod4(object):
         e2 = tv2 == gx1
         xn = CMOV(x2n, x1n, e2)  # If e2, x = x1, else x = x2
         y = CMOV(y2, y1, e2)    # If e2, y = y1, else y = y2
-        e3 = sgn0(u) == sgn0(y)  # Fix sign of y
-        y = CMOV(-y, y, e3)
+        e3 = sgn0(y) == 1        # Fix sign of y
+        y = CMOV(y, -y, e2 ^^ e3)
         return (xn, xd, y, 1)
 
     def test_map(self, u=None):
@@ -145,9 +145,9 @@ class OptimizedEll2_3mod4(object):
         xn = CMOV(x2n, x1n, e2)  # If e2, x = x1, else x = x2
         xn = xn * K
         y = CMOV(y2, y1, e2)    # If e2, y = y1, else y = y2
+        e3 = sgn0(y) == 1        # Fix sign of y
+        y = CMOV(y, -y, e2 ^^ e3)
         y = y * K
-        e3 = sgn0(u) == sgn0(y)  # Fix sign of y
-        y = CMOV(-y, y, e3)
         return (xn, xd, y, 1)
 
     def test_map(self, u=None):

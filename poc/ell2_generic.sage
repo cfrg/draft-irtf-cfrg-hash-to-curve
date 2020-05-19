@@ -57,13 +57,17 @@ class GenericEll2(GenericMap):
         if is_square(gx1):
             x = x1
             y = sqrt(gx1)
+            if sgn0(y) == 0:
+                y = -y
+            assert sgn0(y) == 1
         else:
             x = x2
             y = sqrt(gx2)
+            if sgn0(y) == 1:
+                y = -y
+            assert sgn0(y) == 0
         s = x * K
         t = y * K
-        if sgn0(u) != sgn0(t):
-            t = -t
         return (s, t)
 
     def straight_line(self, u):
@@ -96,10 +100,10 @@ class GenericEll2(GenericMap):
         x = CMOV(x2, x1, e2)    # If is_square(gx1), x = x1, else x = x2
         y2 = CMOV(gx2, gx1, e2)  # If is_square(gx1), y2 = gx1, else y2 = gx2
         y = sqrt(y2)
+        e3 = sgn0(y) == 1
+        y = CMOV(y, -y, e2 ^^ e3)    # fix sign of y
         s = x * K
         t = y * K
-        e3 = sgn0(u) == sgn0(t)  # Fix sign of t
-        t = CMOV(-t, t, e3)
         return (s, t)
 
 if __name__ == "__main__":
