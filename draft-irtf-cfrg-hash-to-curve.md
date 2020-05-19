@@ -3155,7 +3155,7 @@ When 4 / (a - d) is square in F, the twisted Edwards curve
     a * v^2 + w^2 = 1 + d * v^2 * w^2
 ~~~
 
-is birationally equiavlent to the Montgomery curve
+is birationally equivalent to the Montgomery curve
 
 ~~~
     t^2 = s^3 + J * s^2 + s
