@@ -1193,9 +1193,12 @@ functions:
     the subgroup G of E. {{cofactor-clearing}} describes methods to perform
     this operation.
 
-We describe two high-level encoding functions ({{term-encoding}}).
-Although these functions have the same interface, the
-distributions of their outputs are different.
+We describe two high-level encoding functions ({{term-encoding}}): nonuniform
+and random oracle encoding. Although these functions have the same interface, the
+distributions of their outputs are different. Note that the suites specified
+in {{suites}} only make use of the random oracle encoding function. See
+{{suites-howto}} for instructions on how to define a suite using the nonuniform
+encoding function.
 
 -   Nonuniform encoding (encode\_to\_curve). This function encodes byte strings to points in G.
     The distribution of the output is not uniformly random in G.
