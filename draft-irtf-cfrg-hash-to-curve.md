@@ -1195,10 +1195,7 @@ functions:
 
 We describe two high-level encoding functions ({{term-encoding}}): nonuniform
 and random oracle encoding. Although these functions have the same interface, the
-distributions of their outputs are different. Note that the suites specified
-in {{suites}} only make use of the random oracle encoding function. See
-{{suites-howto}} for instructions on how to define a suite using the nonuniform
-encoding function.
+distributions of their outputs are different.
 
 -   Nonuniform encoding (encode\_to\_curve). This function encodes byte strings to points in G.
     The distribution of the output is not uniformly random in G.
@@ -2266,7 +2263,7 @@ Note that some of these require utility functions from {{utility}}.
 
 ## Suites for NIST P-256 {#suites-p256}
 
-This section defines one ciphersuite for the NIST P-256 elliptic curve {{FIPS186-4}}.
+This section defines ciphersuites for the NIST P-256 elliptic curve {{FIPS186-4}}.
 
 P256\_XMD:SHA-256\_SSWU\_RO\_ is defined as follows:
 
@@ -2284,12 +2281,15 @@ P256\_XMD:SHA-256\_SSWU\_RO\_ is defined as follows:
 - Z: -10
 - h\_eff: 1
 
+P256\_XMD:SHA-256\_SSWU\_NU\_ is identical to P256\_XMD:SHA-256\_SSWU\_RO\_,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
+
 An optimized example implementation of the Simplified SWU mapping
 to P-256 is given in {{sswu-map-to-3mod4}}.
 
 ## Suites for NIST P-384 {#suites-p384}
 
-This section defines one ciphersuite for the NIST P-384 elliptic curve {{FIPS186-4}}.
+This section defines ciphersuites for the NIST P-384 elliptic curve {{FIPS186-4}}.
 
 P384\_XMD:SHA-512\_SSWU\_RO\_ is defined as follows:
 
@@ -2307,12 +2307,15 @@ P384\_XMD:SHA-512\_SSWU\_RO\_ is defined as follows:
 - Z: -12
 - h\_eff: 1
 
+P384\_XMD:SHA-512\_SSWU\_NU\_ is identical to P384\_XMD:SHA-512\_SSWU\_RO\_,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
+
 An optimized example implementation of the Simplified SWU mapping
 to P-384 is given in {{sswu-map-to-3mod4}}.
 
 ## Suites for NIST P-521 {#suites-p521}
 
-This section defines one ciphersuite for the NIST P-521 elliptic curve {{FIPS186-4}}.
+This section defines ciphersuites for the NIST P-521 elliptic curve {{FIPS186-4}}.
 
 P521\_XMD:SHA-512\_SSWU\_RO\_ is defined as follows:
 
@@ -2329,6 +2332,9 @@ P521\_XMD:SHA-512\_SSWU\_RO\_ is defined as follows:
 - f: Simplified SWU method, {{simple-swu}}
 - Z: -4
 - h\_eff: 1
+
+P521\_XMD:SHA-512\_SSWU\_NU\_ is identical to P521\_XMD:SHA-512\_SSWU\_RO\_,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
 
 An optimized example implementation of the Simplified SWU mapping
 to P-521 is given in {{sswu-map-to-3mod4}}.
@@ -2363,6 +2369,12 @@ except for the following parameters:
 - M: curve25519 defined in {{RFC7748}}, Section 4.1
 - rational\_map: the birational map defined in {{RFC7748}}, Section 4.1
 
+curve25519\_XMD:SHA-512\_ELL2\_NU\_ is identical to curve25519\_XMD:SHA-512\_ELL2\_RO\_,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
+
+edwards25519\_XMD:SHA-512\_ELL2\_NU\_ is identical to edwards25519\_XMD:SHA-512\_ELL2\_RO\_,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
+
 Optimized example implementations of the above mappings are given in
 {{map-to-curve25519}} and {{map-to-edwards25519}}.
 
@@ -2396,12 +2408,18 @@ except for the following parameters:
 - M: curve448, defined in {{RFC7748}}, Section 4.2
 - rational\_map: the 4-isogeny map defined in {{RFC7748}}, Section 4.2
 
+curve448\_XMD:SHA-512\_ELL2\_NU\_ is identical to curve448\_XMD:SHA-512\_ELL2\_RO\_,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
+
+edwards448\_XMD:SHA-512\_ELL2\_NU\_ is identical to edwards448\_XMD:SHA-512\_ELL2\_RO\_,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
+
 Optimized example implementations of the above mappings are given in
 {{map-to-curve448}} and {{map-to-edwards448}}.
 
 ## Suites for secp256k1 {#suites-secp256k1}
 
-This section defines one ciphersuite for the secp256k1 elliptic curve {{SEC2}}.
+This section defines ciphersuites for the secp256k1 elliptic curve {{SEC2}}.
 
 secp256k1\_XMD:SHA-256\_SSWU\_RO\_ is defined as follows:
 
@@ -2420,6 +2438,9 @@ secp256k1\_XMD:SHA-256\_SSWU\_RO\_ is defined as follows:
   - B': 1771
 - iso\_map: the 3-isogeny map from E' to E given in {{appx-iso-secp256k1}}
 - h\_eff: 1
+
+secp256k1\_XMD:SHA-256\_SSWU\_NU\_ is identical to secp256k1\_XMD:SHA-256\_SSWU\_RO\_,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
 
 An optimized example implementation of the Simplified SWU mapping
 to the curve E' isogenous to secp256k1 is given in {{sswu-map-to-3mod4}}.
@@ -2451,6 +2472,9 @@ BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_ is defined as follows:
 - iso\_map: the 11-isogeny map from E' to E given in {{appx-iso-bls12381-g1}}
 - h\_eff: 0xd201000000010001
 
+BLS12381G1\_XMD:SHA-256\_SSWU\_NU\_ is identical to BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
+
 Note that the h\_eff values for these suites are chosen for compatibility
 with the fast cofactor clearing method described by Scott ({{WB19}} Section 5).
 
@@ -2478,6 +2502,9 @@ BLS12381G2\_XMD:SHA-256\_SSWU\_RO\_ is defined as follows:
   - B' = 1012 * (1 + I)
 - iso\_map: the isogeny map from E' to E given in {{appx-iso-bls12381-g2}}
 - h\_eff: 0xbc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff031508ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689f6a359894c0adebbf6b4e8020005aaa95551
+
+BLS12381G2\_XMD:SHA-256\_SSWU\_NU\_ is identical to BLS12381G2\_XMD:SHA-256\_SSWU\_RO\_,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
 
 Note that the h\_eff values for these suites are chosen for compatibility
 with the fast cofactor clearing method described by
