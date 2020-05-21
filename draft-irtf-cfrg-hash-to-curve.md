@@ -1193,8 +1193,8 @@ functions:
     the subgroup G of E. {{cofactor-clearing}} describes methods to perform
     this operation.
 
-We describe two high-level encoding functions ({{term-encoding}}).
-Although these functions have the same interface, the
+We describe two high-level encoding functions ({{term-encoding}}): nonuniform
+and random oracle encoding. Although these functions have the same interface, the
 distributions of their outputs are different.
 
 -   Nonuniform encoding (encode\_to\_curve). This function encodes byte strings to points in G.
@@ -2226,6 +2226,11 @@ In addition to the above parameters, the mapping f may require
 additional parameters Z, M, rational\_map, E', and/or iso\_map.
 These MUST be specified when applicable.
 
+Suites with nonuniform encodings MUST NOT be used in applications whose security
+relies on a random oracle. Applications using nonuniform encodings SHOULD carefully
+analyze the security implications of using such an encoding. When the required
+encoding is not clear, applications SHOULD use a random oracle.
+
 The below table lists the curves for which suites are defined and
 the subsection that gives the corresponding parameters.
 
@@ -2281,16 +2286,7 @@ P256\_XMD:SHA-256\_SSWU\_RO\_ is defined as follows:
 - Z: -10
 - h\_eff: 1
 
-P256\_XMD:SHA-256\_SVDW\_RO\_ is identical to P256\_XMD:SHA-256\_SSWU\_RO\_,
-except for the following parameters:
-
-- f: Shallue-van de Woestijne method, {{svdw}}
-- Z: -3
-
 P256\_XMD:SHA-256\_SSWU\_NU\_ is identical to P256\_XMD:SHA-256\_SSWU\_RO\_,
-except that the encoding type is encode\_to\_curve ({{roadmap}}).
-
-P256\_XMD:SHA-256\_SVDW\_NU\_ is identical to P256\_XMD:SHA-256\_SVDW\_RO\_,
 except that the encoding type is encode\_to\_curve ({{roadmap}}).
 
 An optimized example implementation of the Simplified SWU mapping
@@ -2316,16 +2312,7 @@ P384\_XMD:SHA-512\_SSWU\_RO\_ is defined as follows:
 - Z: -12
 - h\_eff: 1
 
-P384\_XMD:SHA-512\_SVDW\_RO\_ is identical to P384\_XMD:SHA-512\_SSWU\_RO\_,
-except for the following parameters:
-
-- f: Shallue-van de Woestijne method, {{svdw}}
-- Z: -1
-
 P384\_XMD:SHA-512\_SSWU\_NU\_ is identical to P384\_XMD:SHA-512\_SSWU\_RO\_,
-except that the encoding type is encode\_to\_curve ({{roadmap}}).
-
-P384\_XMD:SHA-512\_SVDW\_NU\_ is identical to P384\_XMD:SHA-512\_SVDW\_RO\_,
 except that the encoding type is encode\_to\_curve ({{roadmap}}).
 
 An optimized example implementation of the Simplified SWU mapping
@@ -2351,16 +2338,7 @@ P521\_XMD:SHA-512\_SSWU\_RO\_ is defined as follows:
 - Z: -4
 - h\_eff: 1
 
-P521\_XMD:SHA-512\_SVDW\_RO\_ is identical to P521\_XMD:SHA-512\_SSWU\_RO\_,
-except for the following parameters:
-
-- f: Shallue-van de Woestijne method, {{svdw}}
-- Z: 1
-
-P521\_XMD:SHA-512\_SSWU\_NU\_ is identical to P512\_XMD:SHA-512\_SSWU\_RO\_,
-except that the encoding type is encode\_to\_curve ({{roadmap}}).
-
-P521\_XMD:SHA-512\_SVDW\_NU\_ is identical to P512\_XMD:SHA-512\_SVDW\_RO\_,
+P521\_XMD:SHA-512\_SSWU\_NU\_ is identical to P521\_XMD:SHA-512\_SSWU\_RO\_,
 except that the encoding type is encode\_to\_curve ({{roadmap}}).
 
 An optimized example implementation of the Simplified SWU mapping
@@ -2370,7 +2348,7 @@ to P-521 is given in {{sswu-map-to-3mod4}}.
 
 This section defines ciphersuites for curve25519 and edwards25519 {{RFC7748}}.
 
-curve25519\_XMD:SHA-256\_ELL2\_RO\_ is defined as follows:
+curve25519\_XMD:SHA-512\_ELL2\_RO\_ is defined as follows:
 
 - encoding type: hash\_to\_curve ({{roadmap}})
 - E: K * t^2 = s^3 + J * s^2 + s, where
@@ -2380,13 +2358,13 @@ curve25519\_XMD:SHA-256\_ELL2\_RO\_ is defined as follows:
 - m: 1
 - k: 128
 - expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
-- H: SHA-256
+- H: SHA-512
 - L: 48
 - f: Elligator 2 method, {{elligator2}}
 - Z: 2
 - h\_eff: 8
 
-edwards25519\_XMD:SHA-256\_ELL2\_RO\_ is identical to curve25519\_XMD:SHA-256\_ELL2\_RO\_,
+edwards25519\_XMD:SHA-512\_ELL2\_RO\_ is identical to curve25519\_XMD:SHA-512\_ELL2\_RO\_,
 except for the following parameters:
 
 - E: a * v^2 + w^2 = 1 + d * v^2 * w^2, where
@@ -2396,23 +2374,11 @@ except for the following parameters:
 - M: curve25519 defined in {{RFC7748}}, Section 4.1
 - rational\_map: the birational map defined in {{RFC7748}}, Section 4.1
 
-curve25519\_XMD:SHA-256\_ELL2\_NU\_ is identical to curve25519\_XMD:SHA-256\_ELL2\_RO\_,
+curve25519\_XMD:SHA-512\_ELL2\_NU\_ is identical to curve25519\_XMD:SHA-512\_ELL2\_RO\_,
 except that the encoding type is encode\_to\_curve ({{roadmap}}).
 
-edwards25519\_XMD:SHA-256\_ELL2\_NU\_ is identical to edwards25519\_XMD:SHA-256\_ELL2\_RO\_,
-except that ene encoding type is encode\_to\_curve ({{roadmap}}).
-
-curve25519\_XMD:SHA-512\_ELL2\_RO\_ is identical to curve25519\_XMD:SHA-256\_ELL2\_RO\_,
-except that H is SHA-512.
-
-curve25519\_XMD:SHA-512\_ELL2\_NU\_ is identical to curve25519\_XMD:SHA-256\_ELL2\_NU\_,
-except that H is SHA-512.
-
-edwards25519\_XMD:SHA-512\_ELL2\_RO\_ is identical to edwards25519\_XMD:SHA-256\_ELL2\_RO\_,
-except that H is SHA-512.
-
-edwards25519\_XMD:SHA-512\_ELL2\_NU\_ is identical to edwards25519\_XMD:SHA-256\_ELL2\_NU\_,
-except that H is SHA-512.
+edwards25519\_XMD:SHA-512\_ELL2\_NU\_ is identical to edwards25519\_XMD:SHA-512\_ELL2\_RO\_,
+except that the encoding type is encode\_to\_curve ({{roadmap}}).
 
 Optimized example implementations of the above mappings are given in
 {{map-to-curve25519}} and {{map-to-edwards25519}}.
@@ -2478,18 +2444,7 @@ secp256k1\_XMD:SHA-256\_SSWU\_RO\_ is defined as follows:
 - iso\_map: the 3-isogeny map from E' to E given in {{appx-iso-secp256k1}}
 - h\_eff: 1
 
-secp256k1\_XMD:SHA-256\_SVDW\_RO\_ is identical to secp256k1\_XMD:SHA-256\_SSWU\_RO\_,
-except for the following parameters:
-
-- f: Shallue-van de Woestijne method, {{svdw}}
-- Z: 1
-- E' is not required for this suite
-- iso\_map is not required for this suite
-
 secp256k1\_XMD:SHA-256\_SSWU\_NU\_ is identical to secp256k1\_XMD:SHA-256\_SSWU\_RO\_,
-except that the encoding type is encode\_to\_curve ({{roadmap}}).
-
-secp256k1\_XMD:SHA-256\_SVDW\_NU\_ is identical to secp256k1\_XMD:SHA-256\_SVDW\_RO\_,
 except that the encoding type is encode\_to\_curve ({{roadmap}}).
 
 An optimized example implementation of the Simplified SWU mapping
@@ -2522,18 +2477,7 @@ BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_ is defined as follows:
 - iso\_map: the 11-isogeny map from E' to E given in {{appx-iso-bls12381-g1}}
 - h\_eff: 0xd201000000010001
 
-BLS12381G1\_XMD:SHA-256\_SVDW\_RO\_ is identical to BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_,
-except for the following parameters:
-
-- f: Shallue-van de Woestijne method, {{svdw}}
-- Z: -3
-- E' is not required for this suite
-- iso\_map is not required for this suite
-
 BLS12381G1\_XMD:SHA-256\_SSWU\_NU\_ is identical to BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_,
-except that the encoding type is encode\_to\_curve ({{roadmap}}).
-
-BLS12381G1\_XMD:SHA-256\_SVDW\_NU\_ is identical to BLS12381G1\_XMD:SHA-256\_SVDW\_RO\_,
 except that the encoding type is encode\_to\_curve ({{roadmap}}).
 
 Note that the h\_eff values for these suites are chosen for compatibility
@@ -2564,18 +2508,7 @@ BLS12381G2\_XMD:SHA-256\_SSWU\_RO\_ is defined as follows:
 - iso\_map: the isogeny map from E' to E given in {{appx-iso-bls12381-g2}}
 - h\_eff: 0xbc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff031508ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689f6a359894c0adebbf6b4e8020005aaa95551
 
-BLS12381G2\_XMD:SHA-256\_SVDW\_RO\_ is identical to BLS12381G2\_XMD:SHA-256\_SSWU\_RO\_,
-except for the following parameters:
-
-- f: Shallue-van de Woestijne method, {{svdw}}
-- Z: I
-- E' is not required for this suite
-- iso\_map is not required for this suite
-
 BLS12381G2\_XMD:SHA-256\_SSWU\_NU\_ is identical to BLS12381G2\_XMD:SHA-256\_SSWU\_RO\_,
-except that the encoding type is encode\_to\_curve ({{roadmap}}).
-
-BLS12381G2\_XMD:SHA-256\_SVDW\_NU\_ is identical to BLS12381G2\_XMD:SHA-256\_SVDW\_RO\_,
 except that the encoding type is encode\_to\_curve ({{roadmap}}).
 
 Note that the h\_eff values for these suites are chosen for compatibility
