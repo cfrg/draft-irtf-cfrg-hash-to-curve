@@ -2226,6 +2226,11 @@ In addition to the above parameters, the mapping f may require
 additional parameters Z, M, rational\_map, E', and/or iso\_map.
 These MUST be specified when applicable.
 
+Suites with nonuniform encodings MUST NOT be used in applications whose security
+relies on a random oracle. Applications using nonuniform encodings SHOULD carefully
+analyze the security implications of using such an encoding. When the required
+encoding is not clear, applications SHOULD use a random oracle.
+
 The below table lists the curves for which suites are defined and
 the subsection that gives the corresponding parameters.
 
