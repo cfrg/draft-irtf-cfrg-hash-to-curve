@@ -115,6 +115,7 @@ def expander_to_ascii_file(expander, path="ascii"):
         f.write(Printer.tv.text("security_param", str(expander.security_param)) + "\n")
         f.write("\n")
         for vec in expander.test_vectors:
+            f.write(Printer.tv.text("msg", vec["msg"]) + "\n")
             f.write(Printer.tv.text("dst_prime", vec["dst_prime"]) + "\n")
             f.write(Printer.tv.text("msg_prime", vec["msg_prime"]) + "\n")
             f.write(Printer.tv.text("pseudo_random_bytes", vec["pseudo_random_bytes"]) + "\n")
