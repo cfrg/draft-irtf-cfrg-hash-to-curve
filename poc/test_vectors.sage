@@ -3,11 +3,14 @@
 
 import json
 import sys
+import hashlib
+from hash_to_field import XMDExpander, XOFExpander
 
 print("Importing modules...")
 
 try:
     from printer import Printer
+    from sagelib.common import test_dst
     from sagelib.suite_p256 import \
         p256_sswu_ro, \
         p256_sswu_nu, \
@@ -57,7 +60,7 @@ except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 
-def file_json(h2c, vectors, path="vectors"):
+def suite_to_json_file(h2c, vectors, path="vectors"):
     with open(path + "/" + h2c.suite_name + ".json", 'wt') as f:
         out = h2c.__dict__()
         for vec in vectors:
@@ -73,7 +76,7 @@ def file_json(h2c, vectors, path="vectors"):
         f.write("\n")
 
 
-def file_ascii(h2c, vectors, path="ascii"):
+def suite_to_ascii_file(h2c, vectors, path="ascii"):
     data = ""
     with open(path + "/" + h2c.suite_name + ".txt", 'wt') as f:
         data = data + Printer.tv.text("suite", h2c.suite_name) + "\n"
@@ -92,12 +95,60 @@ def file_ascii(h2c, vectors, path="ascii"):
     return data
 
 
-def combined_ascii(results, path="ascii"):
-    with open(path + "/combined.txt", 'wt') as f:
-        for curve in vectors:
+def create_suite_files(suite, result_map):
+    print("Generating: " + suite.suite_name)
+    vectors = [suite(msg, output_test_vector=True) for msg in INPUTS]
+    vector_data = suite_to_ascii_file(suite, vectors)
+    suite_to_json_file(suite, vectors)
+    vector_name = suite.suite_name.replace("_", "\\_")
+    vector_curve = suite.curve_name
+    if vector_curve not in result_map:
+        result_map[vector_curve] = []
+    result_map[vector_curve].append((vector_name, vector_data))
+
+
+def expander_to_json_file(expander, path="vectors"):
+    with open(path + "/" + expander.name + ".json", 'wt') as f:
+        out = expander.__dict__()
+        json.dump(out, f, sort_keys=True, indent=2)
+        f.write("\n")
+
+
+def expander_to_ascii_file(expander, vectors, path="vectors"):
+    data = ""
+    with open(path + "/" + expander.name + ".txt", 'wt') as f:
+        data = data + Printer.tv.text("name", expander.name) + "\n"
+        data = data + Printer.tv.text("dst", expander.dst) + "\n"
+        data = data + Printer.tv.text("hash", expander.hash_name()) + "\n"
+        data = data + Printer.tv.text("security_param", str(expander.security_param)) + "\n"
+        data = data + "\n"
+        for vec in expander.test_vectors:
+            data = data + Printer.tv.text("dst_prime", vec["dst_prime"]) + "\n"
+            data = data + Printer.tv.text("msg_prime", vec["msg_prime"]) + "\n"
+            data = data + Printer.tv.text("pseudo_random_bytes", vec["pseudo_random_bytes"]) + "\n"
+            data = data + "\n"
+        f.write(data)
+    return data
+
+def create_expander_files(expander, result_map):
+    print("Generating: " + expander.name)
+    for expand_length in EXPAND_LENGTHS:
+        [expander.expand_message(msg, expand_length) for msg in INPUTS]
+    vector_data = expander_to_ascii_file(expander, result_map)
+    expander_to_json_file(expander)
+    vector_name = expander.name
+    vector_hash = expander.hash_name()
+    if vector_name not in result_map:
+        result_map[vector_name] = []
+    result_map[vector_name].append((vector_hash, vector_data))
+
+
+def combined_ascii(results, prefix, path="ascii"):
+    with open(path + "/" + prefix + "_combined.txt", 'wt') as f:
+        for curve in results:
             f.write("## %s\n" % curve)
             f.write("\n")
-            for (vector_name, vector_data) in vectors[curve]:
+            for (vector_name, vector_data) in results[curve]:
                 f.write("### %s\n" % vector_name)
                 f.write("\n")
                 f.write("~~~\n")
@@ -106,17 +157,7 @@ def combined_ascii(results, path="ascii"):
                 f.write("\n")
 
 
-def create_files(suite, result_map):
-    print("Generating: " + suite.suite_name)
-    vectors = [suite(msg, output_test_vector=True) for msg in INPUTS]
-    vector_data = file_ascii(suite, vectors)
-    file_json(suite, vectors)
-    vector_name = suite.suite_name.replace("_", "\\_")
-    vector_curve = suite.curve_name
-    if vector_curve not in result_map:
-        result_map[vector_curve] = []
-    result_map[vector_curve].append((vector_name, vector_data))
-
+EXPAND_LENGTHS = [32, 128]
 
 INPUTS = ["", "abc", "abcdef0123456789", "a512_" + "a"*512]
 
@@ -135,7 +176,18 @@ ALL_SUITES = [
     bls12381g1_sswu_nu, bls12381g2_sswu_nu,
 ]
 
+ALL_EXPANDERS = [
+    XMDExpander(test_dst("expander"), hashlib.sha512, 256),
+    XMDExpander(test_dst("expander"), hashlib.sha256, 128),
+    #XOFExpander(test_dst("expander"), hashlib.shake_128),
+]
+
 if __name__ == '__main__':
-    vectors = {}
-    list(map(lambda s: create_files(s, vectors), ALL_SUITES))
-    combined_ascii(vectors)
+    suite_vectors = {}
+    list(map(lambda s: create_suite_files(s, suite_vectors), ALL_SUITES))
+    combined_ascii(suite_vectors, "suites")
+
+    expand_vectors = {}
+    list(map(lambda e: create_expander_files(e, expand_vectors), ALL_EXPANDERS))
+    combined_ascii(expand_vectors, "expand")
+
