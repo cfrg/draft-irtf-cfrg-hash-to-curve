@@ -3,11 +3,14 @@
 
 import json
 import sys
+import hashlib
+from hash_to_field import XMDExpander, XOFExpander
 
 print("Importing modules...")
 
 try:
     from printer import Printer
+    from sagelib.common import test_dst
     from sagelib.suite_p256 import \
         p256_sswu_ro, \
         p256_sswu_nu, \
@@ -57,7 +60,7 @@ except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 
-def file_json(h2c, vectors, path="vectors"):
+def suite_to_json_file(h2c, vectors, path="vectors"):
     with open(path + "/" + h2c.suite_name + ".json", 'wt') as f:
         out = h2c.__dict__()
         for vec in vectors:
@@ -73,7 +76,7 @@ def file_json(h2c, vectors, path="vectors"):
         f.write("\n")
 
 
-def file_ascii(h2c, vectors, path="ascii"):
+def suite_to_ascii_file(h2c, vectors, path="ascii"):
     with open(path + "/" + h2c.suite_name + ".txt", 'wt') as f:
         f.write(Printer.tv.text("suite", h2c.suite_name) + "\n")
         f.write(Printer.tv.text("dst", h2c.dst) + "\n")
@@ -88,12 +91,50 @@ def file_ascii(h2c, vectors, path="ascii"):
             else:
                 f.write(Printer.tv.point("Q", vec["Q"]) + "\n")
 
-def create_files(suite):
+
+
+def create_suite_files(suite):
     print("Generating: " + suite.suite_name)
     vectors = [suite(msg, output_test_vector=True) for msg in INPUTS]
-    file_ascii(suite, vectors)
-    file_json(suite, vectors)
+    suite_to_ascii_file(suite, vectors)
+    suite_to_json_file(suite, vectors)
 
+
+def expander_to_json_file(expander, path="vectors"):
+    with open(path + "/" + expander.name + "_" + expander.hash_name() + ".json", 'wt') as f:
+        vector = {}
+        vector["name"] = expander.name
+        vector["DST"] = expander.dst
+        vector["hash"] = expander.hash_name()
+        vector["security_param"] = str(expander.security_param)
+        vector["tests"] = expander.test_vectors
+        json.dump(vector, f, sort_keys=True, indent=2)
+        f.write("\n")
+
+
+def expander_to_ascii_file(expander, path="ascii"):
+    with open(path + "/" + expander.name + "_" + expander.hash_name() + ".txt", 'wt') as f:
+        f.write(Printer.tv.text("name", expander.name) + "\n")
+        f.write(Printer.tv.text("DST", expander.dst) + "\n")
+        f.write(Printer.tv.text("hash", expander.hash_name()) + "\n")
+        f.write(Printer.tv.text("security_param", str(expander.security_param)) + "\n")
+        f.write("\n")
+        for vec in expander.test_vectors:
+            f.write(Printer.tv.text("msg", vec["msg"]) + "\n")
+            f.write(Printer.tv.text("DST_prime", vec["DST_prime"]) + "\n")
+            f.write(Printer.tv.text("msg_prime", vec["msg_prime"]) + "\n")
+            f.write(Printer.tv.text("pseudo_random_bytes", vec["pseudo_random_bytes"]) + "\n")
+            f.write("\n")
+
+def create_expander_files(expander):
+    print("Generating: " + expander.name)
+    for expand_length in EXPAND_LENGTHS:
+        [expander.expand_message(msg, int(expand_length)) for msg in INPUTS]
+    expander_to_ascii_file(expander)
+    expander_to_json_file(expander)
+
+
+EXPAND_LENGTHS = [32, 128]
 
 INPUTS = ["", "abc", "abcdef0123456789", "a512_" + "a"*512]
 
@@ -108,5 +149,12 @@ ALL_SUITES = [
     bls12381g1_sswu_nu, bls12381g2_sswu_nu,
 ]
 
+ALL_EXPANDERS = [
+    XMDExpander(test_dst("expander"), hashlib.sha512, 256),
+    XMDExpander(test_dst("expander"), hashlib.sha256, 128),
+    XOFExpander(test_dst("expander"), hashlib.shake_128),
+]
+
 if __name__ == '__main__':
-    list(map(lambda s: create_files(s), ALL_SUITES))
+    list(map(lambda s: create_suite_files(s), ALL_SUITES))
+    list(map(lambda e: create_expander_files(e), ALL_EXPANDERS))

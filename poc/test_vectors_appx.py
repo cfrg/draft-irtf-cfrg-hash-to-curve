@@ -44,7 +44,7 @@ bls12381g2 = ("BLS12-381 G2",
 
 # section header
 print("""
-# Test vectors {#testvectors}
+# Suite test vectors {#testvectors}
 
 This section gives test vectors for each suite defined in {{suites}}.
 The test vectors in this section were generated using code that is
@@ -64,4 +64,27 @@ for curve in (P256, P384, P521, curve25519, edwards25519, curve448, edwards448, 
         print("### %s\n\n~~~" % suite.replace("_", "\\_"))
         with open("ascii/%s.txt" % suite, "r") as f:
             sys.stdout.write(f.read())
+        print("~~~\n")
+
+expand_message_xmd_sha256 = ("expand_message_xmd(SHA-256)", "expand_message_xmd_SHA256")
+expand_message_xmd_sha512 = ("expand_message_xmd(SHA-512)", "expand_message_xmd_SHA512")
+expand_message_xof_shake128 = ("expand_message_xof(SHAKE-128)", "expand_message_xof_SHAKE_128")
+
+# section header
+print("""
+# Expand test vectors {#expand-testvectors}
+
+This section gives test vectors for expand_message variants specified in {{hashtofield-expand}}.
+Each test vector in this section lists the expand_message name, hash, DST, and
+security parameter, along with a series of tuples of the function inputs (msg),
+outputs (pseudo_random_bytes), and intermediary values (dst_prime and msg_prime).
+The expand_message input msg is represented as an ASCII string. Intermediate and
+output values are represented as hexadecimal strings.
+""")
+
+for expander in (expand_message_xmd_sha256, expand_message_xmd_sha512, expand_message_xof_shake128):
+    print("## %s\n" % expander[0])
+    with open("ascii/%s.txt" % expander[1], "r") as f:
+        print("~~~\n")
+        sys.stdout.write(f.read())
         print("~~~\n")

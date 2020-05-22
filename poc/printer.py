@@ -42,6 +42,11 @@ class Printer:
         prime = num.base_ring().characteristic()
         return len(prime.digits(256))
 
+    class octets:
+        @staticmethod
+        def hex(value):
+            return Printer._tv_wrap(Printer._pprint_hex(value))
+
     class tv:
         @staticmethod
         def text(label, value):
