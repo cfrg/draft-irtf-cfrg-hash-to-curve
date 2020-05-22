@@ -85,5 +85,6 @@ output values are represented as hexadecimal strings.
 for expander in (expand_message_xmd_sha256, expand_message_xmd_sha512, expand_message_xof_shake128):
     print("## %s\n" % expander[0])
     with open("ascii/%s.txt" % expander[1], "r") as f:
+        print("~~~\n")
         sys.stdout.write(f.read())
-    print("~~~\n")
+        print("~~~\n")

@@ -4234,6 +4234,7 @@ Procedure:
 7. return e1
 ~~~
 
+
 # Suite test vectors {#testvectors}
 
 This section gives test vectors for each suite defined in {{suites}}.
@@ -6059,6 +6060,8 @@ output values are represented as hexadecimal strings.
 
 ## expand_message_xmd(SHA-256)
 
+~~~
+
 name    = expand_message_xmd
 DST     = QUUX-V01-CS02-with-expander
 hash    = SHA256
@@ -6426,6 +6429,8 @@ pseudo_random_bytes = 396962db47f749ec3b5042ce2452b619607f27fd3939ece2746a76
 
 ## expand_message_xmd(SHA-512)
 
+~~~
+
 name    = expand_message_xmd
 DST     = QUUX-V01-CS02-with-expander
 hash    = SHA512
@@ -6622,6 +6627,8 @@ pseudo_random_bytes = 01524feea5b22f6509f6b1e805c97df94faf4d821b01aadeebc89e
 ~~~
 
 ## expand_message_xof(SHAKE-128)
+
+~~~
 
 name    = expand_message_xof
 DST     = QUUX-V01-CS02-with-expander
@@ -7119,4 +7126,3 @@ pseudo_random_bytes = 858cb4a6a5668a97d0f7039b5d6d574dde18dd2323cf6b203945c6
           e4fda500e1c872e71b8c61a8e160691894b96058
 
 ~~~
-
