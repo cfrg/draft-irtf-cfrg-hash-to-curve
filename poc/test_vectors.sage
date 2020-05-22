@@ -102,8 +102,13 @@ def create_suite_files(suite):
 
 def expander_to_json_file(expander, path="vectors"):
     with open(path + "/" + expander.name + "_" + expander.hash_name() + ".json", 'wt') as f:
-        out = expander.__dict__()
-        json.dump(out, f, sort_keys=True, indent=2)
+        vector = {}
+        vector["name"] = expander.name
+        vector["DST"] = expander.dst
+        vector["hash"] = expander.hash_name()
+        vector["security_param"] = str(expander.security_param)
+        vector["tests"] = expander.test_vectors
+        json.dump(vector, f, sort_keys=True, indent=2)
         f.write("\n")
 
 
