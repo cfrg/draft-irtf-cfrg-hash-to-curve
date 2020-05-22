@@ -6046,7 +6046,6 @@ Q.y     = 1260d6e0987eae96af9ebe551e08de22b37791d53f4db9e0d59da7
           f4112309e628255e183022d98ea5ed6e47ca00306c
 ~~~
 
-
 # Expand test vectors {#expand-testvectors}
 
 This section gives test vectors for expand_message variants specified in {{hashtofield-expand}}.
