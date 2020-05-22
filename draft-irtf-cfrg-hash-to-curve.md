@@ -846,8 +846,8 @@ informative:
         name: Igor E. Shparlinski
         org: Macquarie Universit
       -
-        ins: M. Tibouch
-        name: Mehdi Tibouch
+        ins: M. Tibouchi
+        name: Mehdi Tibouchi
         org: Ecole normale superieure
       -
         ins: J. F. Voloch
