@@ -101,13 +101,13 @@ def create_suite_files(suite):
 
 
 def expander_to_json_file(expander, path="vectors"):
-    with open(path + "/" + expander.name + ".json", 'wt') as f:
+    with open(path + "/" + expander.name + "_" + expander.hash_name() + ".json", 'wt') as f:
         out = expander.__dict__()
         json.dump(out, f, sort_keys=True, indent=2)
         f.write("\n")
 
 
-def expander_to_ascii_file(expander, vectors, path="vectors"):
+def expander_to_ascii_file(expander, path="ascii"):
     with open(path + "/" + expander.name + "_" + expander.hash_name() + ".txt", 'wt') as f:
         f.write(Printer.tv.text("name", expander.name) + "\n")
         f.write(Printer.tv.text("dst", expander.dst) + "\n")
@@ -123,8 +123,8 @@ def expander_to_ascii_file(expander, vectors, path="vectors"):
 def create_expander_files(expander):
     print("Generating: " + expander.name)
     for expand_length in EXPAND_LENGTHS:
-        [expander.expand_message(msg, expand_length) for msg in INPUTS]
-    expander_to_ascii_file(expander, result_map)
+        [expander.expand_message(msg, int(expand_length)) for msg in INPUTS]
+    expander_to_ascii_file(expander)
     expander_to_json_file(expander)
 
 
@@ -146,9 +146,9 @@ ALL_SUITES = [
 ALL_EXPANDERS = [
     XMDExpander(test_dst("expander"), hashlib.sha512, 256),
     XMDExpander(test_dst("expander"), hashlib.sha256, 128),
-    #XOFExpander(test_dst("expander"), hashlib.shake_128),
+    XOFExpander(test_dst("expander"), hashlib.shake_128),
 ]
 
 if __name__ == '__main__':
-    list(map(lambda s: create_files(s), ALL_SUITES))
-    list(map(lambda e: create_expander_files(e, expand_vectors), ALL_EXPANDERS))
+    list(map(lambda s: create_suite_files(s), ALL_SUITES))
+    list(map(lambda e: create_expander_files(e), ALL_EXPANDERS))

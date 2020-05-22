@@ -73,6 +73,7 @@ def expand_message_xof(msg, dst, len_in_bytes, hash_fn, _, result_set=[]):
     pseudo_random_bytes = hash_fn(msg_prime).digest(len_in_bytes)
 
     vector = {
+        "msg": to_hex(msg),
         "dst_prime": to_hex(dst_prime),
         "msg_prime": to_hex(msg_prime),
         "pseudo_random_bytes": to_hex(pseudo_random_bytes),
@@ -118,6 +119,7 @@ def expand_message_xmd(msg, dst, len_in_bytes, hash_fn, security_param, result_s
     output = pseudo_random_bytes[0 : len_in_bytes]
 
     vector = {
+        "msg": to_hex(msg),
         "dst_prime": to_hex(dst_prime),
         "msg_prime": to_hex(msg_prime),
         "pseudo_random_bytes": to_hex(output),
@@ -159,10 +161,10 @@ class XMDExpander(Expander):
 
 class XOFExpander(Expander):
     def __init__(self, dst, hash_fn):
-        super(XOFExpander, self).__init__("expand_message_xof", dst, hash_fn, 0)
+        super(XOFExpander, self).__init__("expand_message_xof", dst, hash_fn, 128)
 
     def expand_message(self, msg, len_in_bytes):
-        return expand_message_xof(msg, self.dst, len_in_bytes, self.hash_fn, self.test_vectors)
+        return expand_message_xof(msg, self.dst, len_in_bytes, self.hash_fn, self.security_param, self.test_vectors)
 
 def _random_string(strlen):
     return ''.join( chr(choice(range(65, 65 + 26))) for _ in range(0, strlen))
