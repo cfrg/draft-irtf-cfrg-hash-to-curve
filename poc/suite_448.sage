@@ -5,6 +5,7 @@ import hashlib
 import sys
 from hash_to_field import expand_message_xmd
 try:
+    from sagelib.common import test_dst
     from sagelib.h2c_suite import BasicH2CSuiteDef, EdwH2CSuiteDef, EdwH2CSuite, MontyH2CSuite
     from sagelib.suite_25519 import _test_suite
 except ImportError:
