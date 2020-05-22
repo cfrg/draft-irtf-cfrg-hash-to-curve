@@ -78,7 +78,8 @@ This section gives test vectors for expand_message variants specified in {{hasht
 Each test vector in this section lists the expand_message name, hash, DST, and
 security parameter, along with a series of tuples of the function inputs (msg),
 outputs (pseudo_random_bytes), and intermediary values (dst_prime and msg_prime).
-Byte strings are encoded as hexadecimal strings where appropriate.
+The expand_message input msg is represented as an ASCII string. Intermediate and
+output values are represented as hexadecimal strings.
 """)
 
 for expander in (expand_message_xmd_sha256, expand_message_xmd_sha512, expand_message_xof_shake128):

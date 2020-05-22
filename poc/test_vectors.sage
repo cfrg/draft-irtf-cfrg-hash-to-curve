@@ -110,13 +110,13 @@ def expander_to_json_file(expander, path="vectors"):
 def expander_to_ascii_file(expander, path="ascii"):
     with open(path + "/" + expander.name + "_" + expander.hash_name() + ".txt", 'wt') as f:
         f.write(Printer.tv.text("name", expander.name) + "\n")
-        f.write(Printer.tv.text("dst", expander.dst) + "\n")
+        f.write(Printer.tv.text("DST", expander.dst) + "\n")
         f.write(Printer.tv.text("hash", expander.hash_name()) + "\n")
         f.write(Printer.tv.text("security_param", str(expander.security_param)) + "\n")
         f.write("\n")
         for vec in expander.test_vectors:
             f.write(Printer.tv.text("msg", vec["msg"]) + "\n")
-            f.write(Printer.tv.text("dst_prime", vec["dst_prime"]) + "\n")
+            f.write(Printer.tv.text("DST_prime", vec["DST_prime"]) + "\n")
             f.write(Printer.tv.text("msg_prime", vec["msg_prime"]) + "\n")
             f.write(Printer.tv.text("pseudo_random_bytes", vec["pseudo_random_bytes"]) + "\n")
             f.write("\n")

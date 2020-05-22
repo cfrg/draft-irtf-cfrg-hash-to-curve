@@ -73,8 +73,8 @@ def expand_message_xof(msg, dst, len_in_bytes, hash_fn, _, result_set=[]):
     pseudo_random_bytes = hash_fn(msg_prime).digest(len_in_bytes)
 
     vector = {
-        "msg": to_hex(msg),
-        "dst_prime": to_hex(dst_prime),
+        "msg": msg,
+        "DST_prime": to_hex(dst_prime),
         "msg_prime": to_hex(msg_prime),
         "pseudo_random_bytes": to_hex(pseudo_random_bytes),
     }
@@ -120,7 +120,7 @@ def expand_message_xmd(msg, dst, len_in_bytes, hash_fn, security_param, result_s
 
     vector = {
         "msg": to_hex(msg),
-        "dst_prime": to_hex(dst_prime),
+        "DST_prime": to_hex(dst_prime),
         "msg_prime": to_hex(msg_prime),
         "pseudo_random_bytes": to_hex(output),
     }
