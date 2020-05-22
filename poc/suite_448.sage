@@ -36,7 +36,7 @@ def m2e_448(P):
     return (xn / xd, yn / yd, 1)
 
 def monty_suite(suite_name, is_ro):
-    return BasicH2CSuiteDef("curve448", F, Ap, Bp, expand_message_xmd, hashlib.sha512, 84, None, 4, 224, is_ro, "%sTESTGEN" % suite_name)
+    return BasicH2CSuiteDef("curve448", F, Ap, Bp, expand_message_xmd, hashlib.sha512, 84, None, 4, 224, is_ro, test_dst(suite_name))
 
 def edw_suite(suite_name, is_ro):
     return EdwH2CSuiteDef(monty_suite(suite_name, is_ro)._replace(E="edwards448",Aa=a, Bd=d), Ap, Bp, m2e_448)

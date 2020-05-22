@@ -1,6 +1,9 @@
 #!/usr/bin/sage
 # vim: syntax=python
 
+def test_dst(suite_name):
+    return "QUUX-V01-CS02-with-%s" % suite_name
+
 def CMOV(x, y, b):
     """
     Returns x if b=False; otherwise returns y

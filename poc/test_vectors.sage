@@ -74,26 +74,48 @@ def file_json(h2c, vectors, path="vectors"):
 
 
 def file_ascii(h2c, vectors, path="ascii"):
+    data = ""
     with open(path + "/" + h2c.suite_name + ".txt", 'wt') as f:
-        f.write(Printer.tv.text("suite", h2c.suite_name) + "\n")
-        f.write(Printer.tv.text("dst", h2c.dst) + "\n")
+        data = data + Printer.tv.text("suite", h2c.suite_name) + "\n"
+        data = data + Printer.tv.text("dst", h2c.dst) + "\n"
         for vec in vectors:
-            f.write("\n" + Printer.tv.text("msg", vec["msg"]) + "\n")
-            f.write(Printer.tv.point("P", vec["P"]) + "\n")
+            data = data + "\n" + Printer.tv.text("msg", vec["msg"]) + "\n"
+            data = data + Printer.tv.point("P", vec["P"]) + "\n"
             for idx in range(0, len(vec["u"])):
-                f.write(Printer.tv.gf("u[%d]" % idx, vec["u"][idx]) + "\n")
+                data = data + Printer.tv.gf("u[%d]" % idx, vec["u"][idx]) + "\n"
             if h2c.is_ro:
-                f.write(Printer.tv.point("Q0", vec["Q0"]) + "\n")
-                f.write(Printer.tv.point("Q1", vec["Q1"]) + "\n")
+                data = data + Printer.tv.point("Q0", vec["Q0"]) + "\n"
+                data = data + Printer.tv.point("Q1", vec["Q1"]) + "\n"
             else:
-                f.write(Printer.tv.point("Q", vec["Q"]) + "\n")
+                data = data + Printer.tv.point("Q", vec["Q"]) + "\n"
+        f.write(data)
+    return data
 
 
-def create_files(suite):
+def combined_ascii(results, path="ascii"):
+    with open(path + "/combined.txt", 'wt') as f:
+        for curve in vectors:
+            f.write("## %s\n" % curve)
+            f.write("\n")
+            for (vector_name, vector_data) in vectors[curve]:
+                f.write("### %s\n" % vector_name)
+                f.write("\n")
+                f.write("~~~\n")
+                f.write(vector_data)
+                f.write("~~~\n")
+                f.write("\n")
+
+
+def create_files(suite, result_map):
     print("Generating: " + suite.suite_name)
     vectors = [suite(msg, output_test_vector=True) for msg in INPUTS]
-    file_ascii(suite, vectors)
+    vector_data = file_ascii(suite, vectors)
     file_json(suite, vectors)
+    vector_name = suite.suite_name.replace("_", "\\_")
+    vector_curve = suite.curve_name
+    if vector_curve not in result_map:
+        result_map[vector_curve] = []
+    result_map[vector_curve].append((vector_name, vector_data))
 
 
 INPUTS = ["", "abc", "abcdef0123456789", "a512_" + "a"*512]
@@ -114,4 +136,6 @@ ALL_SUITES = [
 ]
 
 if __name__ == '__main__':
-    list(map(create_files, ALL_SUITES))
+    vectors = {}
+    list(map(lambda s: create_files(s, vectors), ALL_SUITES))
+    combined_ascii(vectors)

@@ -5,7 +5,7 @@ import hashlib
 import sys
 from hash_to_field import expand_message_xmd
 try:
-    from sagelib.common import sgn0
+    from sagelib.common import sgn0, test_dst
     from sagelib.h2c_suite import BasicH2CSuiteDef, EdwH2CSuiteDef, EdwH2CSuite, MontyH2CSuite
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
@@ -40,7 +40,7 @@ def m2e_25519(P):
     return (v, w, 1)
 
 def monty_suite(suite_name, hash_fn, is_ro):
-    return BasicH2CSuiteDef("curve25519", F, Ap, Bp, expand_message_xmd, hash_fn, 48, None, 8, 128, is_ro, "%sTESTGEN" % suite_name)
+    return BasicH2CSuiteDef("curve25519", F, Ap, Bp, expand_message_xmd, hash_fn, 48, None, 8, 128, is_ro, test_dst(suite_name))
 
 def edw_suite(suite_name, hash_fn, is_ro):
     return EdwH2CSuiteDef(monty_suite(suite_name, hash_fn, is_ro)._replace(E="edwards25519",Aa=a, Bd=d), Ap, Bp, m2e_25519)

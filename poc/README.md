@@ -24,6 +24,7 @@ and the code in this directory.
 ## Utility Functions (hash-to-curve-05 Section 4)
 
 `common.sage` implements CMOV, sgn0, and sqrt functions described in the document.
+It also provides helpers for creating domain separation tags used in the test vectors.
 
 `curves.sage` implements 'native' Montgomery and Edwards curve objects similar to
 (but less full-featured than) the Sage EllipticCurve() object (which only supports
