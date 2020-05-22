@@ -5268,6 +5268,1030 @@ Q.y     = 01b7684cc5893ebbd35d8ce2c3145eea37c6415771ed923af55fe5
           972d0caf17faf076e9eead9c
 ~~~
 
+## curve25519
+
+### curve25519\_XMD:SHA-256\_ELL2\_RO\_
+
+~~~
+suite   = curve25519_XMD:SHA-256_ELL2_RO_
+dst     = QUUX-V01-CS02-with-curve25519_XMD:SHA-256_ELL2_RO_
+
+msg     =
+P.x     = 4862b8982319ecce44c1b6ccf7ba9c205d137764dc98a8bc515ddf
+          05c0fddb82
+P.y     = 3cee08cfd22a80a995c3cb6c4ebb9013f1b3d9ab510af661aef334
+          92e62c2eba
+u[0]    = 7a4e3b740e8dc911b8029ce6a65d6bc00bf03d8d92866a6ae99902
+          6439451ea5
+u[1]    = 5b7b0f765beb8b9051ce5ca68232c305fb1eb79426c43cb93efce2
+          f8a985065b
+Q0.x    = 50243f13d19b38590084e7a58e063a4cfc63123b57c868fb69aa29
+          f90085f2f8
+Q0.y    = 09920ffda8c180a2bcd999d411e032f799ab9e08ba312d5a236d13
+          0f7ce824e2
+Q1.x    = 41baf7c5cded32252f9051d537ea0cb8cb1a89fe61b7a7fc81228c
+          793984075e
+Q1.y    = 177ab481ae51c765ff5e5547760dd51f04b27107e3a0eb788d73fa
+          ba5d9a7dd3
+
+msg     = abc
+P.x     = 1c44a862cd8ce1c2f5e9ef28f96fa22f1cc6d4bb3dee19e76c20e1
+          b7e427e4de
+P.y     = 0a2ca953d666a5aedfae4198f5c6fa7dd4c7b7b920aac855802832
+          93c8a5481a
+u[0]    = 1c72fdce7455952e317d9c99be2d41e0bd5ea9fdef44b3890a6f00
+          e6df68dc08
+u[1]    = 666ec661edfbc1e979a1b52c821e491069e7b6bf3e3071b2793669
+          adb0d51d48
+Q0.x    = 0cc50715428377fc3e246f18180a6dad804e76382ca30b228ade26
+          ed417ce863
+Q0.y    = 28247138ef21d16dc8b24196b30943292ef31738ff32317c6f5920
+          227c9aa331
+Q1.x    = 7d15f5242faac9dc9b24d5a92ee7059a193c75863c56cc28309a57
+          5b1f113240
+Q1.y    = 3b7c8d357c423a840173e263f592d1fd61f1756414655388fee002
+          9e8a3df94b
+
+msg     = abcdef0123456789
+P.x     = 18b0cebd7c0c183faa6ef80de99c4e1f5a53fb012164d4fd20a28a
+          1ba1cd15ee
+P.y     = 764bdd170a631f9b17bb4bc01434f10920f4cb5e5ab49f54f7e5ce
+          220368324f
+u[0]    = 6403431b8b370088637a608849b184b257c0394dbd94416a765335
+          1be9a769d7
+u[1]    = 48a581f02df76a8b30d72b295e08aaf1a8b5c2a1774599d3ae069e
+          ceaf5363b3
+Q0.x    = 2e5e5f9f180d3f934de4f6e9665afb13f63af94822818fb7f6a6d4
+          2eb630f558
+Q0.y    = 44741c5756f2c4e9735c23dc17771d871636f849e097b0a73492bf
+          df1882dbd7
+Q1.x    = 40022c69f6df7e3fca358b3ca2188a1aceb6c87fd54104d61dc563
+          ff7506f9aa
+Q1.y    = 3e77a3381adbc93504f2a3e38749e47ab9db5068237be7b4b5b1b7
+          5f368f779f
+
+msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+P.x     = 242e08f391333017bd0e073ff98a035ce12d06958d665bdc747f26
+          aa4c068797
+P.y     = 58c35ae3481ef62470e1ff7a74636b5217299120d7b9d64b0975f1
+          534e214fd4
+u[0]    = 5cb58f59fc0408aedd631a35127867c5f57c08dd16ed2f41d2c53a
+          5d171c1f5f
+u[1]    = 75256ab69d1682b3684aee79407187eadba42c2535951a5a9d0439
+          119a09e220
+Q0.x    = 3d2ddec936382349e044cb1bbd4ea77c5897be086cf0257a6e098b
+          4c86593830
+Q0.y    = 24f41fa861e1d5d50738d1feecfd97a09b25ff10a0ffd76ee5a4be
+          9ceef20c03
+Q1.x    = 61d6d7ecdf8adaa92aa234caf888d28b143d0df7a935a858a9b025
+          38c83fcfa8
+Q1.y    = 66219626f0e6b2eb140a457602b8464795203b2f0958dd341a5b67
+          671f3c6446
+~~~
+
+### curve25519\_XMD:SHA-256\_ELL2\_NU\_
+
+~~~
+suite   = curve25519_XMD:SHA-256_ELL2_NU_
+dst     = QUUX-V01-CS02-with-curve25519_XMD:SHA-256_ELL2_NU_
+
+msg     =
+P.x     = 29bdf5d29093fa455527f71e127051a2e041a49280491a76a1388a
+          d076f6095d
+P.y     = 3de8f04872088447568cad67c91dbeec50f5598fc877bf37cad9ab
+          468bce0323
+u[0]    = 4891f78130dadef68a54bdd970a27d8ee6ee71c757466de3c62567
+          9be2b6b503
+Q.x     = 108610cd44e0269b3850000447c055b05a64846111a30c94ba6339
+          8771934ceb
+Q.y     = 6acae1b616d835282f2c717e4439d6074f6cc000177c25e18ac8d8
+          60a3dd63b2
+
+msg     = abc
+P.x     = 3358356987959ca72432c8662f46590267fd5ac352fbedcd3d6279
+          499fedc0dc
+P.y     = 1a8a98a200593bc8f3355fc8e60e2cf09c5b288eb7232bea227886
+          b39ed54d1d
+u[0]    = 21d66e516ae54fae0a51c3bb70446ec38c5f19eb506ae8686e6748
+          72d950d2c2
+Q.x     = 2b123502330b33d1a880146c1e84ec5ff95679bea200d6d5cf4042
+          99af42def8
+Q.y     = 44920d10af5b5a20b113572479cdd02253b70eff8f612afa782c55
+          278d997213
+
+msg     = abcdef0123456789
+P.x     = 43c767fc98423fa43546890d80e5da0e214928d3d4a596661bb61d
+          82a67b998d
+P.y     = 62da60fc3d86471d6b181bb66948f3eb24fedfc0dea953caf305be
+          07e829a6f1
+u[0]    = 48b37143c123d622f5ecab78883f76c853fb679d084454efae891a
+          e1f3f34979
+Q.x     = 5bb746418e69e835ec6cc74d6b498ee04dd598b5b9ca805b73bb33
+          0ae3a72151
+Q.y     = 4b0969181ba9cb050e16367b6469d31cc017e68ed38f0ffdc3312f
+          067fe897ca
+
+msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+P.x     = 5fdb7e86a2e7dc2b58d68916a88060261612ce60792116be083962
+          dd938cd396
+P.y     = 3cb7911525bda90a355e0346f81a00cc765e39cfc32651a6eb4777
+          744d71c677
+u[0]    = 4408df5a3aaaab5aea075c0713feda3675c2c4cd6b6b09672aab2f
+          0749553d08
+Q.x     = 2c8722b119aa6da7b32fcd4737ecb649a117b5262460e1aa2f0ebf
+          a56f4cc5a2
+Q.y     = 5e93469aa8cab6e6b557b27d55ddae13c68c7dca950fba33c79022
+          2cb6c99eca
+~~~
+
+### curve25519\_XMD:SHA-512\_ELL2\_RO\_
+
+~~~
+suite   = curve25519_XMD:SHA-512_ELL2_RO_
+dst     = QUUX-V01-CS02-with-curve25519_XMD:SHA-512_ELL2_RO_
+
+msg     =
+P.x     = 2de3780abb67e861289f5749d16d3e217ffa722192d16bbd9d1bfb
+          9d112b98c0
+P.y     = 3b5dc2a498941a1033d176567d457845637554a2fe7a3507d21abd
+          1c1bd6e878
+u[0]    = 005fe8a7b8fef0a16c105e6cadf5a6740b3365e18692a9c05bfbb4
+          d97f645a6a
+u[1]    = 1347edbec6a2b5d8c02e058819819bee177077c9d10a4ce165aab0
+          fd0252261a
+Q0.x    = 36b4df0c864c64707cbf6cf36e9ee2c09a6cb93b28313c169be295
+          61bb904f98
+Q0.y    = 6cd59d664fb58c66c892883cd0eb792e52055284dac3907dd756b4
+          5d15c3983d
+Q1.x    = 3fa114783a505c0b2b2fbeef0102853c0b494e7757f2a089d0daae
+          7ed9a0db2b
+Q1.y    = 76c0fe7fec932aaafb8eefb42d9cbb32eb931158f469ff3050af15
+          cfdbbeff94
+
+msg     = abc
+P.x     = 2b4419f1f2d48f5872de692b0aca72cc7b0a60915dd70bde432e82
+          6b6abc526d
+P.y     = 1b8235f255a268f0a6fa8763e97eb3d22d149343d495da1160eff9
+          703f2d07dd
+u[0]    = 49bed021c7a3748f09fa8cdfcac044089f7829d3531066ac9e74e0
+          994e05bc7d
+u[1]    = 5c36525b663e63389d886105cee7ed712325d5a97e60e140aba7e2
+          ce5ae851b6
+Q0.x    = 16b3d86e056b7970fa00165f6f48d90b619ad618791661b7b5e1ec
+          78be10eac1
+Q0.y    = 4ab256422d84c5120b278cbdfc4e1facc5baadffeccecf8ee9bf39
+          46106d50ca
+Q1.x    = 7ec29ddbf34539c40adfa98fcb39ec36368f47f30e8f888cc7e86f
+          4d46e0c264
+Q1.y    = 10d1abc1cae2d34c06e247f2141ba897657fb39f1080d54f09ce0a
+          f128067c74
+
+msg     = abcdef0123456789
+P.x     = 68ca1ea5a6acf4e9956daa101709b1eee6c1bb0df1de3b90d46023
+          82a104c036
+P.y     = 2a375b656207123d10766e68b938b1812a4a6625ff83cb8d5e86f5
+          8a4be08353
+u[0]    = 6412b7485ba26d3d1b6c290a8e1435b2959f03721874939b21782d
+          f17323d160
+u[1]    = 24c7b46c1c6d9a21d32f5707be1380ab82db1054fde82865d5c9e3
+          d968f287b2
+Q0.x    = 71de3dadfe268872326c35ac512164850860567aea0e7325e6b91a
+          98f86533ad
+Q0.y    = 26a08b6e9a18084c56f2147bf515414b9b63f1522e1b6c5649f7d4
+          b0324296ec
+Q1.x    = 5704069021f61e41779e2ba6b932268316d6d2a6f064f997a22fef
+          16d1eaeaca
+Q1.y    = 50483c7540f64fb4497619c050f2c7fe55454ec0f0e79870bb4430
+          2e34232210
+
+msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+P.x     = 1bc61845a138e912f047b5e70ba9606ba2a447a4dade024c8ef3dd
+          42b7bbc5fe
+P.y     = 623d05e47b70e25f7f1d51dda6d7c23c9a18ce015fe3548df596ea
+          9e38c69bf1
+u[0]    = 20f481e85da7a3bf60ac0fb11ed1d0558fc6f941b3ac5469aa8b56
+          ec883d6d7d
+u[1]    = 017d57fd257e9a78913999a23b52ca988157a81b09c5442501d07f
+          ed20869465
+Q0.x    = 02d606e2699b918ee36f2818f2bc5013e437e673c9f9b9cdc15fd0
+          c5ee913970
+Q0.y    = 29e9dc92297231ef211245db9e31767996c5625dfbf92e1c8107ef
+          887365de1e
+Q1.x    = 38920e9b988d1ab7449c0fa9a6058192c0c797bb3d42ac34572434
+          1a1aa98745
+Q1.y    = 24dcc1be7c4d591d307e89049fd2ed30aae8911245a9d8554bf603
+          2e5aa40d3d
+~~~
+
+### curve25519\_XMD:SHA-512\_ELL2\_NU\_
+
+~~~
+suite   = curve25519_XMD:SHA-512_ELL2_NU_
+dst     = QUUX-V01-CS02-with-curve25519_XMD:SHA-512_ELL2_NU_
+
+msg     =
+P.x     = 1bb913f0c9daefa0b3375378ffa534bda5526c97391952a7789eb9
+          76edfe4d08
+P.y     = 4548368f4f983243e747b62a600840ae7c1dab5c723991f85d3a97
+          68479f3ec4
+u[0]    = 608d892b641f0328523802a6603427c26e55e6f27e71a91a478148
+          d45b5093cd
+Q.x     = 51125222da5e763d97f3c10fcc92ea6860b9ccbbd2eb1285728f56
+          6721c1e65b
+Q.y     = 343d2204f812d3dfc5304a5808c6c0d81a903a5d228b342442aa3c
+          9ba5520a3d
+
+msg     = abc
+P.x     = 7c22950b7d900fa866334262fcaea47a441a578df43b894b4625c9
+          b450f9a026
+P.y     = 5547bc00e4c09685dcbc6cb6765288b386d8bdcb595fa5a6e3969e
+          08097f0541
+u[0]    = 46f5b22494bfeaa7f232cc8d054be68561af50230234d7d1d63d1d
+          9abeca8da5
+Q.x     = 7d56d1e08cb0ccb92baf069c18c49bb5a0dcd927eff8dcf75ca921
+          ef7f3e6eeb
+Q.y     = 404d9a7dc25c9c05c44ab9a94590e7c3fe2dcec74533a0b24b188a
+          5d5dacf429
+
+msg     = abcdef0123456789
+P.x     = 31ad08a8b0deeb2a4d8b0206ca25f567ab4e042746f792f4b7973f
+          3ae2096c52
+P.y     = 405070c28e78b4fa269427c82827261991b9718bd6c6e95d627d70
+          1a53c30db1
+u[0]    = 235fe40c443766ce7e18111c33862d66c3b33267efa50d50f9e8e5
+          d252a40aaa
+Q.x     = 3fbe66b9c9883d79e8407150e7c2a1c8680bee496c62fabe4619a7
+          2b3cabe90f
+Q.y     = 08ec476147c9a0a3ff312d303dbbd076abb7551e5fce82b48ab14b
+          433f8d0a7b
+
+msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+P.x     = 5fd892c0958d1a75f54c3182a18d286efab784e774d1e017ba2fb2
+          52998b5dc1
+P.y     = 750af3c66101737423a4519ac792fb93337bd74ee751f19da4cf1e
+          94f4d6d0b8
+u[0]    = 1a68a1af9f663592291af987203393f707305c7bac9c8d63d6a729
+          bdc553dc19
+Q.x     = 3bcd651ee54d5f7b6013898aab251ee8ecc0688166fce6e9548d38
+          472f6bd196
+Q.y     = 1bb36ad9197299f111b4ef21271c41f4b7ecf5543db8bb5931307e
+          bdb2eaa465
+~~~
+
+## edwards25519
+
+### edwards25519\_XMD:SHA-256\_ELL2\_RO\_
+
+~~~
+suite   = edwards25519_XMD:SHA-256_ELL2_RO_
+dst     = QUUX-V01-CS02-with-edwards25519_XMD:SHA-256_ELL2_RO_
+
+msg     =
+P.x     = 53ac663046740a4bc180891e996db82fb48a5a051f2dd0d3808048
+          97ed65e1bd
+P.y     = 1566a66619869788e3118b8729c95d516f02e2046c51aa7ab46170
+          eea2b154f2
+u[0]    = 1cda39a155fe178dd5a88ba5c5ff456baa595579e050aebb7d89b9
+          18c9a78e98
+u[1]    = 234243d476b1f9186e895791b807cadd65f14561cee07ac508aa60
+          e81dc5f76e
+Q0.x    = 7ab9c1b7138b02fa701183b053d70180e814bf8250783135957a96
+          40c78d27f9
+Q0.y    = 4dbdd251600f4d319c59994bc33a3e128ca3d66b0ab4ae73d806ae
+          c3aaf2a6eb
+Q1.x    = 6f3b9ae48cbd7bc4e7f8a9087bc70f775e9e348a64844b6bad406c
+          a9d22bf623
+Q1.y    = 4e6d9f086413708220e077200c520b905db98be707731a2f3ae2ba
+          90c2ccf341
+
+msg     = abc
+P.x     = 150a8b22d71dc515d0bc015e036fff6063c2738bed062b4bd4e45d
+          fb306bb672
+P.y     = 44f8c2f0717c37c2e841fd09ee88a238b07eb4072734046b161088
+          d56212ccca
+u[0]    = 392fbef0f4c3d92db0dd03b6dd0b113df1f9e128396fe4278b9660
+          6526da9e4c
+u[1]    = 5b4e8ceb8ac3285926c00fcd2e28078abb873e8bca23d26ecbf3bf
+          c563f38aec
+Q0.x    = 65ac095f1233ccc52b2f6d3b956dd453c6b2cdb615eccb5e470458
+          2c635e0d29
+Q0.y    = 2c6ee9f560541fc13471a2bdb746a5122eccde8aeabe0939f689f2
+          6c0a668171
+Q1.x    = 3d227071ab5124dfa9f04a19384ce442a33898345f0bdbfc4ec2d4
+          72b0714210
+Q1.y    = 198dd2b0302536412535d23e0620b1612cd698d6176eb9c84732c9
+          d28438f69b
+
+msg     = abcdef0123456789
+P.x     = 19b4423cd35c33c79d0cd3f0698a855c92dc36617d523ff3647c76
+          80fb82b09a
+P.y     = 761dd3547fc2212368eaec049556c3ae8399ba9fd21252d9ca3bbb
+          64a1ce8bf4
+u[0]    = 547dab6ccf2e84c0a37f99e1aa4a15dc4d3ba5309e72eb03fc4496
+          c222238385
+u[1]    = 6fb74a3b4d14cce173963884c18fb4c3f07b9ea580234a04cf6413
+          a730ec4aa9
+Q0.x    = 1203c38c3dbef03bea6183a1164f9c9f518bdb359a441bd3bb8faf
+          a718e668db
+Q0.y    = 201a5f67d1d6f44febd2f3213595deee5b2bf0153c3456852524fd
+          c1ddbc55d1
+Q1.x    = 638759f445d6b1c898fdee416748d5e23380d2683c0a9fe9466fe7
+          0db5270ae9
+Q1.y    = 00bf76dc96b8155e38e5a768a559e2be034f618440c905466d0123
+          7cf8d7e2ea
+
+msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+P.x     = 52969df2b9fc0ba7b20ed9059b1e403b6070f4d761d5ac60f294f3
+          14df6a408e
+P.y     = 1cfebca1e0b814be10a242ccb253c1e99c64ecd3195330bd6f3167
+          8a360cad6b
+u[0]    = 75f8afc35f93cad88d59f4b73576f06e72de65e6aff741fc0903c0
+          1026e981fb
+u[1]    = 4f5a310a3b276eb4398e9c22894bed97cda5670f4793468b9739c7
+          cf2698da87
+Q0.x    = 768deb6e6a4e65add93a5bf404e4ce76ef57dcc3be1e177d9bd519
+          0642200f79
+Q0.y    = 03caedd4af6f21bcc9fee6e40a1303f2793570db5bf1e60e2c2663
+          2da0e32ad5
+Q1.x    = 1f46eda025be2913f89227bd22461b7db2c42467bb3eabeecd2721
+          657e3d735f
+Q1.y    = 4c32cc1ae29429c1a09d4e12a87791af0356e3241c03c36b0470c8
+          deb24ce5a4
+~~~
+
+### edwards25519\_XMD:SHA-256\_ELL2\_NU\_
+
+~~~
+suite   = edwards25519_XMD:SHA-256_ELL2_NU_
+dst     = QUUX-V01-CS02-with-edwards25519_XMD:SHA-256_ELL2_NU_
+
+msg     =
+P.x     = 0fe5d93c5b7e884f21ff6d26d399aaa480b02aa2a448c1698388f2
+          fc2f4a4780
+P.y     = 0790ea483b3c32db6bf309284b4505a223fc924566aec49c07818e
+          6f47828fae
+u[0]    = 02a1cfe37eb58fe86a4000791177a5b43aa1886711d4ba24f56976
+          2045700085
+Q.x     = 25c3d41731b9b929e0df904056444c8d69c425b2c1abb4b36357aa
+          1a344a9734
+Q.y     = 1ef6f720a96797dcc7118c98daae4189cdc1f8405a39e3c4e15546
+          03410178ac
+
+msg     = abc
+P.x     = 7306c55c38f0407ba67123cb0185998ff1807d27541b3d7a98c9c3
+          e143801f38
+P.y     = 767f521b90cb19a5c9918df81d212a9b50be4500ee246e81f48baf
+          5911bfd5f5
+u[0]    = 1debc09abffdf870affecb05d1656ba98d41404506b55a08c4bbdb
+          42a40969bc
+Q.x     = 02079693d400c83ab5e0d49e12fecd0cc6bdda4bae5dc61627cff9
+          8e1f88589c
+Q.y     = 4ebddb42951ec7ff17770a3f1a63f023c0c94df20f9e64ca4686f0
+          7adf3262a7
+
+msg     = abcdef0123456789
+P.x     = 4b6bbd347ea59230daaadaad2bec527d0ab54d4e33bf3c041553a5
+          d2e1fcad33
+P.y     = 7850c843092d554be1f3ac27ba4e3cfe18c510a10ddc32de67657c
+          0a5a806881
+u[0]    = 3dd81e4eb3c6231942f9140e1dd0d18bc0200b754ef8d3b2f39d1b
+          044edf1c5d
+Q.x     = 036b0261181df7b7510d9aae789693a6a6c8ecd93288b63117bd25
+          20174f8a99
+Q.y     = 1b348cf9a9be673f47f6ab1c4db44ad72ab22cd1a91383098ded8e
+          bd4eff5c99
+
+msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+P.x     = 60f765a74455643897a2f9d66b054d28f46c57084a7f0baec2401c
+          fb4150b44d
+P.y     = 76f903b132761d6983ae88558da61086673e3da33356892e154304
+          11e2ad8261
+u[0]    = 6abcc53ddc54f5e1927b92cbe1aca2ee28b37338e72dbc74736457
+          5986a93c7e
+Q.x     = 0035341a80d048a93eee132344832f9af6af4cd73ef0c6445afd44
+          8125364430
+Q.y     = 31af431a1ab3fb618a9f02288d53295ba11745d346a7c194864973
+          0a9e1acffe
+~~~
+
+### edwards25519\_XMD:SHA-512\_ELL2\_RO\_
+
+~~~
+suite   = edwards25519_XMD:SHA-512_ELL2_RO_
+dst     = QUUX-V01-CS02-with-edwards25519_XMD:SHA-512_ELL2_RO_
+
+msg     =
+P.x     = 3c3da6925a3c3c268448dcabb47ccde5439559d9599646a8260e47
+          b1e4822fc6
+P.y     = 09a6c8561a0b22bef63124c588ce4c62ea83a3c899763af26d7953
+          02e115dc21
+u[0]    = 03fef4813c8cb5f98c6eef88fae174e6e7d5380de2b007799ac7ee
+          712d203f3a
+u[1]    = 780bdddd137290c8f589dc687795aafae35f6b674668d92bf92ae7
+          93e6a60c75
+Q0.x    = 6549118f65bb617b9e8b438decedc73c496eaed496806d3b2eb9ee
+          60b88e09a7
+Q0.y    = 7315bcc8cf47ed68048d22bad602c6680b3382a08c7c5d3f439a97
+          3fb4cf9feb
+Q1.x    = 31dcfc5c58aa1bee6e760bf78cbe71c2bead8cebb2e397ece0f37a
+          3da19c9ed2
+Q1.y    = 7876d81474828d8a5928b50c82420b2bd0898d819e9550c5c82c39
+          fc9bafa196
+
+msg     = abc
+P.x     = 608040b42285cc0d72cbb3985c6b04c935370c7361f4b7fbdb1ae7
+          f8c1a8ecad
+P.y     = 1a8395b88338f22e435bbd301183e7f20a5f9de643f11882fb237f
+          88268a5531
+u[0]    = 5081955c4141e4e7d02ec0e36becffaa1934df4d7a270f70679c78
+          f9bd57c227
+u[1]    = 005bdc17a9b378b6272573a31b04361f21c371b256252ae5463119
+          aa0b925b76
+Q0.x    = 5c1525bd5d4b4e034512949d187c39d48e8cd84242aa4758956e4a
+          dc7d445573
+Q0.y    = 2bf426cf7122d1a90abc7f2d108befc2ef415ce8c2d09695a74072
+          40faa01f29
+Q1.x    = 37b03bba828860c6b459ddad476c83e0f9285787a269df2156219b
+          7e5c86210c
+Q1.y    = 285ebf5412f84d0ad7bb4e136729a9ffd2195d5b8e73c0dc85110c
+          e06958f432
+
+msg     = abcdef0123456789
+P.x     = 6d7fabf47a2dc03fe7d47f7dddd21082c5fb8f86743cd020f3fb14
+          7d57161472
+P.y     = 53060a3d140e7fbcda641ed3cf42c88a75411e648a1add71217f70
+          ea8ec561a6
+u[0]    = 285ebaa3be701b79871bcb6e225ecc9b0b32dff2d60424b4c50642
+          636a78d5b3
+u[1]    = 2e253e6a0ef658fedb8e4bd6a62d1544fd6547922acb3598ec6b36
+          9760b81b31
+Q0.x    = 3ac463dd7fddb773b069c5b2b01c0f6b340638f54ee3bd92d452fc
+          ec3015b52d
+Q0.y    = 7b03ba1e8db9ec0b390d5c90168a6a0b7107156c994c674b61fe69
+          6cbeb46baf
+Q1.x    = 0757e7e904f5e86d2d2f4acf7e01c63827fde2d363985aa7432106
+          f1b3a444ec
+Q1.y    = 50026c96930a24961e9d86aa91ea1465398ff8e42015e2ec1fa397
+          d416f6a1c0
+
+msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+P.x     = 0efcfde5898a839b00997fbe40d2ebe950bc81181afbd5cd6b9618
+          aa336c1e8c
+P.y     = 6dc2fc04f266c5c27f236a80b14f92ccd051ef1ff027f26a07f8c0
+          f327d8f995
+u[0]    = 6e34e04a5106e9bd59f64aba49601bf09d23b27f7b594e56d5de06
+          df4a4ea33b
+u[1]    = 1c1c2cb59fc053f44b86c5d5eb8c1954b64976d0302d3729ff66e8
+          4068f5fd96
+Q0.x    = 21091b2e3f9258c7dfa075e7ae513325a94a3d8a28e1b1cb3b5b6f
+          5d65675592
+Q0.y    = 41a33d324c89f570e0682cdf7bdb78852295daf8084c669f2cc969
+          2896ab5026
+Q1.x    = 4c07ec48c373e39a23bd7954f9e9b66eeab9e5ee1279b867b3d531
+          5aa815454f
+Q1.y    = 67ccac7c3cb8d1381242d8d6585c57eabaddbb5dca5243a68a8aeb
+          5477d94b3a
+~~~
+
+### edwards25519\_XMD:SHA-512\_ELL2\_NU\_
+
+~~~
+suite   = edwards25519_XMD:SHA-512_ELL2_NU_
+dst     = QUUX-V01-CS02-with-edwards25519_XMD:SHA-512_ELL2_NU_
+
+msg     =
+P.x     = 1ff2b70ecf862799e11b7ae744e3489aa058ce805dd323a936375a
+          84695e76da
+P.y     = 222e314d04a4d5725e9f2aff9fb2a6b69ef375a1214eb19021ceab
+          2d687f0f9b
+u[0]    = 7f3e7fb9428103ad7f52db32f9df32505d7b427d894c5093f7a0f0
+          374a30641d
+Q.x     = 42836f691d05211ebc65ef8fcf01e0fb6328ec9c4737c26050471e
+          50803022eb
+Q.y     = 22cb4aaa555e23bd460262d2130d6a3c9207aa8bbb85060928beb2
+          63d6d42a95
+
+msg     = abc
+P.x     = 5f13cc69c891d86927eb37bd4afc6672360007c63f68a33ab423a3
+          aa040fd2a8
+P.y     = 67732d50f9a26f73111dd1ed5dba225614e538599db58ba30aaea1
+          f5c827fa42
+u[0]    = 09cfa30ad79bd59456594a0f5d3a76f6b71c6787b04de98be5cd20
+          1a556e253b
+Q.x     = 333e41b61c6dd43af220c1ac34a3663e1cf537f996bab50ab66e33
+          c4bd8e4e19
+Q.y     = 51b6f178eb08c4a782c820e306b82c6e273ab22e258d972cd0c511
+          787b2a3443
+
+msg     = abcdef0123456789
+P.x     = 1dd2fefce934ecfd7aae6ec998de088d7dd03316aa1847198aecf6
+          99ba6613f1
+P.y     = 2f8a6c24dd1adde73909cada6a4a137577b0f179d336685c4a955a
+          0a8e1a86fb
+u[0]    = 475ccff99225ef90d78cc9338e9f6a6bb7b17607c0c4428937de75
+          d33edba941
+Q.x     = 55186c242c78e7d0ec5b6c9553f04c6aeef64e69ec2e824472394d
+          a32647cfc6
+Q.y     = 5b9ea3c265ee42256a8f724f616307ef38496ef7eba391c08f99f3
+          bea6fa88f0
+
+msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+P.x     = 6e5e1f37e99345887fc12111575fc1c3e36df4b289b8759d23af14
+          d774b66bff
+P.y     = 2c90c3d39eb18ff291d33441b35f3262cdd307162cc97c31bfcc7a
+          4245891a37
+u[0]    = 3cb0178a8137cefa5b79a3a57c858d7eeeaa787b2781be4a362a2f
+          0750d24fa0
+Q.x     = 3e6368cff6e88a58e250c54bd27d2c989ae9b3acb6067f2651ad28
+          2ab8c21cd9
+Q.y     = 38fb39f1566ca118ae6c7af42810c0bb9767ae5960abb5a8ca7925
+          30bfb9447d
+~~~
+
+## curve448
+
+### curve448\_XMD:SHA-512\_ELL2\_RO\_
+
+~~~
+suite   = curve448_XMD:SHA-512_ELL2_RO_
+dst     = QUUX-V01-CS02-with-curve448_XMD:SHA-512_ELL2_RO_
+
+msg     =
+P.x     = da2332a516a063fef60267e6d89120bb999247ff7f52b313c8eee2
+          777e03320f30996a53280b6d8c3847cfb9ea565f46310e582a3733
+          4f69
+P.y     = dc7be59148778dbf9fbeaeaf2ce578b9b82f8d72fe8e7073ad92f2
+          77fb987b34711ba8571b30f89de8049d744ba3107399f2dc3c9d5c
+          c8b2
+u[0]    = e06d3a0f99597cd9fa6ccb2c3db31d163e50940d2c7504e1bfba16
+          ac69c2a7cbb52df77f100c4e6908788b50ebfb7c47b2e96586ca59
+          b47b
+u[1]    = 88267fb8a9a813556844b3ac7861b380ad7597ed0ef030be490274
+          54b83f441e34aee8682afabdae4f3deafaa894b15de9bd6af5059e
+          f0ff
+Q0.x    = 8219c3ff382cfe2f02a2a20f5ffd54564203edc7336022abc6b397
+          3ec7e61fc2d458a81846385080febb458695746c0ffc04e080b2fd
+          ecf2
+Q0.y    = 9712f659ce8ddbd2bc581af3c6c359038d877174805b8772a647b3
+          b0bc9d66a579f72bc9ada3b836aaf2642d909ed9b96dc686ae668a
+          b5c1
+Q1.x    = 2730fc1f5ea277c6ee5096eece84901d42fa3f78c018b1174c4685
+          e0be780f769933d28d29b13b330352353b9e1c98bb5ea6dabdf7e5
+          8e5a
+Q1.y    = 5cb3a598ff66725b74c0e9f33e23b317a82a8bd6d1be02816688ef
+          74a5d704c14d09440f123573666e81a01cb19d91e25a4e98bab1f2
+          4668
+
+msg     = abc
+P.x     = 126bdbaa7d8690fbf97447adf5b0ead68a48e3c75fb49d4ee584d9
+          7f08fadb3fd00d107455bd5a032c682d8a80b4f796960d61fc01e3
+          9faf
+P.y     = d973b5f9d4babfb95e1e28484068fdd3314b2e334f8bfcbccb9878
+          a1b9d0247bb4294c035caf1558c7d5fe140fb440fc32f7c4637f56
+          2db5
+u[0]    = c0f1c170cea7276b72c0e744f4b1d6974da6a57b50bf3e0551f208
+          c500a3797fd2279e9d19a3379fcb82ee31d22654645eb4e1440e0f
+          012a
+u[1]    = f264aea0654f5055d2fbe15a00635fd8a93c90bde40f22632da6c0
+          cc2e62403261ebd0d21d08ef90704772b9f381f03d46a0a271fcde
+          22ee
+Q0.x    = 97f4538634980c078431983bc90dd20bffaa3c7e3d0343742738eb
+          2f9a6a49357798a8900239e49b384e88acfeeaa4819de34b6be12b
+          b583
+Q0.y    = cd0a7ca6b2bc2f3483ece0ae77307301fe8de23d31077f792ac7a6
+          bc6362178b22be3188ac29940e576d33f477be976aa1bd60272dde
+          8fae
+Q1.x    = 7c03c44df3e7d00f16eb363e25573f1cbe229303deb83c4744df1c
+          d1f8542748d41d8eb004fa7633752c8ca82c71e30de3dda8cbe542
+          3a9d
+Q1.y    = eb29f9825c4f564a6b94bacf78e0eea3888597ee6a893cea9f5ebe
+          7ada5edbb1a1601a98124e3c3355ed413f9661089b5a11947685c4
+          371a
+
+msg     = abcdef0123456789
+P.x     = 474e477439d7a9592a13094b38c54e25828c681c7c8b81ba2d54c8
+          0148a25be684ce2e8e25fc0149c10ed1f601bf0883ae16c364c6d3
+          fa63
+P.y     = 1989aff846273a5cc768b4624884c707f25d050b9dc9293cbe109c
+          019ee084d28de004b83ebb0ba175081792c91b721215df14dabf0d
+          6a70
+u[0]    = 5f09c4906a56cd7b4a620fbed243b8c1bffa30e58ca6c709273e63
+          e14e547f1fde8545e04b63e34d4bb2df6143ed0469172fee016040
+          3e9d
+u[1]    = 8816db97222c7cf1a728ae635542497683c6959f042e51c62ba270
+          eb437d7e9cce9080e5c8e05b05e0b0a298823bd661d5272258c7f6
+          d76e
+Q0.x    = e6d0c0fd0e30e1a27d9bbee310398e2461e9199000476e57d819be
+          2f343a32165bcc5e524c3feffca3b272bc801367b47032b6f5ae21
+          b514
+Q0.y    = 87ecc285bada245d203e67f6a5cf19876abdd4fb994b1d72f2bd21
+          5b19048721359eed24d2de20d344a06cb859445a726c4c76156160
+          13a7
+Q1.x    = feebcf52ae07ffc9c6665912c8e6ab14adf880dba9679d1862af6a
+          1eedc25b33c641af1cf8385771afec096701e247602e54c1e183ff
+          d151
+Q1.y    = 47a95cb1361c02caeaac9d036b99bb11e733fa2f140c9831694057
+          eab0e7878b0b823891b02428ee2cb09627bb6cbf860bf72cad6b44
+          61c4
+
+msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+P.x     = 63f7b02ccfdcc3dda4c2f3162b3a29cce131bfec05c937f47fbea6
+          92da6c35611ea3b02056184530a7a16a266e24aa440201418650a9
+          b1d6
+P.y     = e7c55ef24be0109fd3a32e982809aa389e9583cc0861ff42e08b4d
+          1d261f50ddaa4887642aa80a3a7658a107159d0f60c6809bf052f2
+          feec
+u[0]    = ec36b3337ec9b94b8a32a192617f278c72d89b0c31f19d184c29c2
+          a26c7d53ce880de19d980be7ba2c43451966a3e5b9b7b3496834e7
+          3868
+u[1]    = 8b5ff5b833a4655293cc8f8feb940bc84e8f2e240370a002457346
+          628a892cbb8abd96c1140ca044a1bca85181a0a4ffcaf8a42a95ef
+          f4c9
+Q0.x    = 3d94294cbb050707f5ad5a0dfc596445848c05a81d2a175a05b34e
+          409748cbe98970d1a0fd4bcdc030969481d669f0ce8befe72e0e7a
+          3506
+Q0.y    = 11718321d9ed5ce14aaa7d1d06f6a91ca3875eb2bef70e96b54aa2
+          51387629633860898faf3ec18ae47d5a6a0d605536435140d0f8e9
+          802d
+Q1.x    = b283ab36f5dff4d54dca265e74ca355d751983fb013f458f44dcb6
+          b00302569788ed0a3567ca93be803e6a5aa883587e3a9da9368626
+          6ecf
+Q1.y    = 7bebe0e4520198e026127cf8bd4308db737358afaca143788637c6
+          75812282336699de18e4b239e7c5e95797154b8cd00aa51b830993
+          9abc
+~~~
+
+### curve448\_XMD:SHA-512\_ELL2\_NU\_
+
+~~~
+suite   = curve448_XMD:SHA-512_ELL2_NU_
+dst     = QUUX-V01-CS02-with-curve448_XMD:SHA-512_ELL2_NU_
+
+msg     =
+P.x     = ea84fb65c9404271a743b99e734888d7d5170dee33421936180745
+          66b8c4faf0d751b46bcdcebbce41e44d101f93b098e150836eeb26
+          3d90
+P.y     = a8378c8c97c14c4127ebf6b36c9d4a6524be2b85ad76fd195315d3
+          d6eecf5147c9d96edb7f574935d0e945f6664040dbe0270d4ae24d
+          ab64
+u[0]    = 89b0674b247b36697f028e39edb34bd9ee6ba968148447c80773ea
+          54650f5f57e005f69898502ea754f3dd710562cf80f347296b15f2
+          b040
+Q.x     = e57024bb58651499c5e87dffb879b0bd3abfbfa9f5af2962c2597c
+          61cc24e2ad7a2802d5f98bc6265ea54e7b83befb8c59afd0854f5e
+          bc09
+Q.y     = 0f2a66e25fba03deb43daf0dc694d6265e0f426f041a0bc5970206
+          871f88a0a09b0463607ff6ac94cb3609ed74d7eb9e7842a7b5f652
+          89c2
+
+msg     = abc
+P.x     = 2e7014413676426069da399013d0a825ea436f6036fc895099838d
+          0c2e047b69a8c98b2b5e5a5e1d203bc58829141bbcc1bbf66d5d7c
+          eb85
+P.y     = 843b3542bd5c3175fa8a1160b0f5b3ce54f9650a18b0b8f02b83b6
+          2f4adfda146b0ab04bf902fb098459d0cf2171c640f003df8d79ee
+          e4db
+u[0]    = 413957bbc65b091215af8af48ad7e24bf048e9f6d9a73aec17e998
+          a2b51cfc4ccdb4c25693e764db7799619f163532ec1ce5692e1753
+          0384
+Q.x     = 8e4ff7f3bf4e42202441a441da4afaa6d4f32f95d0406742172e88
+          af8ffa304022eb3d2fddc5cffbb0241466daf3f152fddc26184074
+          12fb
+Q.y     = 22e7d04d6dabbf15eee6529bf1f6a3a9efaa3a772956de1c08441d
+          94ef63b163ecea2065aebb004e8cfc12cfd2f946de05277caabba1
+          4a96
+
+msg     = abcdef0123456789
+P.x     = fec43c1455df411dcb549c6cd3c25915bc73b1bb1655b164b98298
+          c557dc1bf6f33791a43d167375cd645a51a13e34e645d0f5a05def
+          b6a5
+P.y     = b9ede648411291433b4ecb333869315db05522a26c34ad87a73d52
+          3fa34f77b6ae8299d992ad5dc5d0d08f708975d19124168dd7d840
+          f7e4
+u[0]    = fe602896e4a559685e0deb1c7c8ff4eec02cda9037bb6bd009d003
+          31b0b51227b64704e2462fd9cad0ebc24cb8817c5758703f720125
+          1c94
+Q.x     = 1f1aefee6f36a913a0c63a69439400e00d6b900554489e3a25eaa6
+          6d4b68cafd0dc63e5645701b37edd7535b1b38305efb0460d8f103
+          616a
+Q.y     = 2e8d502126f2ab8c125f8213c7a5fed8ca59857a8c9bd2955f938f
+          4beb89b57f3edbb823bdc4fa94e15e9bbf9f644137bf865ec7659b
+          deb9
+
+msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+P.x     = 1953f9cb8340b7968c1d820fad943cb58d132ec5db85a3bc22a408
+          b834f4d14fae0826164d92f285a71977ee1ca21c48fb08ecccf71f
+          b43f
+P.y     = 2a5ebf1f4082bb8fa4ead0a54bb9b9d820018b06c2a9c81be048bc
+          6cae60fb99099cbcb9daf82a88cb177be328283f96f6e623af362a
+          6165
+u[0]    = 264d09a96a80db8aac3b51d54f7f115dfe3a615e85713f2d4d4bf6
+          2c47ce0e8ebe261fc3a281166e9c25ea689010639f8131ffb6d8c0
+          d5c9
+Q.x     = 62d81718b0b327cf3b0dd77885de6cf3202bc2c0a20bbd3af18127
+          16104fb5a39878dbe92862f40c28e1ae078a0b8c25ba23c9bca5fa
+          ed8a
+Q.y     = 6505d475959b61e33f9e4c2c6d8033b5dbd09432993997c07ae2c2
+          4a31d7a35c02e15f357aebf0178b7b8525074b2400ec3d1bb8eda1
+          b9ee
+~~~
+
+## edwards448
+
+### edwards448\_XMD:SHA-512\_ELL2\_RO\_
+
+~~~
+suite   = edwards448_XMD:SHA-512_ELL2_RO_
+dst     = QUUX-V01-CS02-with-edwards448_XMD:SHA-512_ELL2_RO_
+
+msg     =
+P.x     = 132e90a3f7110a41ad796ef3e83baff6839d5569854f5a11c16b2a
+          7a26d86e32a6bcdc93e954aaea197768d04091aab18f5779ae4f85
+          9d18
+P.y     = 12165b672a52370f21268ce2c261c3ed32adac6a3404fbd50d31a5
+          51a9111d109b0c691868aa6e9d92fd94dfa2a7397a2c111be9c432
+          c0cd
+u[0]    = 6369f90cf2806a86841398114dccf2ffd06d2d57c782a449df5297
+          189de02384b22cf73a0b5f678fe486ad59280d15431f4a65fec93d
+          0039
+u[1]    = a6b424f6f6c995dec127ac862ebc93b82ab3604087d70a78189054
+          b09be6c9e76ab85ee8351870bfd93dca7607fe864dac096e3f333a
+          145b
+Q0.x    = bb132e877b5fe35b189ee7041c53f03d943d36ea7265dce2c267cc
+          5500f281a2f8981c393a05e94962f8d8017ec6ad3a6b34cbad3480
+          6c12
+Q0.y    = 15e1762b3c85a31ba3a9b7ba52eba6c7f02d5a802068afa8935e4d
+          20ffa3e0356cf57398b8b9065554c3036a6f17e48b1f2ee0e5615c
+          5d73
+Q1.x    = cc44d47637c8fcbe1dc1020b87eb21205f055d6dec872efcc09b8c
+          50935cdb38342340f389d6284a2b4bc5486f8c05a3fec6c7ef59c0
+          2e2f
+Q1.y    = c875e0cb547828c2707097c2cb6e3d7f03f92a715d6c66c370b08d
+          09be11b69cc07c4798ff3ed30e64b5c1742bed375bb51b61963617
+          9adb
+
+msg     = abc
+P.x     = bdb13f312a5d478f57bc852b743acd3ce51dd2de96f181ff88556f
+          2b41d568ed64c2b210286be54b7c84d23cbc09a01902172a903b9c
+          8c1e
+P.y     = 6165182fc928064e375777e700f44e56b54b5980a42c72f747ba95
+          829bd8ff80de5fd159e149a8169397029553bd89b5c28df416e10c
+          b36b
+u[0]    = 4c3b600dba4a986944840b32e154510af806aa095f856fdf8fe320
+          1221314704aba830579f3da5e30f3300e89814324a0bef26a9cd3a
+          b6a0
+u[1]    = f0ae99c47274ed37fc582a7edc75aa0ddfdb7ed77e7eebbc293dca
+          8312a6ff43e7c34c6796f9fe2a21c337deab5523d4825aebde5f14
+          1869
+Q0.x    = 46b89d09965812c09af0f484a1262246b14f25e8f68a34678302ca
+          76e461968c61f6ae1d4d7f32d930bbe153f2a02085a12a15e3e11b
+          5af8
+Q0.y    = d1cfb0fb4572b51b0c4e27d574adb4fd5a3276e4c59709c732ef1b
+          7ce9e59fd87df98a79c65fb709110a3922ffdf8b4593c3ed9caf96
+          6e9e
+Q1.x    = 94558aaac183cb8f263caa55eb79d1c4d44f681d2c9e2efc23927b
+          6e272b7e3261f5d178dc166a6724aa2b2b5abfd4a97c6fc38ce423
+          998f
+Q1.y    = 1ee82f88f4e0b552b1a2bf048de95f8196d2f565de8edc1ae94d9f
+          8fc8fd1a0d193f9bd58833b3bbab5ab97e85ae758b5fa01eadcb0b
+          9ced
+
+msg     = abcdef0123456789
+P.x     = 01a04ed1b758a20245ea227827350eaedef92ef2860e58e5c5a982
+          0a1fc6157082b3722d25c9754bc2642b126c4a9188a1fe9c8b2b39
+          6b53
+P.y     = 88ac7496b9ebc2b446695324e2f76ad54f4b8b21d0077ac15b69ad
+          7a4abcd00e881cadbd829db2d2d0f28fc84eac4fc59264b2d14063
+          e770
+u[0]    = f3c7984b7cbaf248dacc25599c8ac774782c5a3ed7bd24343fb935
+          602469b76541f8fd54dd78a7c54b6d991e17ec416742f92a18e8e6
+          805b
+u[1]    = 98fb498e5f6c40762899444a200e052ab25d336b84571f27670c7b
+          cea54efc78f167a770275179dad42b6df0e3cc477abdf115f0b5f1
+          cc49
+Q0.x    = cc2286ee7e052ffccbc10607bfa8bb7ced94924dfc6fee6f34eedd
+          fa559000f8d0d238c14cbe2e3509b39843e5711583982a80f652dd
+          e738
+Q0.y    = 774c9a9f0f4143ca2779b4bbb4ef397da643db7b74ac8bad1a54fb
+          c86f728571fc401ca5b2a8432a018a5d545b526387f364701b232e
+          3dbd
+Q1.x    = e0fa0e6ff453760f52ea77ae9d605d00fc9930e9302a7779243fd6
+          5e29970c3ebc26799a17ce7a24b7ea18f2c5b572fc29d6dbf73a89
+          672a
+Q1.y    = 6b5b06e9ab686c8377ac404f142444ded5adcd68daafde1bdfa7ef
+          671708636da22adba4fda2b2472e37cddebec47fe30e38a11dcd06
+          d10d
+
+msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+P.x     = c7c7899dab9813b5d10cadf43aa0cf5f26c21e98e5c0ffbe690059
+          67dbfd066e5564bdc6c67adeb87f55951c4a077c8d4a6095a23559
+          3201
+P.y     = 547c2293a8b8489270957118e69a241227dc32c5587819269630ff
+          687bb88284b88376fa8f86e0dbafc09d8dbba49a4a433fbd379d10
+          3c5c
+u[0]    = 967a9f376c20a33d6a041ed783fd7a6b7fba24ab92029bc69340a2
+          6441c287d368b8496fb14d19631ff406e057bcf8e8553660e7e73d
+          561d
+u[1]    = 78d710dd21fedeb0dc93ec424e17e879935a689aa2c14b207a0055
+          f1e57a44d83929731ca74fcca2fd0cb6bbaab12265fe104dd6fae4
+          87a5
+Q0.x    = 5f238a69135b8207607ea4dcebed925425adb75dfdb86e6e7f1279
+          6f2086cba1add20f36a2e38176dd4feda1ad25aa8657728d390ce4
+          b818
+Q0.y    = 225a31f6a260be2b81b735ea1bdaaa65486a50777e3e3b83265e69
+          a572e2054e63f0519a06537fba0d15076c993c6e19121fd077e8e4
+          5ee9
+Q1.x    = a1d4f1d07717adbcc3926caaf2d731532c2065c191dfca7b60a5e1
+          499a1c237985807b441004b5476c896105806f8157e362ef96f16e
+          7293
+Q1.y    = e320a16c1417d41241f03507ca0ea48d0e494cfd8bb067107bc18a
+          939c69581ecaee71a5f656fcd091688391f41ca1b23b3fad4876e6
+          8e01
+~~~
+
+### edwards448\_XMD:SHA-512\_ELL2\_NU\_
+
+~~~
+suite   = edwards448_XMD:SHA-512_ELL2_NU_
+dst     = QUUX-V01-CS02-with-edwards448_XMD:SHA-512_ELL2_NU_
+
+msg     =
+P.x     = 9edd52909ac5f8d4506149c30e1ea8709eed77c409d3ba2b3834a9
+          18c4d7bf47cb11c464847fc5edfc4ec5dcb6e2e1c4a4bf2cf93914
+          44af
+P.y     = 6d73a9acd7c51479d59f7aab60bd0090ec44fe64d82ffea0ccff18
+          ac5060632be1c44219adef88937e2f28ebab0b4edf16c501b6ae83
+          7409
+u[0]    = d244401e5d2f510c21944e96203cff15813d57c3f40b1a15bd73e1
+          d9ac031966137e39e1111cf46e590ed4726ea9c96616a581a57cb4
+          6010
+Q.x     = ce981eeb6c73a7edba5c4c29af37010c398f1dbe39fe00be52100e
+          b7c107f71793ce5928c2a34ce7fc37e054838d2788c46abad5b1f7
+          009f
+Q.y     = e822cb7fa3f0e97e1215619f13ed7fde59137dc807a37ffbb7a375
+          7f948f3fb50168c7fd6a5077a1fe7e6f484ba4881c964e5fff2b99
+          e9af
+
+msg     = abc
+P.x     = 2df5a5ee45640cc4e297f969c9771b36e4358463d47a530e375fe1
+          3d442a17cc5f27818365eead72adee48c5911eb4ad7ed4e242f81d
+          37b8
+P.y     = a1ba8d111dd6338338f88c552d3338077fc5fe037860f2eb2b7496
+          6a4a96f7fc59f859518caba87a1cf3fefbcace608e7b651ab5cb9e
+          1eed
+u[0]    = 2f3bcc6253b74569ea64a9d90ea4ee52c71bd168241eaa88c6f458
+          93ffe00fe9888f2966a6308ce194cff35059d09cf59c68f3b961d0
+          fd17
+Q.x     = 4dc176c8c7cacf550289ae7cba158307880fa606e7bdb607d976dd
+          398e60088bf1316e193b56784ea4a295884176efee84a500d46003
+          7e1f
+Q.y     = 711909a05b086efe857ec86729a667a531d958d17f5f7a4b9d9fa1
+          59d3d7668d74ae4f4dd1b7273e2a26c68029c881255e462d046f89
+          ebe0
+
+msg     = abcdef0123456789
+P.x     = 7120e8a2d8f4c34743b8afc1ec9f72fee0e9fd60d25f776fabc9a8
+          bd5c3ea1d5797653b782483cad1af66e41acf04fa893844e0986be
+          739c
+P.y     = 6098bc3d041ba1d31074e9ca1b788c42c9db695f13ddda8d3e8275
+          478d54fc4ba754c2b397ddafc021810a4068a2b3f6e6e08cfd7787
+          ebd6
+u[0]    = b9e80bb5fc08b259cd3b8e9f9ab722b427becf3797b2316ec94e2b
+          6ff8286908fd2c70470c1290939ab14bda375185054ea4205e0ea0
+          23ca
+Q.x     = c7c2691fbb36a69fc3a04970d2c9881dbede0b68a69ba7c92b9160
+          112293d97103b360cdca664a47ebdc31b7b60c6d5bebb6c5691a46
+          c1c8
+Q.y     = 8c9e09b8a17559a59cf3071f48e68c5d1fa1836f66c59bc3b76df0
+          9a62df5ebb5c0ac1a6f6f71e51f876241b3e7d459f45b142891057
+          eb63
+
+msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+P.x     = e6856da5667f5083bddc84e447578522373fe36b45af60245d5e40
+          adbe2c1934918a1d2071a1826dbbaed45bbaef0d888a4ffd513281
+          26a0
+P.y     = 3e2108cc4d0a88c5bceb7a0ac983b1f3b224efa288f59178f2cc30
+          615635d1269be84482cc443035bfae0a01f25a262b3b650c778162
+          4c1e
+u[0]    = 74e63d0db5942bc43c2505caf4b71eb5a826ce0f3f4f23ba2bbbd0
+          9948a0b0eee887163a93a90566b456c687bb8671ef2e2fe4e51ebd
+          8def
+Q.x     = 60d1975f6f5b78a8e6edf580958acead694b229a7b35e79b1f214d
+          e76b2391d3fa39ccb1b0d19d719f37f91fc191c554b97acff501af
+          6fac
+Q.y     = 5dbd9a91c9865928da7fffcd548ad4da813539d349aa40798fed5d
+          33c872ca56e6545ca0b851eba4b1b05cf9a710b15c94de700a6d6d
+          d1c8
+~~~
+
 ## secp256k1
 
 ### secp256k1\_XMD:SHA-256\_SSWU\_RO\_
@@ -5574,1119 +6598,7 @@ Q.y     = 7904daf4f9bf2b233f68fca4699d139107e5c6c63746853616d656
           1fce8228d3
 ~~~
 
-## edwards25519
-
-### edwards25519\_XMD:SHA-256\_ELL2\_RO\_
-
-~~~
-suite   = edwards25519_XMD:SHA-256_ELL2_RO_
-dst     = QUUX-V01-CS02-with-edwards25519_XMD:SHA-256_ELL2_RO_
-
-msg     =
-P.x     = 53ac663046740a4bc180891e996db82fb48a5a051f2dd0d3808048
-          97ed65e1bd
-P.y     = 1566a66619869788e3118b8729c95d516f02e2046c51aa7ab46170
-          eea2b154f2
-u[0]    = 1cda39a155fe178dd5a88ba5c5ff456baa595579e050aebb7d89b9
-          18c9a78e98
-u[1]    = 234243d476b1f9186e895791b807cadd65f14561cee07ac508aa60
-          e81dc5f76e
-Q0.x    = 7ab9c1b7138b02fa701183b053d70180e814bf8250783135957a96
-          40c78d27f9
-Q0.y    = 4dbdd251600f4d319c59994bc33a3e128ca3d66b0ab4ae73d806ae
-          c3aaf2a6eb
-Q1.x    = 6f3b9ae48cbd7bc4e7f8a9087bc70f775e9e348a64844b6bad406c
-          a9d22bf623
-Q1.y    = 4e6d9f086413708220e077200c520b905db98be707731a2f3ae2ba
-          90c2ccf341
-
-msg     = abc
-P.x     = 150a8b22d71dc515d0bc015e036fff6063c2738bed062b4bd4e45d
-          fb306bb672
-P.y     = 44f8c2f0717c37c2e841fd09ee88a238b07eb4072734046b161088
-          d56212ccca
-u[0]    = 392fbef0f4c3d92db0dd03b6dd0b113df1f9e128396fe4278b9660
-          6526da9e4c
-u[1]    = 5b4e8ceb8ac3285926c00fcd2e28078abb873e8bca23d26ecbf3bf
-          c563f38aec
-Q0.x    = 65ac095f1233ccc52b2f6d3b956dd453c6b2cdb615eccb5e470458
-          2c635e0d29
-Q0.y    = 2c6ee9f560541fc13471a2bdb746a5122eccde8aeabe0939f689f2
-          6c0a668171
-Q1.x    = 3d227071ab5124dfa9f04a19384ce442a33898345f0bdbfc4ec2d4
-          72b0714210
-Q1.y    = 198dd2b0302536412535d23e0620b1612cd698d6176eb9c84732c9
-          d28438f69b
-
-msg     = abcdef0123456789
-P.x     = 19b4423cd35c33c79d0cd3f0698a855c92dc36617d523ff3647c76
-          80fb82b09a
-P.y     = 761dd3547fc2212368eaec049556c3ae8399ba9fd21252d9ca3bbb
-          64a1ce8bf4
-u[0]    = 547dab6ccf2e84c0a37f99e1aa4a15dc4d3ba5309e72eb03fc4496
-          c222238385
-u[1]    = 6fb74a3b4d14cce173963884c18fb4c3f07b9ea580234a04cf6413
-          a730ec4aa9
-Q0.x    = 1203c38c3dbef03bea6183a1164f9c9f518bdb359a441bd3bb8faf
-          a718e668db
-Q0.y    = 201a5f67d1d6f44febd2f3213595deee5b2bf0153c3456852524fd
-          c1ddbc55d1
-Q1.x    = 638759f445d6b1c898fdee416748d5e23380d2683c0a9fe9466fe7
-          0db5270ae9
-Q1.y    = 00bf76dc96b8155e38e5a768a559e2be034f618440c905466d0123
-          7cf8d7e2ea
-
-msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-P.x     = 52969df2b9fc0ba7b20ed9059b1e403b6070f4d761d5ac60f294f3
-          14df6a408e
-P.y     = 1cfebca1e0b814be10a242ccb253c1e99c64ecd3195330bd6f3167
-          8a360cad6b
-u[0]    = 75f8afc35f93cad88d59f4b73576f06e72de65e6aff741fc0903c0
-          1026e981fb
-u[1]    = 4f5a310a3b276eb4398e9c22894bed97cda5670f4793468b9739c7
-          cf2698da87
-Q0.x    = 768deb6e6a4e65add93a5bf404e4ce76ef57dcc3be1e177d9bd519
-          0642200f79
-Q0.y    = 03caedd4af6f21bcc9fee6e40a1303f2793570db5bf1e60e2c2663
-          2da0e32ad5
-Q1.x    = 1f46eda025be2913f89227bd22461b7db2c42467bb3eabeecd2721
-          657e3d735f
-Q1.y    = 4c32cc1ae29429c1a09d4e12a87791af0356e3241c03c36b0470c8
-          deb24ce5a4
-~~~
-
-### edwards25519\_XMD:SHA-512\_ELL2\_RO\_
-
-~~~
-suite   = edwards25519_XMD:SHA-512_ELL2_RO_
-dst     = QUUX-V01-CS02-with-edwards25519_XMD:SHA-512_ELL2_RO_
-
-msg     =
-P.x     = 3c3da6925a3c3c268448dcabb47ccde5439559d9599646a8260e47
-          b1e4822fc6
-P.y     = 09a6c8561a0b22bef63124c588ce4c62ea83a3c899763af26d7953
-          02e115dc21
-u[0]    = 03fef4813c8cb5f98c6eef88fae174e6e7d5380de2b007799ac7ee
-          712d203f3a
-u[1]    = 780bdddd137290c8f589dc687795aafae35f6b674668d92bf92ae7
-          93e6a60c75
-Q0.x    = 6549118f65bb617b9e8b438decedc73c496eaed496806d3b2eb9ee
-          60b88e09a7
-Q0.y    = 7315bcc8cf47ed68048d22bad602c6680b3382a08c7c5d3f439a97
-          3fb4cf9feb
-Q1.x    = 31dcfc5c58aa1bee6e760bf78cbe71c2bead8cebb2e397ece0f37a
-          3da19c9ed2
-Q1.y    = 7876d81474828d8a5928b50c82420b2bd0898d819e9550c5c82c39
-          fc9bafa196
-
-msg     = abc
-P.x     = 608040b42285cc0d72cbb3985c6b04c935370c7361f4b7fbdb1ae7
-          f8c1a8ecad
-P.y     = 1a8395b88338f22e435bbd301183e7f20a5f9de643f11882fb237f
-          88268a5531
-u[0]    = 5081955c4141e4e7d02ec0e36becffaa1934df4d7a270f70679c78
-          f9bd57c227
-u[1]    = 005bdc17a9b378b6272573a31b04361f21c371b256252ae5463119
-          aa0b925b76
-Q0.x    = 5c1525bd5d4b4e034512949d187c39d48e8cd84242aa4758956e4a
-          dc7d445573
-Q0.y    = 2bf426cf7122d1a90abc7f2d108befc2ef415ce8c2d09695a74072
-          40faa01f29
-Q1.x    = 37b03bba828860c6b459ddad476c83e0f9285787a269df2156219b
-          7e5c86210c
-Q1.y    = 285ebf5412f84d0ad7bb4e136729a9ffd2195d5b8e73c0dc85110c
-          e06958f432
-
-msg     = abcdef0123456789
-P.x     = 6d7fabf47a2dc03fe7d47f7dddd21082c5fb8f86743cd020f3fb14
-          7d57161472
-P.y     = 53060a3d140e7fbcda641ed3cf42c88a75411e648a1add71217f70
-          ea8ec561a6
-u[0]    = 285ebaa3be701b79871bcb6e225ecc9b0b32dff2d60424b4c50642
-          636a78d5b3
-u[1]    = 2e253e6a0ef658fedb8e4bd6a62d1544fd6547922acb3598ec6b36
-          9760b81b31
-Q0.x    = 3ac463dd7fddb773b069c5b2b01c0f6b340638f54ee3bd92d452fc
-          ec3015b52d
-Q0.y    = 7b03ba1e8db9ec0b390d5c90168a6a0b7107156c994c674b61fe69
-          6cbeb46baf
-Q1.x    = 0757e7e904f5e86d2d2f4acf7e01c63827fde2d363985aa7432106
-          f1b3a444ec
-Q1.y    = 50026c96930a24961e9d86aa91ea1465398ff8e42015e2ec1fa397
-          d416f6a1c0
-
-msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-P.x     = 0efcfde5898a839b00997fbe40d2ebe950bc81181afbd5cd6b9618
-          aa336c1e8c
-P.y     = 6dc2fc04f266c5c27f236a80b14f92ccd051ef1ff027f26a07f8c0
-          f327d8f995
-u[0]    = 6e34e04a5106e9bd59f64aba49601bf09d23b27f7b594e56d5de06
-          df4a4ea33b
-u[1]    = 1c1c2cb59fc053f44b86c5d5eb8c1954b64976d0302d3729ff66e8
-          4068f5fd96
-Q0.x    = 21091b2e3f9258c7dfa075e7ae513325a94a3d8a28e1b1cb3b5b6f
-          5d65675592
-Q0.y    = 41a33d324c89f570e0682cdf7bdb78852295daf8084c669f2cc969
-          2896ab5026
-Q1.x    = 4c07ec48c373e39a23bd7954f9e9b66eeab9e5ee1279b867b3d531
-          5aa815454f
-Q1.y    = 67ccac7c3cb8d1381242d8d6585c57eabaddbb5dca5243a68a8aeb
-          5477d94b3a
-~~~
-
-### edwards25519\_XMD:SHA-256\_ELL2\_NU\_
-
-~~~
-suite   = edwards25519_XMD:SHA-256_ELL2_NU_
-dst     = QUUX-V01-CS02-with-edwards25519_XMD:SHA-256_ELL2_NU_
-
-msg     =
-P.x     = 0fe5d93c5b7e884f21ff6d26d399aaa480b02aa2a448c1698388f2
-          fc2f4a4780
-P.y     = 0790ea483b3c32db6bf309284b4505a223fc924566aec49c07818e
-          6f47828fae
-u[0]    = 02a1cfe37eb58fe86a4000791177a5b43aa1886711d4ba24f56976
-          2045700085
-Q.x     = 25c3d41731b9b929e0df904056444c8d69c425b2c1abb4b36357aa
-          1a344a9734
-Q.y     = 1ef6f720a96797dcc7118c98daae4189cdc1f8405a39e3c4e15546
-          03410178ac
-
-msg     = abc
-P.x     = 7306c55c38f0407ba67123cb0185998ff1807d27541b3d7a98c9c3
-          e143801f38
-P.y     = 767f521b90cb19a5c9918df81d212a9b50be4500ee246e81f48baf
-          5911bfd5f5
-u[0]    = 1debc09abffdf870affecb05d1656ba98d41404506b55a08c4bbdb
-          42a40969bc
-Q.x     = 02079693d400c83ab5e0d49e12fecd0cc6bdda4bae5dc61627cff9
-          8e1f88589c
-Q.y     = 4ebddb42951ec7ff17770a3f1a63f023c0c94df20f9e64ca4686f0
-          7adf3262a7
-
-msg     = abcdef0123456789
-P.x     = 4b6bbd347ea59230daaadaad2bec527d0ab54d4e33bf3c041553a5
-          d2e1fcad33
-P.y     = 7850c843092d554be1f3ac27ba4e3cfe18c510a10ddc32de67657c
-          0a5a806881
-u[0]    = 3dd81e4eb3c6231942f9140e1dd0d18bc0200b754ef8d3b2f39d1b
-          044edf1c5d
-Q.x     = 036b0261181df7b7510d9aae789693a6a6c8ecd93288b63117bd25
-          20174f8a99
-Q.y     = 1b348cf9a9be673f47f6ab1c4db44ad72ab22cd1a91383098ded8e
-          bd4eff5c99
-
-msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-P.x     = 60f765a74455643897a2f9d66b054d28f46c57084a7f0baec2401c
-          fb4150b44d
-P.y     = 76f903b132761d6983ae88558da61086673e3da33356892e154304
-          11e2ad8261
-u[0]    = 6abcc53ddc54f5e1927b92cbe1aca2ee28b37338e72dbc74736457
-          5986a93c7e
-Q.x     = 0035341a80d048a93eee132344832f9af6af4cd73ef0c6445afd44
-          8125364430
-Q.y     = 31af431a1ab3fb618a9f02288d53295ba11745d346a7c194864973
-          0a9e1acffe
-~~~
-
-### edwards25519\_XMD:SHA-512\_ELL2\_NU\_
-
-~~~
-suite   = edwards25519_XMD:SHA-512_ELL2_NU_
-dst     = QUUX-V01-CS02-with-edwards25519_XMD:SHA-512_ELL2_NU_
-
-msg     =
-P.x     = 1ff2b70ecf862799e11b7ae744e3489aa058ce805dd323a936375a
-          84695e76da
-P.y     = 222e314d04a4d5725e9f2aff9fb2a6b69ef375a1214eb19021ceab
-          2d687f0f9b
-u[0]    = 7f3e7fb9428103ad7f52db32f9df32505d7b427d894c5093f7a0f0
-          374a30641d
-Q.x     = 42836f691d05211ebc65ef8fcf01e0fb6328ec9c4737c26050471e
-          50803022eb
-Q.y     = 22cb4aaa555e23bd460262d2130d6a3c9207aa8bbb85060928beb2
-          63d6d42a95
-
-msg     = abc
-P.x     = 5f13cc69c891d86927eb37bd4afc6672360007c63f68a33ab423a3
-          aa040fd2a8
-P.y     = 67732d50f9a26f73111dd1ed5dba225614e538599db58ba30aaea1
-          f5c827fa42
-u[0]    = 09cfa30ad79bd59456594a0f5d3a76f6b71c6787b04de98be5cd20
-          1a556e253b
-Q.x     = 333e41b61c6dd43af220c1ac34a3663e1cf537f996bab50ab66e33
-          c4bd8e4e19
-Q.y     = 51b6f178eb08c4a782c820e306b82c6e273ab22e258d972cd0c511
-          787b2a3443
-
-msg     = abcdef0123456789
-P.x     = 1dd2fefce934ecfd7aae6ec998de088d7dd03316aa1847198aecf6
-          99ba6613f1
-P.y     = 2f8a6c24dd1adde73909cada6a4a137577b0f179d336685c4a955a
-          0a8e1a86fb
-u[0]    = 475ccff99225ef90d78cc9338e9f6a6bb7b17607c0c4428937de75
-          d33edba941
-Q.x     = 55186c242c78e7d0ec5b6c9553f04c6aeef64e69ec2e824472394d
-          a32647cfc6
-Q.y     = 5b9ea3c265ee42256a8f724f616307ef38496ef7eba391c08f99f3
-          bea6fa88f0
-
-msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-P.x     = 6e5e1f37e99345887fc12111575fc1c3e36df4b289b8759d23af14
-          d774b66bff
-P.y     = 2c90c3d39eb18ff291d33441b35f3262cdd307162cc97c31bfcc7a
-          4245891a37
-u[0]    = 3cb0178a8137cefa5b79a3a57c858d7eeeaa787b2781be4a362a2f
-          0750d24fa0
-Q.x     = 3e6368cff6e88a58e250c54bd27d2c989ae9b3acb6067f2651ad28
-          2ab8c21cd9
-Q.y     = 38fb39f1566ca118ae6c7af42810c0bb9767ae5960abb5a8ca7925
-          30bfb9447d
-~~~
-
-## edwards448
-
-### edwards448\_XMD:SHA-512\_ELL2\_RO\_
-
-~~~
-suite   = edwards448_XMD:SHA-512_ELL2_RO_
-dst     = QUUX-V01-CS02-with-edwards448_XMD:SHA-512_ELL2_RO_
-
-msg     =
-P.x     = 132e90a3f7110a41ad796ef3e83baff6839d5569854f5a11c16b2a
-          7a26d86e32a6bcdc93e954aaea197768d04091aab18f5779ae4f85
-          9d18
-P.y     = 12165b672a52370f21268ce2c261c3ed32adac6a3404fbd50d31a5
-          51a9111d109b0c691868aa6e9d92fd94dfa2a7397a2c111be9c432
-          c0cd
-u[0]    = 6369f90cf2806a86841398114dccf2ffd06d2d57c782a449df5297
-          189de02384b22cf73a0b5f678fe486ad59280d15431f4a65fec93d
-          0039
-u[1]    = a6b424f6f6c995dec127ac862ebc93b82ab3604087d70a78189054
-          b09be6c9e76ab85ee8351870bfd93dca7607fe864dac096e3f333a
-          145b
-Q0.x    = bb132e877b5fe35b189ee7041c53f03d943d36ea7265dce2c267cc
-          5500f281a2f8981c393a05e94962f8d8017ec6ad3a6b34cbad3480
-          6c12
-Q0.y    = 15e1762b3c85a31ba3a9b7ba52eba6c7f02d5a802068afa8935e4d
-          20ffa3e0356cf57398b8b9065554c3036a6f17e48b1f2ee0e5615c
-          5d73
-Q1.x    = cc44d47637c8fcbe1dc1020b87eb21205f055d6dec872efcc09b8c
-          50935cdb38342340f389d6284a2b4bc5486f8c05a3fec6c7ef59c0
-          2e2f
-Q1.y    = c875e0cb547828c2707097c2cb6e3d7f03f92a715d6c66c370b08d
-          09be11b69cc07c4798ff3ed30e64b5c1742bed375bb51b61963617
-          9adb
-
-msg     = abc
-P.x     = bdb13f312a5d478f57bc852b743acd3ce51dd2de96f181ff88556f
-          2b41d568ed64c2b210286be54b7c84d23cbc09a01902172a903b9c
-          8c1e
-P.y     = 6165182fc928064e375777e700f44e56b54b5980a42c72f747ba95
-          829bd8ff80de5fd159e149a8169397029553bd89b5c28df416e10c
-          b36b
-u[0]    = 4c3b600dba4a986944840b32e154510af806aa095f856fdf8fe320
-          1221314704aba830579f3da5e30f3300e89814324a0bef26a9cd3a
-          b6a0
-u[1]    = f0ae99c47274ed37fc582a7edc75aa0ddfdb7ed77e7eebbc293dca
-          8312a6ff43e7c34c6796f9fe2a21c337deab5523d4825aebde5f14
-          1869
-Q0.x    = 46b89d09965812c09af0f484a1262246b14f25e8f68a34678302ca
-          76e461968c61f6ae1d4d7f32d930bbe153f2a02085a12a15e3e11b
-          5af8
-Q0.y    = d1cfb0fb4572b51b0c4e27d574adb4fd5a3276e4c59709c732ef1b
-          7ce9e59fd87df98a79c65fb709110a3922ffdf8b4593c3ed9caf96
-          6e9e
-Q1.x    = 94558aaac183cb8f263caa55eb79d1c4d44f681d2c9e2efc23927b
-          6e272b7e3261f5d178dc166a6724aa2b2b5abfd4a97c6fc38ce423
-          998f
-Q1.y    = 1ee82f88f4e0b552b1a2bf048de95f8196d2f565de8edc1ae94d9f
-          8fc8fd1a0d193f9bd58833b3bbab5ab97e85ae758b5fa01eadcb0b
-          9ced
-
-msg     = abcdef0123456789
-P.x     = 01a04ed1b758a20245ea227827350eaedef92ef2860e58e5c5a982
-          0a1fc6157082b3722d25c9754bc2642b126c4a9188a1fe9c8b2b39
-          6b53
-P.y     = 88ac7496b9ebc2b446695324e2f76ad54f4b8b21d0077ac15b69ad
-          7a4abcd00e881cadbd829db2d2d0f28fc84eac4fc59264b2d14063
-          e770
-u[0]    = f3c7984b7cbaf248dacc25599c8ac774782c5a3ed7bd24343fb935
-          602469b76541f8fd54dd78a7c54b6d991e17ec416742f92a18e8e6
-          805b
-u[1]    = 98fb498e5f6c40762899444a200e052ab25d336b84571f27670c7b
-          cea54efc78f167a770275179dad42b6df0e3cc477abdf115f0b5f1
-          cc49
-Q0.x    = cc2286ee7e052ffccbc10607bfa8bb7ced94924dfc6fee6f34eedd
-          fa559000f8d0d238c14cbe2e3509b39843e5711583982a80f652dd
-          e738
-Q0.y    = 774c9a9f0f4143ca2779b4bbb4ef397da643db7b74ac8bad1a54fb
-          c86f728571fc401ca5b2a8432a018a5d545b526387f364701b232e
-          3dbd
-Q1.x    = e0fa0e6ff453760f52ea77ae9d605d00fc9930e9302a7779243fd6
-          5e29970c3ebc26799a17ce7a24b7ea18f2c5b572fc29d6dbf73a89
-          672a
-Q1.y    = 6b5b06e9ab686c8377ac404f142444ded5adcd68daafde1bdfa7ef
-          671708636da22adba4fda2b2472e37cddebec47fe30e38a11dcd06
-          d10d
-
-msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-P.x     = c7c7899dab9813b5d10cadf43aa0cf5f26c21e98e5c0ffbe690059
-          67dbfd066e5564bdc6c67adeb87f55951c4a077c8d4a6095a23559
-          3201
-P.y     = 547c2293a8b8489270957118e69a241227dc32c5587819269630ff
-          687bb88284b88376fa8f86e0dbafc09d8dbba49a4a433fbd379d10
-          3c5c
-u[0]    = 967a9f376c20a33d6a041ed783fd7a6b7fba24ab92029bc69340a2
-          6441c287d368b8496fb14d19631ff406e057bcf8e8553660e7e73d
-          561d
-u[1]    = 78d710dd21fedeb0dc93ec424e17e879935a689aa2c14b207a0055
-          f1e57a44d83929731ca74fcca2fd0cb6bbaab12265fe104dd6fae4
-          87a5
-Q0.x    = 5f238a69135b8207607ea4dcebed925425adb75dfdb86e6e7f1279
-          6f2086cba1add20f36a2e38176dd4feda1ad25aa8657728d390ce4
-          b818
-Q0.y    = 225a31f6a260be2b81b735ea1bdaaa65486a50777e3e3b83265e69
-          a572e2054e63f0519a06537fba0d15076c993c6e19121fd077e8e4
-          5ee9
-Q1.x    = a1d4f1d07717adbcc3926caaf2d731532c2065c191dfca7b60a5e1
-          499a1c237985807b441004b5476c896105806f8157e362ef96f16e
-          7293
-Q1.y    = e320a16c1417d41241f03507ca0ea48d0e494cfd8bb067107bc18a
-          939c69581ecaee71a5f656fcd091688391f41ca1b23b3fad4876e6
-          8e01
-~~~
-
-### edwards448\_XMD:SHA-512\_ELL2\_NU\_
-
-~~~
-suite   = edwards448_XMD:SHA-512_ELL2_NU_
-dst     = QUUX-V01-CS02-with-edwards448_XMD:SHA-512_ELL2_NU_
-
-msg     =
-P.x     = 9edd52909ac5f8d4506149c30e1ea8709eed77c409d3ba2b3834a9
-          18c4d7bf47cb11c464847fc5edfc4ec5dcb6e2e1c4a4bf2cf93914
-          44af
-P.y     = 6d73a9acd7c51479d59f7aab60bd0090ec44fe64d82ffea0ccff18
-          ac5060632be1c44219adef88937e2f28ebab0b4edf16c501b6ae83
-          7409
-u[0]    = d244401e5d2f510c21944e96203cff15813d57c3f40b1a15bd73e1
-          d9ac031966137e39e1111cf46e590ed4726ea9c96616a581a57cb4
-          6010
-Q.x     = ce981eeb6c73a7edba5c4c29af37010c398f1dbe39fe00be52100e
-          b7c107f71793ce5928c2a34ce7fc37e054838d2788c46abad5b1f7
-          009f
-Q.y     = e822cb7fa3f0e97e1215619f13ed7fde59137dc807a37ffbb7a375
-          7f948f3fb50168c7fd6a5077a1fe7e6f484ba4881c964e5fff2b99
-          e9af
-
-msg     = abc
-P.x     = 2df5a5ee45640cc4e297f969c9771b36e4358463d47a530e375fe1
-          3d442a17cc5f27818365eead72adee48c5911eb4ad7ed4e242f81d
-          37b8
-P.y     = a1ba8d111dd6338338f88c552d3338077fc5fe037860f2eb2b7496
-          6a4a96f7fc59f859518caba87a1cf3fefbcace608e7b651ab5cb9e
-          1eed
-u[0]    = 2f3bcc6253b74569ea64a9d90ea4ee52c71bd168241eaa88c6f458
-          93ffe00fe9888f2966a6308ce194cff35059d09cf59c68f3b961d0
-          fd17
-Q.x     = 4dc176c8c7cacf550289ae7cba158307880fa606e7bdb607d976dd
-          398e60088bf1316e193b56784ea4a295884176efee84a500d46003
-          7e1f
-Q.y     = 711909a05b086efe857ec86729a667a531d958d17f5f7a4b9d9fa1
-          59d3d7668d74ae4f4dd1b7273e2a26c68029c881255e462d046f89
-          ebe0
-
-msg     = abcdef0123456789
-P.x     = 7120e8a2d8f4c34743b8afc1ec9f72fee0e9fd60d25f776fabc9a8
-          bd5c3ea1d5797653b782483cad1af66e41acf04fa893844e0986be
-          739c
-P.y     = 6098bc3d041ba1d31074e9ca1b788c42c9db695f13ddda8d3e8275
-          478d54fc4ba754c2b397ddafc021810a4068a2b3f6e6e08cfd7787
-          ebd6
-u[0]    = b9e80bb5fc08b259cd3b8e9f9ab722b427becf3797b2316ec94e2b
-          6ff8286908fd2c70470c1290939ab14bda375185054ea4205e0ea0
-          23ca
-Q.x     = c7c2691fbb36a69fc3a04970d2c9881dbede0b68a69ba7c92b9160
-          112293d97103b360cdca664a47ebdc31b7b60c6d5bebb6c5691a46
-          c1c8
-Q.y     = 8c9e09b8a17559a59cf3071f48e68c5d1fa1836f66c59bc3b76df0
-          9a62df5ebb5c0ac1a6f6f71e51f876241b3e7d459f45b142891057
-          eb63
-
-msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-P.x     = e6856da5667f5083bddc84e447578522373fe36b45af60245d5e40
-          adbe2c1934918a1d2071a1826dbbaed45bbaef0d888a4ffd513281
-          26a0
-P.y     = 3e2108cc4d0a88c5bceb7a0ac983b1f3b224efa288f59178f2cc30
-          615635d1269be84482cc443035bfae0a01f25a262b3b650c778162
-          4c1e
-u[0]    = 74e63d0db5942bc43c2505caf4b71eb5a826ce0f3f4f23ba2bbbd0
-          9948a0b0eee887163a93a90566b456c687bb8671ef2e2fe4e51ebd
-          8def
-Q.x     = 60d1975f6f5b78a8e6edf580958acead694b229a7b35e79b1f214d
-          e76b2391d3fa39ccb1b0d19d719f37f91fc191c554b97acff501af
-          6fac
-Q.y     = 5dbd9a91c9865928da7fffcd548ad4da813539d349aa40798fed5d
-          33c872ca56e6545ca0b851eba4b1b05cf9a710b15c94de700a6d6d
-          d1c8
-~~~
-
-## curve25519
-
-### curve25519\_XMD:SHA-256\_ELL2\_RO\_
-
-~~~
-suite   = curve25519_XMD:SHA-256_ELL2_RO_
-dst     = QUUX-V01-CS02-with-curve25519_XMD:SHA-256_ELL2_RO_
-
-msg     =
-P.x     = 4862b8982319ecce44c1b6ccf7ba9c205d137764dc98a8bc515ddf
-          05c0fddb82
-P.y     = 3cee08cfd22a80a995c3cb6c4ebb9013f1b3d9ab510af661aef334
-          92e62c2eba
-u[0]    = 7a4e3b740e8dc911b8029ce6a65d6bc00bf03d8d92866a6ae99902
-          6439451ea5
-u[1]    = 5b7b0f765beb8b9051ce5ca68232c305fb1eb79426c43cb93efce2
-          f8a985065b
-Q0.x    = 50243f13d19b38590084e7a58e063a4cfc63123b57c868fb69aa29
-          f90085f2f8
-Q0.y    = 09920ffda8c180a2bcd999d411e032f799ab9e08ba312d5a236d13
-          0f7ce824e2
-Q1.x    = 41baf7c5cded32252f9051d537ea0cb8cb1a89fe61b7a7fc81228c
-          793984075e
-Q1.y    = 177ab481ae51c765ff5e5547760dd51f04b27107e3a0eb788d73fa
-          ba5d9a7dd3
-
-msg     = abc
-P.x     = 1c44a862cd8ce1c2f5e9ef28f96fa22f1cc6d4bb3dee19e76c20e1
-          b7e427e4de
-P.y     = 0a2ca953d666a5aedfae4198f5c6fa7dd4c7b7b920aac855802832
-          93c8a5481a
-u[0]    = 1c72fdce7455952e317d9c99be2d41e0bd5ea9fdef44b3890a6f00
-          e6df68dc08
-u[1]    = 666ec661edfbc1e979a1b52c821e491069e7b6bf3e3071b2793669
-          adb0d51d48
-Q0.x    = 0cc50715428377fc3e246f18180a6dad804e76382ca30b228ade26
-          ed417ce863
-Q0.y    = 28247138ef21d16dc8b24196b30943292ef31738ff32317c6f5920
-          227c9aa331
-Q1.x    = 7d15f5242faac9dc9b24d5a92ee7059a193c75863c56cc28309a57
-          5b1f113240
-Q1.y    = 3b7c8d357c423a840173e263f592d1fd61f1756414655388fee002
-          9e8a3df94b
-
-msg     = abcdef0123456789
-P.x     = 18b0cebd7c0c183faa6ef80de99c4e1f5a53fb012164d4fd20a28a
-          1ba1cd15ee
-P.y     = 764bdd170a631f9b17bb4bc01434f10920f4cb5e5ab49f54f7e5ce
-          220368324f
-u[0]    = 6403431b8b370088637a608849b184b257c0394dbd94416a765335
-          1be9a769d7
-u[1]    = 48a581f02df76a8b30d72b295e08aaf1a8b5c2a1774599d3ae069e
-          ceaf5363b3
-Q0.x    = 2e5e5f9f180d3f934de4f6e9665afb13f63af94822818fb7f6a6d4
-          2eb630f558
-Q0.y    = 44741c5756f2c4e9735c23dc17771d871636f849e097b0a73492bf
-          df1882dbd7
-Q1.x    = 40022c69f6df7e3fca358b3ca2188a1aceb6c87fd54104d61dc563
-          ff7506f9aa
-Q1.y    = 3e77a3381adbc93504f2a3e38749e47ab9db5068237be7b4b5b1b7
-          5f368f779f
-
-msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-P.x     = 242e08f391333017bd0e073ff98a035ce12d06958d665bdc747f26
-          aa4c068797
-P.y     = 58c35ae3481ef62470e1ff7a74636b5217299120d7b9d64b0975f1
-          534e214fd4
-u[0]    = 5cb58f59fc0408aedd631a35127867c5f57c08dd16ed2f41d2c53a
-          5d171c1f5f
-u[1]    = 75256ab69d1682b3684aee79407187eadba42c2535951a5a9d0439
-          119a09e220
-Q0.x    = 3d2ddec936382349e044cb1bbd4ea77c5897be086cf0257a6e098b
-          4c86593830
-Q0.y    = 24f41fa861e1d5d50738d1feecfd97a09b25ff10a0ffd76ee5a4be
-          9ceef20c03
-Q1.x    = 61d6d7ecdf8adaa92aa234caf888d28b143d0df7a935a858a9b025
-          38c83fcfa8
-Q1.y    = 66219626f0e6b2eb140a457602b8464795203b2f0958dd341a5b67
-          671f3c6446
-~~~
-
-### curve25519\_XMD:SHA-512\_ELL2\_RO\_
-
-~~~
-suite   = curve25519_XMD:SHA-512_ELL2_RO_
-dst     = QUUX-V01-CS02-with-curve25519_XMD:SHA-512_ELL2_RO_
-
-msg     =
-P.x     = 2de3780abb67e861289f5749d16d3e217ffa722192d16bbd9d1bfb
-          9d112b98c0
-P.y     = 3b5dc2a498941a1033d176567d457845637554a2fe7a3507d21abd
-          1c1bd6e878
-u[0]    = 005fe8a7b8fef0a16c105e6cadf5a6740b3365e18692a9c05bfbb4
-          d97f645a6a
-u[1]    = 1347edbec6a2b5d8c02e058819819bee177077c9d10a4ce165aab0
-          fd0252261a
-Q0.x    = 36b4df0c864c64707cbf6cf36e9ee2c09a6cb93b28313c169be295
-          61bb904f98
-Q0.y    = 6cd59d664fb58c66c892883cd0eb792e52055284dac3907dd756b4
-          5d15c3983d
-Q1.x    = 3fa114783a505c0b2b2fbeef0102853c0b494e7757f2a089d0daae
-          7ed9a0db2b
-Q1.y    = 76c0fe7fec932aaafb8eefb42d9cbb32eb931158f469ff3050af15
-          cfdbbeff94
-
-msg     = abc
-P.x     = 2b4419f1f2d48f5872de692b0aca72cc7b0a60915dd70bde432e82
-          6b6abc526d
-P.y     = 1b8235f255a268f0a6fa8763e97eb3d22d149343d495da1160eff9
-          703f2d07dd
-u[0]    = 49bed021c7a3748f09fa8cdfcac044089f7829d3531066ac9e74e0
-          994e05bc7d
-u[1]    = 5c36525b663e63389d886105cee7ed712325d5a97e60e140aba7e2
-          ce5ae851b6
-Q0.x    = 16b3d86e056b7970fa00165f6f48d90b619ad618791661b7b5e1ec
-          78be10eac1
-Q0.y    = 4ab256422d84c5120b278cbdfc4e1facc5baadffeccecf8ee9bf39
-          46106d50ca
-Q1.x    = 7ec29ddbf34539c40adfa98fcb39ec36368f47f30e8f888cc7e86f
-          4d46e0c264
-Q1.y    = 10d1abc1cae2d34c06e247f2141ba897657fb39f1080d54f09ce0a
-          f128067c74
-
-msg     = abcdef0123456789
-P.x     = 68ca1ea5a6acf4e9956daa101709b1eee6c1bb0df1de3b90d46023
-          82a104c036
-P.y     = 2a375b656207123d10766e68b938b1812a4a6625ff83cb8d5e86f5
-          8a4be08353
-u[0]    = 6412b7485ba26d3d1b6c290a8e1435b2959f03721874939b21782d
-          f17323d160
-u[1]    = 24c7b46c1c6d9a21d32f5707be1380ab82db1054fde82865d5c9e3
-          d968f287b2
-Q0.x    = 71de3dadfe268872326c35ac512164850860567aea0e7325e6b91a
-          98f86533ad
-Q0.y    = 26a08b6e9a18084c56f2147bf515414b9b63f1522e1b6c5649f7d4
-          b0324296ec
-Q1.x    = 5704069021f61e41779e2ba6b932268316d6d2a6f064f997a22fef
-          16d1eaeaca
-Q1.y    = 50483c7540f64fb4497619c050f2c7fe55454ec0f0e79870bb4430
-          2e34232210
-
-msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-P.x     = 1bc61845a138e912f047b5e70ba9606ba2a447a4dade024c8ef3dd
-          42b7bbc5fe
-P.y     = 623d05e47b70e25f7f1d51dda6d7c23c9a18ce015fe3548df596ea
-          9e38c69bf1
-u[0]    = 20f481e85da7a3bf60ac0fb11ed1d0558fc6f941b3ac5469aa8b56
-          ec883d6d7d
-u[1]    = 017d57fd257e9a78913999a23b52ca988157a81b09c5442501d07f
-          ed20869465
-Q0.x    = 02d606e2699b918ee36f2818f2bc5013e437e673c9f9b9cdc15fd0
-          c5ee913970
-Q0.y    = 29e9dc92297231ef211245db9e31767996c5625dfbf92e1c8107ef
-          887365de1e
-Q1.x    = 38920e9b988d1ab7449c0fa9a6058192c0c797bb3d42ac34572434
-          1a1aa98745
-Q1.y    = 24dcc1be7c4d591d307e89049fd2ed30aae8911245a9d8554bf603
-          2e5aa40d3d
-~~~
-
-### curve25519\_XMD:SHA-256\_ELL2\_NU\_
-
-~~~
-suite   = curve25519_XMD:SHA-256_ELL2_NU_
-dst     = QUUX-V01-CS02-with-curve25519_XMD:SHA-256_ELL2_NU_
-
-msg     =
-P.x     = 29bdf5d29093fa455527f71e127051a2e041a49280491a76a1388a
-          d076f6095d
-P.y     = 3de8f04872088447568cad67c91dbeec50f5598fc877bf37cad9ab
-          468bce0323
-u[0]    = 4891f78130dadef68a54bdd970a27d8ee6ee71c757466de3c62567
-          9be2b6b503
-Q.x     = 108610cd44e0269b3850000447c055b05a64846111a30c94ba6339
-          8771934ceb
-Q.y     = 6acae1b616d835282f2c717e4439d6074f6cc000177c25e18ac8d8
-          60a3dd63b2
-
-msg     = abc
-P.x     = 3358356987959ca72432c8662f46590267fd5ac352fbedcd3d6279
-          499fedc0dc
-P.y     = 1a8a98a200593bc8f3355fc8e60e2cf09c5b288eb7232bea227886
-          b39ed54d1d
-u[0]    = 21d66e516ae54fae0a51c3bb70446ec38c5f19eb506ae8686e6748
-          72d950d2c2
-Q.x     = 2b123502330b33d1a880146c1e84ec5ff95679bea200d6d5cf4042
-          99af42def8
-Q.y     = 44920d10af5b5a20b113572479cdd02253b70eff8f612afa782c55
-          278d997213
-
-msg     = abcdef0123456789
-P.x     = 43c767fc98423fa43546890d80e5da0e214928d3d4a596661bb61d
-          82a67b998d
-P.y     = 62da60fc3d86471d6b181bb66948f3eb24fedfc0dea953caf305be
-          07e829a6f1
-u[0]    = 48b37143c123d622f5ecab78883f76c853fb679d084454efae891a
-          e1f3f34979
-Q.x     = 5bb746418e69e835ec6cc74d6b498ee04dd598b5b9ca805b73bb33
-          0ae3a72151
-Q.y     = 4b0969181ba9cb050e16367b6469d31cc017e68ed38f0ffdc3312f
-          067fe897ca
-
-msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-P.x     = 5fdb7e86a2e7dc2b58d68916a88060261612ce60792116be083962
-          dd938cd396
-P.y     = 3cb7911525bda90a355e0346f81a00cc765e39cfc32651a6eb4777
-          744d71c677
-u[0]    = 4408df5a3aaaab5aea075c0713feda3675c2c4cd6b6b09672aab2f
-          0749553d08
-Q.x     = 2c8722b119aa6da7b32fcd4737ecb649a117b5262460e1aa2f0ebf
-          a56f4cc5a2
-Q.y     = 5e93469aa8cab6e6b557b27d55ddae13c68c7dca950fba33c79022
-          2cb6c99eca
-~~~
-
-### curve25519\_XMD:SHA-512\_ELL2\_NU\_
-
-~~~
-suite   = curve25519_XMD:SHA-512_ELL2_NU_
-dst     = QUUX-V01-CS02-with-curve25519_XMD:SHA-512_ELL2_NU_
-
-msg     =
-P.x     = 1bb913f0c9daefa0b3375378ffa534bda5526c97391952a7789eb9
-          76edfe4d08
-P.y     = 4548368f4f983243e747b62a600840ae7c1dab5c723991f85d3a97
-          68479f3ec4
-u[0]    = 608d892b641f0328523802a6603427c26e55e6f27e71a91a478148
-          d45b5093cd
-Q.x     = 51125222da5e763d97f3c10fcc92ea6860b9ccbbd2eb1285728f56
-          6721c1e65b
-Q.y     = 343d2204f812d3dfc5304a5808c6c0d81a903a5d228b342442aa3c
-          9ba5520a3d
-
-msg     = abc
-P.x     = 7c22950b7d900fa866334262fcaea47a441a578df43b894b4625c9
-          b450f9a026
-P.y     = 5547bc00e4c09685dcbc6cb6765288b386d8bdcb595fa5a6e3969e
-          08097f0541
-u[0]    = 46f5b22494bfeaa7f232cc8d054be68561af50230234d7d1d63d1d
-          9abeca8da5
-Q.x     = 7d56d1e08cb0ccb92baf069c18c49bb5a0dcd927eff8dcf75ca921
-          ef7f3e6eeb
-Q.y     = 404d9a7dc25c9c05c44ab9a94590e7c3fe2dcec74533a0b24b188a
-          5d5dacf429
-
-msg     = abcdef0123456789
-P.x     = 31ad08a8b0deeb2a4d8b0206ca25f567ab4e042746f792f4b7973f
-          3ae2096c52
-P.y     = 405070c28e78b4fa269427c82827261991b9718bd6c6e95d627d70
-          1a53c30db1
-u[0]    = 235fe40c443766ce7e18111c33862d66c3b33267efa50d50f9e8e5
-          d252a40aaa
-Q.x     = 3fbe66b9c9883d79e8407150e7c2a1c8680bee496c62fabe4619a7
-          2b3cabe90f
-Q.y     = 08ec476147c9a0a3ff312d303dbbd076abb7551e5fce82b48ab14b
-          433f8d0a7b
-
-msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-P.x     = 5fd892c0958d1a75f54c3182a18d286efab784e774d1e017ba2fb2
-          52998b5dc1
-P.y     = 750af3c66101737423a4519ac792fb93337bd74ee751f19da4cf1e
-          94f4d6d0b8
-u[0]    = 1a68a1af9f663592291af987203393f707305c7bac9c8d63d6a729
-          bdc553dc19
-Q.x     = 3bcd651ee54d5f7b6013898aab251ee8ecc0688166fce6e9548d38
-          472f6bd196
-Q.y     = 1bb36ad9197299f111b4ef21271c41f4b7ecf5543db8bb5931307e
-          bdb2eaa465
-~~~
-
-## curve448
-
-### curve448\_XMD:SHA-512\_ELL2\_RO\_
-
-~~~
-suite   = curve448_XMD:SHA-512_ELL2_RO_
-dst     = QUUX-V01-CS02-with-curve448_XMD:SHA-512_ELL2_RO_
-
-msg     =
-P.x     = da2332a516a063fef60267e6d89120bb999247ff7f52b313c8eee2
-          777e03320f30996a53280b6d8c3847cfb9ea565f46310e582a3733
-          4f69
-P.y     = dc7be59148778dbf9fbeaeaf2ce578b9b82f8d72fe8e7073ad92f2
-          77fb987b34711ba8571b30f89de8049d744ba3107399f2dc3c9d5c
-          c8b2
-u[0]    = e06d3a0f99597cd9fa6ccb2c3db31d163e50940d2c7504e1bfba16
-          ac69c2a7cbb52df77f100c4e6908788b50ebfb7c47b2e96586ca59
-          b47b
-u[1]    = 88267fb8a9a813556844b3ac7861b380ad7597ed0ef030be490274
-          54b83f441e34aee8682afabdae4f3deafaa894b15de9bd6af5059e
-          f0ff
-Q0.x    = 8219c3ff382cfe2f02a2a20f5ffd54564203edc7336022abc6b397
-          3ec7e61fc2d458a81846385080febb458695746c0ffc04e080b2fd
-          ecf2
-Q0.y    = 9712f659ce8ddbd2bc581af3c6c359038d877174805b8772a647b3
-          b0bc9d66a579f72bc9ada3b836aaf2642d909ed9b96dc686ae668a
-          b5c1
-Q1.x    = 2730fc1f5ea277c6ee5096eece84901d42fa3f78c018b1174c4685
-          e0be780f769933d28d29b13b330352353b9e1c98bb5ea6dabdf7e5
-          8e5a
-Q1.y    = 5cb3a598ff66725b74c0e9f33e23b317a82a8bd6d1be02816688ef
-          74a5d704c14d09440f123573666e81a01cb19d91e25a4e98bab1f2
-          4668
-
-msg     = abc
-P.x     = 126bdbaa7d8690fbf97447adf5b0ead68a48e3c75fb49d4ee584d9
-          7f08fadb3fd00d107455bd5a032c682d8a80b4f796960d61fc01e3
-          9faf
-P.y     = d973b5f9d4babfb95e1e28484068fdd3314b2e334f8bfcbccb9878
-          a1b9d0247bb4294c035caf1558c7d5fe140fb440fc32f7c4637f56
-          2db5
-u[0]    = c0f1c170cea7276b72c0e744f4b1d6974da6a57b50bf3e0551f208
-          c500a3797fd2279e9d19a3379fcb82ee31d22654645eb4e1440e0f
-          012a
-u[1]    = f264aea0654f5055d2fbe15a00635fd8a93c90bde40f22632da6c0
-          cc2e62403261ebd0d21d08ef90704772b9f381f03d46a0a271fcde
-          22ee
-Q0.x    = 97f4538634980c078431983bc90dd20bffaa3c7e3d0343742738eb
-          2f9a6a49357798a8900239e49b384e88acfeeaa4819de34b6be12b
-          b583
-Q0.y    = cd0a7ca6b2bc2f3483ece0ae77307301fe8de23d31077f792ac7a6
-          bc6362178b22be3188ac29940e576d33f477be976aa1bd60272dde
-          8fae
-Q1.x    = 7c03c44df3e7d00f16eb363e25573f1cbe229303deb83c4744df1c
-          d1f8542748d41d8eb004fa7633752c8ca82c71e30de3dda8cbe542
-          3a9d
-Q1.y    = eb29f9825c4f564a6b94bacf78e0eea3888597ee6a893cea9f5ebe
-          7ada5edbb1a1601a98124e3c3355ed413f9661089b5a11947685c4
-          371a
-
-msg     = abcdef0123456789
-P.x     = 474e477439d7a9592a13094b38c54e25828c681c7c8b81ba2d54c8
-          0148a25be684ce2e8e25fc0149c10ed1f601bf0883ae16c364c6d3
-          fa63
-P.y     = 1989aff846273a5cc768b4624884c707f25d050b9dc9293cbe109c
-          019ee084d28de004b83ebb0ba175081792c91b721215df14dabf0d
-          6a70
-u[0]    = 5f09c4906a56cd7b4a620fbed243b8c1bffa30e58ca6c709273e63
-          e14e547f1fde8545e04b63e34d4bb2df6143ed0469172fee016040
-          3e9d
-u[1]    = 8816db97222c7cf1a728ae635542497683c6959f042e51c62ba270
-          eb437d7e9cce9080e5c8e05b05e0b0a298823bd661d5272258c7f6
-          d76e
-Q0.x    = e6d0c0fd0e30e1a27d9bbee310398e2461e9199000476e57d819be
-          2f343a32165bcc5e524c3feffca3b272bc801367b47032b6f5ae21
-          b514
-Q0.y    = 87ecc285bada245d203e67f6a5cf19876abdd4fb994b1d72f2bd21
-          5b19048721359eed24d2de20d344a06cb859445a726c4c76156160
-          13a7
-Q1.x    = feebcf52ae07ffc9c6665912c8e6ab14adf880dba9679d1862af6a
-          1eedc25b33c641af1cf8385771afec096701e247602e54c1e183ff
-          d151
-Q1.y    = 47a95cb1361c02caeaac9d036b99bb11e733fa2f140c9831694057
-          eab0e7878b0b823891b02428ee2cb09627bb6cbf860bf72cad6b44
-          61c4
-
-msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-P.x     = 63f7b02ccfdcc3dda4c2f3162b3a29cce131bfec05c937f47fbea6
-          92da6c35611ea3b02056184530a7a16a266e24aa440201418650a9
-          b1d6
-P.y     = e7c55ef24be0109fd3a32e982809aa389e9583cc0861ff42e08b4d
-          1d261f50ddaa4887642aa80a3a7658a107159d0f60c6809bf052f2
-          feec
-u[0]    = ec36b3337ec9b94b8a32a192617f278c72d89b0c31f19d184c29c2
-          a26c7d53ce880de19d980be7ba2c43451966a3e5b9b7b3496834e7
-          3868
-u[1]    = 8b5ff5b833a4655293cc8f8feb940bc84e8f2e240370a002457346
-          628a892cbb8abd96c1140ca044a1bca85181a0a4ffcaf8a42a95ef
-          f4c9
-Q0.x    = 3d94294cbb050707f5ad5a0dfc596445848c05a81d2a175a05b34e
-          409748cbe98970d1a0fd4bcdc030969481d669f0ce8befe72e0e7a
-          3506
-Q0.y    = 11718321d9ed5ce14aaa7d1d06f6a91ca3875eb2bef70e96b54aa2
-          51387629633860898faf3ec18ae47d5a6a0d605536435140d0f8e9
-          802d
-Q1.x    = b283ab36f5dff4d54dca265e74ca355d751983fb013f458f44dcb6
-          b00302569788ed0a3567ca93be803e6a5aa883587e3a9da9368626
-          6ecf
-Q1.y    = 7bebe0e4520198e026127cf8bd4308db737358afaca143788637c6
-          75812282336699de18e4b239e7c5e95797154b8cd00aa51b830993
-          9abc
-~~~
-
-### curve448\_XMD:SHA-512\_ELL2\_NU\_
-
-~~~
-suite   = curve448_XMD:SHA-512_ELL2_NU_
-dst     = QUUX-V01-CS02-with-curve448_XMD:SHA-512_ELL2_NU_
-
-msg     =
-P.x     = ea84fb65c9404271a743b99e734888d7d5170dee33421936180745
-          66b8c4faf0d751b46bcdcebbce41e44d101f93b098e150836eeb26
-          3d90
-P.y     = a8378c8c97c14c4127ebf6b36c9d4a6524be2b85ad76fd195315d3
-          d6eecf5147c9d96edb7f574935d0e945f6664040dbe0270d4ae24d
-          ab64
-u[0]    = 89b0674b247b36697f028e39edb34bd9ee6ba968148447c80773ea
-          54650f5f57e005f69898502ea754f3dd710562cf80f347296b15f2
-          b040
-Q.x     = e57024bb58651499c5e87dffb879b0bd3abfbfa9f5af2962c2597c
-          61cc24e2ad7a2802d5f98bc6265ea54e7b83befb8c59afd0854f5e
-          bc09
-Q.y     = 0f2a66e25fba03deb43daf0dc694d6265e0f426f041a0bc5970206
-          871f88a0a09b0463607ff6ac94cb3609ed74d7eb9e7842a7b5f652
-          89c2
-
-msg     = abc
-P.x     = 2e7014413676426069da399013d0a825ea436f6036fc895099838d
-          0c2e047b69a8c98b2b5e5a5e1d203bc58829141bbcc1bbf66d5d7c
-          eb85
-P.y     = 843b3542bd5c3175fa8a1160b0f5b3ce54f9650a18b0b8f02b83b6
-          2f4adfda146b0ab04bf902fb098459d0cf2171c640f003df8d79ee
-          e4db
-u[0]    = 413957bbc65b091215af8af48ad7e24bf048e9f6d9a73aec17e998
-          a2b51cfc4ccdb4c25693e764db7799619f163532ec1ce5692e1753
-          0384
-Q.x     = 8e4ff7f3bf4e42202441a441da4afaa6d4f32f95d0406742172e88
-          af8ffa304022eb3d2fddc5cffbb0241466daf3f152fddc26184074
-          12fb
-Q.y     = 22e7d04d6dabbf15eee6529bf1f6a3a9efaa3a772956de1c08441d
-          94ef63b163ecea2065aebb004e8cfc12cfd2f946de05277caabba1
-          4a96
-
-msg     = abcdef0123456789
-P.x     = fec43c1455df411dcb549c6cd3c25915bc73b1bb1655b164b98298
-          c557dc1bf6f33791a43d167375cd645a51a13e34e645d0f5a05def
-          b6a5
-P.y     = b9ede648411291433b4ecb333869315db05522a26c34ad87a73d52
-          3fa34f77b6ae8299d992ad5dc5d0d08f708975d19124168dd7d840
-          f7e4
-u[0]    = fe602896e4a559685e0deb1c7c8ff4eec02cda9037bb6bd009d003
-          31b0b51227b64704e2462fd9cad0ebc24cb8817c5758703f720125
-          1c94
-Q.x     = 1f1aefee6f36a913a0c63a69439400e00d6b900554489e3a25eaa6
-          6d4b68cafd0dc63e5645701b37edd7535b1b38305efb0460d8f103
-          616a
-Q.y     = 2e8d502126f2ab8c125f8213c7a5fed8ca59857a8c9bd2955f938f
-          4beb89b57f3edbb823bdc4fa94e15e9bbf9f644137bf865ec7659b
-          deb9
-
-msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-P.x     = 1953f9cb8340b7968c1d820fad943cb58d132ec5db85a3bc22a408
-          b834f4d14fae0826164d92f285a71977ee1ca21c48fb08ecccf71f
-          b43f
-P.y     = 2a5ebf1f4082bb8fa4ead0a54bb9b9d820018b06c2a9c81be048bc
-          6cae60fb99099cbcb9daf82a88cb177be328283f96f6e623af362a
-          6165
-u[0]    = 264d09a96a80db8aac3b51d54f7f115dfe3a615e85713f2d4d4bf6
-          2c47ce0e8ebe261fc3a281166e9c25ea689010639f8131ffb6d8c0
-          d5c9
-Q.x     = 62d81718b0b327cf3b0dd77885de6cf3202bc2c0a20bbd3af18127
-          16104fb5a39878dbe92862f40c28e1ae078a0b8c25ba23c9bca5fa
-          ed8a
-Q.y     = 6505d475959b61e33f9e4c2c6d8033b5dbd09432993997c07ae2c2
-          4a31d7a35c02e15f357aebf0178b7b8525074b2400ec3d1bb8eda1
-          b9ee
-~~~
-
 ## BLS12-381 G1
-
-### BLS12381G1\_XMD:SHA-256\_SVDW\_RO\_
-
-~~~
-suite   = BLS12381G1_XMD:SHA-256_SVDW_RO_
-dst     = QUUX-V01-CS02-with-BLS12381G1_XMD:SHA-256_SVDW_RO_
-
-msg     =
-P.x     = 0046646cdee5e2427e34c3ef0246e46b7d302fc8d1663ebe88dce9
-          9cf30d13f92a5e8c067619a04f262c656cb2f441aa
-P.y     = 0370dfd014379e48ee0e74a58992f5a44a35e6386f578c21b4b969
-          534f5fa45e26069955f6176ed29fc4fe80dd145b6b
-u[0]    = 10712f3f71e65bc70b3e4558ac8ab4f31d7804a7646390c4be0386
-          f32d33f2570a1b9d3ecf0bdcf82d7cfddf3294e208
-u[1]    = 117352b18beefcc5d42920255568dd3f7e2229a490c16760a131f6
-          e054598ca9bbccf0f01001c508d8af8a21bf02877c
-Q0.x    = 02635c900de5fda2e16303230b8332a59f7ee320f912602ca56e4e
-          4ba33f1642ef1d105dd2cb5985344dce46b496d7ef
-Q0.y    = 0d2765bb3dc05efc3b16596b91826eda77598ab35fc945a1c7fcd0
-          07f01defa30e9d8d61976e5a03c12c2a46e167bcac
-Q1.x    = 15d56648a6587a45a94d6a161b7e44c198e28dcf0cd312e4b91f89
-          2da2ea81dca527ed22801b0562212a359fdead8da4
-Q1.y    = 0c692be34ed2a408d33aac7c45c18f48ee4065dff8e75e0b58526c
-          cd0b270499efc95c92d760229711858d8f10d36588
-
-msg     = abc
-P.x     = 0bf5d3c7102b57329e31bb8b4d6c962422803f18f6ced5554772c1
-          6c2b158122a4c0e256d32b5afe3406f6dcebb68f95
-P.y     = 03edf325c94564fcd14a76e48bf62e86adca061fa788d371620a7b
-          49c608df09a2cde92e7a24c84a07822b1de491f486
-u[0]    = 107cf2df3dd40d06afb8478e6234c0480d04e8f2102bac157e5564
-          1ff0398b6542febdc7f340c4630232b45e1c8d91d8
-u[1]    = 0b4e7ae863184dbdc8db591285c253778d392302e87ec5d8e6413a
-          8c4821a1d30ddafbc9476f711ac812a0838ff6def8
-Q0.x    = 16a94b53df034fd41e271786f82b9402d63ec02deaa2ab4d98a896
-          d743909e18006ccd538eda775f50d0fbf28c87f8e6
-Q0.y    = 026ba033ad9e8f3c78a8c7675f4d591b1b2bd2e9bcddcd760c5d79
-          7679961d0f616e4fe845e7fc34ebaf23ab103425e6
-Q1.x    = 03fd96d708328ee89ad01ef96ff71f4b0a1c7f9f0a94229f939e9a
-          5591d51235eb2546722d3f12e6464e27d6b2cafa72
-Q1.y    = 13e0039ca804938ef383aee7150ad4e383d0f93cb368809e064222
-          ce44bf16391e5bf7e63e1358404a08536d45442432
-
-msg     = abcdef0123456789
-P.x     = 175875b44c43f44274ef2b544fe8b03bca6fffb88678fd6bbb484a
-          4094009db0640cc9196794cd2c114d2923ef8e4633
-P.y     = 014937c7cbe0f207c4723289976d638942db4891bffec145cc97e0
-          b43b604b1e8f2b1ec5137e91c0575e3a617af38f86
-u[0]    = 12870bd6d3df39c81a7552c93c9c90c031f877adb0ac285231461e
-          397cac7e70e6a857b387f01038d6811b268082dece
-u[1]    = 088b238f936b4f4cdf7a73216b3735c77ee79506ca4b982bde6760
-          4cb4736ef61b348f61141edbb5e86f08e4b8a051ec
-Q0.x    = 09c4bb4327c675d5f7ff8c5053c2477f713547a3d9fe21bf43472b
-          dd1e57c3c408c84f63ccd26579def3c8203d9c392e
-Q0.y    = 11846b08ac6e7136c77e71882b2e7c9cf60782bddac3079518cbe0
-          a80591bf6ac79df3b1bdf99b01ff10e4c66376458c
-Q1.x    = 04636de75d433c88987e0347e7c9f3322307cb7177f5becf4a7d9a
-          38ebb9a78c862a439ad0e23960fe282d3ffb3321af
-Q1.y    = 0d7a22314d049a0d9dc8dddf3d6478e754cd9579825007564f746e
-          bc2bc677e218b45c47775f99445c2f5d0b4e4742aa
-
-msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-P.x     = 050d57f609e8d5e3afef254f31555023fddfb32a70aeb373165c5c
-          aae6530a49578867114801b3a6c693a9d3e731006c
-P.y     = 0189d4a6de408e304cbe6af94b931da65966ff483b25c402933983
-          6bf50f0ee52d8998e13d8891d38e0f1e5daafac0a7
-u[0]    = 133850adf446a089d3179e6d745b81f0a3084a98d505318648e5e5
-          a5dbcd7be1cbccae883531c56556437cba1dfa63df
-u[1]    = 0ee54c1145341af04492ce0fc4ca14f8a6b96a725e55a0dc5e3139
-          a64dedf0d76052568a3dcbccc08d9a0b8ea3ebfd02
-Q0.x    = 054db2b33859c79106107506e8627c1c5bd7da6dbf2e4e84363b0d
-          e4c512c43a14f647d99aa9e9069b21d29f188f2249
-Q0.y    = 062f680647ce3c6d043f6e9d29b348f053e4146cd63214d67dabfa
-          28c45fc992f328a61d16bbeb9431d3392befed4ee3
-Q1.x    = 046d6980f4e2649611c2211c21d7ee30af0b1a03cccc63e5effc1f
-          b680b5c24ce631bde4ac1b1f35d92dd8340c9e6837
-Q1.y    = 0bf2d9e2cff5a15291c81e6440bb1d42dc2d74af80e4a73ea7bb8a
-          c2bf7110abd28fb8beb55224979698942ca94ec88e
-~~~
 
 ### BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_
 
@@ -6776,70 +6688,6 @@ Q1.y    = 028e6d0169a72cfedb737be45db6c401d3adfb12c58c619c82b93a
           5dfcccef12290de530b0480575ddc8397cda0bbebf
 ~~~
 
-### BLS12381G1\_XMD:SHA-256\_SVDW\_NU\_
-
-~~~
-suite   = BLS12381G1_XMD:SHA-256_SVDW_NU_
-dst     = QUUX-V01-CS02-with-BLS12381G1_XMD:SHA-256_SVDW_NU_
-
-msg     =
-P.x     = 00b32edeff0f3b47dbd7f7fc9fc3e22c89024940a17f16dae74665
-          a30ba1f6596a107a03157b711fba1382459ce0ee08
-P.y     = 136c46bb465f3f958f4c52a39289436a857adafc322f09d047f046
-          fc2f28bef3f801750444b4bb043c09bd4b8e57e531
-u[0]    = 1123677487a797673f62baaaf6302f5ad64879b28f8f7b23b62759
-          958e6aa74c0890adda1274ca7d5740fa9f2e94b417
-Q.x     = 044287a055cdd2e6966f5bcc5818fd28594e6723906ce97c8c3359
-          6a95447493387834a57754b5cadace9b327a42ba88
-Q.y     = 10e157633aa6ef9359f07d3f32447af6db91c8726ac8e94e947ee9
-          5d61bc43c5240b1b613e3c77ed3c94014b766ea3b9
-
-msg     = abc
-P.x     = 012f529a761260571c58e1e7ba917acde1bc56b4b27bab5495e89e
-          eb244918c52ee8b0090b9c0c31dc8cfc214b5f37e3
-P.y     = 03121de2a5623a5f83f263b6787dbef1101b08f9b586c670f28b87
-          874b826c28b79f0e19ada9d4f2e912a17e050eabab
-u[0]    = 0fc2607c21d2daa2ba4130fd8025d6d76b27bf5194a80af1f9aecf
-          34f7f2539e7baaf4f65efacae2db4e98bf0a409202
-Q.x     = 1774ca19fb55f4d2bd6a42035546ad3e3df0738436282052503965
-          8fe4b5f9f0a9a1e544fc022c490981c60eda6c7530
-Q.y     = 08271f24f9029b7f3bf8a8ab54a8bd1c023d28ec6cf2d43ab7fb38
-          e79c1310207b06697aa255424a645864f3f707fe62
-
-msg     = abcdef0123456789
-P.x     = 12243c6380e6ef5ca75d25b182bacc0e6e68a3f1f0c04944794558
-          e7fdb1fd6d2b2a81824068b40d31eed515aaf3d90f
-P.y     = 12ffb90ed9b2166d4a11c1b0460b79809dd017d66e20d00cfaae6f
-          55a5b2d4fa1c82ddaf75aa457b269cb8d1ba58304b
-u[0]    = 0af1c17efbc6ef934c0ce82dbb10e7db10d8d43ef1cd6e73c74313
-          89fdb48669e51fb4a34082dd2e32c4b9d304699dce
-Q.x     = 12726849232499e8e6fcc8192c0ed83a3a730deed97b1f4e98c3e3
-          57b39c4f1fcd4e3d7a0800a6d046d524803e72fdcc
-Q.y     = 12ee88f97dd0d4fdd247abee8fccf9a43a31426386a576de54f103
-          9803561782ec4062afcdb89cccae5645545f11d8aa
-
-msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-P.x     = 12371c348276bd530b54a90adb190b03d78614e1521e80d00e2f3a
-          d5a372040f2ab66a33ecde9a1ee48c53b59203f570
-P.y     = 0ee3cb6fa94f34059bd46d18c7099ce44a90c1df027bba4b9631c9
-          01e920805c47a20ed3083942048516b0c291b70122
-u[0]    = 117d3c0151a65c617903f42b0afdc1851225d2cee31c38ea926497
-          27610e5b7efb885d9d54911ae40429edd7bc774094
-Q.x     = 128ad2b109d7bac5859e236397ab3a301582cb065b00b224bba334
-          5a24bd3a42c47ae0f6216b247c11190ad3b68d476b
-Q.y     = 0b510e9ff778624d6cc107ca8d0a9d6c21253ea1e4aa9df2303879
-          c9a17d88278de635f3f80b97ced6674fe3c553c7fe
-~~~
-
 ### BLS12381G1\_XMD:SHA-256\_SSWU\_NU\_
 
 ~~~
@@ -6904,115 +6752,65 @@ Q.y     = 1109b5d59f65964315de65a7a143e86eabc053104ed289cf480949
           317a5685fad7254ff8e7fe6d24d3104e5d55ad6370
 ~~~
 
-## BLS12-381 G2
-
-### BLS12381G2\_XMD:SHA-256\_SVDW\_RO\_
+### BLS12381G1\_XMD:SHA-256\_SVDW\_RO\_
 
 ~~~
-suite   = BLS12381G2_XMD:SHA-256_SVDW_RO_
-dst     = QUUX-V01-CS02-with-BLS12381G2_XMD:SHA-256_SVDW_RO_
+suite   = BLS12381G1_XMD:SHA-256_SVDW_RO_
+dst     = QUUX-V01-CS02-with-BLS12381G1_XMD:SHA-256_SVDW_RO_
 
 msg     =
-P.x     = 0e2ca6ac396817c6bfadf5a540d8237bf706d33fab35de15f4fcfe
-          f3d7bdcac65eb555b9f5e664981667ed43f857cbf1
-    + I * 0d9615e9f5e1f815206a11be4247a30173a3bd2aec009eb40445da
-          147d2e444c94e50b82e9bb5dcb52160191391b56d8
-P.y     = 0b473b06c297aa4955e78dcbe11af4977c07d634bfa7ff55513b44
-          77c4f2d96c0ac81c22f9cb857808216e54c7a4262f
-    + I * 1466db113ccf3c7cc0cf96173485bdf900fa21bf38645220987932
-          ba599f5ec0ea559f14fdc5ed9e5a2d883d4cd380c1
-u[0]    = 171c2e85f502b47ddbab6f3ddc5b5f6569264591f2976085ee178e
-          6fcae10b728c124b6151f765129e72d3e9c668c57f
-    + I * 0733baa0ed578dcb604f9b9b6f29600c159251718764ada67173b2
-          befdb5338cbc8c9209d1212d215b8c23bd76c0d2ae
-u[1]    = 0af24ae79f9e15e8ac38f0417c4e04d66da312ab99985c2a8d4350
-          a671afa1e38f717f9341b97af1d91acf2ee9945eb6
-    + I * 0095588a099bf3dfb8ec786002c7a7ce4fe42817e07d1aa1dc6489
-          dce96f7cae05d76c0293665d2b7de511ff7565eb5c
-Q0.x    = 1374b154734f556cfe19ebf4eb1dcc182c99141b0fbc076f317176
-          4f8fee3d64d6142c477328b8c1e4570e85a6368e4b
-    + I * 011890283a18c866f7f80ba5f983e7aee8f61285c0e80180d6f454
-          4252ba211f80c65b353abce1f0e231b8cdc417ceb0
-Q0.y    = 19246a1500a21684e62c8a3176eba56d47b300a1a4039387e3ef4d
-          44d4d074ea88bfe37b0535e5fe5325fae205eac95d
-    + I * 02d3a09279344ec9d8987dce63a31ac828a3a8d8651b57f905a91d
-          fe4518dc7f010e33dc1262c42db22feafa9a470659
-Q1.x    = 0c5f3ded8d42afa880915eefc764946973e9d54f7458626100bde9
-          9941053d4fa0b9212936c8e3d1517dfd010144b9a7
-    + I * 17146146bb9d122bcb047bee456b240d66f5b2dc17257f538ca4f9
-          ecbae282d2bd66ac66690b35fdbac5ef5c17609b6e
-Q1.y    = 018bcc75ecc990116538ebd8f5aafb8a84e185232cfcd7de35fb65
-          30a92ce357f36812fb7202a69fee37301669ae309c
-    + I * 0250781e6fb4e0e39ae386521145743f37a160fcd6f2dcdc732978
-          44b3120ce06fb8c87a19a5f2f5bbc532308732534d
+P.x     = 0046646cdee5e2427e34c3ef0246e46b7d302fc8d1663ebe88dce9
+          9cf30d13f92a5e8c067619a04f262c656cb2f441aa
+P.y     = 0370dfd014379e48ee0e74a58992f5a44a35e6386f578c21b4b969
+          534f5fa45e26069955f6176ed29fc4fe80dd145b6b
+u[0]    = 10712f3f71e65bc70b3e4558ac8ab4f31d7804a7646390c4be0386
+          f32d33f2570a1b9d3ecf0bdcf82d7cfddf3294e208
+u[1]    = 117352b18beefcc5d42920255568dd3f7e2229a490c16760a131f6
+          e054598ca9bbccf0f01001c508d8af8a21bf02877c
+Q0.x    = 02635c900de5fda2e16303230b8332a59f7ee320f912602ca56e4e
+          4ba33f1642ef1d105dd2cb5985344dce46b496d7ef
+Q0.y    = 0d2765bb3dc05efc3b16596b91826eda77598ab35fc945a1c7fcd0
+          07f01defa30e9d8d61976e5a03c12c2a46e167bcac
+Q1.x    = 15d56648a6587a45a94d6a161b7e44c198e28dcf0cd312e4b91f89
+          2da2ea81dca527ed22801b0562212a359fdead8da4
+Q1.y    = 0c692be34ed2a408d33aac7c45c18f48ee4065dff8e75e0b58526c
+          cd0b270499efc95c92d760229711858d8f10d36588
 
 msg     = abc
-P.x     = 10c314ad416a603efd3d8c510abe24b04e86fd4b4c8431378fc03f
-          a4358ef9085871742d628a72ac3e8787aac4a9e642
-    + I * 059eb057ec63f9316e6d214bb6eb088834a8e1784792faf1892a22
-          c84ffc0bee493a3a46bf7b9b336ae35c039b1b91ae
-P.y     = 0800fe0f7da6d45dc2aa4372e856b7783a048349826d6fedec35f4
-          64324628ed470301c4feb2996238414da949f681d3
-    + I * 0270e82333f390d70f3f4f78d376bd806a51bbdd3b2146e585795d
-          ffdf4a3a640a1802d7df4091d1f3959106a3e77c2f
-u[0]    = 0bc76b6279842c042cf4460096ea8eaf8a118442ba0981e8a358cb
-          8c4a3b373847da64b7bc87af5060838875f627521c
-    + I * 014fb10360165ad67973b79526ece1a53dfbecfc4adf89c9d10668
-          2af954211615d19697c48f140e168a844b1674cb21
-u[1]    = 11ee42bc0afcdc3427d53c1fbcd43aca6e479631175b071bc0dad5
-          9ca6e98a3a36d8b9df017c34fa6bdf5b4c69ba1b71
-    + I * 038495ef8975de190e22b6fbf16f1e9e0ac72c0b1140806a3bcd65
-          ab265ddfe4cabb12c390e64e04617e6046ddc0d00e
-Q0.x    = 113ff93ca914b8a5b97869ffa6a15839cedfc3ba3c05e69fb65a35
-          1be48cdf343e3cdbc2e8cb937fe1c018664d24cb47
-    + I * 0196727701fdd4db9b365addfba2b251046b142b4990971524e982
-          d654302815cd0dad3552ba8eda1fe15232fc10e6b5
-Q0.y    = 0cfadad5d823f19e69d3e5542be9bebf4a0647fe452e636b61dfde
-          43a75793dc99fcc37449e831d100edf2f994a5270e
-    + I * 08b63b703c65058eb5734dd2115abb79dbbad0887d480a37a6a4bf
-          05a7a3b0d127981f86e9453609ec8ab02454ae889c
-Q1.x    = 1380fa1dcbd0cd99bc3d5278a868571ec6cdbedee26f4c03d8c3ef
-          9380a38d91f3e051ac877f901b42bfab35793149db
-    + I * 0c4e6cb24df706078ba550ea5f1913d72047465815d155d970adb7
-          abb00b83f31c3fc725640a6b3458d667f6828e2fa0
-Q1.y    = 039070022374114ecb31f79263f3151f07b7d854ebd5e45b21cb81
-          5c6b85709efa12549b8bfa8dbbd1a192bd3f21e2f1
-    + I * 0884bf6d2a748a08d15d55baab89e4c91cd190feeec8be6e82f6a6
-          8e90abbfd47c47b55264d403606e6c9d60b38b9bc0
+P.x     = 0bf5d3c7102b57329e31bb8b4d6c962422803f18f6ced5554772c1
+          6c2b158122a4c0e256d32b5afe3406f6dcebb68f95
+P.y     = 03edf325c94564fcd14a76e48bf62e86adca061fa788d371620a7b
+          49c608df09a2cde92e7a24c84a07822b1de491f486
+u[0]    = 107cf2df3dd40d06afb8478e6234c0480d04e8f2102bac157e5564
+          1ff0398b6542febdc7f340c4630232b45e1c8d91d8
+u[1]    = 0b4e7ae863184dbdc8db591285c253778d392302e87ec5d8e6413a
+          8c4821a1d30ddafbc9476f711ac812a0838ff6def8
+Q0.x    = 16a94b53df034fd41e271786f82b9402d63ec02deaa2ab4d98a896
+          d743909e18006ccd538eda775f50d0fbf28c87f8e6
+Q0.y    = 026ba033ad9e8f3c78a8c7675f4d591b1b2bd2e9bcddcd760c5d79
+          7679961d0f616e4fe845e7fc34ebaf23ab103425e6
+Q1.x    = 03fd96d708328ee89ad01ef96ff71f4b0a1c7f9f0a94229f939e9a
+          5591d51235eb2546722d3f12e6464e27d6b2cafa72
+Q1.y    = 13e0039ca804938ef383aee7150ad4e383d0f93cb368809e064222
+          ce44bf16391e5bf7e63e1358404a08536d45442432
 
 msg     = abcdef0123456789
-P.x     = 020e2399be44e2a97ccd55a6092d08f274132a3459816801dbcf18
-          3d204dc5136a84b6db4fb0d3270180a288d22d8fad
-    + I * 02a41233f3ee379164ecb18bd42090c021e1ed1250854dade2b5a3
-          5f0a02cb5eef8fceedd6d077b5b988e946b092da37
-P.y     = 0437ac29431c2e77b53fa093d0da0e4175dd0c73adf922d08a1196
-          0cf952d18ac37c3b445aeda583c1cfaa3b1e990aec
-    + I * 05c8cb3cf0a668b6f7f0b98ddea23cf4fa560a45f6457ea634018f
-          9bdf94da8cfa1f26f139f6c1b15b86a798c803ee3a
-u[0]    = 16c7afb18b8005300e1fec63aa4c516abe86f0970bbdadb5e832b9
-          3ead30537842ccd4d35f191b9ba409ef634ffa6912
-    + I * 0200e158d4e252cdb4a31dbcdd1f0f11266678bb919d6695b5e5dc
-          253ab78aeb89198c52702a06a86ddc7d5cdb4688e2
-u[1]    = 0ea5bec03d8644d0f986d511a25863f63a58349d43e10463244a4a
-          1b787ae92ff6a6c2c21e2ce53d06f6646c5c7e117c
-    + I * 18004a332d6b7c78fd125d7cb78c18b0e5be1133cad9907c7f00bd
-          b46a3a9761ae305a86e42199fdadbbf9258fd89142
-Q0.x    = 067c873663f55940b5ec9f215cb95385ce3d074a704ebb63ac3597
-          8a9cbdc437e4d809e801f3487b8e9355853efcb0a6
-    + I * 086bca0394b8c8a91e09d7d17ab0a960253ad1576745e58d463823
-          734d23f9843adba74ab22402a96b713a0808b87920
-Q0.y    = 054e59e60e4f03d31dfc586fc50ac7463ecaa1e831e086637033e5
-          473a75eb5c113acbb86f792c94b1891ff62fcc5e74
-    + I * 0c8b48bd37c6c0773aabff20b688c861a749785953c5147a4255dc
-          65d80c70d0e5bd644ed00d47e474a58461fc23c184
-Q1.x    = 14423f200f6eb39961d8001bf6357b1ed64d9955a513095d44d51b
-          d67c13283515273738b63119e8472ae322f4259969
-    + I * 0c76058a015226841a0060efc1018f4e495e319c26b56e5213fdd1
-          9126078e3f017be65494f5af6482c3cba5e48e2620
-Q1.y    = 1138a80d42b2c6e4abc35a131451f3b7699aec89d4fadecca60ef8
-          e534712c101209cf318dee139cc7ea8ddd9915a5a4
-    + I * 137a9c31b0c58f04eb13e2920f45cc37e6dbe4d607b3648f34051d
-          bb09debac2d9a3bda8098ed4e9de63e043abac667a
+P.x     = 175875b44c43f44274ef2b544fe8b03bca6fffb88678fd6bbb484a
+          4094009db0640cc9196794cd2c114d2923ef8e4633
+P.y     = 014937c7cbe0f207c4723289976d638942db4891bffec145cc97e0
+          b43b604b1e8f2b1ec5137e91c0575e3a617af38f86
+u[0]    = 12870bd6d3df39c81a7552c93c9c90c031f877adb0ac285231461e
+          397cac7e70e6a857b387f01038d6811b268082dece
+u[1]    = 088b238f936b4f4cdf7a73216b3735c77ee79506ca4b982bde6760
+          4cb4736ef61b348f61141edbb5e86f08e4b8a051ec
+Q0.x    = 09c4bb4327c675d5f7ff8c5053c2477f713547a3d9fe21bf43472b
+          dd1e57c3c408c84f63ccd26579def3c8203d9c392e
+Q0.y    = 11846b08ac6e7136c77e71882b2e7c9cf60782bddac3079518cbe0
+          a80591bf6ac79df3b1bdf99b01ff10e4c66376458c
+Q1.x    = 04636de75d433c88987e0347e7c9f3322307cb7177f5becf4a7d9a
+          38ebb9a78c862a439ad0e23960fe282d3ffb3321af
+Q1.y    = 0d7a22314d049a0d9dc8dddf3d6478e754cd9579825007564f746e
+          bc2bc677e218b45c47775f99445c2f5d0b4e4742aa
 
 msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
           aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
@@ -7024,39 +6822,89 @@ msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
           aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
           aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
           aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-P.x     = 11c612f3d1a43a30cf7f13526b1c5858c338ada1b175a50346add0
-          9538a369feb93dcf7137ccb619e4a96dcb38e83c91
-    + I * 0b251af463d03250fbe8772fb2ba19b4aaa971cf8d49617a8943b3
-          16c5923ed41677a7835122ce359c184a0dc9134e63
-P.y     = 0ffa178d31427948da2833d5cc04de2bb279f9550db5c5292d4db1
-          d642b01a1c99e56f836b3dd0f7a1d4610779371dbd
-    + I * 1874189a185d27e3750d12473ed54c6050cbe925c3ab883b26ca56
-          ff0c8908985073ae5a7ae5f73cc71d8961b50b5f62
-u[0]    = 0be9d2f7f1dfa94984e0207d073d1e62d3597dc65c5d230cd554b5
-          7f1b541f24edf70cbe2f27ad3108648f73f4669aed
-    + I * 141007dff28fd683551916d7e506adabdcc1289c8c850f6365277b
-          43670a110ff6c4efc180a597eb2ffa5812adfa12e0
-u[1]    = 13d04052e31d7b3437ba708b6c42298e537981b11d522321ed53de
-          fdc0d87b67f7b82d1117610702608bd24edcb3e4b5
-    + I * 0fda20f62d488f8dfbf024e5bb503c27acfd120aeaac39be4840ea
-          f4c3697fe47c7fced8cf5a139f15f3f433e7f8a9a9
-Q0.x    = 072e16a99492640900e0cf6048f1bc681c103c748978a07d509a5f
-          22f57fc2de2774514a376432b88d858c9c9c7ff727
-    + I * 130bd240ae9d7e564750983ee10d3de1a8b5187fdd952323041241
-          6861593b47a5afcb4d180b48fc31ae281f4e3fcaef
-Q0.y    = 19793b1bb15b3d052d3fce48bddda13ca172186d52bb9d27663201
-          8793bd0575874a2314cee3b28710cb4aa80f7719a5
-    + I * 0c0e8a0201cd526b20ce83da87a4ef492efd905fc30d96e4218fbf
-          80c915cc160cbde368d4a3c81c2fdb909906d75d3d
-Q1.x    = 0c917d61d2fe0e3be167b9ef069fd0a49d0607a8d5abd382f0ef51
-          f4e5832486fb7e0c82ce3c109a59f22fde2f330167
-    + I * 03b1bcfec38c4acbb345d6aeedda1ef96c73f45eef746daff44143
-          5f9ac8ab147f6fa65a32251e3077e33770528d873f
-Q1.y    = 00443f83d69ec2591bff97323668fbc013e68178d658fe445ee208
-          1f25c4d7128d7565ab2bd02cf4aa1c1247d2df9407
-    + I * 06e7e3c145bc98de722c4b3c8b0803a1308eca4062eeca5a69148f
-          5b3c4242e79654211a7198f522548e3b42cc8bc84c
+P.x     = 050d57f609e8d5e3afef254f31555023fddfb32a70aeb373165c5c
+          aae6530a49578867114801b3a6c693a9d3e731006c
+P.y     = 0189d4a6de408e304cbe6af94b931da65966ff483b25c402933983
+          6bf50f0ee52d8998e13d8891d38e0f1e5daafac0a7
+u[0]    = 133850adf446a089d3179e6d745b81f0a3084a98d505318648e5e5
+          a5dbcd7be1cbccae883531c56556437cba1dfa63df
+u[1]    = 0ee54c1145341af04492ce0fc4ca14f8a6b96a725e55a0dc5e3139
+          a64dedf0d76052568a3dcbccc08d9a0b8ea3ebfd02
+Q0.x    = 054db2b33859c79106107506e8627c1c5bd7da6dbf2e4e84363b0d
+          e4c512c43a14f647d99aa9e9069b21d29f188f2249
+Q0.y    = 062f680647ce3c6d043f6e9d29b348f053e4146cd63214d67dabfa
+          28c45fc992f328a61d16bbeb9431d3392befed4ee3
+Q1.x    = 046d6980f4e2649611c2211c21d7ee30af0b1a03cccc63e5effc1f
+          b680b5c24ce631bde4ac1b1f35d92dd8340c9e6837
+Q1.y    = 0bf2d9e2cff5a15291c81e6440bb1d42dc2d74af80e4a73ea7bb8a
+          c2bf7110abd28fb8beb55224979698942ca94ec88e
 ~~~
+
+### BLS12381G1\_XMD:SHA-256\_SVDW\_NU\_
+
+~~~
+suite   = BLS12381G1_XMD:SHA-256_SVDW_NU_
+dst     = QUUX-V01-CS02-with-BLS12381G1_XMD:SHA-256_SVDW_NU_
+
+msg     =
+P.x     = 00b32edeff0f3b47dbd7f7fc9fc3e22c89024940a17f16dae74665
+          a30ba1f6596a107a03157b711fba1382459ce0ee08
+P.y     = 136c46bb465f3f958f4c52a39289436a857adafc322f09d047f046
+          fc2f28bef3f801750444b4bb043c09bd4b8e57e531
+u[0]    = 1123677487a797673f62baaaf6302f5ad64879b28f8f7b23b62759
+          958e6aa74c0890adda1274ca7d5740fa9f2e94b417
+Q.x     = 044287a055cdd2e6966f5bcc5818fd28594e6723906ce97c8c3359
+          6a95447493387834a57754b5cadace9b327a42ba88
+Q.y     = 10e157633aa6ef9359f07d3f32447af6db91c8726ac8e94e947ee9
+          5d61bc43c5240b1b613e3c77ed3c94014b766ea3b9
+
+msg     = abc
+P.x     = 012f529a761260571c58e1e7ba917acde1bc56b4b27bab5495e89e
+          eb244918c52ee8b0090b9c0c31dc8cfc214b5f37e3
+P.y     = 03121de2a5623a5f83f263b6787dbef1101b08f9b586c670f28b87
+          874b826c28b79f0e19ada9d4f2e912a17e050eabab
+u[0]    = 0fc2607c21d2daa2ba4130fd8025d6d76b27bf5194a80af1f9aecf
+          34f7f2539e7baaf4f65efacae2db4e98bf0a409202
+Q.x     = 1774ca19fb55f4d2bd6a42035546ad3e3df0738436282052503965
+          8fe4b5f9f0a9a1e544fc022c490981c60eda6c7530
+Q.y     = 08271f24f9029b7f3bf8a8ab54a8bd1c023d28ec6cf2d43ab7fb38
+          e79c1310207b06697aa255424a645864f3f707fe62
+
+msg     = abcdef0123456789
+P.x     = 12243c6380e6ef5ca75d25b182bacc0e6e68a3f1f0c04944794558
+          e7fdb1fd6d2b2a81824068b40d31eed515aaf3d90f
+P.y     = 12ffb90ed9b2166d4a11c1b0460b79809dd017d66e20d00cfaae6f
+          55a5b2d4fa1c82ddaf75aa457b269cb8d1ba58304b
+u[0]    = 0af1c17efbc6ef934c0ce82dbb10e7db10d8d43ef1cd6e73c74313
+          89fdb48669e51fb4a34082dd2e32c4b9d304699dce
+Q.x     = 12726849232499e8e6fcc8192c0ed83a3a730deed97b1f4e98c3e3
+          57b39c4f1fcd4e3d7a0800a6d046d524803e72fdcc
+Q.y     = 12ee88f97dd0d4fdd247abee8fccf9a43a31426386a576de54f103
+          9803561782ec4062afcdb89cccae5645545f11d8aa
+
+msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+P.x     = 12371c348276bd530b54a90adb190b03d78614e1521e80d00e2f3a
+          d5a372040f2ab66a33ecde9a1ee48c53b59203f570
+P.y     = 0ee3cb6fa94f34059bd46d18c7099ce44a90c1df027bba4b9631c9
+          01e920805c47a20ed3083942048516b0c291b70122
+u[0]    = 117d3c0151a65c617903f42b0afdc1851225d2cee31c38ea926497
+          27610e5b7efb885d9d54911ae40429edd7bc774094
+Q.x     = 128ad2b109d7bac5859e236397ab3a301582cb065b00b224bba334
+          5a24bd3a42c47ae0f6216b247c11190ad3b68d476b
+Q.y     = 0b510e9ff778624d6cc107ca8d0a9d6c21253ea1e4aa9df2303879
+          c9a17d88278de635f3f80b97ced6674fe3c553c7fe
+~~~
+
+## BLS12-381 G2
 
 ### BLS12381G2\_XMD:SHA-256\_SSWU\_RO\_
 
@@ -7210,110 +7058,6 @@ Q1.y    = 0958b2c4c2c10fcef5a6c59b9e92c4a67b0fae3e2e0f1b6b5edad9
           e5d67bcf35df7853b2d8dad3ba245f1ea3697f66aa
 ~~~
 
-### BLS12381G2\_XMD:SHA-256\_SVDW\_NU\_
-
-~~~
-suite   = BLS12381G2_XMD:SHA-256_SVDW_NU_
-dst     = QUUX-V01-CS02-with-BLS12381G2_XMD:SHA-256_SVDW_NU_
-
-msg     =
-P.x     = 002d96c14769e1ecb71611d42e71e4177b8c351677cd0143baa1ac
-          5c5c87262b76bb1cc5bb1c7eaa2f440c9cb2d45929
-    + I * 156d2ade93a199bdf4a634994a2801287ed5d4125f7021700c6afb
-          caccc35ab72ea8a7e58eee76b64ea8c867dcbbdf95
-P.y     = 13433ca716e870098c5c5d4fff067a90938c4a9a3cbca24d0fe241
-          a44ebc19a552ae13178d4470ea9bb29db0bb948e33
-    + I * 108750f102345fdcec4f882ee6e1c33f4cbe81abd5ccc344520ca8
-          705dd7374246210fead41decb6a984761587536c13
-u[0]    = 156148e7f5866922098a78999c6272df521cc0f491e0d365096e6a
-          8015a51c6306e5818c3c910a7ce69c1597c3452329
-    + I * 0b749379233b0a7d95f65743e4f5c1a1b8c922ad42674e2f4d09f9
-          6babdd29becdd13e94401fc9e490238d765b3193e9
-Q.x     = 11b1d71290bf6a4758c1e5fcfc2fc8c73bbdfd052f2c52cd713703
-          b7db75a3fcb2ea06531ba4e71466ac4f106ae966dd
-    + I * 0f48c55f7727aebae75414c262928e485a2dabe9b91c1dcd68f972
-          f7926d7d8494f98ce6f6e29a2a6c8531a0e28c43a0
-Q.y     = 01a18078be60cc28f2b8115f2ae7f6e1ae9e916ff53e4e1e6b30a1
-          300a7a6b2f63b7436ef19347201b26af9a5a618869
-    + I * 11e86eaa7849273ffa4c95db69e074506237261a1cadf837c5af44
-          8a9f2e30c674c9cc3ee6e0c32f798a5e29154cc92d
-
-msg     = abc
-P.x     = 16b879c863491df602ef5e9f7dbbb6e038b0d1f4f92c24bcfa4591
-          50af4e73d2b1632d0d211d6194395f7481c02bd5fc
-    + I * 0829872ab298ac0c0208123acd7fafc32baa07d20277f528d86431
-          ec66b32c2766bda2a60535955af0368a6284eb3b8f
-P.y     = 0a899bf4c45cd4a6ad3a9d6d92a58588ddbd4045e4c49fabb43a36
-          849513d02b2ec1e136f214e5f5437710819fdbacd8
-    + I * 059cadbe574db81d096ee5e1a1b539cb5bf97206b9dea6c4d54561
-          c30e0a056bac25ed13e2ea7f892729e753c6b766f6
-u[0]    = 0d5d55f03df748358b4cbb4c0302fe09f288d5d178f70327b94618
-          0c5a50e85cac3cf6d56c1d4ff8d02e447cb86629b2
-    + I * 0b4c2281e855c6a3b32136a84ff071d975ccc7647d596d6224f70e
-          ad04e3ffa39db6859dc0f663f7d074c1cb08dc567c
-Q.x     = 1930e08b8b5891d8feffaa3fcb1062d7a0220df21c41c95f31a9fe
-          479fa005f44fe78d87f1c76f944284c5ff531df604
-    + I * 0bdb30000b51ab723911f7a5ed1312dd548129fe21f0ea5000f76b
-          1647d26bea367b50db09512b265ebbf06f01c78373
-Q.y     = 18d21bb316acb42c4f9a7cf0b0a9da380a87e1f9fc20c7fef2f73c
-          0a11889ed8501a96bd9aa56903049975f51737f75e
-    + I * 169290273de9e79ef83ac883cb6a599e4584666f0496d33cf63fe4
-          26f40fb4fdf24c03c3d2ebc7f8fafd37a735b7f35c
-
-msg     = abcdef0123456789
-P.x     = 10581ed8f0bf035de24757268dbdcfd4aaf2f2e842243b5ba6d550
-          a09eed009eea6f90df32b7b5967b1943d31916ca4e
-    + I * 06fced762aaa9c585fa9a70e07a2888279e2890124cec2a7fdb0d1
-          0ca3192a6320bd0fda2f0ff04d957af63e22338591
-P.y     = 11a5862cd4e40347924d636c18a403ce33987ef59f2b0a79815922
-          aa93a490d55466fd7d694df72aa8824431b5b679c5
-    + I * 0bffa6da982ef742bb75a26f4b47d63b5bce78b706396a37bac92f
-          2418db8d353c01df4dd317a32393499f2bd51b3c66
-u[0]    = 11e2848db825cc1ecd0f340c06eb0c604fed819ad89199e1ec9d11
-          794355b8977ae866d626e32e27c6fb154afa03922b
-    + I * 149805306f6e36d62007cf9cd5fc1ff929f2e9a6812b51dffe145f
-          21f26bb2ab5512b7f5acfa6d26633d9a1d0a5fb514
-Q.x     = 176b1aa72834e81a81e53a2bf41e41904e786352222218a8269427
-          0b7c5c51508d7c6480ca0430ab3c31eaccc8cd0504
-    + I * 169dfc870ee5596189471f107a45c55e2be973a2d6a88073090bdb
-          63868e6ca9982604431446615407470e5261dd7c05
-Q.y     = 0b50d35f9ea56f4a156d5ae6774704112485087697070a305f7661
-          576c9ad0cf56a77414c036c1d2a86e0cb5d6afe6a3
-    + I * 0edd7833d8ef608ed9d6835fd9c4c7879678fda8ad47e07478b55c
-          8e73dc8931ad79c31ff824db6738129f4efb467810
-
-msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-P.x     = 0af2f4ff6c6f78a10a4ad6113efc9a3b9811db2d2e0d84509d44fb
-          de176d93dce8b2ba6df4a50d5ca465d90e24fe04e8
-    + I * 0bc513da308fbe9da859c30d0973fc4adad6f1eac34b9f1d298e1e
-          5e5d0d81d477e26e7e710fdb291f51055a766b3d90
-P.y     = 04ffd09c623d8209fed4c33b52e8fdd504c4c7c6ac3df8ee5a6305
-          2e5dcbdbd57e205c753381c7677215267f3738436e
-    + I * 0a817465f59b43fbb1ae25f2c0b733666a2e018933b4a00de55c4c
-          050c070edd276afaec92abca141b293a2b5e17d806
-u[0]    = 0f879b2cd4955d506063bb2d4debcf4e24698c9063adefbf9bf98d
-          1c3d469c76b889ea7672b81150eb7748289ed89122
-    + I * 10bac36fd96108b7cdf0a6ec43eb913c9431c568c5c32c9a2b7b03
-          d8c0a7bf7cc2361a1b41b8f2940a1badebcf94f159
-Q.x     = 058fb32320c025c581777f39238f53cc1045d0e41ae03e6d0ec5c4
-          ebe6507d058b3d5e48495b65edec150da21d10b759
-    + I * 0c80240239ff83591e996b5bfff5d37a29063fdf6c648ef8c80ba1
-          3b34a2d0e517a97c934b568e6a25678b46d0f554bc
-Q.y     = 00827354b150c0e337c8974d22d5d2dca27a76c9879bc4fd475fc9
-          ab3c8848368082f2ab4c9c4b4f2058a84f721bd9bc
-    + I * 094353a53f447ba559d0d883118214927abe76b73858148b87602e
-          9294483bec36646ec2580d8067ae24c1c5fdbd7b28
-~~~
-
 ### BLS12381G2\_XMD:SHA-256\_SSWU\_NU\_
 
 ~~~
@@ -7418,3 +7162,258 @@ Q.y     = 1260d6e0987eae96af9ebe551e08de22b37791d53f4db9e0d59da7
           f4112309e628255e183022d98ea5ed6e47ca00306c
 ~~~
 
+### BLS12381G2\_XMD:SHA-256\_SVDW\_RO\_
+
+~~~
+suite   = BLS12381G2_XMD:SHA-256_SVDW_RO_
+dst     = QUUX-V01-CS02-with-BLS12381G2_XMD:SHA-256_SVDW_RO_
+
+msg     =
+P.x     = 0e2ca6ac396817c6bfadf5a540d8237bf706d33fab35de15f4fcfe
+          f3d7bdcac65eb555b9f5e664981667ed43f857cbf1
+    + I * 0d9615e9f5e1f815206a11be4247a30173a3bd2aec009eb40445da
+          147d2e444c94e50b82e9bb5dcb52160191391b56d8
+P.y     = 0b473b06c297aa4955e78dcbe11af4977c07d634bfa7ff55513b44
+          77c4f2d96c0ac81c22f9cb857808216e54c7a4262f
+    + I * 1466db113ccf3c7cc0cf96173485bdf900fa21bf38645220987932
+          ba599f5ec0ea559f14fdc5ed9e5a2d883d4cd380c1
+u[0]    = 171c2e85f502b47ddbab6f3ddc5b5f6569264591f2976085ee178e
+          6fcae10b728c124b6151f765129e72d3e9c668c57f
+    + I * 0733baa0ed578dcb604f9b9b6f29600c159251718764ada67173b2
+          befdb5338cbc8c9209d1212d215b8c23bd76c0d2ae
+u[1]    = 0af24ae79f9e15e8ac38f0417c4e04d66da312ab99985c2a8d4350
+          a671afa1e38f717f9341b97af1d91acf2ee9945eb6
+    + I * 0095588a099bf3dfb8ec786002c7a7ce4fe42817e07d1aa1dc6489
+          dce96f7cae05d76c0293665d2b7de511ff7565eb5c
+Q0.x    = 1374b154734f556cfe19ebf4eb1dcc182c99141b0fbc076f317176
+          4f8fee3d64d6142c477328b8c1e4570e85a6368e4b
+    + I * 011890283a18c866f7f80ba5f983e7aee8f61285c0e80180d6f454
+          4252ba211f80c65b353abce1f0e231b8cdc417ceb0
+Q0.y    = 19246a1500a21684e62c8a3176eba56d47b300a1a4039387e3ef4d
+          44d4d074ea88bfe37b0535e5fe5325fae205eac95d
+    + I * 02d3a09279344ec9d8987dce63a31ac828a3a8d8651b57f905a91d
+          fe4518dc7f010e33dc1262c42db22feafa9a470659
+Q1.x    = 0c5f3ded8d42afa880915eefc764946973e9d54f7458626100bde9
+          9941053d4fa0b9212936c8e3d1517dfd010144b9a7
+    + I * 17146146bb9d122bcb047bee456b240d66f5b2dc17257f538ca4f9
+          ecbae282d2bd66ac66690b35fdbac5ef5c17609b6e
+Q1.y    = 018bcc75ecc990116538ebd8f5aafb8a84e185232cfcd7de35fb65
+          30a92ce357f36812fb7202a69fee37301669ae309c
+    + I * 0250781e6fb4e0e39ae386521145743f37a160fcd6f2dcdc732978
+          44b3120ce06fb8c87a19a5f2f5bbc532308732534d
+
+msg     = abc
+P.x     = 10c314ad416a603efd3d8c510abe24b04e86fd4b4c8431378fc03f
+          a4358ef9085871742d628a72ac3e8787aac4a9e642
+    + I * 059eb057ec63f9316e6d214bb6eb088834a8e1784792faf1892a22
+          c84ffc0bee493a3a46bf7b9b336ae35c039b1b91ae
+P.y     = 0800fe0f7da6d45dc2aa4372e856b7783a048349826d6fedec35f4
+          64324628ed470301c4feb2996238414da949f681d3
+    + I * 0270e82333f390d70f3f4f78d376bd806a51bbdd3b2146e585795d
+          ffdf4a3a640a1802d7df4091d1f3959106a3e77c2f
+u[0]    = 0bc76b6279842c042cf4460096ea8eaf8a118442ba0981e8a358cb
+          8c4a3b373847da64b7bc87af5060838875f627521c
+    + I * 014fb10360165ad67973b79526ece1a53dfbecfc4adf89c9d10668
+          2af954211615d19697c48f140e168a844b1674cb21
+u[1]    = 11ee42bc0afcdc3427d53c1fbcd43aca6e479631175b071bc0dad5
+          9ca6e98a3a36d8b9df017c34fa6bdf5b4c69ba1b71
+    + I * 038495ef8975de190e22b6fbf16f1e9e0ac72c0b1140806a3bcd65
+          ab265ddfe4cabb12c390e64e04617e6046ddc0d00e
+Q0.x    = 113ff93ca914b8a5b97869ffa6a15839cedfc3ba3c05e69fb65a35
+          1be48cdf343e3cdbc2e8cb937fe1c018664d24cb47
+    + I * 0196727701fdd4db9b365addfba2b251046b142b4990971524e982
+          d654302815cd0dad3552ba8eda1fe15232fc10e6b5
+Q0.y    = 0cfadad5d823f19e69d3e5542be9bebf4a0647fe452e636b61dfde
+          43a75793dc99fcc37449e831d100edf2f994a5270e
+    + I * 08b63b703c65058eb5734dd2115abb79dbbad0887d480a37a6a4bf
+          05a7a3b0d127981f86e9453609ec8ab02454ae889c
+Q1.x    = 1380fa1dcbd0cd99bc3d5278a868571ec6cdbedee26f4c03d8c3ef
+          9380a38d91f3e051ac877f901b42bfab35793149db
+    + I * 0c4e6cb24df706078ba550ea5f1913d72047465815d155d970adb7
+          abb00b83f31c3fc725640a6b3458d667f6828e2fa0
+Q1.y    = 039070022374114ecb31f79263f3151f07b7d854ebd5e45b21cb81
+          5c6b85709efa12549b8bfa8dbbd1a192bd3f21e2f1
+    + I * 0884bf6d2a748a08d15d55baab89e4c91cd190feeec8be6e82f6a6
+          8e90abbfd47c47b55264d403606e6c9d60b38b9bc0
+
+msg     = abcdef0123456789
+P.x     = 020e2399be44e2a97ccd55a6092d08f274132a3459816801dbcf18
+          3d204dc5136a84b6db4fb0d3270180a288d22d8fad
+    + I * 02a41233f3ee379164ecb18bd42090c021e1ed1250854dade2b5a3
+          5f0a02cb5eef8fceedd6d077b5b988e946b092da37
+P.y     = 0437ac29431c2e77b53fa093d0da0e4175dd0c73adf922d08a1196
+          0cf952d18ac37c3b445aeda583c1cfaa3b1e990aec
+    + I * 05c8cb3cf0a668b6f7f0b98ddea23cf4fa560a45f6457ea634018f
+          9bdf94da8cfa1f26f139f6c1b15b86a798c803ee3a
+u[0]    = 16c7afb18b8005300e1fec63aa4c516abe86f0970bbdadb5e832b9
+          3ead30537842ccd4d35f191b9ba409ef634ffa6912
+    + I * 0200e158d4e252cdb4a31dbcdd1f0f11266678bb919d6695b5e5dc
+          253ab78aeb89198c52702a06a86ddc7d5cdb4688e2
+u[1]    = 0ea5bec03d8644d0f986d511a25863f63a58349d43e10463244a4a
+          1b787ae92ff6a6c2c21e2ce53d06f6646c5c7e117c
+    + I * 18004a332d6b7c78fd125d7cb78c18b0e5be1133cad9907c7f00bd
+          b46a3a9761ae305a86e42199fdadbbf9258fd89142
+Q0.x    = 067c873663f55940b5ec9f215cb95385ce3d074a704ebb63ac3597
+          8a9cbdc437e4d809e801f3487b8e9355853efcb0a6
+    + I * 086bca0394b8c8a91e09d7d17ab0a960253ad1576745e58d463823
+          734d23f9843adba74ab22402a96b713a0808b87920
+Q0.y    = 054e59e60e4f03d31dfc586fc50ac7463ecaa1e831e086637033e5
+          473a75eb5c113acbb86f792c94b1891ff62fcc5e74
+    + I * 0c8b48bd37c6c0773aabff20b688c861a749785953c5147a4255dc
+          65d80c70d0e5bd644ed00d47e474a58461fc23c184
+Q1.x    = 14423f200f6eb39961d8001bf6357b1ed64d9955a513095d44d51b
+          d67c13283515273738b63119e8472ae322f4259969
+    + I * 0c76058a015226841a0060efc1018f4e495e319c26b56e5213fdd1
+          9126078e3f017be65494f5af6482c3cba5e48e2620
+Q1.y    = 1138a80d42b2c6e4abc35a131451f3b7699aec89d4fadecca60ef8
+          e534712c101209cf318dee139cc7ea8ddd9915a5a4
+    + I * 137a9c31b0c58f04eb13e2920f45cc37e6dbe4d607b3648f34051d
+          bb09debac2d9a3bda8098ed4e9de63e043abac667a
+
+msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+P.x     = 11c612f3d1a43a30cf7f13526b1c5858c338ada1b175a50346add0
+          9538a369feb93dcf7137ccb619e4a96dcb38e83c91
+    + I * 0b251af463d03250fbe8772fb2ba19b4aaa971cf8d49617a8943b3
+          16c5923ed41677a7835122ce359c184a0dc9134e63
+P.y     = 0ffa178d31427948da2833d5cc04de2bb279f9550db5c5292d4db1
+          d642b01a1c99e56f836b3dd0f7a1d4610779371dbd
+    + I * 1874189a185d27e3750d12473ed54c6050cbe925c3ab883b26ca56
+          ff0c8908985073ae5a7ae5f73cc71d8961b50b5f62
+u[0]    = 0be9d2f7f1dfa94984e0207d073d1e62d3597dc65c5d230cd554b5
+          7f1b541f24edf70cbe2f27ad3108648f73f4669aed
+    + I * 141007dff28fd683551916d7e506adabdcc1289c8c850f6365277b
+          43670a110ff6c4efc180a597eb2ffa5812adfa12e0
+u[1]    = 13d04052e31d7b3437ba708b6c42298e537981b11d522321ed53de
+          fdc0d87b67f7b82d1117610702608bd24edcb3e4b5
+    + I * 0fda20f62d488f8dfbf024e5bb503c27acfd120aeaac39be4840ea
+          f4c3697fe47c7fced8cf5a139f15f3f433e7f8a9a9
+Q0.x    = 072e16a99492640900e0cf6048f1bc681c103c748978a07d509a5f
+          22f57fc2de2774514a376432b88d858c9c9c7ff727
+    + I * 130bd240ae9d7e564750983ee10d3de1a8b5187fdd952323041241
+          6861593b47a5afcb4d180b48fc31ae281f4e3fcaef
+Q0.y    = 19793b1bb15b3d052d3fce48bddda13ca172186d52bb9d27663201
+          8793bd0575874a2314cee3b28710cb4aa80f7719a5
+    + I * 0c0e8a0201cd526b20ce83da87a4ef492efd905fc30d96e4218fbf
+          80c915cc160cbde368d4a3c81c2fdb909906d75d3d
+Q1.x    = 0c917d61d2fe0e3be167b9ef069fd0a49d0607a8d5abd382f0ef51
+          f4e5832486fb7e0c82ce3c109a59f22fde2f330167
+    + I * 03b1bcfec38c4acbb345d6aeedda1ef96c73f45eef746daff44143
+          5f9ac8ab147f6fa65a32251e3077e33770528d873f
+Q1.y    = 00443f83d69ec2591bff97323668fbc013e68178d658fe445ee208
+          1f25c4d7128d7565ab2bd02cf4aa1c1247d2df9407
+    + I * 06e7e3c145bc98de722c4b3c8b0803a1308eca4062eeca5a69148f
+          5b3c4242e79654211a7198f522548e3b42cc8bc84c
+~~~
+
+### BLS12381G2\_XMD:SHA-256\_SVDW\_NU\_
+
+~~~
+suite   = BLS12381G2_XMD:SHA-256_SVDW_NU_
+dst     = QUUX-V01-CS02-with-BLS12381G2_XMD:SHA-256_SVDW_NU_
+
+msg     =
+P.x     = 002d96c14769e1ecb71611d42e71e4177b8c351677cd0143baa1ac
+          5c5c87262b76bb1cc5bb1c7eaa2f440c9cb2d45929
+    + I * 156d2ade93a199bdf4a634994a2801287ed5d4125f7021700c6afb
+          caccc35ab72ea8a7e58eee76b64ea8c867dcbbdf95
+P.y     = 13433ca716e870098c5c5d4fff067a90938c4a9a3cbca24d0fe241
+          a44ebc19a552ae13178d4470ea9bb29db0bb948e33
+    + I * 108750f102345fdcec4f882ee6e1c33f4cbe81abd5ccc344520ca8
+          705dd7374246210fead41decb6a984761587536c13
+u[0]    = 156148e7f5866922098a78999c6272df521cc0f491e0d365096e6a
+          8015a51c6306e5818c3c910a7ce69c1597c3452329
+    + I * 0b749379233b0a7d95f65743e4f5c1a1b8c922ad42674e2f4d09f9
+          6babdd29becdd13e94401fc9e490238d765b3193e9
+Q.x     = 11b1d71290bf6a4758c1e5fcfc2fc8c73bbdfd052f2c52cd713703
+          b7db75a3fcb2ea06531ba4e71466ac4f106ae966dd
+    + I * 0f48c55f7727aebae75414c262928e485a2dabe9b91c1dcd68f972
+          f7926d7d8494f98ce6f6e29a2a6c8531a0e28c43a0
+Q.y     = 01a18078be60cc28f2b8115f2ae7f6e1ae9e916ff53e4e1e6b30a1
+          300a7a6b2f63b7436ef19347201b26af9a5a618869
+    + I * 11e86eaa7849273ffa4c95db69e074506237261a1cadf837c5af44
+          8a9f2e30c674c9cc3ee6e0c32f798a5e29154cc92d
+
+msg     = abc
+P.x     = 16b879c863491df602ef5e9f7dbbb6e038b0d1f4f92c24bcfa4591
+          50af4e73d2b1632d0d211d6194395f7481c02bd5fc
+    + I * 0829872ab298ac0c0208123acd7fafc32baa07d20277f528d86431
+          ec66b32c2766bda2a60535955af0368a6284eb3b8f
+P.y     = 0a899bf4c45cd4a6ad3a9d6d92a58588ddbd4045e4c49fabb43a36
+          849513d02b2ec1e136f214e5f5437710819fdbacd8
+    + I * 059cadbe574db81d096ee5e1a1b539cb5bf97206b9dea6c4d54561
+          c30e0a056bac25ed13e2ea7f892729e753c6b766f6
+u[0]    = 0d5d55f03df748358b4cbb4c0302fe09f288d5d178f70327b94618
+          0c5a50e85cac3cf6d56c1d4ff8d02e447cb86629b2
+    + I * 0b4c2281e855c6a3b32136a84ff071d975ccc7647d596d6224f70e
+          ad04e3ffa39db6859dc0f663f7d074c1cb08dc567c
+Q.x     = 1930e08b8b5891d8feffaa3fcb1062d7a0220df21c41c95f31a9fe
+          479fa005f44fe78d87f1c76f944284c5ff531df604
+    + I * 0bdb30000b51ab723911f7a5ed1312dd548129fe21f0ea5000f76b
+          1647d26bea367b50db09512b265ebbf06f01c78373
+Q.y     = 18d21bb316acb42c4f9a7cf0b0a9da380a87e1f9fc20c7fef2f73c
+          0a11889ed8501a96bd9aa56903049975f51737f75e
+    + I * 169290273de9e79ef83ac883cb6a599e4584666f0496d33cf63fe4
+          26f40fb4fdf24c03c3d2ebc7f8fafd37a735b7f35c
+
+msg     = abcdef0123456789
+P.x     = 10581ed8f0bf035de24757268dbdcfd4aaf2f2e842243b5ba6d550
+          a09eed009eea6f90df32b7b5967b1943d31916ca4e
+    + I * 06fced762aaa9c585fa9a70e07a2888279e2890124cec2a7fdb0d1
+          0ca3192a6320bd0fda2f0ff04d957af63e22338591
+P.y     = 11a5862cd4e40347924d636c18a403ce33987ef59f2b0a79815922
+          aa93a490d55466fd7d694df72aa8824431b5b679c5
+    + I * 0bffa6da982ef742bb75a26f4b47d63b5bce78b706396a37bac92f
+          2418db8d353c01df4dd317a32393499f2bd51b3c66
+u[0]    = 11e2848db825cc1ecd0f340c06eb0c604fed819ad89199e1ec9d11
+          794355b8977ae866d626e32e27c6fb154afa03922b
+    + I * 149805306f6e36d62007cf9cd5fc1ff929f2e9a6812b51dffe145f
+          21f26bb2ab5512b7f5acfa6d26633d9a1d0a5fb514
+Q.x     = 176b1aa72834e81a81e53a2bf41e41904e786352222218a8269427
+          0b7c5c51508d7c6480ca0430ab3c31eaccc8cd0504
+    + I * 169dfc870ee5596189471f107a45c55e2be973a2d6a88073090bdb
+          63868e6ca9982604431446615407470e5261dd7c05
+Q.y     = 0b50d35f9ea56f4a156d5ae6774704112485087697070a305f7661
+          576c9ad0cf56a77414c036c1d2a86e0cb5d6afe6a3
+    + I * 0edd7833d8ef608ed9d6835fd9c4c7879678fda8ad47e07478b55c
+          8e73dc8931ad79c31ff824db6738129f4efb467810
+
+msg     = a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+P.x     = 0af2f4ff6c6f78a10a4ad6113efc9a3b9811db2d2e0d84509d44fb
+          de176d93dce8b2ba6df4a50d5ca465d90e24fe04e8
+    + I * 0bc513da308fbe9da859c30d0973fc4adad6f1eac34b9f1d298e1e
+          5e5d0d81d477e26e7e710fdb291f51055a766b3d90
+P.y     = 04ffd09c623d8209fed4c33b52e8fdd504c4c7c6ac3df8ee5a6305
+          2e5dcbdbd57e205c753381c7677215267f3738436e
+    + I * 0a817465f59b43fbb1ae25f2c0b733666a2e018933b4a00de55c4c
+          050c070edd276afaec92abca141b293a2b5e17d806
+u[0]    = 0f879b2cd4955d506063bb2d4debcf4e24698c9063adefbf9bf98d
+          1c3d469c76b889ea7672b81150eb7748289ed89122
+    + I * 10bac36fd96108b7cdf0a6ec43eb913c9431c568c5c32c9a2b7b03
+          d8c0a7bf7cc2361a1b41b8f2940a1badebcf94f159
+Q.x     = 058fb32320c025c581777f39238f53cc1045d0e41ae03e6d0ec5c4
+          ebe6507d058b3d5e48495b65edec150da21d10b759
+    + I * 0c80240239ff83591e996b5bfff5d37a29063fdf6c648ef8c80ba1
+          3b34a2d0e517a97c934b568e6a25678b46d0f554bc
+Q.y     = 00827354b150c0e337c8974d22d5d2dca27a76c9879bc4fd475fc9
+          ab3c8848368082f2ab4c9c4b4f2058a84f721bd9bc
+    + I * 094353a53f447ba559d0d883118214927abe76b73858148b87602e
+          9294483bec36646ec2580d8067ae24c1c5fdbd7b28
+~~~
