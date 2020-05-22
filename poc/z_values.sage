@@ -3,7 +3,7 @@
 
 import sys
 try:
-    from sagelib.common import sgn0, test_dst_be
+    from sagelib.common import sgn0_be
     from sagelib.z_selection import find_z_sswu, find_z_svdw, find_z_ell2
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
