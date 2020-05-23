@@ -2628,9 +2628,10 @@ see {{security-considerations-hash-to-field}} and {{security-considerations-expa
 for further discussion.
 
 Each encoding type ({{roadmap}}) accepts an arbitrary byte string and maps
-it to a point on the curve.
-Note, however, that directly evaluating the mappings of {{mappings}} produces
-an output that is distinguishable from random.
+it to a point on the curve sampled from a distribution that depends on the
+encoding type.
+It is important to note that directly evaluating the mappings of {{mappings}}
+produces an output that is distinguishable from random.
 
 When the hash\_to\_curve function ({{roadmap}}) is instantiated with a
 hash\_to\_field function that is indifferentiable from a random oracle
