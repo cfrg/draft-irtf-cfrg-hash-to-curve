@@ -2720,14 +2720,13 @@ affect the distribution of the b\_i values.
 The expand\_message variants in this document ({{hashtofield-expand}})
 always append a suffix-free-encoded domain separation tag DST\_prime
 to the strings hashed by H, the underlying hash or extensible output function.
-
 For protocols that also invoke H outside of hash\_to\_field, those invocations
 MUST be domain separated from all uses of H inside hash\_to\_field, and SHOULD
 be domain separated from uses of H outside of the protocol.
 
 The RECOMMENDED method of ensuring domain separation is appending a tag
-distinct from DST\_prime to all inputs to H outside of hash\_to\_field;
-this ensures that distinct invocations of H have distinct suffixes.
+distinct from DST\_prime to all inputs to H outside of hash\_to\_field.
+This ensures that distinct invocations of H have distinct suffixes.
 If further separation is required among invocations of H outside of
 hash\_to\_field, protocols should define multiple tags that are
 all distinct from one another and from DST\_prime.
