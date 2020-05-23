@@ -47,13 +47,13 @@ def OS2IP(octets, skip_assert=False):
 # from draft-irtf-cfrg-hash-to-curve-07
 def hash_to_field(msg, count, dst, modulus, degree, blen, expand_fn, hash_fn, security_param):
     len_in_bytes = count * degree * blen
-    pseudo_random_bytes = expand_fn(msg, dst, len_in_bytes, hash_fn, security_param)
+    uniform_bytes = expand_fn(msg, dst, len_in_bytes, hash_fn, security_param)
     u_vals = [None] * count
     for i in xrange(0, count):
         e_vals = [None] * degree
         for j in xrange(0, degree):
             elm_offset = blen * (j + i * degree)
-            tv = pseudo_random_bytes[elm_offset : (elm_offset + blen)]
+            tv = uniform_bytes[elm_offset : (elm_offset + blen)]
             e_vals[j] = OS2IP(tv) % modulus
         u_vals[i] = e_vals
     return u_vals
@@ -70,17 +70,17 @@ def expand_message_xof(msg, dst, len_in_bytes, hash_fn, _, result_set=[]):
     assert len(dst_prime) == len(dst) + 1
 
     msg_prime = _as_bytes(msg) + I2OSP(len_in_bytes, 2) + dst_prime
-    pseudo_random_bytes = hash_fn(msg_prime).digest(len_in_bytes)
+    uniform_bytes = hash_fn(msg_prime).digest(len_in_bytes)
 
     vector = {
         "msg": msg,
         "DST_prime": to_hex(dst_prime),
         "msg_prime": to_hex(msg_prime),
-        "pseudo_random_bytes": to_hex(pseudo_random_bytes),
+        "uniform_bytes": to_hex(uniform_bytes),
     }
     result_set.append(vector)
 
-    return pseudo_random_bytes
+    return uniform_bytes
 
 # from draft-irtf-cfrg-hash-to-curve-07
 # hash_fn should be, e.g., hashlib.sha256
@@ -115,14 +115,14 @@ def expand_message_xmd(msg, dst, len_in_bytes, hash_fn, security_param, result_s
         b_vals[i] = hash_fn(_strxor(b_0, b_vals[i - 1]) + I2OSP(i + 1, 1) + dst_prime).digest()
 
     # assemble output
-    pseudo_random_bytes = (b'').join(b_vals)
-    output = pseudo_random_bytes[0 : len_in_bytes]
+    uniform_bytes = (b'').join(b_vals)
+    output = uniform_bytes[0 : len_in_bytes]
 
     vector = {
-        "msg": to_hex(msg),
+        "msg": msg,
         "DST_prime": to_hex(dst_prime),
         "msg_prime": to_hex(msg_prime),
-        "pseudo_random_bytes": to_hex(output),
+        "uniform_bytes": to_hex(output),
     }
     result_set.append(vector)
 

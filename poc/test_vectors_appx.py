@@ -77,7 +77,7 @@ print("""
 This section gives test vectors for expand_message variants specified in {{hashtofield-expand}}.
 Each test vector in this section lists the expand_message name, hash, DST, and
 security parameter, along with a series of tuples of the function inputs (msg),
-outputs (pseudo_random_bytes), and intermediary values (dst_prime and msg_prime).
+outputs (uniform_bytes), and intermediary values (dst_prime and msg_prime).
 The expand_message input msg is represented as an ASCII string. Intermediate and
 output values are represented as hexadecimal strings.
 """)
