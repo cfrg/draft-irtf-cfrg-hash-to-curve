@@ -1301,10 +1301,10 @@ beyond the scope of this document.
     square in the field F. By Euler's criterion, this function can be
     calculated in constant time as
 
-~~~
-is_square(x) := { True,  if x^((q - 1) / 2) is 0 or 1 in F;
-                { False, otherwise.
-~~~
+    ~~~
+    is_square(x) := { True,  if x^((q - 1) / 2) is 0 or 1 in F;
+                    { False, otherwise.
+    ~~~
 
     In certain extension fields, is\_square can be computed in constant
     time more quickly than by the above exponentiation.
