@@ -2627,6 +2627,7 @@ the nature of the leakage and the appropriate defense depends on the protocol
 from which a hash-to-curve function is invoked.
 
 {{domain-separation}} describes considerations related to domain separation.
+See {{security-considerations-domain-separation}} for further discussion.
 
 {{hashtofield}} describes considerations for uniformly hashing to field elements;
 see {{security-considerations-hash-to-field}} and {{security-considerations-expand-xmd}}
@@ -2680,16 +2681,6 @@ one member of this equivalence class at random and outputs the byte string
 returned by I2OSP.
 (Notice that this is essentially the inverse of the hash\_to\_field procedure.)
 
-Finally, the expand\_message variants in this document ({{hashtofield-expand}})
-always append the domain separation tag DST to the strings hashed by H, the
-underlying hash or extensible output function.
-This means that invocations of H outside of hash\_to\_field can be separated
-from those inside of hash\_to\_field by appending a tag distinct from DST to
-their inputs.
-Other expand\_message variants that follow the guidelines in
-{{hashtofield-expand-other}} are expected to have similar properties,
-but these should be analyzed on a case-by-case basis.
-
 ## expand\_message\_xmd security {#security-considerations-expand-xmd}
 
 The expand\_message\_xmd function defined in {{hashtofield-expand-xmd}} is
@@ -2717,20 +2708,108 @@ of the counter byte I2OSP(i, 1)).
 
 The essential difference between the construction of {{CDMP05}} and
 expand\_message\_xmd is that the latter hashes a counter appended to
-strxor(b\_0, b\_(i - 1)) (step 9) rather than to b\_0.
+strxor(b\_0, b\_(i - 1)) (step 10) rather than to b\_0.
 This approach increases the Hamming distance between inputs to different
 invocations of H, which reduces the likelihood that nonidealities in H
 affect the distribution of the b\_i values.
+
+## Domain separation recommendations {#security-considerations-domain-separation}
+
+The expand\_message variants in this document ({{hashtofield-expand}})
+always append a suffix-free-encoded domain separation tag DST\_prime
+to the strings hashed by H, the underlying hash or extensible output function.
+
+For protocols that also invoke H outside of hash\_to\_field, those invocations
+MUST be domain separated from all uses of H inside hash\_to\_field, and SHOULD
+be domain separated from uses of H outside of the protocol.
+
+The RECOMMENDED method of ensuring domain separation is appending a tag
+distinct from DST\_prime to all inputs to H outside of hash\_to\_field;
+this ensures that distinct invocations of H have distinct suffixes.
+If further separation is required among invocations of H outside of
+hash\_to\_field, protocols should define multiple tags that are
+all distinct from one another and from DST\_prime.
+
+For protocols that use expand\_message\_xmd ({{hashtofield-expand-xmd}}),
+either of the following two methods MAY be used instead.
+(Note that these methods MUST NOT be used with expand\_message\_xof
+({{hashtofield-expand-xof}}).)
+
+1. For each invocation of H outside expand\_message\_xmd, choose a unique domain
+   separation tag DST\_ext.
+   Prepend DST\_ext to the input to H, and in addition append a single
+   zero byte to this input.
+
+   Appending the byte I2OSP(0, 1) to all inputs to H outside expand\_message\_xmd
+   ensures that these inputs are distinct from those inside expand\_message\_xmd
+   because the final byte of DST\_prime encodes the length of DST, which is
+   required to be nonzero ({{domain-separation}}), and DST\_prime is always
+   appended to invocations of H inside expand\_message\_xmd.
+   Further, distinct DST\_ext values ensure that invocations of H outside
+   expand\_message\_xmd are distinct from one another.
+
+   For example, for two invocations of H whose inputs are msg1 and msg2,
+   one might choose distinct DST\_ext1 and DST\_ext2 and compute
+
+        hash1 = H(DST\_ext1 || msg1 || I2OSP(0, 1))
+        hash2 = H(DST\_ext2 || msg2 || I2OSP(0, 1))
+
+2. For each invocation of H outside expand\_message\_xmd, choose a unique domain
+   separation tag DST\_ext.
+   DST\_ext MUST be at least b bits long, where b is the number of bits output
+   by the hash function H, and it MUST contain at least one nonzero bit among
+   the first b bits.
+   Prepend the value DST\_ext to the input to H.
+
+   Since DST\_ext contains at least one nonzero bit among its first b bits,
+   it is guaranteed to be distinct from the value Z\_pad
+   ({{hashtofield-expand-xmd}}, step 4), which ensures that all inputs to H
+   are distinct from the input used to generate b\_0.
+   Moreover, since DST\_ext is at least b bits long, it is almost certainly
+   distinct from the values b\_0 and strxor(b\_0, b\_(i - 1)), and therefore
+   all inputs to H are distinct from the inputs used to generate b\_i, i >= 1,
+   with high probability.
+
+   For example, for two invocations of H whose inputs are msg1 and msg2,
+   one might choose distinct nonzero DST\_ext1 and DST\_ext2 of length
+   b bits each and compute
+
+        hash1 = H(DST\_ext1 || msg1)
+        hash2 = H(DST\_ext2 || msg2)
+
+Other expand\_message variants that follow the guidelines in
+{{hashtofield-expand-other}} are expected to have similar properties,
+but these should be analyzed on a case-by-case basis.
+
+In addition to the above considerations, protocols that use Merkle-Damgaard
+hash functions as random oracles should be extremely careful to defend
+against length extension and other well known attacks.
+expand\_message\_xmd is designed to guard against these attacks, and
+can be domain separated from invocations inside hash\_to\_field simply
+by choosing a different DST.
+
+Another possibility is to use HMAC {{RFC2104}}.
+HMAC can be domain separated from expand\_message\_xmd using method 2
+by deriving a HMAC key from DST\_ext as follows:
+
+    DST_ext_prime = HMAC(0, "HMAC-DERIVE-DST-" || DST_ext)
+    hash = HMAC(DST_ext_prime, msg)
+
+This works because with overwhelming probability the inputs to H inside
+of HMAC do not equal Z\_pad, b\_0, or strxor(b\_0, b\_(i - 1)).
+
+{{CDMP05}} studies issues with using Merkle-Damgaard hash functions as
+random oracles in detail.
+Further discussion is beyond the scope of this document.
 
 ## Target security levels {#security-considerations-targets}
 
 Each ciphersuite specifies a target security level (in bits) for the underlying
 curve. This parameter ensures the corresponding hash\_to\_field instantiation is
 conservative and correct. We stress that this parameter is only an upper bound on
-the security level of the curve. It is neither a guarantee nor endorsement of its
-longevity. Mathematical and cryptographic advancements may lower the security level
-for any curve. In such cases, applications SHOULD choose curves and, consequently,
-ciphersuites with higher security levels.
+the security level of the curve, and is neither a guarantee nor endorsement of its
+suitability for a given application. Mathematical and cryptographic advancements
+may reduce the effective security level for any curve.
 
 # Acknowledgements
 
