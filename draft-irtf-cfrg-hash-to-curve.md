@@ -2733,21 +2733,22 @@ all distinct from one another and from DST\_prime.
 
 For protocols that use expand\_message\_xmd ({{hashtofield-expand-xmd}}),
 either of the following two methods MAY be used instead.
-(Note that these methods MUST NOT be used with expand\_message\_xof
-({{hashtofield-expand-xof}}).)
+The first method MAY also be used with expand\_message\_xof
+({{hashtofield-expand-xof}}), but the second method MUST NOT be
+used with expand\_message\_xof.
 
-1. For each invocation of H outside expand\_message\_xmd, choose a unique domain
+1. For each invocation of H outside hash\_to\_field, choose a unique domain
    separation tag DST\_ext.
    Prepend DST\_ext to the input to H, and in addition append a single
    zero byte to this input.
 
-   Appending the byte I2OSP(0, 1) to all inputs to H outside expand\_message\_xmd
-   ensures that these inputs are distinct from those inside expand\_message\_xmd
+   Appending the byte I2OSP(0, 1) to all inputs to H outside hash\_to\_field
+   ensures that these inputs are distinct from those inside hash\_to\_field
    because the final byte of DST\_prime encodes the length of DST, which is
    required to be nonzero ({{domain-separation}}), and DST\_prime is always
-   appended to invocations of H inside expand\_message\_xmd.
+   appended to invocations of H inside hash\_to\_field.
    Further, distinct DST\_ext values ensure that invocations of H outside
-   expand\_message\_xmd are distinct from one another.
+   hash\_to\_field are distinct from one another.
 
    For example, for two invocations of H whose inputs are msg1 and msg2,
    one might choose distinct DST\_ext1 and DST\_ext2 and compute
@@ -2755,7 +2756,8 @@ either of the following two methods MAY be used instead.
         hash1 = H(DST_ext1 || msg1 || I2OSP(0, 1))
         hash2 = H(DST_ext2 || msg2 || I2OSP(0, 1))
 
-2. For each invocation of H outside expand\_message\_xmd, choose a unique domain
+2. (Note: this method MUST NOT be used with expand\_message\_xof.)
+   For each invocation of H outside expand\_message\_xmd, choose a unique domain
    separation tag DST\_ext.
    DST\_ext MUST be at least b bits long, where b is the number of bits output
    by the hash function H, and it MUST contain at least one nonzero bit among
