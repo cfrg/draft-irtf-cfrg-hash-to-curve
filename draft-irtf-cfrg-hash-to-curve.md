@@ -1252,8 +1252,9 @@ The following requirements apply:
 1. Tags MUST be supplied as the DST parameter to hash\_to\_field, as
    described in {{hashtofield}}.
 
-2. Tags MUST have nonzero length. A minimum length of 8 bytes
-   is RECOMMENDED.
+2. Tags MUST have nonzero length. A minimum length of 16 bytes
+   is RECOMMENDED to reduce the chance of collisions with other
+   protocols.
 
 3. Tags SHOULD begin with a fixed protocol identification string
    that is unique to the protocol.
