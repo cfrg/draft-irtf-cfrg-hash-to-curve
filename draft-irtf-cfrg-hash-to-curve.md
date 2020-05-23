@@ -1460,13 +1460,13 @@ Reducing a random 256-bit integer modulo this p yields a value that is in
 the range \[0, p / 3\] with probability roughly 1/2, meaning that this value
 is statistically far from uniform in \[0, p - 1\].
 
-To control bias, hash\_to\_field instead uses pseudorandom integers whose
+To control bias, hash\_to\_field instead uses random integers whose
 length is at least ceil(log2(p)) + k bits, where k is the target security
 level for the suite in bits.
 Reducing such integers mod p gives bias at most 2^-k for any p; this bias
 is appropriate when targeting k-bit security.
 For each such integer, hash\_to\_field uses expand\_message to obtain
-L pseudorandom bytes, where L = ceil((ceil(log2(p)) + k) / 8); this
+L uniform bytes, where L = ceil((ceil(log2(p)) + k) / 8); this
 byte string is then interpreted as an integer via OS2IP {{RFC8017}}.
 For example, for a 255-bit prime p, and k = 128-bit security,
 L = ceil((255 + 128) / 8) = 48 bytes.
@@ -2628,7 +2628,7 @@ see {{security-considerations-hash-to-field}} and {{security-considerations-expa
 for further discussion.
 
 Each encoding type ({{roadmap}}) accepts an arbitrary byte string and maps
-it to a pseudorandom point on the curve.
+it to a point on the curve.
 Note, however, that directly evaluating the mappings of {{mappings}} produces
 an output that is distinguishable from random.
 
@@ -2767,10 +2767,10 @@ it must not be used; doing so risks catastrophic security failures.
 
 Boneh et al. {{BLS01}} describe an encoding method they call MapToGroup,
 which works roughly as follows: first, use the input string to initialize a
-pseudorandom number generator, then use the generator to produce a pseudorandom
+pseudorandom number generator, then use the generator to produce a
 value x in F.
 If x is the x-coordinate of a point on the elliptic curve, output that
-point. Otherwise, generate a new pseudorandom value x in F and try again.
+point. Otherwise, generate a new value x in F and try again.
 Since a random value x in F has probability about 1/2 of corresponding to
 a point on the curve, the expected number of tries is just two.
 However, the running time of this method depends on the input string,
