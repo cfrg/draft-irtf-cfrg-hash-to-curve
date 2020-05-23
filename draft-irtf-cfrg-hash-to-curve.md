@@ -2753,8 +2753,8 @@ either of the following two methods MAY be used instead.
    For example, for two invocations of H whose inputs are msg1 and msg2,
    one might choose distinct DST\_ext1 and DST\_ext2 and compute
 
-        hash1 = H(DST\_ext1 || msg1 || I2OSP(0, 1))
-        hash2 = H(DST\_ext2 || msg2 || I2OSP(0, 1))
+        hash1 = H(DST_ext1 || msg1 || I2OSP(0, 1))
+        hash2 = H(DST_ext2 || msg2 || I2OSP(0, 1))
 
 2. For each invocation of H outside expand\_message\_xmd, choose a unique domain
    separation tag DST\_ext.
@@ -2776,8 +2776,8 @@ either of the following two methods MAY be used instead.
    one might choose distinct nonzero DST\_ext1 and DST\_ext2 of length
    b bits each and compute
 
-        hash1 = H(DST\_ext1 || msg1)
-        hash2 = H(DST\_ext2 || msg2)
+        hash1 = H(DST_ext1 || msg1)
+        hash2 = H(DST_ext2 || msg2)
 
 Other expand\_message variants that follow the guidelines in
 {{hashtofield-expand-other}} are expected to have similar properties,
