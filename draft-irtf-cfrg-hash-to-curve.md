@@ -64,6 +64,7 @@ normative:
         ins: A. Langley
         name: Adam Langley
 informative:
+  RFC2104:
   BLS12-381:
     target: https://electriccoin.co/blog/new-snark-curve/
     title: "BLS12-381: New zk-SNARK Elliptic Curve Construction"
