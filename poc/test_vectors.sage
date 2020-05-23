@@ -107,7 +107,14 @@ def expander_to_json_file(expander, path="vectors"):
         vector["DST"] = expander.dst
         vector["hash"] = expander.hash_name()
         vector["security_param"] = str(expander.security_param)
-        vector["tests"] = expander.test_vectors
+        vector["tests"] = []
+        for vec in expander.test_vectors:
+            test = {}
+            test["msg"] = vec["msg"]
+            test["DST_prime"] = vec["DST_prime"]
+            test["msg_prime"] = vec["msg_prime"]
+            test["uniform_bytes"] = vec["uniform_bytes"]
+            vector["tests"].append(test)
         json.dump(vector, f, sort_keys=True, indent=2)
         f.write("\n")
 
@@ -123,7 +130,7 @@ def expander_to_ascii_file(expander, path="ascii"):
             f.write(Printer.tv.text("msg", vec["msg"]) + "\n")
             f.write(Printer.tv.text("DST_prime", vec["DST_prime"]) + "\n")
             f.write(Printer.tv.text("msg_prime", vec["msg_prime"]) + "\n")
-            f.write(Printer.tv.text("pseudo_random_bytes", vec["pseudo_random_bytes"]) + "\n")
+            f.write(Printer.tv.text("uniform_bytes", vec["uniform_bytes"]) + "\n")
             f.write("\n")
 
 def create_expander_files(expander):
