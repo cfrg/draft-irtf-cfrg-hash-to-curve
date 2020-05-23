@@ -1251,16 +1251,19 @@ The following requirements apply:
 1. Tags MUST be supplied as the DST parameter to hash\_to\_field, as
    described in {{hashtofield}}.
 
-2. Tags MUST begin with a fixed protocol identification string.
-   This identification string should be unique to the protocol.
+2. Tags MUST have nonzero length. A minimum length of 8 bytes
+   is RECOMMENDED.
 
-3. Tags SHOULD include a protocol version number.
+3. Tags SHOULD begin with a fixed protocol identification string
+   that is unique to the protocol.
 
-4. For protocols that define multiple ciphersuites, each ciphersuite's
+4. Tags SHOULD include a protocol version number.
+
+5. For protocols that define multiple ciphersuites, each ciphersuite's
    tag MUST be different. For this purpose, it is RECOMMENDED to
    include a ciphersuite identifier in each tag.
 
-5. For protocols that use multiple encodings, either to the same curve
+6. For protocols that use multiple encodings, either to the same curve
    or to different curves, each encoding MUST use a different tag.
    For this purpose, it is RECOMMENDED to include the encoding's
    Suite ID ({{suites}}) in the domain separation tag.
@@ -1269,15 +1272,17 @@ The following requirements apply:
 
 As an example, consider a fictional protocol named Quux
 that defines several different ciphersuites.
-A reasonable choice of tag is "QUUX-V\<xx\>-CS\<yy\>", where \<xx\> and \<yy\>
-are two-digit numbers indicating the version and ciphersuite, respectively.
+A reasonable choice of tag is "QUUX-V\<xx\>-CS\<yy\>-\<suiteID\>", where
+\<xx\> and \<yy\> are two-digit numbers indicating the version and
+ciphersuite, respectively, and \<suiteID\> is the Suite ID of the
+encoding used in ciphersuite \<yy\>.
 
 As another example, consider a fictional protocol named Baz that requires
 two independent random oracles, where one oracle outputs points on the curve
 E1 and the other outputs points on the curve E2.
 Reasonable choices of tags for the E1 and E2 oracles are
-"BAZ-V\<xx\>-CS\<yy\>-E1" and "BAZ-V\<xx\>-CS\<yy\>-E2", respectively,
-where \<xx\> and \<yy\> are as described above.
+"BAZ-V\<xx\>-CS\<yy\>-\<suiteID\>-E1" and "BAZ-V\<xx\>-CS\<yy\>-\<suiteID\>-E2",
+respectively, where \<xx\>, \<yy\>, and \<suiteID\> are as described above.
 
 # Utility functions {#utility}
 
