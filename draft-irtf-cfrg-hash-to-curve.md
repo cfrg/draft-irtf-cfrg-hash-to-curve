@@ -2728,7 +2728,7 @@ The RECOMMENDED method of ensuring domain separation is appending a tag
 distinct from DST\_prime to all inputs to H outside of hash\_to\_field.
 This ensures that distinct invocations of H have distinct suffixes.
 If further separation is required among invocations of H outside of
-hash\_to\_field, protocols should define multiple tags that are
+hash\_to\_field, protocols should use multiple tags that are
 all distinct from one another and from DST\_prime.
 
 For protocols that use expand\_message\_xmd ({{hashtofield-expand-xmd}}),
@@ -2767,7 +2767,7 @@ used with expand\_message\_xof.
    Since DST\_ext contains at least one nonzero bit among its first b bits,
    it is guaranteed to be distinct from the value Z\_pad
    ({{hashtofield-expand-xmd}}, step 4), which ensures that all inputs to H
-   are distinct from the input used to generate b\_0.
+   are distinct from the input used to generate b\_0 in expand\_message\_xmd.
    Moreover, since DST\_ext is at least b bits long, it is almost certainly
    distinct from the values b\_0 and strxor(b\_0, b\_(i - 1)), and therefore
    all inputs to H are distinct from the inputs used to generate b\_i, i >= 1,
@@ -2787,19 +2787,22 @@ but these should be analyzed on a case-by-case basis.
 In addition to the above considerations, protocols that use Merkle-Damgaard
 hash functions as random oracles should be extremely careful to defend
 against length extension and other well known attacks.
-expand\_message\_xmd is designed to guard against these attacks, and
+expand\_message\_xmd is designed to guard against these attacks.
+It can be used as a random oracle outside of hash\_to\_field, and
 can be domain separated from invocations inside hash\_to\_field simply
 by choosing a different DST.
 
 Another possibility is to use HMAC {{RFC2104}}.
 HMAC can be domain separated from expand\_message\_xmd using method 2
-by deriving a HMAC key from DST\_ext as follows:
+(above) by deriving a HMAC key from DST\_ext and applying HMAC to
+the random oracle's input as follows:
 
     DST_ext_prime = HMAC(0, "HMAC-DERIVE-DST-" || DST_ext)
-    hash = HMAC(DST_ext_prime, msg)
+    random_oracle_output = HMAC(DST_ext_prime, random_oracle_input)
 
 This works because with overwhelming probability the inputs to H inside
-of HMAC do not equal Z\_pad, b\_0, or strxor(b\_0, b\_(i - 1)).
+of HMAC with key DST\_ext\_prime do not equal Z\_pad, b\_0, or
+strxor(b\_0, b\_(i - 1)).
 
 {{CDMP05}} studies issues with using Merkle-Damgaard hash functions as
 random oracles in detail.
