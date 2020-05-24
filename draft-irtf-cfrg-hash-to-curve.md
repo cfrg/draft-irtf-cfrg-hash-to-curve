@@ -2720,23 +2720,27 @@ affect the distribution of the b\_i values.
 The expand\_message variants in this document ({{hashtofield-expand}})
 always append a suffix-free-encoded domain separation tag DST\_prime
 to the strings hashed by H, the underlying hash or extensible output function.
-For protocols that also use H outside of hash\_to\_field, those uses
-MUST be domain separated from all uses of H inside hash\_to\_field, and SHOULD
-be domain separated from uses of H outside of the protocol.
+(Other expand\_message variants that follow the guidelines in
+{{hashtofield-expand-other}} are expected to have similar properties.
+However, these should be analyzed on a case-by-case basis.)
 
+For protocols that also use H outside of hash\_to\_field, those uses
+MUST be domain separated from all uses of H inside hash\_to\_field, and
+SHOULD be domain separated from uses of H outside of the protocol.
 The RECOMMENDED method of ensuring domain separation is appending a tag
 distinct from DST\_prime to all inputs to H outside of hash\_to\_field.
 This ensures that distinct uses of H have distinct suffixes.
 If further separation is required among uses of H outside of
-hash\_to\_field, protocols should use multiple tags that are
+hash\_to\_field, protocols should choose multiple tags that are
 all distinct from one another and from DST\_prime.
 
-For protocols that use expand\_message\_xmd ({{hashtofield-expand-xmd}}),
-either of the following two methods MAY be used instead of the recommended
-method given above.
-The first method MAY also be used with expand\_message\_xof
-({{hashtofield-expand-xof}}), but the second method MUST NOT be
-used with expand\_message\_xof.
+The above method is not compatible with all uses of H;
+For example, this method does not work with HMAC {{RFC2104}},
+because there is no way to append a value to the outer call to
+the hash function.
+(We discuss the case of HMAC further below.)
+The following alternative methods MAY be used instead of the
+recommended method given above.
 
 1. For each use of H outside hash\_to\_field, choose a unique domain
    separation tag DST\_ext. Augment each invocation of H on input msg by
@@ -2749,7 +2753,7 @@ used with expand\_message\_xof.
    required to be nonzero ({{domain-separation}}, requirement 2), and DST\_prime
    is always appended to invocations of H inside hash\_to\_field.
    Second, distinct DST\_ext values ensure that uses of H outside
-   hash\_to\_field are distinct from one another.
+   hash\_to\_field are domain separated from one another.
 
    For example, for two uses of H whose inputs are msg1 and msg2,
    one might choose distinct DST\_ext1 and DST\_ext2 and compute
@@ -2775,7 +2779,7 @@ used with expand\_message\_xof.
    all inputs to H are distinct from the inputs used to generate b\_i, i >= 1,
    with high probability.
    Finally, distinct DST\_ext values ensure that uses of H outside
-   expand\_message\_xmd are distinct from one another.
+   expand\_message\_xmd are domain separated from one another.
 
    For example, for two uses of H whose inputs are msg1 and msg2,
    one might choose distinct nonzero DST\_ext1 and DST\_ext2 of length
@@ -2784,23 +2788,19 @@ used with expand\_message\_xof.
         hash1 = H(DST_ext1 || msg1)
         hash2 = H(DST_ext2 || msg2)
 
-Other expand\_message variants that follow the guidelines in
-{{hashtofield-expand-other}} are expected to have similar properties.
-However, these should be analyzed on a case-by-case basis.
-
 In addition to the above considerations, protocols that use Merkle-Damgaard
 hash functions as random oracles should be extremely careful to defend
 against length extension and other well known attacks.
 expand\_message\_xmd guards against these attacks.
 Applications can use it as a random oracle outside of hash\_to\_field
 with proper domain separation from invocations inside hash\_to\_field
-(i.e., using a different DST).
+(i.e., by using a different DST).
 
 HMAC {{RFC2104}} is commonly used to instantiate a random oracle
 based on a Merkle-Damgaard hash function.
 The RECOMMENDED way to domain separate HMAC-H (i.e., HMAC instantiated
-with hash H) from expand\_message\_xmd instantiated with H is to
-first choose a tag DST\_ext, then compute
+with hash H) from hash\_to\_field with expand\_message\_xmd and H
+is to first choose a tag DST\_ext, then compute
 
     HMAC_key_preimage = "DERIVE-HMAC-KEY-" || DST_ext || I2OSP(0, 1)
     HMAC_key = H(HMAC_key_preimage)
