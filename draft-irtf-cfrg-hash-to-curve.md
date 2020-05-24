@@ -2737,20 +2737,19 @@ The first method MAY also be used with expand\_message\_xof
 ({{hashtofield-expand-xof}}), but the second method MUST NOT be
 used with expand\_message\_xof.
 
-1. For each invocation of H outside hash\_to\_field, choose a unique domain
-   separation tag DST\_ext.
-   Prepend DST\_ext to the input to H, and in addition append a single
-   zero byte to this input.
+1. For each use of H outside hash\_to\_field, choose a unique domain
+   separation tag DST\_ext. Augment each invocation of H with input msg by
+   computing H(DST\_ext || msg || I2OSP(0, 1)).
 
    Appending the byte I2OSP(0, 1) to all inputs to H outside hash\_to\_field
    ensures that these inputs are distinct from those inside hash\_to\_field
    because the final byte of DST\_prime encodes the length of DST, which is
-   required to be nonzero ({{domain-separation}}), and DST\_prime is always
+   required to be nonzero ({{domain-separation}}, requirement 2), and DST\_prime is always
    appended to invocations of H inside hash\_to\_field.
    Further, distinct DST\_ext values ensure that invocations of H outside
    hash\_to\_field are distinct from one another.
 
-   For example, for two invocations of H whose inputs are msg1 and msg2,
+   For example, for two uses of H whose inputs are msg1 and msg2,
    one might choose distinct DST\_ext1 and DST\_ext2 and compute
 
         hash1 = H(DST_ext1 || msg1 || I2OSP(0, 1))
@@ -2773,7 +2772,7 @@ used with expand\_message\_xof.
    all inputs to H are distinct from the inputs used to generate b\_i, i >= 1,
    with high probability.
 
-   For example, for two invocations of H whose inputs are msg1 and msg2,
+   For example, for two uses of H whose inputs are msg1 and msg2,
    one might choose distinct nonzero DST\_ext1 and DST\_ext2 of length
    b bits each and compute
 
@@ -2781,15 +2780,15 @@ used with expand\_message\_xof.
         hash2 = H(DST_ext2 || msg2)
 
 Other expand\_message variants that follow the guidelines in
-{{hashtofield-expand-other}} are expected to have similar properties,
-but these should be analyzed on a case-by-case basis.
+{{hashtofield-expand-other}} are expected to have similar properties.
+However, these should be analyzed on a case-by-case basis.
 
 In addition to the above considerations, protocols that use Merkle-Damgaard
 hash functions as random oracles should be extremely careful to defend
 against length extension and other well known attacks.
-expand\_message\_xmd is designed to guard against these attacks.
-It can be used as a random oracle outside of hash\_to\_field, and
-can be domain separated from invocations inside hash\_to\_field simply
+expand\_message\_xmd guards against these attacks.
+Applications can use it as a random oracle outside of hash\_to\_field
+with proper domain separation from invocations inside hash\_to\_field
 by choosing a different DST.
 
 Another possibility is to use HMAC {{RFC2104}}.
