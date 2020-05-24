@@ -2734,13 +2734,13 @@ If further separation is required among uses of H outside of
 hash\_to\_field, protocols should choose multiple tags that are
 all distinct from one another and from DST\_prime.
 
-The above method is not compatible with all uses of H;
+The above method is not compatible with all uses of H.
 For example, this method does not work with HMAC {{RFC2104}},
-because there is no way to append a value to the outer call to
-the hash function.
-(We discuss the case of HMAC further below.)
+because there is no way to append a value to the input of
+the outer call to H.
 The following alternative methods MAY be used instead of the
 recommended method given above.
+We discuss the specific case of HMAC further below.
 
 1. For each use of H outside hash\_to\_field, choose a unique domain
    separation tag DST\_ext. Augment each invocation of H on input msg by
