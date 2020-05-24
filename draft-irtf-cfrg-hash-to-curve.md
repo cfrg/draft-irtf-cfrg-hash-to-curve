@@ -2801,15 +2801,20 @@ based on a Merkle-Damgaard hash function.
 To domain separate expand\_message\_xmd instantiated with hash H
 from HMAC instantiated with H, it suffices to choose an HMAC key
 whose preimage under H is distinct from all possible inputs to
-expand\_message\_xmd.
+H inside expand\_message\_xmd.
 For example, one can choose a distinct tag DST\_ext and compute
 
-    DST_ext_prime = HMAC(0, "HMAC-DERIVE-DST-" || DST_ext)
+    DST_ext_prime = H("DERIVE-HMAC-KEY-" || DST_ext || I2OSP(0, 1))
     random_oracle_output = HMAC(DST_ext_prime, random_oracle_input)
 
-This ensures domain separation because with overwhelming probability
-the inputs to H inside of HMAC with key DST\_ext\_prime do not equal
-Z\_pad, b\_0, or strxor(b\_0, b\_(i - 1)).
+The trailing zero byte in the input to H ensures that DST\_ext\_prime's
+preimage under H is distinct from any input to H inside expand\_message\_xmd:
+all inputs to H inside expand\_message\_xmd have suffix DST\_prime,
+which cannot end with a zero byte as discussed above.
+Using DST\_ext\_prime as an HMAC key ensures domain separation from
+expand\_message\_xmd because with overwhelming probability the inputs
+to H inside of HMAC with key DST\_ext\_prime do not begin with Z\_pad,
+b\_0, or strxor(b\_0, b\_(i - 1)).
 
 {{CDMP05}} studies issues with using Merkle-Damgaard hash functions as
 random oracles.
