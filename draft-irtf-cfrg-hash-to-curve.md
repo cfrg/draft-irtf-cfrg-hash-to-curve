@@ -2720,33 +2720,35 @@ affect the distribution of the b\_i values.
 The expand\_message variants in this document ({{hashtofield-expand}})
 always append a suffix-free-encoded domain separation tag DST\_prime
 to the strings hashed by H, the underlying hash or extensible output function.
-For protocols that also invoke H outside of hash\_to\_field, those invocations
+For protocols that also use H outside of hash\_to\_field, those uses
 MUST be domain separated from all uses of H inside hash\_to\_field, and SHOULD
 be domain separated from uses of H outside of the protocol.
 
 The RECOMMENDED method of ensuring domain separation is appending a tag
 distinct from DST\_prime to all inputs to H outside of hash\_to\_field.
-This ensures that distinct invocations of H have distinct suffixes.
-If further separation is required among invocations of H outside of
+This ensures that distinct uses of H have distinct suffixes.
+If further separation is required among uses of H outside of
 hash\_to\_field, protocols should use multiple tags that are
 all distinct from one another and from DST\_prime.
 
 For protocols that use expand\_message\_xmd ({{hashtofield-expand-xmd}}),
-either of the following two methods MAY be used instead.
+either of the following two methods MAY be used instead of the recommended
+method given above.
 The first method MAY also be used with expand\_message\_xof
 ({{hashtofield-expand-xof}}), but the second method MUST NOT be
 used with expand\_message\_xof.
 
 1. For each use of H outside hash\_to\_field, choose a unique domain
-   separation tag DST\_ext. Augment each invocation of H with input msg by
+   separation tag DST\_ext. Augment each invocation of H on input msg by
    computing H(DST\_ext || msg || I2OSP(0, 1)).
 
-   Appending the byte I2OSP(0, 1) to all inputs to H outside hash\_to\_field
+   This ensures domain separation as follows.
+   First, appending the byte I2OSP(0, 1) to all inputs to H outside hash\_to\_field
    ensures that these inputs are distinct from those inside hash\_to\_field
    because the final byte of DST\_prime encodes the length of DST, which is
-   required to be nonzero ({{domain-separation}}, requirement 2), and DST\_prime is always
-   appended to invocations of H inside hash\_to\_field.
-   Further, distinct DST\_ext values ensure that invocations of H outside
+   required to be nonzero ({{domain-separation}}, requirement 2), and DST\_prime
+   is always appended to invocations of H inside hash\_to\_field.
+   Second, distinct DST\_ext values ensure that uses of H outside
    hash\_to\_field are distinct from one another.
 
    For example, for two uses of H whose inputs are msg1 and msg2,
@@ -2756,21 +2758,24 @@ used with expand\_message\_xof.
         hash2 = H(DST_ext2 || msg2 || I2OSP(0, 1))
 
 2. (Note: this method MUST NOT be used with expand\_message\_xof.)
-   For each invocation of H outside expand\_message\_xmd, choose a unique domain
+   For each use of H outside expand\_message\_xmd, choose a unique domain
    separation tag DST\_ext.
    DST\_ext MUST be at least b bits long, where b is the number of bits output
    by the hash function H, and it MUST contain at least one nonzero bit among
    the first b bits.
-   Prepend the value DST\_ext to the input to H.
+   Augment each invocation of H on input msg by computing H(DST\_ext || msg).
 
-   Since DST\_ext contains at least one nonzero bit among its first b bits,
+   This ensures domain separation as follows.
+   First, since DST\_ext contains at least one nonzero bit among its first b bits,
    it is guaranteed to be distinct from the value Z\_pad
    ({{hashtofield-expand-xmd}}, step 4), which ensures that all inputs to H
    are distinct from the input used to generate b\_0 in expand\_message\_xmd.
-   Moreover, since DST\_ext is at least b bits long, it is almost certainly
+   Second, since DST\_ext is at least b bits long, it is almost certainly
    distinct from the values b\_0 and strxor(b\_0, b\_(i - 1)), and therefore
    all inputs to H are distinct from the inputs used to generate b\_i, i >= 1,
    with high probability.
+   Finally, distinct DST\_ext values ensure that uses of H outside
+   expand\_message\_xmd are distinct from one another.
 
    For example, for two uses of H whose inputs are msg1 and msg2,
    one might choose distinct nonzero DST\_ext1 and DST\_ext2 of length
@@ -2789,22 +2794,25 @@ against length extension and other well known attacks.
 expand\_message\_xmd guards against these attacks.
 Applications can use it as a random oracle outside of hash\_to\_field
 with proper domain separation from invocations inside hash\_to\_field
-by choosing a different DST.
+(i.e., using a different DST).
 
-Another possibility is to use HMAC {{RFC2104}}.
-HMAC can be domain separated from expand\_message\_xmd using method 2
-(above) by deriving a HMAC key from DST\_ext and applying HMAC to
-the random oracle's input as follows:
+HMAC {{RFC2104}} is commonly used to instantiate a random oracle
+based on a Merkle-Damgaard hash function.
+To domain separate expand\_message\_xmd instantiated with hash H
+from HMAC instantiated with H, it suffices to choose an HMAC key
+whose preimage under H is distinct from all possible inputs to
+expand\_message\_xmd.
+For example, one can choose a distinct tag DST\_ext and compute
 
     DST_ext_prime = HMAC(0, "HMAC-DERIVE-DST-" || DST_ext)
     random_oracle_output = HMAC(DST_ext_prime, random_oracle_input)
 
-This works because with overwhelming probability the inputs to H inside
-of HMAC with key DST\_ext\_prime do not equal Z\_pad, b\_0, or
-strxor(b\_0, b\_(i - 1)).
+This ensures domain separation because with overwhelming probability
+the inputs to H inside of HMAC with key DST\_ext\_prime do not equal
+Z\_pad, b\_0, or strxor(b\_0, b\_(i - 1)).
 
 {{CDMP05}} studies issues with using Merkle-Damgaard hash functions as
-random oracles in detail.
+random oracles.
 Further discussion is beyond the scope of this document.
 
 ## Target security levels {#security-considerations-targets}
