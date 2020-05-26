@@ -17,10 +17,11 @@ IsoH2CSuiteDef = namedtuple("IsoH2CSuiteDef", "base Ap Bp iso_map")
 EdwH2CSuiteDef = namedtuple("EdwH2CSuiteDef", "base Ap Bp rational_map")
 
 class BasicH2CSuite(object):
-    test_vector = {}
-
     def __init__(self, name, sdef):
         assert isinstance(sdef, BasicH2CSuiteDef)
+
+        # this dict will hold test vectors, if any
+        self.test_vector = {}
 
         # basics: details of the base field
         F = sdef.F

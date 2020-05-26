@@ -22,12 +22,17 @@ class Printer:
 
     @staticmethod
     def _lv(label, values):
-        prefix = "{:7s} = ".format(label)
         sep_lines = "\n" + " " * 10
         sep_extension = "\n" + " " * 4 + "+ I * "
-        out = sep_extension.join([sep_lines.join(Printer._tv_wrap(value))
-                                  for value in values])
-        return prefix + out
+        prefix = "{:7s} = ".format(label)
+
+        # handle case that label is longer than 7 characters
+        overlen = len(prefix) - 10
+        assert overlen >= 0
+        addlens = [" " * overlen] + [""] * (len(values) - 1)
+
+        out = sep_extension.join( sep_lines.join(Printer._tv_wrap(a + v)) for (a, v) in zip(addlens, values) )
+        return prefix + out[overlen:]
 
     @staticmethod
     def _gf_hex(num, length):

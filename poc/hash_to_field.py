@@ -74,6 +74,7 @@ def expand_message_xof(msg, dst, len_in_bytes, hash_fn, _, result_set=[]):
 
     vector = {
         "msg": msg,
+        "len_in_bytes": "0x%x" % len_in_bytes,
         "DST_prime": to_hex(dst_prime),
         "msg_prime": to_hex(msg_prime),
         "uniform_bytes": to_hex(uniform_bytes),
@@ -120,6 +121,7 @@ def expand_message_xmd(msg, dst, len_in_bytes, hash_fn, security_param, result_s
 
     vector = {
         "msg": msg,
+        "len_in_bytes": "0x%x" % len_in_bytes,
         "DST_prime": to_hex(dst_prime),
         "msg_prime": to_hex(msg_prime),
         "uniform_bytes": to_hex(output),
@@ -129,13 +131,12 @@ def expand_message_xmd(msg, dst, len_in_bytes, hash_fn, security_param, result_s
     return output
 
 class Expander(object):
-    test_vectors = []
-
     def __init__(self, name, dst, hash_fn, security_param):
         self.name = name
         self.dst = dst
         self.hash_fn = hash_fn
         self.security_param = security_param
+        self.test_vectors = []
 
     def expand_message(self, msg, len_in_bytes):
         raise Exception("Not implemented")
@@ -148,7 +149,6 @@ class Expander(object):
             "name": self.name,
             "dst": self.dst,
             "hash": self.hash_name(),
-            "security_param": str(self.security_param),
             "tests": json.dumps(self.test_vectors),
         }
 

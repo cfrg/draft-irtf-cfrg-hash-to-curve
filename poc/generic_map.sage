@@ -8,7 +8,7 @@ except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 class GenericMap(object):
-    undefs = []
+    undefs = None
     E = None
     F = None
     straight_line = None

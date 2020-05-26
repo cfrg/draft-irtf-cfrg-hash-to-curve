@@ -75,11 +75,14 @@ print("""
 # Expand test vectors {#expand-testvectors}
 
 This section gives test vectors for expand_message variants specified in {{hashtofield-expand}}.
-Each test vector in this section lists the expand_message name, hash, DST, and
-security parameter, along with a series of tuples of the function inputs (msg),
-outputs (uniform_bytes), and intermediary values (dst_prime and msg_prime).
-The expand_message input msg is represented as an ASCII string. Intermediate and
-output values are represented as hexadecimal strings.
+The test vectors in this section were generated using code that is
+available from {{hash2curve-repo}}.
+
+Each test vector in this section lists the expand_message name, hash function, and DST,
+along with a series of tuples of the function inputs (msg and len_in_bytes),
+output (uniform_bytes), and intermediate values (dst_prime and msg_prime).
+DST and msg are represented as ASCII strings.
+Intermediate and output values are represented as byte strings in hexadecimal.
 """)
 
 for expander in (expand_message_xmd_sha256, expand_message_xmd_sha512, expand_message_xof_shake128):
