@@ -129,13 +129,12 @@ def expand_message_xmd(msg, dst, len_in_bytes, hash_fn, security_param, result_s
     return output
 
 class Expander(object):
-    test_vectors = []
-
     def __init__(self, name, dst, hash_fn, security_param):
         self.name = name
         self.dst = dst
         self.hash_fn = hash_fn
         self.security_param = security_param
+        self.test_vectors = []
 
     def expand_message(self, msg, len_in_bytes):
         raise Exception("Not implemented")
