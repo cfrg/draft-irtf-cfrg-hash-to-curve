@@ -64,6 +64,8 @@ normative:
         ins: A. Langley
         name: Adam Langley
 informative:
+  RFC2104:
+  RFC5869:
   BLS12-381:
     target: https://electriccoin.co/blog/new-snark-curve/
     title: "BLS12-381: New zk-SNARK Elliptic Curve Construction"
@@ -1251,16 +1253,20 @@ The following requirements apply:
 1. Tags MUST be supplied as the DST parameter to hash\_to\_field, as
    described in {{hashtofield}}.
 
-2. Tags MUST begin with a fixed protocol identification string.
-   This identification string should be unique to the protocol.
+2. Tags MUST have nonzero length. A minimum length of 16 bytes
+   is RECOMMENDED to reduce the chance of collisions with other
+   protocols.
 
-3. Tags SHOULD include a protocol version number.
+3. Tags SHOULD begin with a fixed protocol identification string
+   that is unique to the protocol.
 
-4. For protocols that define multiple ciphersuites, each ciphersuite's
+4. Tags SHOULD include a protocol version number.
+
+5. For protocols that define multiple ciphersuites, each ciphersuite's
    tag MUST be different. For this purpose, it is RECOMMENDED to
    include a ciphersuite identifier in each tag.
 
-5. For protocols that use multiple encodings, either to the same curve
+6. For protocols that use multiple encodings, either to the same curve
    or to different curves, each encoding MUST use a different tag.
    For this purpose, it is RECOMMENDED to include the encoding's
    Suite ID ({{suites}}) in the domain separation tag.
@@ -1269,15 +1275,17 @@ The following requirements apply:
 
 As an example, consider a fictional protocol named Quux
 that defines several different ciphersuites.
-A reasonable choice of tag is "QUUX-V\<xx\>-CS\<yy\>", where \<xx\> and \<yy\>
-are two-digit numbers indicating the version and ciphersuite, respectively.
+A reasonable choice of tag is "QUUX-V\<xx\>-CS\<yy\>-\<suiteID\>", where
+\<xx\> and \<yy\> are two-digit numbers indicating the version and
+ciphersuite, respectively, and \<suiteID\> is the Suite ID of the
+encoding used in ciphersuite \<yy\>.
 
 As another example, consider a fictional protocol named Baz that requires
 two independent random oracles, where one oracle outputs points on the curve
 E1 and the other outputs points on the curve E2.
 Reasonable choices of tags for the E1 and E2 oracles are
-"BAZ-V\<xx\>-CS\<yy\>-E1" and "BAZ-V\<xx\>-CS\<yy\>-E2", respectively,
-where \<xx\> and \<yy\> are as described above.
+"BAZ-V\<xx\>-CS\<yy\>-\<suiteID\>-E1" and "BAZ-V\<xx\>-CS\<yy\>-\<suiteID\>-E2",
+respectively, where \<xx\>, \<yy\>, and \<suiteID\> are as described above.
 
 # Utility functions {#utility}
 
@@ -2622,6 +2630,7 @@ the nature of the leakage and the appropriate defense depends on the protocol
 from which a hash-to-curve function is invoked.
 
 {{domain-separation}} describes considerations related to domain separation.
+See {{security-considerations-domain-separation}} for further discussion.
 
 {{hashtofield}} describes considerations for uniformly hashing to field elements;
 see {{security-considerations-hash-to-field}} and {{security-considerations-expand-xmd}}
@@ -2675,16 +2684,6 @@ one member of this equivalence class at random and outputs the byte string
 returned by I2OSP.
 (Notice that this is essentially the inverse of the hash\_to\_field procedure.)
 
-Finally, the expand\_message variants in this document ({{hashtofield-expand}})
-always append the domain separation tag DST to the strings hashed by H, the
-underlying hash or extensible output function.
-This means that invocations of H outside of hash\_to\_field can be separated
-from those inside of hash\_to\_field by appending a tag distinct from DST to
-their inputs.
-Other expand\_message variants that follow the guidelines in
-{{hashtofield-expand-other}} are expected to have similar properties,
-but these should be analyzed on a case-by-case basis.
-
 ## expand\_message\_xmd security {#security-considerations-expand-xmd}
 
 The expand\_message\_xmd function defined in {{hashtofield-expand-xmd}} is
@@ -2712,28 +2711,173 @@ of the counter byte I2OSP(i, 1)).
 
 The essential difference between the construction of {{CDMP05}} and
 expand\_message\_xmd is that the latter hashes a counter appended to
-strxor(b\_0, b\_(i - 1)) (step 9) rather than to b\_0.
+strxor(b\_0, b\_(i - 1)) (step 10) rather than to b\_0.
 This approach increases the Hamming distance between inputs to different
 invocations of H, which reduces the likelihood that nonidealities in H
 affect the distribution of the b\_i values.
+
+We note that expand\_message\_xmd can be used to instantiate a general-purpose
+indifferentiable functionality with variable-length output based on any hash
+function meeting one of the above criteria.
+Applications that use expand\_message\_xmd outside of hash\_to\_field should
+ensure domain separation by picking a distinct value for DST.
+
+## Domain separation recommendations {#security-considerations-domain-separation}
+
+As discussed in {{term-domain-separation}, the purpose of domain separation is
+to ensure that security analyses of protocols that query multiple independent
+random oracles remain valid even if all of these random oracles are instantiated
+base on one underlying function H.
+The expand\_message variants in this document ({{hashtofield-expand}}) ensure
+domain separation by appending a suffix-free-encoded domain separation tag
+DST\_prime to all strings hashed by H, an underlying hash or extensible
+output function.
+(Other expand\_message variants that follow the guidelines in
+{{hashtofield-expand-other}} are expected to behave similarly,
+but these should be analyzed on a case-by-case basis.)
+For security, protocols that use the same function H outside of expand\_message
+should enforce domain separation between those uses of H and expand\_message,
+and should separate all of these from uses of H in other protocols.
+
+This section suggests four methods for enforcing domain separation
+from expand\_message variants, explains how each method achieves domain
+separation, and lists the situations in which each is appropriate.
+These methods share a high-level structure: the protocol designer fixes a tag
+DST\_ext distinct from DST\_prime and augments calls to H with DST\_ext.
+Each method augments calls to H differently, and each may impose
+additional requirements on DST\_ext.
+
+These methods can be used to instantiate multiple domain separated functions
+(e.g., H1 and H2) by selecting distinct DST\_ext values for each
+(e.g., DST\_ext1, DST\_ext2).
+
+1.  (Suffix-only domain separation.)
+    This method is useful when domain separating invocations of H
+    from expand\_message\_xmd or expand\_message\_xof.
+    It is not appropriate for domain separating expand\_message from HMAC-H
+    {{RFC2104}}; for that purpose, see method 4.
+
+    To instantiate a suffix-only domain separated function Hso, compute
+
+        Hso(msg) = H(msg || DST_ext)
+
+    DST\_ext should be suffix-free encoded (e.g., by appending one byte
+    encoding the length of DST\_ext) to make it infeasible to find distinct
+    (msg, DST\_ext) pairs that hash to the same value.
+
+    This method ensures domain separation because all distinct invocations of
+    H have distinct suffixes, since DST\_ext is distinct from DST\_prime.
+
+2.  (Prefix-suffix domain separation.)
+    This method can be used in the same cases as the suffix-only method.
+
+    To instantiate a prefix-suffix domain separated function Hps, compute
+
+        Hps(msg) = H(DST_ext || msg || I2OSP(0, 1))
+
+    DST\_ext should be prefix-free encoded (e.g., by prepending one byte
+    encoding the length of DST\_ext) to make it infeasible to find distinct
+    (msg, DST\_ext) pairs that hash to the same value.
+
+    This method ensures domain separation because
+    appending the byte I2OSP(0, 1) ensures that inputs to H inside Hps
+    are distinct from those inside expand\_message.
+    Specifically, the final byte of DST\_prime encodes the length of DST, which
+    is required to be nonzero ({{domain-separation}}, requirement 2), and
+    DST\_prime is always appended to invocations of H inside expand\_message.
+
+3.  (Prefix-only domain separation.)
+    This method is only useful for domain separating invocations of H
+    from expand\_message\_xmd.
+    It does not give domain separation for expand\_message\_xof or HMAC-H.
+
+    To instantiate a prefix-only domain separated function Hpo, compute
+
+        Hpo(msg) = H(DST_ext || msg)
+
+    In order for this method to give domain separation, DST\_ext should
+    be at least b bits long, where b is the number of bits output by the
+    hash function H.
+    In addition, at least one of the first b bits must be nonzero.
+    Finally, DST\_ext should be prefix-free encoded (e.g., by prepending
+    one byte encoding the length of DST\_ext) to make it infeasible to
+    find distinct (msg, DST\_ext) pairs that hash to the same value.
+
+    This method ensures domain separation as follows.
+    First, since DST\_ext contains at least one nonzero bit among its first b bits,
+    it is guaranteed to be distinct from the value Z\_pad
+    ({{hashtofield-expand-xmd}}, step 4), which ensures that all inputs to H
+    are distinct from the input used to generate b\_0 in expand\_message\_xmd.
+    Second, since DST\_ext is at least b bits long, it is almost certainly
+    distinct from the values b\_0 and strxor(b\_0, b\_(i - 1)), and therefore
+    all inputs to H are distinct from the inputs used to generate b\_i, i >= 1,
+    with high probability.
+
+4.  (XMD-HMAC domain separation.)
+    This method is useful for domain separating invocations of H inside
+    HMAC-H (i.e., HMAC {{RFC2104}} instantiated with hash function H) from
+    expand\_message\_xmd.
+    It also applies to HKDF-H {{RFC5869}}, as discussed below.
+
+    Specifically, this method applies when HMAC-H is used with a non-secret
+    key to instantiate a random oracle based on a hash function H
+    (note that expand\_message\_xmd can also be used for this purpose; see
+    {{security-considerations-expand-xmd}}).
+    When using HMAC-H with a high-entropy secret key, domain separation is not
+    necessary; see discussion below.
+
+    To choose a non-secret HMAC key DST\_key that ensures domain separation
+    from expand\_message\_xmd, compute
+
+        DST_key_preimage = "DERIVE-HMAC-KEY-" || DST_ext || I2OSP(0, 1)
+        DST_key = H(DST_key_preimage)
+
+    Then, to instantiate the random oracle Hro using HMAC-H, compute
+
+        Hro(msg) = HMAC-H(DST_key, msg)
+
+    The trailing zero byte in DST\_key\_preimage ensures that this value
+    is distinct from inputs to H inside expand\_message\_xmd (because all
+    such inputs have suffix DST\_prime, which cannot end with a zero byte
+    as discussed above).
+    This ensures domain separation because, with overwhelming probability,
+    all inputs to H inside of HMAC-H using key DST\_key have prefixes that
+    are distinct from the values Z\_pad, b\_0, and strxor(b\_0, b\_(i - 1))
+    inside of expand\_message\_xmd.
+
+    For uses of HMAC-H that instantiate a private random oracle by fixing
+    a high-entropy secret key, domain separation from expand\_message\_xmd
+    is not necessary.
+    This is because, similarly to the case above, all inputs to H inside
+    HMAC-H using this secret key almost certainly have distinct prefixes
+    from all inputs to H inside expand\_message\_xmd.
+
+    Finally, this method can be used with HKDF-H {{RFC5869}} by fixing
+    the salt input to HKDF-Extract to DST\_key, computed as above.
+    This ensures domain separation for HKDF-Extract by the same argument
+    as for HMAC-H using DST\_key.
+    Moreover, assuming that the IKM input to HKDF-Extract has sufficiently
+    high entropy (say, commensurate with the security parameter), the
+    HKDF-Expand step is domain separated by the same argument as for
+    HMAC-H with a high-entropy secret key (since PRK is exactly that).
 
 ## Target security levels {#security-considerations-targets}
 
 Each ciphersuite specifies a target security level (in bits) for the underlying
 curve. This parameter ensures the corresponding hash\_to\_field instantiation is
 conservative and correct. We stress that this parameter is only an upper bound on
-the security level of the curve. It is neither a guarantee nor endorsement of its
-longevity. Mathematical and cryptographic advancements may lower the security level
-for any curve. In such cases, applications SHOULD choose curves and, consequently,
-ciphersuites with higher security levels.
+the security level of the curve, and is neither a guarantee nor endorsement of its
+suitability for a given application. Mathematical and cryptographic advancements
+may reduce the effective security level for any curve.
 
 # Acknowledgements
 
 The authors would like to thank Adam Langley for his detailed writeup of Elligator 2 with
 Curve25519 {{L13}};
 Dan Boneh, Christopher Patton, and Benjamin Lipp for educational discussions; and
-David Benjamin, Frank Denis, Sean Devlin, Justin Drake, Dan Harkins, Thomas Icart,
-Andy Polyakov, Leonid Reyzin, Michael Scott, and Mathy Vanhoef for helpful feedback.
+David Benjamin, Frank Denis, Sean Devlin, Justin Drake, Bjoern Haase, Mike Hamburg,
+Dan Harkins, Thomas Icart, Andy Polyakov, Mamy Ratsimbazafy, Leonid Reyzin, Michael Scott,
+and Mathy Vanhoef for helpful feedback.
 
 # Contributors
 
