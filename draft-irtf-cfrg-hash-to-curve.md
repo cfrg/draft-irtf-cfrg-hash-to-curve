@@ -65,6 +65,7 @@ normative:
         name: Adam Langley
 informative:
   RFC2104:
+  RFC5869:
   BLS12-381:
     target: https://electriccoin.co/blog/new-snark-curve/
     title: "BLS12-381: New zk-SNARK Elliptic Curve Construction"
@@ -2723,26 +2724,29 @@ ensure domain separation by picking a distinct value for DST.
 
 ## Domain separation recommendations {#security-considerations-domain-separation}
 
-The expand\_message variants in this document ({{hashtofield-expand}})
-always append a suffix-free-encoded domain separation tag DST\_prime
-to the strings hashed by H, the underlying hash or extensible output function.
+As discussed in {{term-domain-separation}, the purpose of domain separation is
+to ensure that security analyses of protocols that query multiple independent
+random oracles remain valid even if all of these random oracles are instantiated
+base on one underlying function H.
+The expand\_message variants in this document ({{hashtofield-expand}}) ensure
+domain separation by appending a suffix-free-encoded domain separation tag
+DST\_prime to all strings hashed by H, an underlying hash or extensible
+output function.
 (Other expand\_message variants that follow the guidelines in
 {{hashtofield-expand-other}} are expected to behave similarly,
 but these should be analyzed on a case-by-case basis.)
-Protocols that also use H outside of expand\_message should enforce domain
-separation between those uses of H and expand\_message, and should separate
-all of these from uses of H outside the protocol.
-The purpose of enforcing domain separation is to ensure that security analyses
-treating different functions based on H as independent random oracles remain
-valid even if the same H is used to instantiate these functions.
+For security, protocols that use the same function H outside of expand\_message
+should enforce domain separation between those uses of H and expand\_message,
+and should separate all of these from uses of H in other protocols.
 
 This section suggests four methods for enforcing domain separation
 from expand\_message variants, explains how each method achieves domain
 separation, and lists the situations in which each is appropriate.
-Each method is used in a similar way: first, choose a tag DST\_ext
-distinct from DST\_prime, then augment calls to H with this tag.
-Note that each method augments calls to H differently, and each may impose
+These methods share a high-level structure: the protocol designer fixes a tag
+DST\_ext distinct from DST\_prime and augments calls to H with DST\_ext.
+Each method augments calls to H differently, and each may impose
 additional requirements on DST\_ext.
+
 These methods can be used to instantiate multiple domain separated functions
 (e.g., H1 and H2) by selecting distinct DST\_ext values for each
 (e.g., DST\_ext1, DST\_ext2).
@@ -2758,11 +2762,11 @@ These methods can be used to instantiate multiple domain separated functions
         Hso(msg) = H(msg || DST_ext)
 
     DST\_ext should be suffix-free encoded (e.g., by appending one byte
-    encoding the tag's length) to make it infeasible to find distinct
+    encoding the length of DST\_ext) to make it infeasible to find distinct
     (msg, DST\_ext) pairs that hash to the same value.
 
     This method ensures domain separation because all distinct invocations of
-    H have distinct suffixes.
+    H have distinct suffixes, since DST\_ext is distinct from DST\_prime.
 
 2.  (Prefix-suffix domain separation.)
     This method can be used in the same cases as the suffix-only method.
@@ -2772,20 +2776,20 @@ These methods can be used to instantiate multiple domain separated functions
         Hps(msg) = H(DST_ext || msg || I2OSP(0, 1))
 
     DST\_ext should be prefix-free encoded (e.g., by prepending one byte
-    encoding the tag's length) to make it infeasible to find distinct
+    encoding the length of DST\_ext) to make it infeasible to find distinct
     (msg, DST\_ext) pairs that hash to the same value.
 
     This method ensures domain separation because
     appending the byte I2OSP(0, 1) ensures that inputs to H inside Hps
-    are distinct from those inside expand\_message: the final byte of
-    DST\_prime encodes the length of DST, which is required to be nonzero
-    ({{domain-separation}}, requirement 2), and DST\_prime is always appended
-    to invocations of H inside expand\_message.
+    are distinct from those inside expand\_message.
+    Specifically, the final byte of DST\_prime encodes the length of DST, which
+    is required to be nonzero ({{domain-separation}}, requirement 2), and
+    DST\_prime is always appended to invocations of H inside expand\_message.
 
 3.  (Prefix-only domain separation.)
     This method is only useful for domain separating invocations of H
     from expand\_message\_xmd.
-    It does not give domain separation for expand\_message\_xof or for HMAC-H.
+    It does not give domain separation for expand\_message\_xof or HMAC-H.
 
     To instantiate a prefix-only domain separated function Hpo, compute
 
@@ -2796,7 +2800,7 @@ These methods can be used to instantiate multiple domain separated functions
     hash function H.
     In addition, at least one of the first b bits must be nonzero.
     Finally, DST\_ext should be prefix-free encoded (e.g., by prepending
-    one byte encoding the tag's length) to make it infeasible to
+    one byte encoding the length of DST\_ext) to make it infeasible to
     find distinct (msg, DST\_ext) pairs that hash to the same value.
 
     This method ensures domain separation as follows.
@@ -2813,10 +2817,14 @@ These methods can be used to instantiate multiple domain separated functions
     This method is useful for domain separating invocations of H inside
     HMAC-H (i.e., HMAC {{RFC2104}} instantiated with hash function H) from
     expand\_message\_xmd.
-    This is useful when HMAC-H is used with a non-secret key to
-    instantiate a random oracle based on a Merkle-Damgaard hash function
-    (note that expand\_message\_xmd can also be used for this purpose;
-    see {{security-considerations-expand-xmd}}).
+    It also applies to HKDF-H {{RFC5869}}, as discussed below.
+
+    Specifically, this method applies when HMAC-H is used with a non-secret
+    key to instantiate a random oracle based on a hash function H
+    (note that expand\_message\_xmd can also be used for this purpose; see
+    {{security-considerations-expand-xmd}}).
+    When using HMAC-H with a high-entropy secret key, domain separation is not
+    necessary; see discussion below.
 
     To choose a non-secret HMAC key DST\_key that ensures domain separation
     from expand\_message\_xmd, compute
@@ -2836,6 +2844,22 @@ These methods can be used to instantiate multiple domain separated functions
     all inputs to H inside of HMAC-H using key DST\_key have prefixes that
     are distinct from the values Z\_pad, b\_0, and strxor(b\_0, b\_(i - 1))
     inside of expand\_message\_xmd.
+
+    For uses of HMAC-H that instantiate a private random oracle by fixing
+    a high-entropy secret key, domain separation from expand\_message\_xmd
+    is not necessary.
+    This is because, similarly to the case above, all inputs to H inside
+    HMAC-H using this secret key almost certainly have distinct prefixes
+    from all inputs to H inside expand\_message\_xmd.
+
+    Finally, this method can be used with HKDF-H {{RFC5869}} by fixing
+    the salt input to HKDF-Extract to DST\_key, computed as above.
+    This ensures domain separation for HKDF-Extract by the same argument
+    as for HMAC-H using DST\_key.
+    Moreover, assuming that the IKM input to HKDF-Extract has sufficiently
+    high entropy (say, commensurate with the security parameter), the
+    HKDF-Expand step is domain separated by the same argument as for
+    HMAC-H with a high-entropy secret key (since PRK is exactly that).
 
 ## Target security levels {#security-considerations-targets}
 
