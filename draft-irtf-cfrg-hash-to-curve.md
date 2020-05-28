@@ -2724,7 +2724,7 @@ ensure domain separation by picking a distinct value for DST.
 
 ## Domain separation recommendations {#security-considerations-domain-separation}
 
-As discussed in {{term-domain-separation}, the purpose of domain separation is
+As discussed in {{term-domain-separation}}, the purpose of domain separation is
 to ensure that security analyses of protocols that query multiple independent
 random oracles remain valid even if all of these random oracles are instantiated
 base on one underlying function H.
