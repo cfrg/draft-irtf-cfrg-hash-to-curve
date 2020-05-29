@@ -52,9 +52,6 @@ author:
     email: caw@heapingbits.net
 
 normative:
-  RFC2119:
-  RFC8017:
-  RFC7748:
   EID4730:
     target: https://www.rfc-editor.org/errata/eid4730
     title: "RFC 7748, Errata ID 4730"
@@ -64,8 +61,6 @@ normative:
         ins: A. Langley
         name: Adam Langley
 informative:
-  RFC2104:
-  RFC5869:
   BLS12-381:
     target: https://electriccoin.co/blog/new-snark-curve/
     title: "BLS12-381: New zk-SNARK Elliptic Curve Construction"
@@ -1407,7 +1402,7 @@ beyond the scope of this document.
     Notice on input 0, the output is 0 as required.
 
 -   I2OSP and OS2IP: These functions are used to convert a byte string to
-    and from a non-negative integer as described in {{RFC8017}}.
+    and from a non-negative integer as described in {{!RFC8017}}.
 
 -   a || b: denotes the concatenation of byte strings a and b. For example,
     "ABC" || "DEF" == "ABCDEF".
@@ -2150,13 +2145,13 @@ Montgomery form and rational map are also standardized, the standard
 Montgomery form and rational map SHOULD be used to ensure compatibility
 with existing software.
 
-    In certain cases, e.g., edwards25519 {{RFC7748}}, the sign of the rational
+    In certain cases, e.g., edwards25519 {{!RFC7748}}, the sign of the rational
     map from the twisted Edwards curve to its corresponding Montgomery curve
     is not given explicitly.
     In this case, the sign MUST be fixed such that applying the rational map
     to the twisted Edwards curve's base point yields the Montgomery curve's
     base point with correct sign.
-    (For edwards25519, see {{RFC7748}} and {{EID4730}}.)
+    (For edwards25519, see {{!RFC7748}} and {{EID4730}}.)
 
     When defining new twisted Edwards curves, a Montgomery equivalent and rational
     map SHOULD also be specified, and the sign of the rational map SHOULD be stated
@@ -2413,7 +2408,7 @@ to P-521 is given in {{sswu-map-to-3mod4}}.
 
 ## Suites for curve25519 and edwards25519 {#suites-25519}
 
-This section defines ciphersuites for curve25519 and edwards25519 {{RFC7748}}.
+This section defines ciphersuites for curve25519 and edwards25519 {{!RFC7748}}.
 
 curve25519\_XMD:SHA-512\_ELL2\_RO\_ is defined as follows:
 
@@ -2438,8 +2433,8 @@ except for the following parameters:
   - a = -1
   - d = 0x52036cee2b6ffe738cc740797779e89800700a4d4141d8ab75eb4dca135978a3
 - f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
-- M: curve25519 defined in {{RFC7748}}, Section 4.1
-- rational\_map: the birational map defined in {{RFC7748}}, Section 4.1
+- M: curve25519 defined in {{!RFC7748}}, Section 4.1
+- rational\_map: the birational map defined in {{!RFC7748}}, Section 4.1
 
 curve25519\_XMD:SHA-512\_ELL2\_NU\_ is identical to curve25519\_XMD:SHA-512\_ELL2\_RO\_,
 except that the encoding type is encode\_to\_curve ({{roadmap}}).
@@ -2452,7 +2447,7 @@ Optimized example implementations of the above mappings are given in
 
 ## Suites for curve448 and edwards448 {#suites-448}
 
-This section defines ciphersuites for curve448 and edwards448 {{RFC7748}}.
+This section defines ciphersuites for curve448 and edwards448 {{!RFC7748}}.
 
 curve448\_XMD:SHA-512\_ELL2\_RO\_ is defined as follows:
 
@@ -2477,8 +2472,8 @@ except for the following parameters:
   - a = 1
   - d = -39081
 - f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
-- M: curve448, defined in {{RFC7748}}, Section 4.2
-- rational\_map: the 4-isogeny map defined in {{RFC7748}}, Section 4.2
+- M: curve448, defined in {{!RFC7748}}, Section 4.2
+- rational\_map: the 4-isogeny map defined in {{!RFC7748}}, Section 4.2
 
 curve448\_XMD:SHA-512\_ELL2\_NU\_ is identical to curve448\_XMD:SHA-512\_ELL2\_RO\_,
 except that the encoding type is encode\_to\_curve ({{roadmap}}).
@@ -2724,7 +2719,7 @@ When hashing passwords using any function described in this document, an adversa
 who learns the output of the hash function (or potentially any intermediate value,
 e.g., the output of hash\_to\_field) may be able to carry out a dictionary attack.
 To mitigate such attacks, it is recommended to first execute a more costly key
-derivation function (e.g., PBKDF2 {{!RFC2898}} or scrypt {{!RFC7914}}) on the password,
+derivation function (e.g., PBKDF2 {{?RFC2898}} or scrypt {{?RFC7914}}) on the password,
 then hash the output of that function to the target elliptic curve.
 For collision resistance, the hash underlying the key derivation function
 should be chosen according to the guidelines listed in {{hashtofield-expand}}.
@@ -2821,7 +2816,7 @@ These methods can be used to instantiate multiple domain separated functions
     This method is useful when domain separating invocations of H
     from expand\_message\_xmd or expand\_message\_xof.
     It is not appropriate for domain separating expand\_message from HMAC-H
-    {{RFC2104}}; for that purpose, see method 4.
+    {{?RFC2104}}; for that purpose, see method 4.
 
     To instantiate a suffix-only domain separated function Hso, compute
 
@@ -2881,9 +2876,9 @@ These methods can be used to instantiate multiple domain separated functions
 
 4.  (XMD-HMAC domain separation.)
     This method is useful for domain separating invocations of H inside
-    HMAC-H (i.e., HMAC {{RFC2104}} instantiated with hash function H) from
+    HMAC-H (i.e., HMAC {{?RFC2104}} instantiated with hash function H) from
     expand\_message\_xmd.
-    It also applies to HKDF-H {{RFC5869}}, as discussed below.
+    It also applies to HKDF-H {{?RFC5869}}, as discussed below.
 
     Specifically, this method applies when HMAC-H is used with a non-secret
     key to instantiate a random oracle based on a hash function H
@@ -2918,7 +2913,7 @@ These methods can be used to instantiate multiple domain separated functions
     HMAC-H using this secret key almost certainly have distinct prefixes
     from all inputs to H inside expand\_message\_xmd.
 
-    Finally, this method can be used with HKDF-H {{RFC5869}} by fixing
+    Finally, this method can be used with HKDF-H {{?RFC5869}} by fixing
     the salt input to HKDF-Extract to DST\_key, computed as above.
     This ensures domain separation for HKDF-Extract by the same argument
     as for HMAC-H using DST\_key.
@@ -3019,7 +3014,7 @@ divisible by 4.  Bernstein et al. {{BHKL13}} optimize this mapping and
 describe a related mapping that they call "Elligator 2," which applies to
 any curve over a field of odd characteristic having a point of order 2.
 This includes Curve25519 and Curve448, both of which are CFRG-recommended
-curves {{RFC7748}}. Bernstein et al. {{BLMP19}} extend the Elligator 2 map
+curves {{!RFC7748}}. Bernstein et al. {{BLMP19}} extend the Elligator 2 map
 to a class of supersingular curves over fields of characteristic p = 3 (mod 4).
 
 An important caveat regarding all of the above deterministic mapping
@@ -3469,7 +3464,7 @@ method for any Montgomery curve of the form given in {{montgomery}}.
 See {{elligator2}} for information on the constants used in this mapping.
 
 {{ell2-opt}} gives optimized straight-line procedures that apply to specific
-classes of curves and base fields, including curve25519 and curve448 {{RFC7748}}.
+classes of curves and base fields, including curve25519 and curve448 {{!RFC7748}}.
 
 ~~~
 map_to_curve_elligator2(u)
@@ -3782,7 +3777,7 @@ Steps:
 ### curve25519 (q = 5 (mod 8), K = 1) {#map-to-curve25519}
 
 The following is a straight-line implementation of Elligator 2
-for curve25519 {{RFC7748}} as specified in {{suites-25519}}.
+for curve25519 {{!RFC7748}} as specified in {{suites-25519}}.
 
 This implementation can also be used for any Montgomery curve
 with K = 1 over GF(q) where q = 5 (mod 8).
@@ -3845,7 +3840,7 @@ Steps:
 ### edwards25519 {#map-to-edwards25519}
 
 The following is a straight-line implementation of Elligator 2
-for edwards25519 {{RFC7748}} as specified in {{suites-25519}}.
+for edwards25519 {{!RFC7748}} as specified in {{suites-25519}}.
 The subroutine map\_to\_curve\_elligator2\_curve25519
 is defined in {{map-to-curve25519}}.
 
@@ -3882,7 +3877,7 @@ Steps:
 ### curve448 (q = 3 (mod 4), K = 1) {#map-to-curve448}
 
 The following is a straight-line implementation of Elligator 2
-for curve448 {{RFC7748}} as specified in {{suites-448}}.
+for curve448 {{!RFC7748}} as specified in {{suites-448}}.
 
 This implementation can also be used for any Montgomery curve
 with K = 1 over GF(q) where q = 3 (mod 4).
@@ -3930,7 +3925,7 @@ Steps:
 ### edwards448 {#map-to-edwards448}
 
 The following is a straight-line implementation of Elligator 2
-for edwards448 {{RFC7748}} as specified in {{suites-448}}.
+for edwards448 {{!RFC7748}} as specified in {{suites-448}}.
 The subroutine map\_to\_curve\_elligator2\_curve448
 is defined in {{map-to-curve448}}.
 
