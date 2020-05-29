@@ -1429,6 +1429,7 @@ beyond the scope of this document.
 
 This section defines a generic sgn0 implementation that applies to any field F = GF(p^m).
 It also gives simplified implementations for the cases F = GF(p) and F = GF(p^2).
+
 See {{bg-curves}} for a discussion of representing elements of extension fields as vectors.
 
 ~~~
@@ -1685,7 +1686,7 @@ of the fact that Z\_pad depends only on H, and not on the arguments to
 expand\_message\_xmd.
 To do so, first precompute and save the internal state of H after ingesting
 Z\_pad. Then, when computing b\_0, initialize H using the saved state.
-Further details are beyond the scope of this document.
+Further details are implementation dependent, and beyond the scope of this document.
 
 ### expand\_message\_xof {#hashtofield-expand-xof}
 
