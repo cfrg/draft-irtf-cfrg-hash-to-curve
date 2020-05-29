@@ -2240,18 +2240,18 @@ encoding is not clear, applications SHOULD use a random oracle.
 The below table lists suites RECOMMENDED for some elliptic curves. The
 corresponding parameters are given in the following subsections.
 
-| E            | Section              | Suites |
-|--------------|----------------------|--------|
-| NIST P-256   | {{suites-p256}}      | P256\_XMD:SHA-256\_SSWU\_RO\_ P256\_XMD:SHA-256\_SSWU\_NU\_ |
-| NIST P-384   | {{suites-p384}}      | P384\_XMD:SHA-512\_SSWU\_RO\_ P384\_XMD:SHA-512\_SSWU\_NU\_ |
-| NIST P-521   | {{suites-p521}}      | P521\_XMD:SHA-512\_SSWU\_RO\_ P521\_XMD:SHA-512\_SSWU\_NU\_ |
-| curve25519   | {{suites-25519}}     | curve25519\_XMD:SHA-512\_ELL2\_RO\_ curve25519\_XMD:SHA-512\_ELL2\_NU\_ |
-| edwards25519 | {{suites-25519}}     | edwards25519\_XMD:SHA-512\_ELL2\_RO\_ edwards25519\_XMD:SHA-512\_ELL2\_NU\_ |
-| curve448     | {{suites-448}}       | curve448\_XMD:SHA-512\_ELL2\_RO\_ curve448\_XMD:SHA-512\_ELL2\_NU\_ |
-| edwards448   | {{suites-448}}       | edwards448\_XMD:SHA-512\_ELL2\_RO\_ edwards448\_XMD:SHA-512\_ELL2\_NU\_ |
-| secp256k1    | {{suites-secp256k1}} | secp256k1\_XMD:SHA-256\_SSWU\_RO\_ secp256k1\_XMD:SHA-256\_SSWU\_NU\_ |
-| BLS12-381 G1 | {{suites-bls12381}}  | BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_ BLS12381G1\_XMD:SHA-256\_SSWU\_NU\_ |
-| BLS12-381 G2 | {{suites-bls12381}}  | BLS12381G2\_XMD:SHA-256\_SSWU\_RO\_ BLS12381G2\_XMD:SHA-256\_SSWU\_NU\_ |
+| E            | Suites | Section |
+|--------------|--------|---------|
+| NIST P-256   | P256\_XMD:SHA-256\_SSWU\_RO\_ P256\_XMD:SHA-256\_SSWU\_NU\_ | {{suites-p256}} |
+| NIST P-384   | P384\_XMD:SHA-512\_SSWU\_RO\_ P384\_XMD:SHA-512\_SSWU\_NU\_ | {{suites-p384}} |
+| NIST P-521   | P521\_XMD:SHA-512\_SSWU\_RO\_ P521\_XMD:SHA-512\_SSWU\_NU\_ | {{suites-p521}} |
+| curve25519   | curve25519\_XMD:SHA-512\_ELL2\_RO\_ curve25519\_XMD:SHA-512\_ELL2\_NU\_ | {{suites-25519}} |
+| edwards25519 | edwards25519\_XMD:SHA-512\_ELL2\_RO\_ edwards25519\_XMD:SHA-512\_ELL2\_NU\_ | {{suites-25519}} |
+| curve448     | curve448\_XMD:SHA-512\_ELL2\_RO\_ curve448\_XMD:SHA-512\_ELL2\_NU\_ | {{suites-448}} |
+| edwards448   | edwards448\_XMD:SHA-512\_ELL2\_RO\_ edwards448\_XMD:SHA-512\_ELL2\_NU\_ | {{suites-448}} |
+| secp256k1    | secp256k1\_XMD:SHA-256\_SSWU\_RO\_ secp256k1\_XMD:SHA-256\_SSWU\_NU\_ | {{suites-secp256k1}} |
+| BLS12-381 G1 | BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_ BLS12381G1\_XMD:SHA-256\_SSWU\_NU\_ | {{suites-bls12381}} |
+| BLS12-381 G2 | BLS12381G2\_XMD:SHA-256\_SSWU\_RO\_ BLS12381G2\_XMD:SHA-256\_SSWU\_NU\_ | {{suites-bls12381}} |
 
 
 ## Implementing a hash-to-curve suite {#suites-howto}
