@@ -1196,7 +1196,7 @@ random points. Some protocols require a random oracle encoding for security, whi
 others can be securely instantiated with a nonuniform encoding. When the required
 encoding is not clear, applications SHOULD use a random oracle.
 
-The construction described in {{roadmap}} is indifferentiable from a random
+The construction described in {{roadmap}} {{BCIMRT10}} is indifferentiable from a random
 oracle {{MRH04}} when instantiated following the guidelines in this document.
 {{security-considerations}} and {{related}} discuss this construction further.
 
