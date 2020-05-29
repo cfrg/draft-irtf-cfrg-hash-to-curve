@@ -1361,9 +1361,10 @@ respectively, where \<xx\>, \<yy\>, and \<suiteID\> are as described above.
 
 Algorithms in this document make use of utility functions described below.
 
-For constant-time implementations, all field operations, comparisons, and
-assignments MUST be implemented in constant time (i.e., execution time MUST
-NOT depend on the values of the inputs).
+For security, implementations of these functions SHOULD be constant-time,
+i.e., execution time SHOULD NOT depend on the values of the inputs.
+For such constant-time implementations, all field operations, comparisons, and
+assignments MUST be implemented in constant time.
 Guidance on implementing these low-level operations in constant time is
 beyond the scope of this document.
 
