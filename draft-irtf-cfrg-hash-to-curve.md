@@ -1000,7 +1000,7 @@ Unfortunately for implementors, the precise hash function that is suitable for a
 given scheme is not necessarily included in the description of the protocol.
 Compounding this problem is the need to pick a suitable curve for the specific
 protocol. Incorrect choice of hash function or curve can have disastrous
-consequences on the security of a protocol.
+consequences for the security of a protocol.
 
 This document aims to bridge this gap by providing a comprehensive set of
 recommended algorithms for a range of curve types.
