@@ -1474,8 +1474,13 @@ level for the suite in bits.
 Reducing such integers mod p gives bias at most 2^-k for any p; this bias
 is appropriate when targeting k-bit security.
 For each such integer, hash\_to\_field uses expand\_message to obtain
-L uniform bytes, where L = ceil((ceil(log2(p)) + k) / 8); this
-byte string is then interpreted as an integer via OS2IP {{RFC8017}}.
+L uniform bytes, where
+
+~~~
+L = ceil((ceil(log2(p)) + k) / 8)
+~~~
+
+These uniform bytes are then interpreted as an integer via OS2IP {{RFC8017}}.
 For example, for a 255-bit prime p, and k = 128-bit security,
 L = ceil((255 + 128) / 8) = 48 bytes.
 
