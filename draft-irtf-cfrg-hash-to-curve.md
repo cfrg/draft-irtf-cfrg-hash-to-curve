@@ -1215,11 +1215,11 @@ This document does not cover serialization or deserialization.
 
 ### Domain separation {#term-domain-separation}
 
-Cryptographic protocols whose security relies on random oracles are often analyzed
-under the assumption that those random oracles answer only queries generated
-by that protocol.
-In practice, this assumption does not hold if two protocols query the
-same random oracle.
+Cryptographic protocols proven secure in the random oracle model are often analyzed
+under the assumption that the random oracle only answers queries generated
+by the protocol.
+In practice, this assumption does not hold if two protocols use the
+same function to instantiate the random oracle.
 Concretely, consider protocols P1 and P2 that query a random oracle RO:
 if P1 and P2 both query RO on the same value x, the security analysis of
 one or both protocols may be invalidated.
