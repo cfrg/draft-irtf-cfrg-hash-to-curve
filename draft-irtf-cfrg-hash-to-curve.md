@@ -1131,7 +1131,7 @@ The table below summarizes quantities relevant to hashing to curves:
 | F,q,p | Finite field F of characteristic p and #F = q = p^m. | For prime fields, q = p; otherwise, q = p^m and m>1. |
 | E | Elliptic curve. | E is specified by an equation and a field F. |
 | n | Number of points on the elliptic curve E. | n = h * r, for h and r defined below. |
-| G | A prime-order subgroup of the points on E. | Most cryptographic protocols operate on G. |
+| G | A prime-order subgroup of the points on E. | Destination group to which byte strings are encoded. |
 | r | Order of G. | r is a prime factor of n (usually, the largest such factor). |
 | h | Cofactor, h >= 1. | An integer satisfying n = h * r. |
 
