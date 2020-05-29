@@ -1058,8 +1058,8 @@ are elements of F.
 This group has order n, meaning that there are n distinct points.
 This document uses additive notation for the elliptic curve group operation.
 
-For security reasons, protocols using elliptic curve require that the group
-be of prime order. Elliptic curves induce subgroups of prime order.
+For security reasons, protocols using elliptic curves often require a group
+of prime order. Elliptic curves induce subgroups of prime order.
 Let G be a subgroup of the curve of prime order r, where n = h * r.
 In this equation, h is an integer called the cofactor.
 An algorithm that takes as input an arbitrary point on the curve E and
