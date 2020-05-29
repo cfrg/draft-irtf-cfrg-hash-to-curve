@@ -1314,6 +1314,26 @@ MUST be implemented in constant time (i.e., execution time MUST NOT depend
 on the values of the inputs). Guidance on implementing these low-level
 operations in constant time is beyond the scope of this document.
 
+-   I2OSP and OS2IP: These functions are used to convert a byte string to
+    and from a non-negative integer as described in {{RFC8017}}.
+
+-   a \|\| b: denotes the concatenation of byte strings a and b. For example,
+    "ABC" \|\| "DEF" == "ABCDEF".
+
+-   len(str): for a byte string str, this function returns the length of str
+    in bytes. For example, len("ABC") == 3.
+
+-   substr(str, sbegin, slen): for a byte string str, this function returns
+    the slen-byte substring starting at position sbegin; positions are zero
+    indexed.
+    For example, substr("ABCDEFG", 2, 3) == "CDE".
+
+-   strxor(str1, str2): for byte strings str1 and str2, strxor(str1, str2)
+    returns the bitwise XOR of the two strings.
+    For example, strxor("abc", "XYZ") == "9;9" (the strings in this example
+    are ASCII literals, but strxor is defined for arbitrary byte strings).
+    In this document, strxor is only applied to inputs of equal length.
+
 -   CMOV(a, b, c): If c is False, CMOV returns a, otherwise it returns b.
     To prevent against timing attacks, this operation must run in constant
     time, without revealing the value of c.
@@ -1349,107 +1369,85 @@ operations in constant time is beyond the scope of this document.
     Regardless of the method chosen, the sqrt function should be implemented
     in constant time.
 
--   sgn0(x): This function returns either 0 or 1 indicating the "sign" of x,
-    where sgn0(x) == 1 just when x is "negative".
-    (In other words, this function always considers 0 to be positive.)
-    {{sgn0-function}} defines this function and discusses its implementation.
-
 -   inv0(x): This function returns the multiplicative inverse of x in F,
     extended to all of F by fixing inv0(0) == 0.
     To implement inv0 in constant time, compute inv0(x) := x^(q - 2).
     Notice on input 0, the output is 0 as required.
 
--   I2OSP and OS2IP: These functions are used to convert a byte string to
-    and from a non-negative integer as described in {{RFC8017}}.
+-   sgn0(x): This function returns either 0 or 1 indicating the "sign" of x in
+    F, where sgn0(x) == 1 just when x is "negative".
+    (In other words, this function always considers 0 to be positive.)
+    A generic implementation that applies to any field F = GF(p^m) is given.
 
--   a \|\| b: denotes the concatenation of byte strings a and b. For example,
-    "ABC" \|\| "DEF" == "ABCDEF".
+    ~~~
+    sgn0(x)
 
--   substr(str, sbegin, slen): for a byte string str, this function returns
-    the slen-byte substring starting at position sbegin; positions are zero
-    indexed.
-    For example, substr("ABCDEFG", 2, 3) == "CDE".
+    Parameters:
+    - F, a finite field of characteristic p and order q = p^m.
+    - p, the characteristic of F (see immediately above).
+    - m, the extension degree of F, m >= 1 (see immediately above).
 
--   len(str): for a byte string str, this function returns the length of str
-    in bytes. For example, len("ABC") == 3.
+    Input: x, an element of F.
+    Output: 0 or 1.
 
--   strxor(str1, str2): for byte strings str1 and str2, strxor(str1, str2)
-    returns the bitwise XOR of the two strings.
-    For example, strxor("abc", "XYZ") == "9;9" (the strings in this example
-    are ASCII literals, but strxor is defined for arbitrary byte strings).
-    In this document, strxor is only applied to inputs of equal length.
+    Notation:
+    - OR and AND are logical operators. Short-circuit operators
+      MUST be avoided in constant-time implementations.
 
-## The sgn0 function {#sgn0-function}
+    Steps:
+    1. sign = 0
+    2. zero = 1
+    3. for i in (1, 2, ..., m):
+    4.   sign_i = x_i mod 2
+    5.   zero_i = x_i == 0
+    6.   sign = sign OR (zero AND sign_i)
+    7.   zero = zero AND zero_i
+    8. return sign
+    ~~~
 
-This section defines a generic sgn0 implementation that applies to any field F = GF(p^m).
-It also gives simplified implementations for the cases F = GF(p) and F = GF(p^2).
+    Note that any valid sgn0 function for extension fields must iterate over
+    the entire vector representation of the input element. See {{bg-curves}}
+    for a discussion of representing elements of extension fields as vectors.
 
-See {{bg-curves}} for a discussion of representing elements of extension fields as vectors.
+    To see why, imagine a function sgn0\* that ignores the final entry in its
+    input vector, and consider a field element x = (0, x\_2).
+    Since sgn0\* ignores x\_2, sgn0\*(x) == sgn0\*(-x), which is incorrect
+    when x\_2 != 0.
 
-~~~
-sgn0(x)
+    It also gives simplified implementations for the cases F = GF(p) and F = GF(p^2).
 
-Parameters:
-- F, a finite field of characteristic p and order q = p^m.
-- p, the characteristic of F (see immediately above).
-- m, the extension degree of F, m >= 1 (see immediately above).
+    A similar argument applies to any entry of the vector representation of x.
 
-Input: x, an element of F.
-Output: 0 or 1.
+    When m == 1, sgn0 can be significantly simplified:
 
-Notation:
-- OR and AND are logical operators. Short-circuit operators
-  MUST be avoided in constant-time implementations.
+    ~~~
+    sgn0_m_eq_1(x)
 
-Steps:
-1. sign = 0
-2. zero = 1
-3. for i in (1, 2, ..., m):
-4.   sign_i = x_i mod 2
-5.   zero_i = x_i == 0
-6.   sign = sign OR (zero AND sign_i)
-7.   zero = zero AND zero_i
-8. return sign
-~~~
+    Input: x, an element of GF(p).
+    Output: 0 or 1.
 
-Note that any valid sgn0 function for extension fields must iterate over
-the entire vector representation of the input element.
-To see why, imagine a function sgn0\* that ignores the final entry in its
-input vector, and consider a field element x = (0, x\_2).
-Since sgn0\* ignores x\_2, sgn0\*(x) == sgn0\*(-x), which is incorrect
-when x\_2 != 0.
-A similar argument applies to any entry of the vector representation of x.
+    Steps:
+    1. return x mod 2
+    ~~~
 
-When m == 1, sgn0 can be significantly simplified:
+    The case m == 2 is only slightly more complicated:
 
-~~~
-sgn0_m_eq_1(x)
+    ~~~
+    sgn0_m_eq_2(x)
 
-Input: x, an element of GF(p).
-Output: 0 or 1.
+    Input: x, an element of GF(p^2).
+    Output: 0 or 1.
 
-Steps:
-1. return x mod 2
-~~~
+    Notation:
+    - OR and AND are logical operators. Short-circuit operators
+      MUST be avoided in constant-time implementations.
 
-The case m == 2 is only slightly more complicated:
-
-~~~
-sgn0_m_eq_2(x)
-
-Input: x, an element of GF(p^2).
-Output: 0 or 1.
-
-Notation:
-- OR and AND are logical operators. Short-circuit operators
-  MUST be avoided in constant-time implementations.
-
-Steps:
-1. sign_0 = x_0 mod 2
-2. zero_0 = x_0 == 0
-3. sign_1 = x_1 mod 2
-4. return sign_0 OR (zero_0 AND sign_1)
-~~~
+    Steps:
+    1. sign_0 = x_0 mod 2
+    2. zero_0 = x_0 == 0
+    3. sign_1 = x_1 mod 2
+    4. return sign_0 OR (zero_0 AND sign_1)
+    ~~~
 
 # Hashing to a finite field {#hashtofield}
 
