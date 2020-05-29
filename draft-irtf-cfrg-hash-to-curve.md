@@ -1386,7 +1386,7 @@ beyond the scope of this document.
     To maintain compatibility across implementations while allowing implementors
     leeway for optimizations, this document does not require sqrt() to return a
     particular value. Instead, as explained in {{point-sign}}, any function that
-    calls sqrt also specifies how to determine the correct result.
+    calls sqrt also specifies how to determine the correct root.
 
     The preferred way of computing square roots is to fix a deterministic
     algorithm particular to F. We give several algorithms in {{appx-sqrt}}.
