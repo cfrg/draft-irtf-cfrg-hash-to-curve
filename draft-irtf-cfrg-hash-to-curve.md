@@ -1266,7 +1266,7 @@ the same curve and in the case of multiple instances targeting different curves.
 requires domain separation to guarantee independent outputs.)
 
 Domain separation is enforced with a domain separation tag (DST),
-which is a byte string constructed using the following requirements:
+which is a byte string constructed according to the following requirements:
 
 1. Tags MUST be supplied as the DST parameter to hash\_to\_field, as
    described in {{hashtofield}}.
