@@ -1234,7 +1234,7 @@ one might define
     RO1(x) := RO("RO1" || x)
     RO2(x) := RO("RO2" || x)
 
-where || is the concatenation operator.
+where \|\| is the concatenation operator.
 In this example, "RO1" and "RO2" are called domain separation tags;
 they ensure that queries to RO1 and RO2 cannot result in identical
 queries to RO. Thus, it is safe to treat RO1 and RO2 as independent oracles.
@@ -1404,8 +1404,8 @@ beyond the scope of this document.
 -   I2OSP and OS2IP: These functions are used to convert a byte string to
     and from a non-negative integer as described in {{!RFC8017}}.
 
--   a || b: denotes the concatenation of byte strings a and b. For example,
-    "ABC" || "DEF" == "ABCDEF".
+-   a \|\| b: denotes the concatenation of byte strings a and b. For example,
+    "ABC" \|\| "DEF" == "ABCDEF".
 
 -   substr(str, sbegin, slen): for a byte string str, this function returns
     the slen-byte substring starting at position sbegin; positions are zero
@@ -1767,7 +1767,7 @@ primitive, whereas a Mersenne twister pseudorandom number generator {{MT98}} is 
 
 - MUST give independent values for distinct (msg, DST, length) inputs.
 Meeting this requirement is subtle.
-As a simplified example, hashing msg || DST does not work,
+As a simplified example, hashing msg \|\| DST does not work,
 because in this case distinct (msg, DST) pairs whose concatenations are equal
 will return the same output (e.g., ("AB", "CDEF") and ("ABC", "DEF")).
 The variants defined in this document use a suffix-free encoding of DST
