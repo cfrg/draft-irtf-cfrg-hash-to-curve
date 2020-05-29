@@ -236,6 +236,21 @@ informative:
         ins: J. Kammerer
         name: Jean-Gabriel Kammerer
         org: Universite de Rennes
+  VR20:
+    title: "Dragonblood: Analyzing the Dragonfly Handshake of WPA3 and EAP-pwd"
+    seriesinfo:
+        "In": IEEE Symposium on Security & Privacy (SP)
+    target: https://eprint.iacr.org/2019/383
+    date: 2020
+    author:
+      -
+        ins: M. Vanhoef
+        name: Mathy Vanhoef
+        org: New York University Abu Dhabi
+      -
+        ins: E. Ronen
+        name: Eyal Ronen
+        org: Tel Aviv University and KU Leuven
   F11:
     title: Hashing into Hessian curves
     seriesinfo:
@@ -951,10 +966,21 @@ informative:
     author:
       -
         org: IEEE Computer Society
+  MT98:
+    title: "Mersenne twister: A 623-dimensionally equidistributed uniform pseudo-random number generator"
+    seriesinfo:
+      "In": ACM Transactions on Modeling and Computer Simulation (TOMACS), Volume 8, Issue 1
+      "pages": 3-30
+      DOI: 10.1145/272991.272995
+    date: January, 1998
+    author:
+      - ins: M. Matsumoto
+      - ins: T. Nishimura
+    target: https://doi.org/10.1145/272991.272995
 
 --- abstract
 
-This document specifies a number of algorithms that may be used to encode or hash an
+This document specifies a number of algorithms for encoding or hashing an
 arbitrary string to a point on an elliptic curve.
 
 --- middle
@@ -966,12 +992,15 @@ e.g., a password, to a point on an elliptic curve. This procedure is known
 as hashing to an elliptic curve. Prominent examples of cryptosystems that
 hash to elliptic curves include Simple Password Exponential Key Exchange
 {{J96}}, Password Authenticated Key Exchange {{BMP00}}, Identity-Based
-Encryption {{BF01}} and Boneh-Lynn-Shacham signatures {{BLS01}}.
+Encryption {{BF01}}, Boneh-Lynn-Shacham signatures {{BLS01}} {{?I-D.irtf-cfrg-bls-signature}},
+Verifiable Random Functions {{?I-D.irtf-cfrg-vrf}}, and Oblivious Pseudorandom
+Functions {{?I-D.irtf-cfrg-voprf}}.
 
 Unfortunately for implementors, the precise hash function that is suitable for a
 given scheme is not necessarily included in the description of the protocol.
 Compounding this problem is the need to pick a suitable curve for the specific
-protocol.
+protocol. Incorrect choice of hash function or curve can have disastrous
+consequences on the security of a protocol.
 
 This document aims to bridge this gap by providing a comprehensive set of
 recommended algorithms for a range of curve types.
@@ -979,24 +1008,24 @@ Each algorithm conforms to a common interface: it takes as input an arbitrary-le
 byte string and produces as output a point on an elliptic curve.
 We provide implementation details for each algorithm, describe
 the security rationale behind each recommendation, and give guidance for
-elliptic curves that are not explicitly covered.
+elliptic curves that are not explicitly covered. We also present optimized
+implementations for internal functions used by these algorithms.
 
 Readers wishing to quickly specify or implement a conforming hash function
 should consult {{suites}}, which lists recommended hash-to-curve suites
 and describes both how to implement an existing suite and how to specify
 a new one.
 
-This document does not cover rejection sampling methods, sometimes known
+This document does not cover rejection sampling methods, sometimes referred to
 as "try-and-increment" or "hunt-and-peck," because the goal is to describe
-algorithms that can plausibly be made constant time. Use of these rejection
+algorithms that can plausibly be computed in constant time. Use of these rejection
 methods is NOT RECOMMENDED, because they have been a perennial cause of
-side-channel vulnerabilities.
+side-channel vulnerabilities. See Dragonblood {{VR20}} as one example of this
+problem in practice.
 
-## Requirements
+## Requirements Notation
 
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-"SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
-document are to be interpreted as described in {{RFC2119}}.
+{::boilerplate bcp14}
 
 # Background {#background}
 
@@ -1029,20 +1058,19 @@ are elements of F.
 This group has order n, meaning that there are n distinct points.
 This document uses additive notation for the elliptic curve group operation.
 
-For security reasons, groups of prime order MUST be used. Elliptic curves
-induce subgroups of prime order. Let G be a subgroup of the curve of prime
-order r, where n = h * r.
+For security reasons, protocols using elliptic curve require that the group
+be of prime order. Elliptic curves induce subgroups of prime order.
+Let G be a subgroup of the curve of prime order r, where n = h * r.
 In this equation, h is an integer called the cofactor.
 An algorithm that takes as input an arbitrary point on the curve E and
 produces as output a point in the subgroup G of E is said to "clear
-the cofactor."
-Such algorithms are discussed in {{cofactor-clearing}}.
+the cofactor." Such algorithms are discussed in {{cofactor-clearing}}.
 
 Certain hash-to-curve algorithms restrict the form of the curve equation, the
-characteristic of the field, and/or the parameters of the curve. For each
+characteristic of the field, or the parameters of the curve. For each
 algorithm presented, this document lists the relevant restrictions.
 
-Summary of quantities:
+The table below summarizes quantities relevant to hashing to curves:
 
 | Symbol | Meaning | Relevance |
 |:------:|---------|-----------|
@@ -1055,7 +1083,7 @@ Summary of quantities:
 
 ## Terminology
 
-In this section, we define important terms used in the rest of this document.
+In this section, we define important terms used throughout the document.
 
 ### Mappings {#term-mapping}
 
@@ -1070,7 +1098,7 @@ In addition, a mapping may output the same point for two or more distinct inputs
 For example, consider a mapping from F to an elliptic curve having n points:
 if the number of elements of F is not equal to n,
 then this mapping cannot be bijective (i.e., both injective and surjective)
-since it is defined to be deterministic.
+since the mapping is defined to be deterministic.
 
 Mappings may also be invertible, meaning that there is an efficient algorithm
 that, for any point P output by the mapping, outputs an x in F such that
@@ -1082,59 +1110,51 @@ document does not discuss inversion algorithms.
 
 Encodings are closely related to mappings.
 Like a mapping, an encoding is a function that outputs a point on an elliptic curve.
-In contrast to a mapping, however, the input to an encoding is an arbitrary string.
-Encodings can be deterministic or probabilistic.
+In contrast to a mapping, however, the input to an encoding is an arbitrary-length
+byte string. Encodings can be deterministic or probabilistic.
 Deterministic encodings are preferred for security, because probabilistic
-ones are more likely to leak information through side channels.
+ones are more likely to leak information through side channels. See {{VR20}}
+as an example of this type of leakage leading to a security vulnerability.
 
-This document constructs deterministic encodings by composing a hash function H
+This document constructs deterministic encodings by composing a hash function H'
 with a deterministic mapping.
-In particular, H takes as input an arbitrary string and outputs an element of F.
+In particular, H' takes as input an arbitrary string and outputs an element of F.
 The deterministic mapping takes that element as input and outputs a point on an
 elliptic curve E defined over F.
-Since the hash function H takes arbitrary strings as inputs, it cannot be
-injective: the set of inputs is larger than the set of outputs, so there must
+Since H' takes arbitrary-length byte strings as inputs, it cannot be injective:
+the set of inputs is larger than the set of outputs, so there must
 be distinct inputs that give the same output (i.e., there must be collisions).
-Thus, any encoding built from H is also not injective.
+Thus, any encoding built from H' is also not injective.
 
 Like mappings, encodings may be invertible, meaning that there is an efficient
 algorithm that, for any point P output by the encoding, outputs a string s
 such that applying the encoding to s outputs P.
-The hash function used by all encodings specified in this document ({{hashtofield}})
-is not invertible; thus, the encodings are also not invertible.
+The instantiation of H' used by all encodings specified in this document ({{hashtofield}})
+is not invertible. Thus, the encodings are also not invertible.
 
 ### Random oracle encodings {#term-rom}
 
 Two different types of encodings are possible: nonuniform encodings,
-whose output distribution is not uniformly random, and random oracle encodings,
-whose output distribution is indistinguishable from uniformly random.
-Some protocols require a random oracle for security, while others can
-be securely instantiated with a nonuniform encoding.
-When the required encoding is not clear, applications SHOULD use a random oracle.
+whose output distribution of points is not uniformly random, and random
+oracle encodings, whose output distribution is indistinguishable from uniformly
+random points. Some protocols require a random oracle encoding for security, while
+others can be securely instantiated with a nonuniform encoding. When the required
+encoding is not clear, applications SHOULD use a random oracle.
 
 Care is required when constructing a random oracle from a mapping function.
-A simple but insecure approach is to use the output of a cryptographically
-secure hash function H as the input to the mapping.
-Because in general the mapping is not surjective, the output of this
-construction is distinguishable from uniformly random, i.e., it does
-not behave like a random oracle.
-
 Brier et al. {{BCIMRT10}} describe two generic methods for constructing
-random oracle encodings.
-Farashahi et al. {{FFSTV13}} and Tibouchi and Kim {{TK17}} refine the analysis
-of one of these constructions.
-That construction is described in {{roadmap}}.
-
-(In more detail: both constructions are
+random oracle encodings. Farashahi et al. {{FFSTV13}} and Tibouchi and
+Kim {{TK17}} refine the analysis of one of these constructions.
+That construction is described in {{roadmap}}. Both constructions are
 indifferentiable from a random oracle {{MRH04}} when instantiated
 with appropriate hash functions modeled as random oracles.
-See {{security-considerations}} for further discussion.)
+See {{security-considerations}} for further discussion.
 
 ### Serialization {#term-serialization}
 
 A procedure related to encoding is the conversion of an elliptic curve point to a bit string.
 This is called serialization, and is typically used for compactly storing or transmitting points.
-The reverse operation, deserialization, converts a bit string to an elliptic curve point.
+The inverse operation, deserialization, converts a bit string to an elliptic curve point.
 For example, {{SEC1}} and {{p1363a}} give standard methods for serialization and deserialization.
 
 Deserialization is different from encoding in that only certain strings
@@ -1150,11 +1170,11 @@ under the assumption that random oracles answer only queries generated
 by that protocol.
 In practice, this assumption does not hold if two protocols query the
 same random oracle.
-Concretely, consider protocols P1 and P2 that query random oracle RO:
+Concretely, consider protocols P1 and P2 that query a random oracle RO:
 if P1 and P2 both query RO on the same value x, the security analysis of
 one or both protocols may be invalidated.
 
-A common approach to addressing this issue is called domain separation,
+A common way of addressing this issue is called domain separation,
 which allows a single random oracle to simulate multiple, independent oracles.
 This is effected by ensuring that each simulated oracle sees queries that are
 distinct from those seen by all other simulated oracles.
@@ -1164,19 +1184,19 @@ one might define
     RO1(x) := RO("RO1" || x)
     RO2(x) := RO("RO2" || x)
 
+where \|\| is the concatenation operator.
 In this example, "RO1" and "RO2" are called domain separation tags;
 they ensure that queries to RO1 and RO2 cannot result in identical
-queries to RO.
-Thus, it is safe to treat RO1 and RO2 as independent oracles.
+queries to RO. Thus, it is safe to treat RO1 and RO2 as independent oracles.
 
 # Encoding byte strings to elliptic curves {#roadmap}
 
-This section presents a general framework for encoding byte strings to points
-on an elliptic curve. To construct these encodings, we rely on three basic
+This section presents a general framework and interface for encoding byte strings
+to points on an elliptic curve. To construct these encodings, we rely on three basic
 functions:
 
 -   The function hash\_to\_field, {0, 1}^\* x {1, 2, ...} -> (F, F, ...), hashes arbitrary-length byte strings
-    to a list of one or more elements of a finite field; its implementation is defined in
+    to a list of one or more elements of a finite field F; its implementation is defined in
     {{hashtofield}}.
 
 -   The function map\_to\_curve, F -> E, calculates a point on the elliptic curve E
@@ -1227,9 +1247,9 @@ Steps:
 6. return P
 ~~~
 
-Instances of these functions are given in {{suites}}, which defines a list of
-suites that specify a full set of parameters matching elliptic curves and
-algorithms.
+Instances of these encoding functions are given in {{suites}}, which defines a
+list of suites that specify a full set of parameters matching elliptic curves
+and algorithms.
 
 ## Domain separation requirements {#domain-separation}
 
@@ -1237,18 +1257,16 @@ All uses of the encoding functions defined in this document MUST include
 domain separation ({{term-domain-separation}}) to avoid interfering with
 other uses of similar functionality.
 
-Protocols that instantiate multiple, independent hash functions based on
-either hash\_to\_curve or encode\_to\_curve MUST enforce domain separation
-between those hash functions.
-This requirement applies both in the case of multiple hashes to the same
-curve and in the case of multiple hashes to different curves.
-(This is because the hash\_to\_field primitive ({{hashtofield}}) requires
-domain separation to guarantee independent outputs.)
+Protocols that instantiate multiple, independent instances of either
+hash\_to\_curve or encode\_to\_curve MUST enforce domain separation
+between those instances.
+This requirement applies both in the case of multiple instances targeting
+the same curve and in the case of multiple instances targeting different curves.
+(This is because the internal hash\_to\_field primitive ({{hashtofield}})
+requires domain separation to guarantee independent outputs.)
 
 Domain separation is enforced with a domain separation tag (DST),
-which is a byte string.
-Care is required when selecting and using a domain separation tag.
-The following requirements apply:
+which is a byte string constructed using the following requirements:
 
 1. Tags MUST be supplied as the DST parameter to hash\_to\_field, as
    described in {{hashtofield}}.
@@ -1293,9 +1311,8 @@ Algorithms in this document make use of utility functions described below.
 
 For security reasons, all field operations, comparisons, and assignments
 MUST be implemented in constant time (i.e., execution time MUST NOT depend
-on the values of the inputs), and without branching.
-Guidance on implementing these low-level operations in constant time is
-beyond the scope of this document.
+on the values of the inputs). Guidance on implementing these low-level
+operations in constant time is beyond the scope of this document.
 
 -   CMOV(a, b, c): If c is False, CMOV returns a, otherwise it returns b.
     To prevent against timing attacks, this operation must run in constant
@@ -1319,7 +1336,7 @@ beyond the scope of this document.
     {{AR13}} and {{S85}} describe optimized methods for extension fields.
     {{appx-sqrt-issq}} gives an optimized straight-line method for GF(p^2).
 
--   sqrt(x): The sqrt operation is a multi-valued function, i.e. there exist
+-   sqrt(x): The sqrt operation is a multi-valued function, i.e., there exist
     two roots of x in the field F whenever x is square.
     To maintain compatibility across implementations while allowing implementors
     leeway for optimizations, this document does not require sqrt() to return a
@@ -1330,7 +1347,7 @@ beyond the scope of this document.
     The preferred way of computing square roots is to fix a deterministic
     algorithm particular to F. We give several algorithms in {{appx-sqrt}}.
     Regardless of the method chosen, the sqrt function should be implemented
-    in a way that resists timing side channels, i.e., in constant time.
+    in constant time.
 
 -   sgn0(x): This function returns either 0 or 1 indicating the "sign" of x,
     where sgn0(x) == 1 just when x is "negative".
@@ -1345,16 +1362,16 @@ beyond the scope of this document.
 -   I2OSP and OS2IP: These functions are used to convert a byte string to
     and from a non-negative integer as described in {{RFC8017}}.
 
--   a \|\| b: denotes the concatenation of strings a and b.
+-   a \|\| b: denotes the concatenation of byte strings a and b. For example,
+    "ABC" \|\| "DEF" == "ABCDEF".
 
--   substr(str, sstart, slen): for a byte string str, this function returns
-    the slen-byte substring starting at position sstart; positions are zero
+-   substr(str, sbegin, slen): for a byte string str, this function returns
+    the slen-byte substring starting at position sbegin; positions are zero
     indexed.
     For example, substr("ABCDEFG", 2, 3) == "CDE".
 
 -   len(str): for a byte string str, this function returns the length of str
-    in bytes.
-    For example, len("ABC") == 3.
+    in bytes. For example, len("ABC") == 3.
 
 -   strxor(str1, str2): for byte strings str1 and str2, strxor(str1, str2)
     returns the bitwise XOR of the two strings.
@@ -1381,7 +1398,6 @@ Input: x, an element of F.
 Output: 0 or 1.
 
 Notation:
-- x_i is the i'th element of the vector representation of x.
 - OR and AND are logical operators. Short-circuit operators
   MUST be avoided in constant-time implementations.
 
@@ -1421,7 +1437,7 @@ The case m == 2 is only slightly more complicated:
 ~~~
 sgn0_m_eq_2(x)
 
-Input: x an element of GF(p^2).
+Input: x, an element of GF(p^2).
 Output: 0 or 1.
 
 Notation:
@@ -1437,22 +1453,20 @@ Steps:
 
 # Hashing to a finite field {#hashtofield}
 
-The hash\_to\_field function hashes a byte string msg of any length into
+The hash\_to\_field function hashes a byte string msg of arbitrary length into
 one or more elements of a field F.
 This function works in two steps: it first hashes the input byte string
 to produce a uniformly random byte string, and then interprets this byte string
 as one or more elements of F.
 
-For the first step, hash\_to\_field calls an auxiliary function
-expand\_message.
-This document defines two variants of expand\_message, one appropriate
-for hash functions like SHA-2 {{FIPS180-4}} or SHA-3 {{FIPS202}}, and one
-appropriate for extensible-output functions like SHAKE-128 {{FIPS202}}.
+For the first step, hash\_to\_field calls an auxiliary function expand\_message.
+This document defines two variants of expand\_message: one appropriate
+for hash functions like SHA-2 {{FIPS180-4}} or SHA-3 {{FIPS202}}, and another
+appropriate for extensible-output functions such as SHAKE-128 {{FIPS202}}.
 Security considerations for each expand\_message variant are discussed
 below ({{hashtofield-expand-xmd}}, {{hashtofield-expand-xof}}).
 
-Implementors MUST NOT use rejection sampling to generate a uniformly
-random element of F.
+Implementors MUST NOT use rejection sampling to generate a uniformly random element of F.
 The reason is that rejection sampling procedures are difficult to implement
 in constant time, and later well-meaning "optimizations" may silently render
 an implementation non-constant-time.
@@ -1489,11 +1503,8 @@ See {{security-considerations-targets}} for more details, and
 The following procedure implements hash\_to\_field.
 
 The expand\_message parameter to this function MUST conform to the requirements
-given below ({{hashtofield-expand}}).
-
-{{domain-separation}} discusses requirements for domain separation and
-recommendations for choosing DST, the domain separation tag.
-This is the REQUIRED method for applying domain separation.
+given in {{hashtofield-expand}}. {{domain-separation}} discusses the REQUIRED
+method for constructing DST, the domain separation tag.
 
 ~~~
 hash_to_field(msg, count)
@@ -1510,8 +1521,8 @@ Parameters:
   (see discussion above).
 
 Inputs:
-- msg is a byte string containing the message to hash.
-- count is the number of elements of F to output.
+- msg, a byte string containing the message to hash.
+- count, the number of elements of F to output.
 
 Outputs:
 - (u_0, ..., u_(count - 1)), a list of field elements.
@@ -1533,11 +1544,11 @@ Steps:
 expand\_message is a function that generates a uniformly random byte string.
 It takes three arguments:
 
-- msg, a byte string containing the message to hash,
-- DST, a byte string that acts as a domain separation tag, and
-- len\_in\_bytes, the number of bytes to be generated.
+1. msg, a byte string containing the message to hash,
+2. DST, a byte string that acts as a domain separation tag, and
+3. len\_in\_bytes, the number of bytes to be generated.
 
-This document defines two variants of expand\_message:
+This document defines the following two variants of expand\_message:
 
 - expand\_message\_xmd ({{hashtofield-expand-xmd}}) is appropriate for use
 with a wide range of hash functions, including SHA-2 {{FIPS180-4}}, SHA-3
@@ -1553,8 +1564,8 @@ variants are possible; {{hashtofield-expand-other}} discusses requirements.
 ### expand\_message\_xmd {#hashtofield-expand-xmd}
 
 The expand\_message\_xmd function produces a uniformly random byte string using
-a cryptographic hash function H that outputs b bits.
-For security, H must meet the following requirements:
+a cryptographic hash function H that outputs b bits. For security, H must meet
+the following requirements:
 
 - The number of bits output by H MUST be b >= 2 * k, for k the target
 security level in bits. This ensures k-bit collision resistance.
@@ -1569,7 +1580,7 @@ In this case, security holds when the inner function is modeled as a
 random transformation or as a random permutation {{BDPV08}}.
 
 - Otherwise, H MUST be a hash function that has been proved indifferentiable
-from a random oracle {{MRH04}} under a widely accepted cryptographic assumption.
+from a random oracle {{MRH04}} under a standard cryptographic assumption.
 
 SHA-2 {{FIPS180-4}} and SHA-3 {{FIPS202}} are typical and RECOMMENDED choices.
 As an example, for the 128-bit security level, b >= 256 bits and either SHA-256 or
@@ -1594,7 +1605,7 @@ Input:
 - len_in_bytes, the length of the requested output in bytes.
 
 Output:
-- uniform_bytes, a byte string
+- uniform_bytes, a byte string.
 
 Steps:
 1.  ell = ceil(len_in_bytes / b_in_bytes)
@@ -1611,7 +1622,7 @@ Steps:
 12. return substr(uniform_bytes, 0, len_in_bytes)
 ~~~
 
-Note that the string Z\_pad is prepended to msg when computing b\_0 (step 6).
+Note that the string Z\_pad is prepended to msg when computing b\_0 (step 7).
 This is necessary for security when H is a Merkle-Damgaard hash, e.g., SHA-2
 (see {{security-considerations-expand-xmd}}).
 Hashing this additional data means that the cost of computing b\_0 is higher
@@ -1623,7 +1634,7 @@ It is possible, however, to entirely avoid this overhead by taking advantage
 of the fact that Z\_pad depends only on H, and not on the arguments to
 expand\_message\_xmd.
 To do so, first precompute and save the internal state of H after ingesting
-Z\_pad; and then, when computing b\_0, initialize H using the saved state.
+Z\_pad. Then, when computing b\_0, initialize H using the saved state.
 Further details are beyond the scope of this document.
 
 ### expand\_message\_xof {#hashtofield-expand-xof}
@@ -1656,7 +1667,7 @@ Input:
 - len_in_bytes, the length of the requested output in bytes.
 
 Output:
-- uniform_bytes, a byte string
+- uniform_bytes, a byte string.
 
 Steps:
 1. DST_prime = DST || I2OSP(len(DST), 1)
@@ -1669,9 +1680,9 @@ Steps:
 
 The expand\_message variants defined in this section accept domain separation
 tags of at most 255 bytes.
-If a domain separation tag longer than 255 bytes must be used (e.g., because
-of requirements imposed by an invoking protocol), implementors MUST compute
-a short domain separation tag by hashing, as follows:
+If applications require a domain separation tag longer than 255 bytes, e.g., because
+of requirements imposed by an invoking protocol, implementors MUST compute a short
+domain separation tag by hashing, as follows:
 
 - For expand\_message\_xmd using hash function H, DST is computed as
 
@@ -1703,13 +1714,13 @@ the target elliptic curve.
 
 - MUST be built on primitives designed for use in applications requiring
 cryptographic randomness. As examples, a secure stream cipher is an appropriate
-primitive, whereas a Mersenne twister pseudorandom number generator is not.
+primitive, whereas a Mersenne twister pseudorandom number generator {{MT98}} is not.
 
-- MUST NOT use any form of rejection sampling.
+- MUST NOT use rejection sampling.
 
 - MUST give independent values for distinct (msg, DST, length) inputs.
-Meeting this requirement is slightly subtle.
-As a simplified example, hashing the concatenation msg || DST does not work,
+Meeting this requirement is subtle.
+As a simplified example, hashing msg || DST does not work,
 because in this case distinct (msg, DST) pairs whose concatenations are equal
 will return the same output (e.g., ("AB", "CDEF") and ("ABC", "DEF")).
 The variants defined in this document use a suffix-free encoding of DST
@@ -1724,9 +1735,8 @@ of H (appending is the RECOMMENDED approach).
 
 - SHOULD read msg exactly once, for efficiency when msg is long.
 
-In addition, an expand\_message variant MUST specify a unique EXP\_TAG
-that identifies that variant in a Suite ID.
-See {{suiteIDformat}} for more information.
+In addition, each expand\_message variant MUST specify a unique EXP\_TAG
+that identifies that variant in a Suite ID. See {{suiteIDformat}} for more information.
 
 # Deterministic mappings {#mappings}
 
