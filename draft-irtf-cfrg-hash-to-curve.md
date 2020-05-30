@@ -1054,7 +1054,7 @@ Functions {{NR97}} {{?I-D.irtf-cfrg-voprf}}.
 Unfortunately for implementors, the precise hash function that is suitable
 for a given protocol implemented using a given elliptic curve is often unclear
 from the protocol's description. Meanwhile, an incorrect choice of hash
-function can have disastrous consequences for the security of a protocol.
+function can have disastrous consequences for security.
 
 This document aims to bridge this gap by providing a comprehensive set of
 recommended algorithms for a range of curve types.
@@ -1112,9 +1112,9 @@ are elements of F.
 This group has order n, meaning that there are n distinct points.
 This document uses additive notation for the elliptic curve group operation.
 
-For security reasons, protocols using elliptic curves generally require
+For security reasons, cryptographic uses of elliptic curves generally require
 using a (sub)group of prime order.
-Let G be a subgroup of the curve of prime order r, where n = h * r.
+Let G be such a subgroup of the curve of prime order r, where n = h * r.
 In this equation, h is an integer called the cofactor.
 An algorithm that takes as input an arbitrary point on the curve E and
 produces as output a point in the subgroup G of E is said to "clear
@@ -1183,8 +1183,8 @@ such that applying the encoding to s outputs P.
 The instantiation of Hf used by all encodings specified in this document ({{hashtofield}})
 is not invertible. Thus, the encodings are also not invertible.
 
-In some applications, it is important that encodings do not leak information
-through side channels.
+In some applications of hashing to elliptic curves, it is important that
+encodings do not leak information through side channels.
 {{VR20}} is one example of this type of leakage leading to a security vulnerability.
 {{security-considerations}} discusses further.
 
@@ -1193,9 +1193,9 @@ through side channels.
 Two different types of encodings are possible: nonuniform encodings,
 whose output distribution of points is not uniformly random, and random
 oracle encodings, whose output distribution is indistinguishable from uniformly
-random points. Some protocols require a random oracle encoding for security, while
+random points. Some applications require a random oracle encoding for security, while
 others can be securely instantiated with a nonuniform encoding. When the required
-encoding is not clear, applications SHOULD use a random oracle.
+encoding is not clear, protocol designers SHOULD choose a random oracle.
 
 The construction described in {{roadmap}} {{BCIMRT10}} is indifferentiable from a random
 oracle {{MRH04}} when instantiated following the guidelines in this document.
@@ -2254,13 +2254,13 @@ This section lists recommended suites for hashing to standard elliptic curves.
 A hash-to-curve suite fully specifies the procedure for hashing byte strings
 to points on a specific elliptic curve group.
 {{suites-howto}} describes how to implement a suite.
-Designers specifying a protocol that requires hashing to an elliptic curve
+Designers specifying an application that requires hashing to an elliptic curve
 should either choose an existing suite or specify a new one as described
 in {{new-suite}}.
 
-All protocols and applications using a hash-to-curve suite MUST choose a domain
+All applications using a hash-to-curve suite MUST choose a domain
 separation tag (DST) in accordance with the guidelines in {{domain-separation}}.
-In addition, protocols and applications whose security requires a random oracle
+In addition, applications whose security requires a random oracle
 that returns points on the target curve MUST use a suite whose encoding type
 is hash\_to\_curve; see {{roadmap}} and immediately below for more information.
 
@@ -2286,11 +2286,6 @@ In addition to the above parameters, the mapping f may require
 additional parameters Z, M, rational\_map, E', and/or iso\_map.
 These MUST be specified when applicable.
 
-Suites with nonuniform encodings MUST NOT be used in applications whose security
-relies on a random oracle. Protocols using nonuniform encodings SHOULD carefully
-analyze the security implications of using such an encoding. When the required
-encoding is not clear, applications SHOULD use a random oracle.
-
 The below table lists suites RECOMMENDED for some elliptic curves. The
 corresponding parameters are given in the following subsections.
 
@@ -2307,6 +2302,12 @@ corresponding parameters are given in the following subsections.
 | BLS12-381 G1 | BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_ BLS12381G1\_XMD:SHA-256\_SSWU\_NU\_ | {{suites-bls12381}} |
 | BLS12-381 G2 | BLS12381G2\_XMD:SHA-256\_SSWU\_RO\_ BLS12381G2\_XMD:SHA-256\_SSWU\_NU\_ | {{suites-bls12381}} |
 
+Suites that use nonuniform encodings MUST NOT be used in protocols whose security
+analysis relies on a random oracle.
+Moreover, applications that use nonuniform encodings SHOULD carefully
+analyze the security implications of using such an encoding.
+When the required encoding is not clear, applications SHOULD use a
+random oracle for security.
 
 ## Implementing a hash-to-curve suite {#suites-howto}
 
@@ -2695,8 +2696,8 @@ it to a point on the curve sampled from a distribution that depends on the
 encoding type.
 It is important to note that using a nonuniform encoding or directly
 evaluating one of the mappings of {{mappings}} produces an output that is
-easily distinguished from a random point.
-Protocols that use a nonuniform encoding SHOULD carefully analyze the security
+easily distinguished from a uniformly random point.
+Applications that use a nonuniform encoding SHOULD carefully analyze the security
 implications of using this encoding.
 When the required encoding is not clear, applications SHOULD use a random
 oracle encoding.
@@ -2733,8 +2734,7 @@ utility functions must be implemented in constant time, as discussed in
 In some applications (e.g., embedded systems), leakage through other side
 channels (e.g., power or electromagnetic side channels) may be pertinent.
 Defending against such leakage is outside the scope of this document, because
-the nature of the leakage and the appropriate defense depends on the protocol
-from which a hash-to-curve function is invoked.
+the nature of the leakage and the appropriate defense depends on the application.
 
 ## hash\_to\_field security {#security-considerations-hash-to-field}
 
@@ -2792,7 +2792,7 @@ affect the distribution of the b\_i values.
 We note that expand\_message\_xmd can be used to instantiate a general-purpose
 indifferentiable functionality with variable-length output based on any hash
 function meeting one of the above criteria.
-Protocols that use expand\_message\_xmd outside of hash\_to\_field should
+Applications that use expand\_message\_xmd outside of hash\_to\_field should
 ensure domain separation by picking a distinct value for DST.
 
 ## Domain separation recommendations {#security-considerations-domain-separation}
@@ -2808,9 +2808,9 @@ output function.
 (Other expand\_message variants that follow the guidelines in
 {{hashtofield-expand-other}} are expected to behave similarly,
 but these should be analyzed on a case-by-case basis.)
-For security, protocols that use the same function H outside of expand\_message
+For security, applications that use the same function H outside of expand\_message
 should enforce domain separation between those uses of H and expand\_message,
-and should separate all of these from uses of H in other protocols.
+and should separate all of these from uses of H in other applications.
 
 This section suggests four methods for enforcing domain separation
 from expand\_message variants, explains how each method achieves domain
