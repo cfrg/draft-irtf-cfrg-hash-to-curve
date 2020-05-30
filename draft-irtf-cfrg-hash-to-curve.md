@@ -2725,7 +2725,7 @@ Constant-time implementations of all functions in this document are STRONGLY
 RECOMMENDED for all uses, to avoid leaking information via side channels.
 It is especially important to use a constant-time implementation when inputs to
 an encoding are secret values; in such cases, constant-time implementations
-are REQUIRED for security against timing attacks.
+are REQUIRED for security against timing attacks (e.g., {{VR20}}).
 When constant-time implementations are required, all basic operations and
 utility functions must be implemented in constant time, as discussed in
 {{utility}}.
