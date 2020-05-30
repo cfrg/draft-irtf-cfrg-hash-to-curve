@@ -2946,9 +2946,9 @@ may reduce the effective security level for any curve.
 
 The authors would like to thank Adam Langley for his detailed writeup of Elligator 2 with
 Curve25519 {{L13}};
-Dan Boneh, Christopher Patton, and Benjamin Lipp for educational discussions; and
-David Benjamin, Frank Denis, Sean Devlin, Justin Drake, Bjoern Haase, Mike Hamburg,
-Dan Harkins, Thomas Icart, Andy Polyakov, Mamy Ratsimbazafy, Leonid Reyzin, Michael Scott,
+Dan Boneh, Christopher Patton, Benjamin Lipp, and Leonid Reyzin for educational discussions;
+and David Benjamin, Frank Denis, Sean Devlin, Justin Drake, Bjoern Haase, Mike Hamburg,
+Dan Harkins, Thomas Icart, Andy Polyakov, Mamy Ratsimbazafy, Michael Scott,
 and Mathy Vanhoef for helpful feedback.
 
 # Contributors
