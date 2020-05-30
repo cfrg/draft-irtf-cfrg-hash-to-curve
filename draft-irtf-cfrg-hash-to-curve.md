@@ -1361,6 +1361,7 @@ For security, implementations of these functions SHOULD be constant-time,
 i.e., execution time SHOULD NOT depend on the values of the inputs.
 For such constant-time implementations, all field operations, comparisons, and
 assignments MUST be implemented in constant time.
+{{security-considerations}} briefly discusses constant-time security issues.
 Guidance on implementing these low-level operations in constant time is
 beyond the scope of this document.
 
@@ -3482,6 +3483,9 @@ map_to_curve_elligator2(u)
 
 Input: u, an element of F.
 Output: (s, t), a point on M.
+
+Notation:
+- XOR is a logical operator.
 
 Constants:
 1.   c1 = J / K
