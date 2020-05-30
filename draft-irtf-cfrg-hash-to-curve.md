@@ -2692,7 +2692,7 @@ for further discussion.
 Each encoding type ({{roadmap}}) accepts an arbitrary byte string and maps
 it to a point on the curve sampled from a distribution that depends on the
 encoding type.
-It is important to note that using a nonuniform encoding and/or directly
+It is important to note that using a nonuniform encoding or directly
 evaluating one of the mappings of {{mappings}} produces an output that is
 easily distinguished from a random point.
 Protocols that use a nonuniform encoding SHOULD carefully analyze the security
