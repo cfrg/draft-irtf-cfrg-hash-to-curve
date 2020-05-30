@@ -1186,6 +1186,7 @@ is not invertible. Thus, the encodings are also not invertible.
 In some applications, it is important that encodings do not leak information
 through side channels.
 {{VR20}} is one example of this type of leakage leading to a security vulnerability.
+{{security-considerations}} discusses further.
 
 ### Random oracle encodings {#term-rom}
 
@@ -2285,7 +2286,7 @@ additional parameters Z, M, rational\_map, E', and/or iso\_map.
 These MUST be specified when applicable.
 
 Suites with nonuniform encodings MUST NOT be used in applications whose security
-relies on a random oracle. Applications using nonuniform encodings SHOULD carefully
+relies on a random oracle. Protocols using nonuniform encodings SHOULD carefully
 analyze the security implications of using such an encoding. When the required
 encoding is not clear, applications SHOULD use a random oracle.
 
@@ -2681,15 +2682,6 @@ This document has no IANA actions.
 
 # Security considerations {#security-considerations}
 
-When constant-time implementations are required, all basic operations and
-utility functions must be implemented in constant time, as discussed in
-{{utility}}.
-In some applications (e.g., embedded systems), leakage through other side
-channels (e.g., power or electromagnetic side channels) may be pertinent.
-Defending against such leakage is outside the scope of this document, because
-the nature of the leakage and the appropriate defense depends on the protocol
-from which a hash-to-curve function is invoked.
-
 {{domain-separation}} describes considerations related to domain separation.
 See {{security-considerations-domain-separation}} for further discussion.
 
@@ -2700,8 +2692,13 @@ for further discussion.
 Each encoding type ({{roadmap}}) accepts an arbitrary byte string and maps
 it to a point on the curve sampled from a distribution that depends on the
 encoding type.
-It is important to note that directly evaluating the mappings of {{mappings}}
-produces an output that is distinguishable from random.
+It is important to note that using a nonuniform encoding and/or directly
+evaluating one of the mappings of {{mappings}} produces an output that is
+easily distinguished from a random point.
+Protocols that use a nonuniform encoding SHOULD carefully analyze the security
+implications of using this encoding.
+When the required encoding is not clear, applications SHOULD use a random
+oracle encoding.
 
 When the hash\_to\_curve function ({{roadmap}}) is instantiated with a
 hash\_to\_field function that is indifferentiable from a random oracle
@@ -2723,6 +2720,20 @@ derivation function (e.g., PBKDF2 {{?RFC2898}} or scrypt {{?RFC7914}}) on the pa
 then hash the output of that function to the target elliptic curve.
 For collision resistance, the hash underlying the key derivation function
 should be chosen according to the guidelines listed in {{hashtofield-expand}}.
+
+Constant-time implementations of all functions in this document are STRONGLY
+RECOMMENDED for all uses, to avoid leaking information via side channels.
+It is especially important to use a constant-time implementation when inputs to
+an encoding are secret values; in such cases, constant-time implementations
+are REQUIRED for security against timing attacks.
+When constant-time implementations are required, all basic operations and
+utility functions must be implemented in constant time, as discussed in
+{{utility}}.
+In some applications (e.g., embedded systems), leakage through other side
+channels (e.g., power or electromagnetic side channels) may be pertinent.
+Defending against such leakage is outside the scope of this document, because
+the nature of the leakage and the appropriate defense depends on the protocol
+from which a hash-to-curve function is invoked.
 
 ## hash\_to\_field security {#security-considerations-hash-to-field}
 
@@ -2780,7 +2791,7 @@ affect the distribution of the b\_i values.
 We note that expand\_message\_xmd can be used to instantiate a general-purpose
 indifferentiable functionality with variable-length output based on any hash
 function meeting one of the above criteria.
-Applications that use expand\_message\_xmd outside of hash\_to\_field should
+Protocols that use expand\_message\_xmd outside of hash\_to\_field should
 ensure domain separation by picking a distinct value for DST.
 
 ## Domain separation recommendations {#security-considerations-domain-separation}
