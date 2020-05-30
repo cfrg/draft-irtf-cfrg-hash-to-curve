@@ -2286,8 +2286,15 @@ In addition to the above parameters, the mapping f may require
 additional parameters Z, M, rational\_map, E', and/or iso\_map.
 These MUST be specified when applicable.
 
-The below table lists suites RECOMMENDED for some elliptic curves. The
-corresponding parameters are given in the following subsections.
+The below table lists suites RECOMMENDED for some elliptic curves.
+The corresponding parameters are given in the following subsections.
+Suites that use nonuniform encodings MUST NOT be used in protocols whose security
+analysis relies on a random oracle.
+Moreover, applications that use a nonuniform encoding SHOULD carefully
+analyze the security implications of nonuniformity.
+When the required encoding is not clear, applications SHOULD use a
+random oracle for security.
+
 
 | E            | Suites | Section |
 |--------------|--------|---------|
@@ -2301,13 +2308,6 @@ corresponding parameters are given in the following subsections.
 | secp256k1    | secp256k1\_XMD:SHA-256\_SSWU\_RO\_ secp256k1\_XMD:SHA-256\_SSWU\_NU\_ | {{suites-secp256k1}} |
 | BLS12-381 G1 | BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_ BLS12381G1\_XMD:SHA-256\_SSWU\_NU\_ | {{suites-bls12381}} |
 | BLS12-381 G2 | BLS12381G2\_XMD:SHA-256\_SSWU\_RO\_ BLS12381G2\_XMD:SHA-256\_SSWU\_NU\_ | {{suites-bls12381}} |
-
-Suites that use nonuniform encodings MUST NOT be used in protocols whose security
-analysis relies on a random oracle.
-Moreover, applications that use nonuniform encodings SHOULD carefully
-analyze the security implications of using such an encoding.
-When the required encoding is not clear, applications SHOULD use a
-random oracle for security.
 
 ## Implementing a hash-to-curve suite {#suites-howto}
 
