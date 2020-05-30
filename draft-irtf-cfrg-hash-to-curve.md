@@ -2620,7 +2620,7 @@ Suite IDs MUST be constructed as follows:
 The fields CURVE\_ID, HASH\_ID, MAP\_ID, and ENC\_VAR are
 ASCII-encoded strings of at most 64 characters each.
 Fields MUST contain only ASCII characters between 0x21 and 0x7E (inclusive)
-other underscore (i.e., 0x5f).
+except that underscore (i.e., 0x5f) is not allowed.
 
 As indicated above, each field (including the last) is followed by an underscore
 ("\_", ASCII 0x5f).
