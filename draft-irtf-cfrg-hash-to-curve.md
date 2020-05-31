@@ -1190,7 +1190,7 @@ encodings do not leak information through side channels.
 
 ### Random oracle encodings {#term-rom}
 
-Two different types of encodings are possible, nonuniform and random oracle encodings.
+Two different types of encodings are possible, nonuniform encodings and random oracle encodings.
 Nonuniform encodings induce a distribution of points that is not uniformly random.
 Random oracle encodings, in contrast, induce a distribution of points that
 is statistically close to uniformly random.
