@@ -1190,12 +1190,16 @@ encodings do not leak information through side channels.
 
 ### Random oracle encodings {#term-rom}
 
-Two different types of encodings are possible: nonuniform encodings,
-whose output distribution of points is not uniformly random, and random
-oracle encodings, whose output distribution is indistinguishable from uniformly
-random points. Some applications require a random oracle encoding for security, while
-others can be securely instantiated with a nonuniform encoding. When the required
-encoding is not clear, protocol designers SHOULD choose a random oracle.
+Two different types of encodings are possible, nonuniform and random oracle encodings.
+Nonuniform encodings induce a distribution of points that is not uniformly random.
+Random oracle encodings, in contrast, induce a distribution of points that
+is statistically close to uniformly random.
+They also satisfy a stronger property: a random oracle encoding can be proved
+indifferentiable from a random oracle {{MRH04}} under a suitable assumption,
+meaning it is appropriate for use in many cryptographic protocols proven secure
+in the random oracle model.
+(Note, however, that indifferentiability is not always sufficient for security;
+see {{security-considerations}} for further discussion.)
 
 The construction described in {{roadmap}} {{BCIMRT10}} is indifferentiable from a random
 oracle {{MRH04}} when instantiated following the guidelines in this document.
@@ -1306,7 +1310,7 @@ All uses of the encoding functions defined in this document MUST include
 domain separation ({{term-domain-separation}}) to avoid interfering with
 other uses of similar functionality.
 
-Protocols that instantiate multiple, independent instances of either
+Applications that instantiate multiple, independent instances of either
 hash\_to\_curve or encode\_to\_curve MUST enforce domain separation
 between those instances.
 This requirement applies both in the case of multiple instances targeting
@@ -1322,32 +1326,32 @@ which is a byte string constructed according to the following requirements:
 
 2. Tags MUST have nonzero length. A minimum length of 16 bytes
    is RECOMMENDED to reduce the chance of collisions with other
-   protocols.
+   applications.
 
-3. Tags SHOULD begin with a fixed protocol identification string
-   that is unique to the protocol.
+3. Tags SHOULD begin with a fixed identification string
+   that is unique to the application.
 
-4. Tags SHOULD include a protocol version number.
+4. Tags SHOULD include a version number.
 
-5. For protocols that define multiple ciphersuites, each ciphersuite's
+5. For applications that define multiple ciphersuites, each ciphersuite's
    tag MUST be different. For this purpose, it is RECOMMENDED to
    include a ciphersuite identifier in each tag.
 
-6. For protocols that use multiple encodings, either to the same curve
+6. For applications that use multiple encodings, either to the same curve
    or to different curves, each encoding MUST use a different tag.
    For this purpose, it is RECOMMENDED to include the encoding's
    Suite ID ({{suites}}) in the domain separation tag.
    For independent encodings based on the same suite, each tag should
    also include a distinct identifier, e.g., "ENC1" and "ENC2".
 
-As an example, consider a fictional protocol named Quux
+As an example, consider a fictional application named Quux
 that defines several different ciphersuites.
 A reasonable choice of tag is "QUUX-V\<xx\>-CS\<yy\>-\<suiteID\>", where
 \<xx\> and \<yy\> are two-digit numbers indicating the version and
 ciphersuite, respectively, and \<suiteID\> is the Suite ID of the
 encoding used in ciphersuite \<yy\>.
 
-As another example, consider a fictional protocol named Baz that requires
+As another example, consider a fictional application named Baz that requires
 two independent random oracles to the same curve.
 Reasonable choices of tags for these oracles are
 "BAZ-V\<xx\>-CS\<yy\>-\<suiteID\>-ENC1" and "BAZ-V\<xx\>-CS\<yy\>-\<suiteID\>-ENC2",
@@ -2254,9 +2258,8 @@ This section lists recommended suites for hashing to standard elliptic curves.
 A hash-to-curve suite fully specifies the procedure for hashing byte strings
 to points on a specific elliptic curve group.
 {{suites-howto}} describes how to implement a suite.
-Designers specifying an application that requires hashing to an elliptic curve
-should either choose an existing suite or specify a new one as described
-in {{new-suite}}.
+Applications that require hashing to an elliptic curve should use either
+an existing suite or a new suite specified as described in {{new-suite}}.
 
 All applications using a hash-to-curve suite MUST choose a domain
 separation tag (DST) in accordance with the guidelines in {{domain-separation}}.
@@ -2288,8 +2291,8 @@ These MUST be specified when applicable.
 
 The below table lists suites RECOMMENDED for some elliptic curves.
 The corresponding parameters are given in the following subsections.
-Suites that use nonuniform encodings MUST NOT be used in protocols whose security
-analysis relies on a random oracle.
+Applications instantiating cryptographic protocols whose security analysis
+relies on a random oracle MUST NOT use a nonuniform encoding.
 Moreover, applications that use a nonuniform encoding SHOULD carefully
 analyze the security implications of nonuniformity.
 When the required encoding is not clear, applications SHOULD use a
@@ -2698,16 +2701,17 @@ It is important to note that using a nonuniform encoding or directly
 evaluating one of the mappings of {{mappings}} produces an output that is
 easily distinguished from a uniformly random point.
 Applications that use a nonuniform encoding SHOULD carefully analyze the security
-implications of using this encoding.
+implications of nonuniformity.
 When the required encoding is not clear, applications SHOULD use a random
 oracle encoding.
 
 When the hash\_to\_curve function ({{roadmap}}) is instantiated with a
 hash\_to\_field function that is indifferentiable from a random oracle
 ({{hashtofield}}), the resulting function is indifferentiable from a random
-oracle ({{FFSTV13}}, {{LBB19}}, {{MRH04}}).
-In most cases such a function can be safely used in protocols whose security
-analysis assumes a random oracle that outputs points on an elliptic curve.
+oracle ({{MRH04}}, {{BCIMRT10}}, {{FFSTV13}}, {{LBB19}}).
+In many cases such a function can be safely used in cryptographic protocols
+whose security analysis assumes a random oracle that outputs points on an
+elliptic curve.
 As Ristenpart et al. discuss in {{RSS11}}, however, not all security proofs
 that rely on random oracles continue to hold when those oracles are replaced
 by indifferentiable functionalities.
@@ -2797,10 +2801,10 @@ ensure domain separation by picking a distinct value for DST.
 
 ## Domain separation recommendations {#security-considerations-domain-separation}
 
-As discussed in {{term-domain-separation}}, the purpose of domain separation is
-to ensure that security analyses of protocols that query multiple independent
-random oracles remain valid even if all of these random oracles are instantiated
-base on one underlying function H.
+As discussed in {{term-domain-separation}}, the purpose of domain separation
+is to ensure that security analyses of cryptographic protocols that query
+multiple independent random oracles remain valid even if all of these random
+oracles are instantiated base on one underlying function H.
 The expand\_message variants in this document ({{hashtofield-expand}}) ensure
 domain separation by appending a suffix-free-encoded domain separation tag
 DST\_prime to all strings hashed by H, an underlying hash or extensible
@@ -2815,7 +2819,7 @@ and should separate all of these from uses of H in other applications.
 This section suggests four methods for enforcing domain separation
 from expand\_message variants, explains how each method achieves domain
 separation, and lists the situations in which each is appropriate.
-These methods share a high-level structure: the protocol designer fixes a tag
+These methods share a high-level structure: the application designer fixes a tag
 DST\_ext distinct from DST\_prime and augments calls to H with DST\_ext.
 Each method augments calls to H differently, and each may impose
 additional requirements on DST\_ext.
