@@ -52,9 +52,6 @@ author:
     email: caw@heapingbits.net
 
 normative:
-  RFC2119:
-  RFC8017:
-  RFC7748:
   EID4730:
     target: https://www.rfc-editor.org/errata/eid4730
     title: "RFC 7748, Errata ID 4730"
@@ -64,8 +61,6 @@ normative:
         ins: A. Langley
         name: Adam Langley
 informative:
-  RFC2104:
-  RFC5869:
   BLS12-381:
     target: https://electriccoin.co/blog/new-snark-curve/
     title: "BLS12-381: New zk-SNARK Elliptic Curve Construction"
@@ -513,6 +508,23 @@ informative:
         ins: M. Scott
         name: Michael Scott
         org: Dublin City University, Ireland
+  BM92:
+    title: "Encrypted key exchange: Password-based protocols secure against dictionary attacks"
+    seriesinfo:
+        "In": IEEE Symposium on Security and Privacy - Oakland 1992
+        "pages": 72-84
+        DOI: 10.1109/RISP.1992.213269
+    target: https://doi.org/10.1109/RISP.1992.213269
+    date: 1992
+    author:
+      -
+        ins: S. M. Bellovin
+        name: Steven M. Bellovin
+        org: AT&T Bell Laboratories
+      -
+        ins: M. Merritt
+        name: Michael Merritt
+        org: AT&T Bell Laboratories
   BMP00:
     title: Provably secure password-authenticated key exchange using Diffie-Hellman
     seriesinfo:
@@ -891,6 +903,42 @@ informative:
         ins: C. Holenstein
         name: Clemens Holenstein
         org: ETH Zurich
+  MRV99:
+    title: Verifiable Random Functions
+    seriesinfo:
+      "In": Symposium on the Foundations of Computer Science
+      DOI:  10.1109/SFFCS.1999.814584
+    target: https://doi.org/10.1109/SFFCS.1999.814584
+    date: October, 1999
+    author:
+      -
+        ins: S. Micali
+        name: Silvio Micali
+        org: MIT Laboratory for Computer Science
+      -
+        ins: M. Rabin
+        name: Michael Rabin
+        org: Harvard University Department of Applied Science
+      -
+        ins: S. Vadhan
+        name: Salil Vadhan
+        org: MIT Laboratory for Computer Science
+  NR97:
+    title: "Number-theoretic constructions of efficient pseudo-random functions"
+    seriesinfo:
+      "In": Symposium on the Foundations of Computer Science
+      DOI: 10.1109/SFCS.1997.646134
+    target: https://doi.org/10.1109/SFCS.1997.646134
+    date: October, 1997
+    author:
+      -
+        ins: M. Naor
+        name: Moni Naor
+        org: Weizmann Institute
+      -
+        ins: O. Reingold
+        name: Omer Reingold
+        org: Weizmann Institute
   S85:
     title: Elliptic Curves Over Finite Fields and the Computation of Square Roots mod p
     seriesinfo:
@@ -959,6 +1007,13 @@ informative:
         ins: R. S. Wahby
         name: Riad S. Wahby
         org: Stanford University
+  p1363.2:
+    title: "IEEE Standard Specification for Password-Based Public-Key Cryptography Techniques"
+    target: https://standards.ieee.org/standard/1363_2-2008.html
+    date: September, 2008
+    author:
+      -
+        org: IEEE Computer Society
   p1363a:
     title: "IEEE Standard Specifications for Public-Key Cryptography---Amendment 1: Additional Techniques"
     target: https://standards.ieee.org/standard/1363a-2004.html
@@ -990,17 +1045,16 @@ arbitrary string to a point on an elliptic curve.
 Many cryptographic protocols require a procedure that encodes an arbitrary input,
 e.g., a password, to a point on an elliptic curve. This procedure is known
 as hashing to an elliptic curve. Prominent examples of cryptosystems that
-hash to elliptic curves include Simple Password Exponential Key Exchange
-{{J96}}, Password Authenticated Key Exchange {{BMP00}}, Identity-Based
+hash to elliptic curves include password-authenticated
+key exchanges {{BM92}} {{J96}} {{BMP00}} {{p1363.2}}, Identity-Based
 Encryption {{BF01}}, Boneh-Lynn-Shacham signatures {{BLS01}} {{?I-D.irtf-cfrg-bls-signature}},
-Verifiable Random Functions {{?I-D.irtf-cfrg-vrf}}, and Oblivious Pseudorandom
-Functions {{?I-D.irtf-cfrg-voprf}}.
+Verifiable Random Functions {{MRV99}} {{?I-D.irtf-cfrg-vrf}}, and Oblivious Pseudorandom
+Functions {{NR97}} {{?I-D.irtf-cfrg-voprf}}.
 
-Unfortunately for implementors, the precise hash function that is suitable for a
-given scheme is not necessarily included in the description of the protocol.
-Compounding this problem is the need to pick a suitable curve for the specific
-protocol. Incorrect choice of hash function or curve can have disastrous
-consequences for the security of a protocol.
+Unfortunately for implementors, the precise hash function that is suitable
+for a given protocol implemented using a given elliptic curve is often unclear
+from the protocol's description. Meanwhile, an incorrect choice of hash
+function can have disastrous consequences for security.
 
 This document aims to bridge this gap by providing a comprehensive set of
 recommended algorithms for a range of curve types.
@@ -1058,9 +1112,9 @@ are elements of F.
 This group has order n, meaning that there are n distinct points.
 This document uses additive notation for the elliptic curve group operation.
 
-For security reasons, protocols using elliptic curves often require a group
-of prime order. Elliptic curves induce subgroups of prime order.
-Let G be a subgroup of the curve of prime order r, where n = h * r.
+For security reasons, cryptographic uses of elliptic curves generally require
+using a (sub)group of prime order.
+Let G be such a subgroup of the curve of prime order r, where n = h * r.
 In this equation, h is an integer called the cofactor.
 An algorithm that takes as input an arbitrary point on the curve E and
 produces as output a point in the subgroup G of E is said to "clear
@@ -1077,8 +1131,8 @@ The table below summarizes quantities relevant to hashing to curves:
 | F,q,p | Finite field F of characteristic p and #F = q = p^m. | For prime fields, q = p; otherwise, q = p^m and m>1. |
 | E | Elliptic curve. | E is specified by an equation and a field F. |
 | n | Number of points on the elliptic curve E. | n = h * r, for h and r defined below. |
-| G | A subgroup of the elliptic curve. | Destination group to which byte strings are encoded. |
-| r | Order of G. | This number MUST be prime. |
+| G | A prime-order subgroup of the points on E. | Destination group to which byte strings are encoded. |
+| r | Order of G. | r is a prime factor of n (usually, the largest such factor). |
 | h | Cofactor, h >= 1. | An integer satisfying n = h * r. |
 
 ## Terminology
@@ -1111,44 +1165,45 @@ document does not discuss inversion algorithms.
 Encodings are closely related to mappings.
 Like a mapping, an encoding is a function that outputs a point on an elliptic curve.
 In contrast to a mapping, however, the input to an encoding is an arbitrary-length
-byte string. Encodings can be deterministic or probabilistic.
-Deterministic encodings are preferred for security, because probabilistic
-ones are more likely to leak information through side channels. See {{VR20}}
-as an example of this type of leakage leading to a security vulnerability.
+byte string.
 
-This document constructs deterministic encodings by composing a hash function H'
+This document constructs deterministic encodings by composing a hash function Hf
 with a deterministic mapping.
-In particular, H' takes as input an arbitrary string and outputs an element of F.
+In particular, Hf takes as input an arbitrary string and outputs an element of F.
 The deterministic mapping takes that element as input and outputs a point on an
 elliptic curve E defined over F.
-Since H' takes arbitrary-length byte strings as inputs, it cannot be injective:
+Since Hf takes arbitrary-length byte strings as inputs, it cannot be injective:
 the set of inputs is larger than the set of outputs, so there must
 be distinct inputs that give the same output (i.e., there must be collisions).
-Thus, any encoding built from H' is also not injective.
+Thus, any encoding built from Hf is also not injective.
 
 Like mappings, encodings may be invertible, meaning that there is an efficient
 algorithm that, for any point P output by the encoding, outputs a string s
 such that applying the encoding to s outputs P.
-The instantiation of H' used by all encodings specified in this document ({{hashtofield}})
+The instantiation of Hf used by all encodings specified in this document ({{hashtofield}})
 is not invertible. Thus, the encodings are also not invertible.
+
+In some applications of hashing to elliptic curves, it is important that
+encodings do not leak information through side channels.
+{{VR20}} is one example of this type of leakage leading to a security vulnerability.
+{{security-considerations}} discusses further.
 
 ### Random oracle encodings {#term-rom}
 
-Two different types of encodings are possible: nonuniform encodings,
-whose output distribution of points is not uniformly random, and random
-oracle encodings, whose output distribution is indistinguishable from uniformly
-random points. Some protocols require a random oracle encoding for security, while
-others can be securely instantiated with a nonuniform encoding. When the required
-encoding is not clear, applications SHOULD use a random oracle.
+Two different types of encodings are possible, nonuniform encodings and random oracle encodings.
+Nonuniform encodings induce a distribution of points that is not uniformly random.
+Random oracle encodings, in contrast, induce a distribution of points that
+is statistically close to uniformly random.
+They also satisfy a stronger property: a random oracle encoding can be proved
+indifferentiable from a random oracle {{MRH04}} under a suitable assumption,
+meaning it is appropriate for use in many cryptographic protocols proven secure
+in the random oracle model.
+(Note, however, that indifferentiability is not always sufficient for security;
+see {{security-considerations}} for further discussion.)
 
-Care is required when constructing a random oracle from a mapping function.
-Brier et al. {{BCIMRT10}} describe two generic methods for constructing
-random oracle encodings. Farashahi et al. {{FFSTV13}} and Tibouchi and
-Kim {{TK17}} refine the analysis of one of these constructions.
-That construction is described in {{roadmap}}. Both constructions are
-indifferentiable from a random oracle {{MRH04}} when instantiated
-with appropriate hash functions modeled as random oracles.
-See {{security-considerations}} for further discussion.
+The construction described in {{roadmap}} {{BCIMRT10}} is indifferentiable from a random
+oracle {{MRH04}} when instantiated following the guidelines in this document.
+{{security-considerations}} and {{related}} discuss this construction further.
 
 ### Serialization {#term-serialization}
 
@@ -1165,11 +1220,11 @@ This document does not cover serialization or deserialization.
 
 ### Domain separation {#term-domain-separation}
 
-Cryptographic protocols that use random oracles are often analyzed
-under the assumption that random oracles answer only queries generated
-by that protocol.
-In practice, this assumption does not hold if two protocols query the
-same random oracle.
+Cryptographic protocols proven secure in the random oracle model are often analyzed
+under the assumption that the random oracle only answers queries generated
+by the protocol.
+In practice, this assumption does not hold if two protocols use the
+same function to instantiate the random oracle.
 Concretely, consider protocols P1 and P2 that query a random oracle RO:
 if P1 and P2 both query RO on the same value x, the security analysis of
 one or both protocols may be invalidated.
@@ -1207,8 +1262,8 @@ functions:
     the subgroup G of E. {{cofactor-clearing}} describes methods to perform
     this operation.
 
-We describe two high-level encoding functions ({{term-encoding}}): nonuniform
-and random oracle encoding. Although these functions have the same interface, the
+We describe two high-level encoding functions ({{term-encoding}}), a nonuniform encoding
+and a random oracle encoding. Although these functions have the same interface, the
 distributions of their outputs are different.
 
 -   Nonuniform encoding (encode\_to\_curve). This function encodes byte strings to points in G.
@@ -1228,9 +1283,8 @@ Steps:
 ~~~
 
 -   Random oracle encoding (hash\_to\_curve). This function encodes byte strings to points in G.
-    This function is suitable for applications requiring a random oracle returning points in G,
-    provided that map\_to\_curve is "well distributed" ({{FFSTV13}}, Def. 1).
-    All of the map\_to\_curve functions defined in {{mappings}} meet this requirement.
+    This function is suitable for applications requiring a random oracle returning points in G
+    when instantiated with any of the map\_to\_curve functions described in {{mappings}}.
 
 ~~~
 hash_to_curve(msg)
@@ -1247,9 +1301,8 @@ Steps:
 6. return P
 ~~~
 
-Instances of these encoding functions are given in {{suites}}, which defines a
-list of suites that specify a full set of parameters matching elliptic curves
-and algorithms.
+Each hash-to-curve suite in {{suites}} instantiates one of these encoding
+functions for a specifc elliptic curve.
 
 ## Domain separation requirements {#domain-separation}
 
@@ -1257,7 +1310,7 @@ All uses of the encoding functions defined in this document MUST include
 domain separation ({{term-domain-separation}}) to avoid interfering with
 other uses of similar functionality.
 
-Protocols that instantiate multiple, independent instances of either
+Applications that instantiate multiple, independent instances of either
 hash\_to\_curve or encode\_to\_curve MUST enforce domain separation
 between those instances.
 This requirement applies both in the case of multiple instances targeting
@@ -1273,54 +1326,52 @@ which is a byte string constructed according to the following requirements:
 
 2. Tags MUST have nonzero length. A minimum length of 16 bytes
    is RECOMMENDED to reduce the chance of collisions with other
-   protocols.
+   applications.
 
-3. Tags SHOULD begin with a fixed protocol identification string
-   that is unique to the protocol.
+3. Tags SHOULD begin with a fixed identification string
+   that is unique to the application.
 
-4. Tags SHOULD include a protocol version number.
+4. Tags SHOULD include a version number.
 
-5. For protocols that define multiple ciphersuites, each ciphersuite's
+5. For applications that define multiple ciphersuites, each ciphersuite's
    tag MUST be different. For this purpose, it is RECOMMENDED to
    include a ciphersuite identifier in each tag.
 
-6. For protocols that use multiple encodings, either to the same curve
+6. For applications that use multiple encodings, either to the same curve
    or to different curves, each encoding MUST use a different tag.
    For this purpose, it is RECOMMENDED to include the encoding's
    Suite ID ({{suites}}) in the domain separation tag.
    For independent encodings based on the same suite, each tag should
    also include a distinct identifier, e.g., "ENC1" and "ENC2".
 
-As an example, consider a fictional protocol named Quux
+As an example, consider a fictional application named Quux
 that defines several different ciphersuites.
 A reasonable choice of tag is "QUUX-V\<xx\>-CS\<yy\>-\<suiteID\>", where
 \<xx\> and \<yy\> are two-digit numbers indicating the version and
 ciphersuite, respectively, and \<suiteID\> is the Suite ID of the
 encoding used in ciphersuite \<yy\>.
 
-As another example, consider a fictional protocol named Baz that requires
-two independent random oracles, where one oracle outputs points on the curve
-E1 and the other outputs points on the curve E2.
-Reasonable choices of tags for the E1 and E2 oracles are
-"BAZ-V\<xx\>-CS\<yy\>-\<suiteID\>-E1" and "BAZ-V\<xx\>-CS\<yy\>-\<suiteID\>-E2",
+As another example, consider a fictional application named Baz that requires
+two independent random oracles to the same curve.
+Reasonable choices of tags for these oracles are
+"BAZ-V\<xx\>-CS\<yy\>-\<suiteID\>-ENC1" and "BAZ-V\<xx\>-CS\<yy\>-\<suiteID\>-ENC2",
 respectively, where \<xx\>, \<yy\>, and \<suiteID\> are as described above.
 
 # Utility functions {#utility}
 
 Algorithms in this document make use of utility functions described below.
 
-For security reasons, all field operations, comparisons, and assignments
-MUST be implemented in constant time (i.e., execution time MUST NOT depend
-on the values of the inputs). Guidance on implementing these low-level
-operations in constant time is beyond the scope of this document.
+For security, implementations of these functions SHOULD be constant-time,
+i.e., execution time SHOULD NOT depend on the values of the inputs.
+For such constant-time implementations, all field operations, comparisons, and
+assignments MUST be implemented in constant time.
+{{security-considerations}} briefly discusses constant-time security issues.
+Guidance on implementing these low-level operations in constant time is
+beyond the scope of this document.
 
 -   CMOV(a, b, c): If c is False, CMOV returns a, otherwise it returns b.
-    To prevent against timing attacks, this operation must run in constant
-    time, without revealing the value of c.
-    Commonly, implementations assume that the selector c is 1 for True or
-    0 for False. In this case, given a bit string C, the desired selector c can
-    be computed by OR-ing all bits of C together. The resulting selector will be
-    either 0 if all bits of C are zero, or 1 if at least one bit of C is 1.
+    For constant-time implementations, this operation must run in
+    time independent of the value of c.
 
 -   is\_square(x): This function returns True whenever the value x is a
     square in the field F. By Euler's criterion, this function can be
@@ -1340,14 +1391,11 @@ operations in constant time is beyond the scope of this document.
     two roots of x in the field F whenever x is square.
     To maintain compatibility across implementations while allowing implementors
     leeway for optimizations, this document does not require sqrt() to return a
-    particular value. Instead, as explained in {{point-sign}}, any higher-level
-    function that computes square roots also specifies how to determine the sign
-    of the result.
+    particular value. Instead, as explained in {{point-sign}}, any function that
+    calls sqrt also specifies how to determine the correct root.
 
     The preferred way of computing square roots is to fix a deterministic
     algorithm particular to F. We give several algorithms in {{appx-sqrt}}.
-    Regardless of the method chosen, the sqrt function should be implemented
-    in constant time.
 
 -   sgn0(x): This function returns either 0 or 1 indicating the "sign" of x,
     where sgn0(x) == 1 just when x is "negative".
@@ -1360,7 +1408,7 @@ operations in constant time is beyond the scope of this document.
     Notice on input 0, the output is 0 as required.
 
 -   I2OSP and OS2IP: These functions are used to convert a byte string to
-    and from a non-negative integer as described in {{RFC8017}}.
+    and from a non-negative integer as described in {{!RFC8017}}.
 
 -   a \|\| b: denotes the concatenation of byte strings a and b. For example,
     "ABC" \|\| "DEF" == "ABCDEF".
@@ -1640,7 +1688,7 @@ of the fact that Z\_pad depends only on H, and not on the arguments to
 expand\_message\_xmd.
 To do so, first precompute and save the internal state of H after ingesting
 Z\_pad. Then, when computing b\_0, initialize H using the saved state.
-Further details are beyond the scope of this document.
+Further details are implementation dependent, and beyond the scope of this document.
 
 ### expand\_message\_xof {#hashtofield-expand-xof}
 
@@ -1725,7 +1773,7 @@ primitive, whereas a Mersenne twister pseudorandom number generator {{MT98}} is 
 
 - MUST give independent values for distinct (msg, DST, length) inputs.
 Meeting this requirement is subtle.
-As a simplified example, hashing msg || DST does not work,
+As a simplified example, hashing msg \|\| DST does not work,
 because in this case distinct (msg, DST) pairs whose concatenations are equal
 will return the same output (e.g., ("AB", "CDEF") and ("ABC", "DEF")).
 The variants defined in this document use a suffix-free encoding of DST
@@ -2103,13 +2151,13 @@ Montgomery form and rational map are also standardized, the standard
 Montgomery form and rational map SHOULD be used to ensure compatibility
 with existing software.
 
-    In certain cases, e.g., edwards25519 {{RFC7748}}, the sign of the rational
+    In certain cases, e.g., edwards25519 {{!RFC7748}}, the sign of the rational
     map from the twisted Edwards curve to its corresponding Montgomery curve
     is not given explicitly.
     In this case, the sign MUST be fixed such that applying the rational map
     to the twisted Edwards curve's base point yields the Montgomery curve's
     base point with correct sign.
-    (For edwards25519, see {{RFC7748}} and {{EID4730}}.)
+    (For edwards25519, see {{!RFC7748}} and {{EID4730}}.)
 
     When defining new twisted Edwards curves, a Montgomery equivalent and rational
     map SHOULD also be specified, and the sign of the rational map SHOULD be stated
@@ -2210,13 +2258,12 @@ This section lists recommended suites for hashing to standard elliptic curves.
 A hash-to-curve suite fully specifies the procedure for hashing byte strings
 to points on a specific elliptic curve group.
 {{suites-howto}} describes how to implement a suite.
-Designers specifying a protocol that requires hashing to an elliptic curve
-should either choose an existing suite or specify a new one as described
-in {{new-suite}}.
+Applications that require hashing to an elliptic curve should use either
+an existing suite or a new suite specified as described in {{new-suite}}.
 
-All protocols and applications using a hash-to-curve suite MUST choose a domain
+All applications using a hash-to-curve suite MUST choose a domain
 separation tag (DST) in accordance with the guidelines in {{domain-separation}}.
-In addition, protocols and applications whose security requires a random oracle
+In addition, applications whose security requires a random oracle
 that returns points on the target curve MUST use a suite whose encoding type
 is hash\_to\_curve; see {{roadmap}} and immediately below for more information.
 
@@ -2242,13 +2289,15 @@ In addition to the above parameters, the mapping f may require
 additional parameters Z, M, rational\_map, E', and/or iso\_map.
 These MUST be specified when applicable.
 
-Suites with nonuniform encodings MUST NOT be used in applications whose security
-relies on a random oracle. Applications using nonuniform encodings SHOULD carefully
-analyze the security implications of using such an encoding. When the required
-encoding is not clear, applications SHOULD use a random oracle.
+The below table lists suites RECOMMENDED for some elliptic curves.
+The corresponding parameters are given in the following subsections.
+Applications instantiating cryptographic protocols whose security analysis
+relies on a random oracle MUST NOT use a nonuniform encoding.
+Moreover, applications that use a nonuniform encoding SHOULD carefully
+analyze the security implications of nonuniformity.
+When the required encoding is not clear, applications SHOULD use a
+random oracle for security.
 
-The below table lists suites RECOMMENDED for some elliptic curves. The
-corresponding parameters are given in the following subsections.
 
 | E            | Suites | Section |
 |--------------|--------|---------|
@@ -2262,7 +2311,6 @@ corresponding parameters are given in the following subsections.
 | secp256k1    | secp256k1\_XMD:SHA-256\_SSWU\_RO\_ secp256k1\_XMD:SHA-256\_SSWU\_NU\_ | {{suites-secp256k1}} |
 | BLS12-381 G1 | BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_ BLS12381G1\_XMD:SHA-256\_SSWU\_NU\_ | {{suites-bls12381}} |
 | BLS12-381 G2 | BLS12381G2\_XMD:SHA-256\_SSWU\_RO\_ BLS12381G2\_XMD:SHA-256\_SSWU\_NU\_ | {{suites-bls12381}} |
-
 
 ## Implementing a hash-to-curve suite {#suites-howto}
 
@@ -2366,7 +2414,7 @@ to P-521 is given in {{sswu-map-to-3mod4}}.
 
 ## Suites for curve25519 and edwards25519 {#suites-25519}
 
-This section defines ciphersuites for curve25519 and edwards25519 {{RFC7748}}.
+This section defines ciphersuites for curve25519 and edwards25519 {{!RFC7748}}.
 
 curve25519\_XMD:SHA-512\_ELL2\_RO\_ is defined as follows:
 
@@ -2391,8 +2439,8 @@ except for the following parameters:
   - a = -1
   - d = 0x52036cee2b6ffe738cc740797779e89800700a4d4141d8ab75eb4dca135978a3
 - f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
-- M: curve25519 defined in {{RFC7748}}, Section 4.1
-- rational\_map: the birational map defined in {{RFC7748}}, Section 4.1
+- M: curve25519 defined in {{!RFC7748}}, Section 4.1
+- rational\_map: the birational map defined in {{!RFC7748}}, Section 4.1
 
 curve25519\_XMD:SHA-512\_ELL2\_NU\_ is identical to curve25519\_XMD:SHA-512\_ELL2\_RO\_,
 except that the encoding type is encode\_to\_curve ({{roadmap}}).
@@ -2405,7 +2453,7 @@ Optimized example implementations of the above mappings are given in
 
 ## Suites for curve448 and edwards448 {#suites-448}
 
-This section defines ciphersuites for curve448 and edwards448 {{RFC7748}}.
+This section defines ciphersuites for curve448 and edwards448 {{!RFC7748}}.
 
 curve448\_XMD:SHA-512\_ELL2\_RO\_ is defined as follows:
 
@@ -2430,8 +2478,8 @@ except for the following parameters:
   - a = 1
   - d = -39081
 - f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
-- M: curve448, defined in {{RFC7748}}, Section 4.2
-- rational\_map: the 4-isogeny map defined in {{RFC7748}}, Section 4.2
+- M: curve448, defined in {{!RFC7748}}, Section 4.2
+- rational\_map: the 4-isogeny map defined in {{!RFC7748}}, Section 4.2
 
 curve448\_XMD:SHA-512\_ELL2\_NU\_ is identical to curve448\_XMD:SHA-512\_ELL2\_RO\_,
 except that the encoding type is encode\_to\_curve ({{roadmap}}).
@@ -2577,7 +2625,7 @@ Suite IDs MUST be constructed as follows:
 The fields CURVE\_ID, HASH\_ID, MAP\_ID, and ENC\_VAR are
 ASCII-encoded strings of at most 64 characters each.
 Fields MUST contain only ASCII characters between 0x21 and 0x7E (inclusive)
-other underscore (i.e., 0x5f).
+except that underscore (i.e., 0x5f) is not allowed.
 
 As indicated above, each field (including the last) is followed by an underscore
 ("\_", ASCII 0x5f).
@@ -2639,15 +2687,6 @@ This document has no IANA actions.
 
 # Security considerations {#security-considerations}
 
-When constant-time implementations are required, all basic operations and
-utility functions must be implemented in constant time, as discussed in
-{{utility}}.
-In some applications (e.g., embedded systems), leakage through other side
-channels (e.g., power or electromagnetic side channels) may be pertinent.
-Defending against such leakage is outside the scope of this document, because
-the nature of the leakage and the appropriate defense depends on the protocol
-from which a hash-to-curve function is invoked.
-
 {{domain-separation}} describes considerations related to domain separation.
 See {{security-considerations-domain-separation}} for further discussion.
 
@@ -2658,15 +2697,21 @@ for further discussion.
 Each encoding type ({{roadmap}}) accepts an arbitrary byte string and maps
 it to a point on the curve sampled from a distribution that depends on the
 encoding type.
-It is important to note that directly evaluating the mappings of {{mappings}}
-produces an output that is distinguishable from random.
+It is important to note that using a nonuniform encoding or directly
+evaluating one of the mappings of {{mappings}} produces an output that is
+easily distinguished from a uniformly random point.
+Applications that use a nonuniform encoding SHOULD carefully analyze the security
+implications of nonuniformity.
+When the required encoding is not clear, applications SHOULD use a random
+oracle encoding.
 
 When the hash\_to\_curve function ({{roadmap}}) is instantiated with a
 hash\_to\_field function that is indifferentiable from a random oracle
 ({{hashtofield}}), the resulting function is indifferentiable from a random
-oracle ({{FFSTV13}}, {{LBB19}}, {{MRH04}}).
-In most cases such a function can be safely used in protocols whose security
-analysis assumes a random oracle that outputs points on an elliptic curve.
+oracle ({{MRH04}}, {{BCIMRT10}}, {{FFSTV13}}, {{LBB19}}).
+In many cases such a function can be safely used in cryptographic protocols
+whose security analysis assumes a random oracle that outputs points on an
+elliptic curve.
 As Ristenpart et al. discuss in {{RSS11}}, however, not all security proofs
 that rely on random oracles continue to hold when those oracles are replaced
 by indifferentiable functionalities.
@@ -2677,10 +2722,23 @@ When hashing passwords using any function described in this document, an adversa
 who learns the output of the hash function (or potentially any intermediate value,
 e.g., the output of hash\_to\_field) may be able to carry out a dictionary attack.
 To mitigate such attacks, it is recommended to first execute a more costly key
-derivation function (e.g., PBKDF2 {{!RFC2898}} or scrypt {{!RFC7914}}) on the password,
+derivation function (e.g., PBKDF2 {{?RFC2898}} or scrypt {{?RFC7914}}) on the password,
 then hash the output of that function to the target elliptic curve.
 For collision resistance, the hash underlying the key derivation function
 should be chosen according to the guidelines listed in {{hashtofield-expand}}.
+
+Constant-time implementations of all functions in this document are STRONGLY
+RECOMMENDED for all uses, to avoid leaking information via side channels.
+It is especially important to use a constant-time implementation when inputs to
+an encoding are secret values; in such cases, constant-time implementations
+are REQUIRED for security against timing attacks (e.g., {{VR20}}).
+When constant-time implementations are required, all basic operations and
+utility functions must be implemented in constant time, as discussed in
+{{utility}}.
+In some applications (e.g., embedded systems), leakage through other side
+channels (e.g., power or electromagnetic side channels) may be pertinent.
+Defending against such leakage is outside the scope of this document, because
+the nature of the leakage and the appropriate defense depends on the application.
 
 ## hash\_to\_field security {#security-considerations-hash-to-field}
 
@@ -2743,10 +2801,10 @@ ensure domain separation by picking a distinct value for DST.
 
 ## Domain separation recommendations {#security-considerations-domain-separation}
 
-As discussed in {{term-domain-separation}}, the purpose of domain separation is
-to ensure that security analyses of protocols that query multiple independent
-random oracles remain valid even if all of these random oracles are instantiated
-base on one underlying function H.
+As discussed in {{term-domain-separation}}, the purpose of domain separation
+is to ensure that security analyses of cryptographic protocols that query
+multiple independent random oracles remain valid even if all of these random
+oracles are instantiated based on one underlying function H.
 The expand\_message variants in this document ({{hashtofield-expand}}) ensure
 domain separation by appending a suffix-free-encoded domain separation tag
 DST\_prime to all strings hashed by H, an underlying hash or extensible
@@ -2754,14 +2812,14 @@ output function.
 (Other expand\_message variants that follow the guidelines in
 {{hashtofield-expand-other}} are expected to behave similarly,
 but these should be analyzed on a case-by-case basis.)
-For security, protocols that use the same function H outside of expand\_message
+For security, applications that use the same function H outside of expand\_message
 should enforce domain separation between those uses of H and expand\_message,
-and should separate all of these from uses of H in other protocols.
+and should separate all of these from uses of H in other applications.
 
 This section suggests four methods for enforcing domain separation
 from expand\_message variants, explains how each method achieves domain
 separation, and lists the situations in which each is appropriate.
-These methods share a high-level structure: the protocol designer fixes a tag
+These methods share a high-level structure: the application designer fixes a tag
 DST\_ext distinct from DST\_prime and augments calls to H with DST\_ext.
 Each method augments calls to H differently, and each may impose
 additional requirements on DST\_ext.
@@ -2774,7 +2832,7 @@ These methods can be used to instantiate multiple domain separated functions
     This method is useful when domain separating invocations of H
     from expand\_message\_xmd or expand\_message\_xof.
     It is not appropriate for domain separating expand\_message from HMAC-H
-    {{RFC2104}}; for that purpose, see method 4.
+    {{?RFC2104}}; for that purpose, see method 4.
 
     To instantiate a suffix-only domain separated function Hso, compute
 
@@ -2834,9 +2892,9 @@ These methods can be used to instantiate multiple domain separated functions
 
 4.  (XMD-HMAC domain separation.)
     This method is useful for domain separating invocations of H inside
-    HMAC-H (i.e., HMAC {{RFC2104}} instantiated with hash function H) from
+    HMAC-H (i.e., HMAC {{?RFC2104}} instantiated with hash function H) from
     expand\_message\_xmd.
-    It also applies to HKDF-H {{RFC5869}}, as discussed below.
+    It also applies to HKDF-H {{?RFC5869}}, as discussed below.
 
     Specifically, this method applies when HMAC-H is used with a non-secret
     key to instantiate a random oracle based on a hash function H
@@ -2871,7 +2929,7 @@ These methods can be used to instantiate multiple domain separated functions
     HMAC-H using this secret key almost certainly have distinct prefixes
     from all inputs to H inside expand\_message\_xmd.
 
-    Finally, this method can be used with HKDF-H {{RFC5869}} by fixing
+    Finally, this method can be used with HKDF-H {{?RFC5869}} by fixing
     the salt input to HKDF-Extract to DST\_key, computed as above.
     This ensures domain separation for HKDF-Extract by the same argument
     as for HMAC-H using DST\_key.
@@ -2893,9 +2951,9 @@ may reduce the effective security level for any curve.
 
 The authors would like to thank Adam Langley for his detailed writeup of Elligator 2 with
 Curve25519 {{L13}};
-Dan Boneh, Christopher Patton, and Benjamin Lipp for educational discussions; and
-David Benjamin, Frank Denis, Sean Devlin, Justin Drake, Bjoern Haase, Mike Hamburg,
-Dan Harkins, Thomas Icart, Andy Polyakov, Mamy Ratsimbazafy, Leonid Reyzin, Michael Scott,
+Dan Boneh, Christopher Patton, Benjamin Lipp, and Leonid Reyzin for educational discussions;
+and David Benjamin, Frank Denis, Sean Devlin, Justin Drake, Bjoern Haase, Mike Hamburg,
+Dan Harkins, Thomas Icart, Andy Polyakov, Mamy Ratsimbazafy, Michael Scott,
 and Mathy Vanhoef for helpful feedback.
 
 # Contributors
@@ -2972,7 +3030,7 @@ divisible by 4.  Bernstein et al. {{BHKL13}} optimize this mapping and
 describe a related mapping that they call "Elligator 2," which applies to
 any curve over a field of odd characteristic having a point of order 2.
 This includes Curve25519 and Curve448, both of which are CFRG-recommended
-curves {{RFC7748}}. Bernstein et al. {{BLMP19}} extend the Elligator 2 map
+curves {{!RFC7748}}. Bernstein et al. {{BLMP19}} extend the Elligator 2 map
 to a class of supersingular curves over fields of characteristic p = 3 (mod 4).
 
 An important caveat regarding all of the above deterministic mapping
@@ -3422,13 +3480,16 @@ method for any Montgomery curve of the form given in {{montgomery}}.
 See {{elligator2}} for information on the constants used in this mapping.
 
 {{ell2-opt}} gives optimized straight-line procedures that apply to specific
-classes of curves and base fields, including curve25519 and curve448 {{RFC7748}}.
+classes of curves and base fields, including curve25519 and curve448 {{!RFC7748}}.
 
 ~~~
 map_to_curve_elligator2(u)
 
 Input: u, an element of F.
 Output: (s, t), a point on M.
+
+Notation:
+- XOR is a logical operator.
 
 Constants:
 1.   c1 = J / K
@@ -3735,7 +3796,7 @@ Steps:
 ### curve25519 (q = 5 (mod 8), K = 1) {#map-to-curve25519}
 
 The following is a straight-line implementation of Elligator 2
-for curve25519 {{RFC7748}} as specified in {{suites-25519}}.
+for curve25519 {{!RFC7748}} as specified in {{suites-25519}}.
 
 This implementation can also be used for any Montgomery curve
 with K = 1 over GF(q) where q = 5 (mod 8).
@@ -3798,7 +3859,7 @@ Steps:
 ### edwards25519 {#map-to-edwards25519}
 
 The following is a straight-line implementation of Elligator 2
-for edwards25519 {{RFC7748}} as specified in {{suites-25519}}.
+for edwards25519 {{!RFC7748}} as specified in {{suites-25519}}.
 The subroutine map\_to\_curve\_elligator2\_curve25519
 is defined in {{map-to-curve25519}}.
 
@@ -3835,7 +3896,7 @@ Steps:
 ### curve448 (q = 3 (mod 4), K = 1) {#map-to-curve448}
 
 The following is a straight-line implementation of Elligator 2
-for curve448 {{RFC7748}} as specified in {{suites-448}}.
+for curve448 {{!RFC7748}} as specified in {{suites-448}}.
 
 This implementation can also be used for any Montgomery curve
 with K = 1 over GF(q) where q = 3 (mod 4).
@@ -3883,7 +3944,7 @@ Steps:
 ### edwards448 {#map-to-edwards448}
 
 The following is a straight-line implementation of Elligator 2
-for edwards448 {{RFC7748}} as specified in {{suites-448}}.
+for edwards448 {{!RFC7748}} as specified in {{suites-448}}.
 The subroutine map\_to\_curve\_elligator2\_curve448
 is defined in {{map-to-curve448}}.
 
