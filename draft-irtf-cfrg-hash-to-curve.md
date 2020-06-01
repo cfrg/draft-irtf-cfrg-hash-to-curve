@@ -2804,7 +2804,7 @@ ensure domain separation by picking a distinct value for DST.
 As discussed in {{term-domain-separation}}, the purpose of domain separation
 is to ensure that security analyses of cryptographic protocols that query
 multiple independent random oracles remain valid even if all of these random
-oracles are instantiated base on one underlying function H.
+oracles are instantiated based on one underlying function H.
 The expand\_message variants in this document ({{hashtofield-expand}}) ensure
 domain separation by appending a suffix-free-encoded domain separation tag
 DST\_prime to all strings hashed by H, an underlying hash or extensible
