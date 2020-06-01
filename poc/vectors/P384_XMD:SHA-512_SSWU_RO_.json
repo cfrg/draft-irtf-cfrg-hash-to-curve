@@ -75,6 +75,25 @@
     },
     {
       "P": {
+        "x": "0x5c24f67b2175279f4e94a0af9cf09213f0e7e2e3ccb6d4feae9403281c1962507ba0588ef895c9b7c6cff28ce1d15a1f",
+        "y": "0x259ce2c65f35f5fb3a611e5bbf56d2979ce9de429afd6271fbda57c3d412c78292d0cb6f27e0ee96f91fba9f0af54327"
+      },
+      "Q0": {
+        "x": "0x8285def22b86477eee1c2e38accd2ed2ad88c95932d6add09fbd531f4359bee33d0ab804ee728efe56d0dd17f08bfd5b",
+        "y": "0x6364bd0542c5709dbf0cada4b14b85a68c9eae4b4bc3ec45034b2d4abdc95f7cafe466deac1f6246f16d3c16f89c4d6a"
+      },
+      "Q1": {
+        "x": "0x4cf8c46511ade2c91caaaddd23a7a6fee04f76c8bc9467b39e3bddacb3ce852c9783b7d2cefa872e42e520f59895d404",
+        "y": "0xc399b62266a0e827c7bd15774d2203b967e994d8323eb89bddda5d1c7a44270f62b1152d9f44cdc960ea4c7ea190ff4b"
+      },
+      "msg": "q128_qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",
+      "u": [
+        "0xc9e58d977e7cb5def41070f5c3b17aaf56602ace0ed8db0a2a3297976a5c0bb4bc10579179f6438ff0d8d80b5def127c",
+        "0xa9c2015bd301a3add705f1a2174ea4a536cbfa1600bd7de0cec8d6ce39fdd6bcaa377341093bf281e1f4dd767e0a0983"
+      ]
+    },
+    {
+      "P": {
         "x": "0xed18cea59aabd90a3c84b48eeb09b42409f42340aec2ec1b70687215fa4befc64fd4de4620d12e70b9890ad9a70e6ee8",
         "y": "0xdbc9b0e5e718539c785b7b787829a1c01b92591aed954e08b853dc96fb303ba4bc8aad06712b8b3b4fae2047d6269d68"
       },

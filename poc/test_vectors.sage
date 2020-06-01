@@ -143,7 +143,7 @@ def create_expander_files(expander):
 
 EXPAND_LENGTHS = [32, 128]
 
-INPUTS = ["", "abc", "abcdef0123456789", "a512_" + "a"*512]
+INPUTS = ["", "abc", "abcdef0123456789", "q128_" + "q"*128, "a512_" + "a"*512]
 
 ALL_SUITES = [
     p256_sswu_ro, p384_sswu_ro, p521_sswu_ro, secp256k1_sswu_ro,
