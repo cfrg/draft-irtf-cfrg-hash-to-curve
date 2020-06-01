@@ -3479,7 +3479,7 @@ signature:
     (xn, xd, yn, yd) = map_to_curve(u)
 ~~~
 
-The resulting point (x, y) is given by (xn / xd, yn / yd).
+The resulting affine point (x, y) is given by (xn / xd, yn / yd).
 
 The reason for this modified interface is that it enables further
 optimizations when working with points in a projective coordinate
