@@ -834,6 +834,23 @@ informative:
       -
         ins: F. Vercauteren
         name: Frederik Vercauteren
+  MOV96:
+    title: Handbook of Applied Cryptography
+    seriesinfo:
+        publisher: CRC Press
+        ISBN: 9780849385230
+    target: http://cacr.uwaterloo.ca/hac/
+    date: 1996
+    author:
+      -
+        ins: A. J. Menezes
+        name: Alfred J. Menezes
+      -
+        ins: P. C. van Oorschot
+        name: Paul C. van Oorschot
+      -
+        ins: S. A. Vanstone
+        name: Scott A. Vanstone
   WB19:
     title: Fast and simple constant-time hashing to the BLS12-381 elliptic curve
     seriesinfo:
@@ -1359,19 +1376,27 @@ respectively, where \<xx\>, \<yy\>, and \<suiteID\> are as described above.
 
 # Utility functions {#utility}
 
-Algorithms in this document make use of utility functions described below.
+Algorithms in this document use the utility functions described below,
+plus standard arithmetic operations (addition, multiplication, modular
+reduction, etc.) and elliptic curve point operations (point addition and
+scalar multiplication).
 
-For security, implementations of these functions SHOULD be constant-time,
+For security, implementations of these functions SHOULD be constant time,
 i.e., execution time SHOULD NOT depend on the values of the inputs.
-For such constant-time implementations, all field operations, comparisons, and
+For such constant-time implementations, all arithmetic, comparisons, and
 assignments MUST be implemented in constant time.
 {{security-considerations}} briefly discusses constant-time security issues.
-Guidance on implementing these low-level operations in constant time is
-beyond the scope of this document.
+
+Guidance on implementing low-level operations (in constant time or otherwise)
+is beyond the scope of this document; readers should consult standard reference
+material {{MOV96}} {{CFADLNV05}}.
 
 -   CMOV(a, b, c): If c is False, CMOV returns a, otherwise it returns b.
     For constant-time implementations, this operation must run in
     time independent of the value of c.
+
+-   AND, OR, NOT, and XOR are standard bitwise logical operators.
+    For constant-time implementations, short-circuit operators MUST be avoided.
 
 -   is\_square(x): This function returns True whenever the value x is a
     square in the field F. By Euler's criterion, this function can be
@@ -1445,17 +1470,13 @@ Parameters:
 Input: x, an element of F.
 Output: 0 or 1.
 
-Notation:
-- OR and AND are logical operators. Short-circuit operators
-  MUST be avoided in constant-time implementations.
-
 Steps:
 1. sign = 0
 2. zero = 1
 3. for i in (1, 2, ..., m):
 4.   sign_i = x_i mod 2
 5.   zero_i = x_i == 0
-6.   sign = sign OR (zero AND sign_i)
+6.   sign = sign OR (zero AND sign_i)    # Avoid short-circuit logic ops
 7.   zero = zero AND zero_i
 8. return sign
 ~~~
@@ -1488,15 +1509,11 @@ sgn0_m_eq_2(x)
 Input: x, an element of GF(p^2).
 Output: 0 or 1.
 
-Notation:
-- OR and AND are logical operators. Short-circuit operators
-  MUST be avoided in constant-time implementations.
-
 Steps:
 1. sign_0 = x_0 mod 2
 2. zero_0 = x_0 == 0
 3. sign_1 = x_1 mod 2
-4. return sign_0 OR (zero_0 AND sign_1)
+4. return sign_0 OR (zero_0 AND sign_1)  # Avoid short-circuit logic ops
 ~~~
 
 # Hashing to a finite field {#hashtofield}
@@ -1633,7 +1650,7 @@ In this case, security holds when the inner function is modeled as a
 random transformation or as a random permutation {{BDPV08}}.
 
 - Otherwise, H MUST be a hash function that has been proved indifferentiable
-from a random oracle {{MRH04}} under a standard cryptographic assumption.
+from a random oracle {{MRH04}} under a reasonable cryptographic assumption.
 
 SHA-2 {{FIPS180-4}} and SHA-3 {{FIPS202}} are typical and RECOMMENDED choices.
 As an example, for the 128-bit security level, b >= 256 bits and either SHA-256 or
@@ -1758,7 +1775,8 @@ k is the target security level in bits.
 When defining a new expand\_message variant, the most important consideration
 is that hash\_to\_field models expand\_message as a random oracle.
 Thus, implementors SHOULD prove indifferentiability from a random oracle
-under an appropriate assumption about the underlying cryptographic primitives.
+under an appropriate assumption about the underlying cryptographic primitives;
+see {{security-considerations-hash-to-field}} for more information.
 
 In addition, expand\_message variants:
 
@@ -2029,8 +2047,8 @@ This method requires finding another elliptic curve E' given by the equation
 
 that is isogenous to E and has A' != 0 and B' != 0.
 (See {{WB19}}, Appendix A, for one way of finding E' using {{SAGE}}.)
-This isogeny defines a map iso\_map(x', y') that takes as input a point
-on E' and produces as output a point on E.
+This isogeny defines a map iso\_map(x', y') given by a pair of rational functions.
+iso\_map takes as input a point on E' and produces as output a point on E.
 
 Once E' and iso\_map are identified, this mapping works as follows: on input
 u, first apply the simplified SWU mapping to get a point on E', then apply
@@ -2056,7 +2074,9 @@ Sign of y: for this map, the sign is determined by map\_to\_curve\_simple\_swu.
 No further sign adjustments are necessary.
 
 Exceptions: map\_to\_curve\_simple\_swu handles its exceptional cases.
-Exceptional cases of iso\_map MUST return the identity point on E.
+Exceptional cases of iso\_map are inputs that cause the denominator of
+either rational function to evaluate to zero; such cases MUST return the
+identity point on E.
 
 Operations:
 
@@ -3488,9 +3508,6 @@ map_to_curve_elligator2(u)
 
 Input: u, an element of F.
 Output: (s, t), a point on M.
-
-Notation:
-- XOR is a logical operator.
 
 Constants:
 1.   c1 = J / K
