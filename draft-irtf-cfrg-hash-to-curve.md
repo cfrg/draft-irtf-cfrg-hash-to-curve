@@ -1745,8 +1745,8 @@ that identifies that variant in a Suite ID. See {{suiteIDformat}} for more infor
 
 # Deterministic mappings {#mappings}
 
-The mappings in this section are suitable for constructing either nonuniform
-or random oracle encodings using the constructions of {{roadmap}}.
+The mappings in this section are suitable for implementing either nonuniform
+or random oracle encodings using the constructions in {{roadmap}}.
 Certain mappings restrict the form of the curve or its parameters.
 For each mapping presented, this document lists the relevant restrictions.
 
@@ -1792,8 +1792,8 @@ The generic interface shared by all mappings in this section is as follows:
 ~~~
 
 The input u and outputs x and y are elements of the field F.
-The coordinates (x, y) specify a point on an elliptic curve defined over F.
-Note that the point (x, y) is not a uniformly random point. If uniformity
+The affine coordinates (x, y) specify a point on an elliptic curve defined
+over F. Note that the point (x, y) is not a uniformly random point. If uniformity
 is required for security, the random oracle construction of {{roadmap}} MUST be
 used instead.
 
@@ -1828,7 +1828,7 @@ specifying the sign of the y-coordinate in terms of the input to the mapping
 function.
 Two main reasons support this approach: first, this covers elliptic curves
 over any field in a uniform way, and second, it gives implementors leeway
-to optimize their square-root implementations.
+in optimizing square-root implementations.
 
 ## Exceptional cases {#map-exceptions}
 
@@ -1880,8 +1880,8 @@ Constants:
   3. -(3 * Z^2 + 4 * A) / (4 * g(Z)) is square in F.
   4. At least one of g(Z) and g(-Z / 2) is square in F.
 
-Sign of y: Inputs u and -u give the same x-coordinate for many values of u.
-Thus, we set sgn0(y) == sgn0(u).
+Sign of y: Inputs u and -u give the same x-coordinate for many values of u, so
+sgn0(y) == sgn0(u).
 
 Exceptions: The exceptional cases for u occur when
 (1 + u^2 * g(Z)) * (1 - u^2 * g(Z)) == 0.
@@ -1932,8 +1932,7 @@ Constants:
   3. the polynomial g(x) - Z is irreducible over F, and
   4. g(B / (Z * A)) is square in F.
 
-Sign of y: Inputs u and -u give the same x-coordinate.
-Thus, we set sgn0(y) == sgn0(u).
+Sign of y: Inputs u and -u give the same x-coordinate, so sgn0(y) == sgn0(u).
 
 Exceptions: The exceptional cases are values of u such that
 Z^2 * u^4 + Z * u^2 == 0. This includes u == 0, and may include
@@ -1980,7 +1979,7 @@ This method requires finding another elliptic curve E' given by the equation
 ~~~
 
 that is isogenous to E and has A' != 0 and B' != 0.
-(One might do this, for example, using {{SAGE}}; for details, see {{WB19}}, Appendix A.)
+(See {{WB19}}, Appendix A, for one way of finding E' using {{SAGE}}.)
 This isogeny defines a map iso\_map(x', y') that takes as input a point
 on E' and produces as output a point on E.
 
@@ -2159,7 +2158,8 @@ Output: (v, w), a point on E.
 The mappings of {{mappings}} always output a point on the elliptic curve,
 i.e., a point in a group of order h * r ({{bg-curves}}). Obtaining a point in G
 may require a final operation commonly called "clearing the cofactor," which
-takes as input any point on the curve.
+takes as input any point on the curve and produces as output a point in the
+prime-order (sub)group of the curve.
 
 The cofactor can always be cleared via scalar multiplication by h.
 For elliptic curves where h = 1, i.e., the curves with a prime number of points,
@@ -2239,8 +2239,8 @@ A hash-to-curve suite comprises the following parameters:
 - h\_eff, the scalar parameter for clear\_cofactor ({{cofactor-clearing}}).
 
 In addition to the above parameters, the mapping f may require
-additional parameters Z, M, rational\_map, E', and/or iso\_map.
-These MUST be specified when applicable.
+additional parameters Z, M, rational\_map, E', or iso\_map.
+When applicable, these MUST be specified.
 
 Suites with nonuniform encodings MUST NOT be used in applications whose security
 relies on a random oracle. Applications using nonuniform encodings SHOULD carefully
@@ -2679,8 +2679,8 @@ e.g., the output of hash\_to\_field) may be able to carry out a dictionary attac
 To mitigate such attacks, it is recommended to first execute a more costly key
 derivation function (e.g., PBKDF2 {{!RFC2898}} or scrypt {{!RFC7914}}) on the password,
 then hash the output of that function to the target elliptic curve.
-For collision resistance, the hash underlying the key derivation function
-should be chosen according to the guidelines listed in {{hashtofield-expand}}.
+For domain separation, the hash underlying the key derivation function
+should be chosen according to the guidelines listed in {{domain-separation}}.
 
 ## hash\_to\_field security {#security-considerations-hash-to-field}
 
