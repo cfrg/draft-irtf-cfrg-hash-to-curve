@@ -2159,7 +2159,7 @@ The mappings of {{mappings}} always output a point on the elliptic curve,
 i.e., a point in a group of order h * r ({{bg-curves}}). Obtaining a point in G
 may require a final operation commonly called "clearing the cofactor," which
 takes as input any point on the curve and produces as output a point in the
-prime-order (sub)group of the curve.
+prime-order (sub)group G ({{bg-curves}}).
 
 The cofactor can always be cleared via scalar multiplication by h.
 For elliptic curves where h = 1, i.e., the curves with a prime number of points,
