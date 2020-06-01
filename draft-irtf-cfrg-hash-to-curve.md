@@ -1880,8 +1880,8 @@ Constants:
   3. -(3 * Z^2 + 4 * A) / (4 * g(Z)) is square in F.
   4. At least one of g(Z) and g(-Z / 2) is square in F.
 
-Sign of y: Inputs u and -u give the same x-coordinate for many values of u, so
-sgn0(y) == sgn0(u).
+Sign of y: Inputs u and -u give the same x-coordinate for many values of u.
+Thus, we set sgn0(y) == sgn0(u).
 
 Exceptions: The exceptional cases for u occur when
 (1 + u^2 * g(Z)) * (1 - u^2 * g(Z)) == 0.
@@ -1932,7 +1932,8 @@ Constants:
   3. the polynomial g(x) - Z is irreducible over F, and
   4. g(B / (Z * A)) is square in F.
 
-Sign of y: Inputs u and -u give the same x-coordinate, so sgn0(y) == sgn0(u).
+Sign of y: Inputs u and -u give the same x-coordinate.
+Thus, we set sgn0(y) == sgn0(u).
 
 Exceptions: The exceptional cases are values of u such that
 Z^2 * u^4 + Z * u^2 == 0. This includes u == 0, and may include
