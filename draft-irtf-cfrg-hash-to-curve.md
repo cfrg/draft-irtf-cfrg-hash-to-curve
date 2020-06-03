@@ -2344,7 +2344,7 @@ Note that some of these require utility functions from {{utility}}.
 2. Elliptic curve point operations for the target curve, e.g.,
    point addition and scalar multiplication.
 
-3. The hash-to-field function; see {{hashtofield}}. This includes the expand\_message
+3. The hash\_to\_field function; see {{hashtofield}}. This includes the expand\_message
    variant ({{hashtofield-expand}}) and any constituent hash function or XOF.
 
 4. The suite-specified mapping function; see the corresponding subsection of {{mappings}}.
