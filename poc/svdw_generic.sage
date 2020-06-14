@@ -102,13 +102,14 @@ class GenericSvdW(GenericMap):
         tv2 = 1 + tv1
         tv1 = 1 - tv1
         tv3 = inv0(tv1 * tv2)
-        tv4 = sqrt(-g(Z) * (3 * Z^2 + 4 * A))
+        tv4 = sqrt(-g(Z) * (3 * Z^2 + 4 * A))    # can be precomputed
         if sgn0(tv4) == 1:
             tv4 = -tv4          # sgn0(tv4) MUST equal 1
         tv5 = u * tv1 * tv3 * tv4
+        tv4 = -4 * g(Z) / (3 * Z^2 + 4 * A)      # can be precomputed
         x1 = -Z / 2 - tv5
         x2 = -Z / 2 + tv5
-        x3 = Z - 4 * g(Z) * (tv2^2 * tv3)^2 / (3 * Z^2 + 4 * A)
+        x3 = Z + tv4 * (tv2^2 * tv3)^2
         if is_square(g(x1)):
             x = x1
             y = sqrt(g(x1))
