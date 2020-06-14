@@ -1577,7 +1577,7 @@ as one or more elements of F.
 For the first step, hash\_to\_field calls an auxiliary function expand\_message.
 This document defines two variants of expand\_message: one appropriate
 for hash functions like SHA-2 {{FIPS180-4}} or SHA-3 {{FIPS202}}, and another
-appropriate for extensible-output functions such as SHAKE-128 {{FIPS202}}.
+appropriate for extensible-output functions such as SHAKE128 {{FIPS202}}.
 Security considerations for each expand\_message variant are discussed
 below ({{hashtofield-expand-xmd}}, {{hashtofield-expand-xof}}).
 
@@ -1776,7 +1776,7 @@ For security, H must meet the following criteria:
 under a reasonable cryptographic assumption.
 
 The SHAKE {{FIPS202}} XOF family is a typical and RECOMMENDED choice.
-As an example, for 128-bit security, SHAKE-128 would be an appropriate choice.
+As an example, for 128-bit security, SHAKE128 would be an appropriate choice.
 
 The following procedure implements expand\_message\_xof.
 
@@ -2730,8 +2730,8 @@ Suite ID fields MUST be chosen as follows:
   HASH\_NAME is a human-readable name for the underlying hash primitive.
   As examples:
 
-    1. For expand\_message\_xof ({{hashtofield-expand-xof}}) with SHAKE-128,
-       HASH\_ID is "XOF:SHAKE-128".
+    1. For expand\_message\_xof ({{hashtofield-expand-xof}}) with SHAKE128,
+       HASH\_ID is "XOF:SHAKE128".
 
     2. For expand\_message\_xmd ({{hashtofield-expand-xmd}}) with SHA3-256,
        HASH\_ID is "XMD:SHA3-256".
@@ -7215,7 +7215,7 @@ uniform_bytes = 01524feea5b22f6509f6b1e805c97df94faf4d821b01aade
 
 ~~~
 
-## expand_message_xof(SHAKE-128)
+## expand_message_xof(SHAKE128)
 
 ~~~
 
