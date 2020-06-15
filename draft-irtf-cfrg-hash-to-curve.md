@@ -70,6 +70,23 @@ informative:
         ins: S. Bowe
         name: Sean Bowe
         org: Electric Coin Company
+  BR93:
+    title: "Random oracles are practical: a paradigm for designing efficient protocols"
+    seriesinfo:
+      "In": Proceedings of the 1993 ACM Conference on Computer and Communications Security
+      "pages": 62-73
+      DOI: 10.1145/168588.168596
+    target: https://doi.org/10.1145/168588.168596
+    date: Dec, 1993
+    author:
+      -
+        ins: M. Bellare
+        name: Mihir Bellare
+        org: UC San Diego
+      -
+        ins: P. Rogaway
+        name: Phillip Rogaway
+        org: UC Davis
   SEC1:
     title: "SEC 1: Elliptic Curve Cryptography"
     target: http://www.secg.org/sec1-v2.pdf
@@ -643,7 +660,7 @@ informative:
   BHKL13:
     title: "Elligator: elliptic-curve points indistinguishable from uniform random strings"
     seriesinfo:
-        "In": Proceedings of the 2013 ACM SIGSAC conference on computer and communications security.
+        "In": Proceedings of the 2013 ACM SIGSAC Conference on Computer and Communications Security
         "pages": 967-980
         DOI: 10.1145/2508859.2516734
     target: https://doi.org/10.1145/2508859.2516734
@@ -1238,8 +1255,8 @@ This document does not cover serialization or deserialization.
 ### Domain separation {#term-domain-separation}
 
 Cryptographic protocols proven secure in the random oracle model are often analyzed
-under the assumption that the random oracle only answers queries generated
-by the protocol.
+under the assumption that the random oracle only answers queries associated
+with that protocol (including queries made by adversaries) {{BR93}}.
 In practice, this assumption does not hold if two protocols use the
 same function to instantiate the random oracle.
 Concretely, consider protocols P1 and P2 that query a random oracle RO:
