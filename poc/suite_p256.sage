@@ -39,6 +39,10 @@ assert p256_sswu_ro.m2c.Z == p256_sswu_nu.m2c.Z == -10
 assert p256_svdw_ro.m2c.Z == p256_svdw_nu.m2c.Z ==  -3
 
 p256_order = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551
+p256_p = p
+p256_F = F
+p256_A = A
+p256_B = B
 
 def _test_suite(suite, group_order, nreps=128):
     accum = suite('asdf')

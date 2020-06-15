@@ -40,6 +40,10 @@ assert p384_sswu_ro.m2c.Z == p384_sswu_nu.m2c.Z == -12
 assert p384_svdw_ro.m2c.Z == p384_svdw_nu.m2c.Z == -1
 
 p384_order = 0xffffffffffffffffffffffffffffffffffffffffffffffffc7634d81f4372ddf581a0db248b0a77aecec196accc52973
+p384_p = p
+p384_F = F
+p384_A = A
+p384_B = B
 
 def test_suite_p384():
     _test_suite(p384_sswu_ro, p384_order)

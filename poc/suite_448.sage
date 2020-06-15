@@ -58,6 +58,16 @@ assert edw448_hash_ro.m2c.Z == edw448_hash_nu.m2c.Z == -1
 assert monty448_hash_ro.m2c.Z == monty448_hash_nu.m2c.Z == -1
 
 group_order = 2^446 - 0x8335dc163bb124b65129c96fde933d8d723a70aadc873d6d54a7bb0d
+curve448_order = group_order
+curve448_p = p
+curve448_F = F
+curve448_A = Ap
+curve448_B = Bp
+edwards449_order = group_order
+edwards449_p = p
+edwards449_F = F
+edwards449_A = a
+edwards449_B = a
 
 def test_suite_448():
     _test_suite(edw448_hash_ro, monty448_hash_ro, m2e_448, group_order)
