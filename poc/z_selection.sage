@@ -31,10 +31,11 @@ def find_z_ell2(F):
             return Z_cand
         ctr += 1
 
-def find_z_svdw(F, A, B):
+def find_z_svdw(F, A, B, init_ctr=1):
     g = lambda x: F(x) ** 3 + F(A) * F(x) + F(B)
     h = lambda Z: -(F(3) * Z ** 2 + F(4) * A) / (F(4) * g(Z))
-    ctr = F.gen()
+    # NOTE: if init_ctr=1 fails to find Z, try setting it to F.gen()
+    ctr = init_ctr
     while True:
         for Z_cand in (F(ctr), F(-ctr)):
             if g(Z_cand) == F(0):
