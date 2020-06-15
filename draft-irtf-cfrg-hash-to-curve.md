@@ -4255,10 +4255,11 @@ The below function outputs an appropriate Z for the Shallue and van de Woestijne
 # Arguments:
 # - F, a field object, e.g., F = GF(2^521 - 1)
 # - A and B, the coefficients of the curve equation y^2 = x^3 + A * x + B
-def find_z_svdw(F, A, B):
+def find_z_svdw(F, A, B, init_ctr=1):
     g = lambda x: F(x)^3 + F(A) * F(x) + F(B)
     h = lambda Z: -(F(3) * Z^2 + F(4) * A) / (F(4) * g(Z))
-    ctr = F.gen()
+    # NOTE: if init_ctr=1 fails to find Z, try setting it to F.gen()
+    ctr = init_ctr
     while True:
         for Z_cand in (F(ctr), F(-ctr)):
             if g(Z_cand) == F(0):
