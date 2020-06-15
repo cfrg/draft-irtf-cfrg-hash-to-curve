@@ -45,6 +45,10 @@ assert secp256k1_sswu_ro.m2c.Z == secp256k1_sswu_nu.m2c.Z == -11
 assert secp256k1_svdw_ro.m2c.Z == secp256k1_svdw_nu.m2c.Z == 1
 
 secp256k1_order = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141
+secp256k1_p = p
+secp256k1_F = F
+secp256k1_A = A
+secp256k1_B = B
 
 def test_suite_secp256k1():
     _test_suite(secp256k1_sswu_ro, secp256k1_order)

@@ -40,6 +40,10 @@ assert p521_sswu_ro.m2c.Z == p521_sswu_nu.m2c.Z == -4
 assert p521_svdw_ro.m2c.Z == p521_svdw_nu.m2c.Z == 1
 
 p521_order = 0x1fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa51868783bf2f966b7fcc0148f709a5d03bb5c9b8899c47aebb6fb71e91386409
+p521_p = p
+p521_F = F
+p521_A = A
+p521_B = B
 
 def test_suite_p521():
     _test_suite(p521_sswu_ro, p521_order)

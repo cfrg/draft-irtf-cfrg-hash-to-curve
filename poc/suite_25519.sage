@@ -75,6 +75,16 @@ assert edw25519_sha512_ro.m2c.Z == edw25519_sha512_nu.m2c.Z == 2
 assert monty25519_sha512_ro.m2c.Z == monty25519_sha512_nu.m2c.Z == 2
 
 group_order = 2^252 + 0x14def9dea2f79cd65812631a5cf5d3ed
+curve25519_order = group_order
+curve25519_p = p
+curve25519_F = F
+curve25519_A = Ap
+curve25519_B = Bp
+edwards25519_order = group_order
+edwards25519_p = p
+edwards25519_F = F
+edwards25519_A = a
+edwards25519_B = a
 
 def _test_suite(edw_hash, monty_hash, m2e, grp_ord, nreps=128, is_equal=False):
     accumE = edw_hash('asdf')
