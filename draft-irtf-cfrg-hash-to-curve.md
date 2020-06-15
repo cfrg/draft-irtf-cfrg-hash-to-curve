@@ -1641,6 +1641,23 @@ corresponding curve.
 See {{security-considerations-targets}} for more details, and
 {{new-suite}} for guidelines on choosing k for a given curve.
 
+## Efficiency considerations for extension fields {#hashtofield-exteff}
+
+When hashing to an element of the extension field GF(p^m), hash\_to\_field
+requires expanding msg into m * L bytes (using the notation of {{hashtofield-sec}}).
+For extension fields where log2(p) is significantly smaller than the security
+level k, this approach is inefficient: it requires expand\_message to output
+roughly m * log2(p) + m * k bits, whereas m * log2(p) + k bytes suffices to
+generate an element of GF(p^m) with bias at most 2^-k.
+{{appx-hashtofield-alt}} describes an alternative hash\_to\_field function
+that MAY be used when log2(p) is significantly smaller than k.
+
+Use of this alternative function in extension fields where log2(p) is roughly
+equal to or greater than k is NOT RECOMMENDED.
+In such cases, the function described in {{appx-hashtofield-alt}} is more
+difficult to implement in constant time than the function described in this
+section, while the difference in efficiency is generally small.
+
 ## hash\_to\_field implementation {#hashtofield-impl}
 
 The following procedure implements hash\_to\_field.
@@ -1889,7 +1906,10 @@ of H. Adding DST as a suffix is the RECOMMENDED approach.
 - SHOULD read msg exactly once, for efficiency when msg is long.
 
 In addition, each expand\_message variant MUST specify a unique EXP\_TAG
-that identifies that variant in a Suite ID. See {{suiteIDformat}} for more information.
+that identifies that variant in a Suite ID.
+EXP\_TAG values MUST comply with the requirements given in {{suiteIDformat}},
+and MUST NOT contain a semicolon (":", ASCII 0x3A).
+See {{suiteIDformat}} for more information.
 
 # Deterministic mappings {#mappings}
 
@@ -2382,7 +2402,7 @@ A hash-to-curve suite comprises the following parameters:
 - m, the extension degree of the field F.
 - k, the target security level of the suite in bits.
   (See {{security-considerations-targets}} for discussion.)
-- L, the length parameter for hash\_to\_field ({{hashtofield-sec}}).
+- L, the length parameter for hash\_to\_field ({{hashtofield-sec}}, {{appx-hashtofield-alt}}).
 - expand\_message, one of the variants specified in {{hashtofield-expand}}
   plus any parameters required for the specified variant (for example, H,
   the underlying hash function).
@@ -2703,7 +2723,9 @@ The RECOMMENDED way to define a new hash-to-curve suite is:
 
 3. Choose encoding type, either hash\_to\_curve or encode\_to\_curve ({{roadmap}}).
 
-4. Compute L as described in {{hashtofield-sec}}.
+4. Compute L as described in {{hashtofield-sec}} (or as described in
+   {{appx-hashtofield-alt}}, if using the alternative method described
+   in that section).
 
 5. Choose an expand\_message variant from {{hashtofield-expand}} plus any
    underlying cryptographic primitives (e.g., a hash function H).
@@ -2760,6 +2782,10 @@ Suite ID fields MUST be chosen as follows:
 
     2. For expand\_message\_xmd ({{hashtofield-expand-xmd}}) with SHA3-256,
        HASH\_ID is "XMD:SHA3-256".
+
+  Suites that use the alternative hash\_to\_field function defined in
+  {{appx-hashtofield-alt}} MUST indicate this by appending the
+  ASCII literal ":H2F-DR" (which has length 7 bytes) to the HASH\_ID field.
 
 - MAP\_ID: a human-readable representation of the map\_to\_curve function
   as defined in {{mappings}}. These are defined as follows:
@@ -3162,6 +3188,108 @@ curve points to uniformly random bit strings, giving solutions for a class of
 curves including Montgomery and twisted Edwards curves.
 Tibouchi {{T14}} and Aranha et al. {{AFQTZ14}} generalize these results.
 This document does not deal with this complementary problem.
+
+# An alternative hash\_to\_field function {#appx-hashtofield-alt}
+
+As discussed in {{hashtofield-exteff}}, the hash\_to\_field function defined
+in {{hashtofield}} may be inefficient when hashing to extension fields
+GF(p^m) where log2(p) is significantly smaller than k, the security level.
+This section defines an alternative function, hash\_to\_field\_divrem, that
+may be more efficient in such cases.
+
+hash\_to\_field\_divrem is NOT RECOMMENDED when log2(p) is roughly equal to
+or greater than k, because in these cases it is more difficult to implement
+in constant time than the hash\_to\_field function given in {{hashtofield}},
+while the difference in efficiency is generally small.
+In contrast, when k is much larger than log2(p), both hash\_to\_field methods
+require care for constant-time implementations: both require implementing a
+modular redution operator handling integers much larger than 2 * log2(p) bits.
+In this case, the balance between efficiency and implementation difficulty
+should be carefully considered before choosing a hash\_to\_field method.
+
+Suites that use hash\_to\_field\_divrem MUST indicate this in the HASH\_ID
+field of the Suite ID; see {{suiteIDformat}} for more information.
+As in {{hashtofield}}, hash\_to\_field\_divrem takes as a parameter an
+expand\_message function; this function MUST conform to the requirements
+given in {{hashtofield-expand}}.
+{{domain-separation}} discusses the REQUIRED method for constructing DST.
+
+hash\_to\_field\_divrem uses a function
+
+~~~
+(quot, rem) = DIVREM(i, p)
+~~~
+
+that returns the quotient and remainder that results from dividing
+the integer i by the integer p, i.e., it returns quot and rem such
+that quot * p + rem == i, and 0 <= rem < p.
+For constant-time implementations, this function MUST be implemented
+in constant time; discussion of implementation techniques is beyond
+the scope of this document.
+
+The following procedure implements hash\_to\_field\_divrem:
+
+~~~
+hash_to_field_divrem(msg, count)
+
+Parameters:
+- DST, a domain separation tag (see discussion above).
+- F, a finite field of characteristic p and order q = p^m.
+- p, the characteristic of F (see immediately above).
+- m, the extension degree of F, m >= 1 (see immediately above).
+- L = ceil(ceil(log2(p)) / 8).
+- k_in_bytes = ceil(k / 8), where k is the security parameter
+  of the suite (e.g., k = 128).
+- expand_message, a function that expands a byte string and
+  domain separation tag into a uniformly random byte string
+  (see discussion above).
+
+Inputs:
+- msg, a byte string containing the message to hash.
+- count, the number of elements of F to output.
+
+Outputs:
+- (u_0, ..., u_(count - 1)), a list of field elements.
+
+Notation:
+- (quot, rem) = DIVREM(i, p) returns the quotient and remainder
+  of the integer division i / p; see discussion above.
+
+Steps:
+1. len_per_elm = m * L + k_in_bytes
+2. uniform_bytes = expand_message(msg, DST, count * len_per_elm)
+3. for i in (0, ..., count - 1):
+4.   tv1 = substr(uniform_bytes, i * len_per_elm, len_per_elm)
+5.   tv2 = OS2IP(tv1)
+6.   for j in (0, ..., m - 1):
+7.     (tv2, e_j) = DIVREM(tv2, p)
+8.   u_i = (e_0, ..., e_(m - 1))
+9. return (u_0, ..., u_(count - 1))
+~~~
+
+## Security analysis
+
+hash\_to\_field\_divrem returns one or more extension field elements
+whose bias is at most 2^-k.
+To see why, first notice that any element of the field GF(p^m) can
+be represented as an integer in the inclusive range [0, p^m - 1].
+Specifically, the element (e_0, e_1, ..., e_(m - 1)) corresponds
+to the integer e_0 + p * e_1 + ... + p^(m - 1) * e_(m - 1).
+This means that choosing an integer uniformly at random in the range
+[0, p^m - 1] and then converting it to m digits in base p yields a
+uniformly random element of GF(p^m).
+
+To choose an integer in the range [0, p^m - 1] that is uniform
+except for bias at most 2^-k, it suffices to choose a random integer
+of length m * log2(p) + k bits and reduce modulo p^m.
+Notice that the integer computed in step 5 above comprises at least
+the required number of bits.
+
+Finally, as an optimization when converting the integer discussed above
+to m digits in base p, no explicit reduction modulo p^m is necessary.
+Instead, it suffices to compute each digit by iteratively computing the
+quotient and remainder modulo p, as in steps 6 and 7 above.
+This implicitly computes a reduction modulo p^m after m steps.
 
 # Rational maps {#appx-rational-map}
 
