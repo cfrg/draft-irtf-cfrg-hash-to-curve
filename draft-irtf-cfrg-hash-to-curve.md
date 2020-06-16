@@ -2029,10 +2029,10 @@ Operations:
 5. tv4 = sqrt(-g(Z) * (3 * Z^2 + 4 * A))    # can be precomputed
 6. If sgn0(tv4) == 1, set tv4 = -tv4        # sgn0(tv4) MUST equal 0
 7. tv5 = u * tv1 * tv3 * tv4
-8. tv4 = -4 * g(Z) / (3 * Z^2 + 4 * A)      # can be precomputed
+8. tv6 = -4 * g(Z) / (3 * Z^2 + 4 * A)      # can be precomputed
 9.  x1 = -Z / 2 - tv5
 10. x2 = -Z / 2 + tv5
-11. x3 = Z + tv4 * (tv2^2 * tv3)^2
+11. x3 = Z + tv6 * (tv2^2 * tv3)^2
 12. If is_square(g(x1)), set x = x1 and y = sqrt(g(x1))
 13. Else If is_square(g(x2)), set x = x2 and y = sqrt(g(x2))
 14. Else set x = x3 and y = sqrt(g(x3))
