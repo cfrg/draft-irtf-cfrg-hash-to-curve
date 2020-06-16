@@ -1149,9 +1149,8 @@ has n distinct elements.
 (This document uses additive notation for the elliptic curve group operation.)
 Elements of an elliptic curve group are points with coordinates (x, y)
 satisfying the curve equation, where x and y are elements of F.
-All elliptic curve groups have a distinguished element, called the identity
-point or the point at infinity, which acts as the identity element for the
-group operation.
+In addition, all elliptic curve groups have a distinguished element, the identity
+point, which acts as the identity element for the group operation.
 On certain curves (including Weierstrass and Montgomery curves), the identity
 point cannot be represented as an (x, y) coordinate pair.
 
@@ -1421,9 +1420,9 @@ plus standard arithmetic operations (addition, multiplication, modular
 reduction, etc.) and elliptic curve point operations (point addition and
 scalar multiplication).
 
-For security, implementations of these functions SHOULD be constant time,
-i.e., execution time and memory access patterns SHOULD NOT depend on the
-values of inputs, intermediate values, or outputs.
+For security, implementations of these functions SHOULD be constant time:
+in brief, this means that execution time and memory access patterns SHOULD NOT
+depend on the values of secret inputs, intermediate values, or outputs.
 For such constant-time implementations, all arithmetic, comparisons, and
 assignments MUST also be implemented in constant time.
 {{security-considerations}} briefly discusses constant-time security issues.
@@ -1478,7 +1477,7 @@ material {{MOV96}} {{CFADLNV05}}.
 
     Notice that on input 0, the output is 0 as required.
     Certain fields may allow faster inversion methods; detailed discussion
-    of such methods is scope of this document.
+    of such methods is beyond the scope of this document.
 
 -   I2OSP and OS2IP: These functions are used to convert a byte string to
     and from a non-negative integer as described in {{!RFC8017}}.
@@ -1688,7 +1687,9 @@ a cryptographic hash function H that outputs b bits. For security, H must meet
 the following requirements:
 
 - The number of bits output by H MUST be b >= 2 * k, for k the target
-security level in bits. This ensures k-bit collision resistance.
+security level in bits, and b MUST be divisible by 8.
+The first requirement ensures k-bit collision resistance; the second
+ensures uniformity of expand\_message\_xmd's output.
 
 - H MAY be a Merkle-Damgaard hash function like SHA-2.
 In this case, security holds when the underlying compression function is
@@ -1720,7 +1721,7 @@ expand_message_xmd(msg, DST, len_in_bytes)
 
 Parameters:
 - H, a hash function (see requirements above).
-- b_in_bytes, ceil(b / 8) for b the output size of H in bits.
+- b_in_bytes, b / 8 for b the output size of H in bits.
   For example, for b = 256, b_in_bytes = 32.
 - r_in_bytes, the input block size of H, measured in bytes (see
   discussion above). For example, for SHA-256, r_in_bytes = 64.
