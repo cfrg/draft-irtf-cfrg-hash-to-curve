@@ -1139,6 +1139,9 @@ i.e., x = (x\_1, x\_2, ..., x\_m).
 For example, if q = p^2 and the primitive element basis is (1, I),
 then x = (a, b) corresponds to the element a + b * I, where
 x\_1 = a and x\_2 = b.
+(Note that all choices of basis are isomorphic, but certain choices may
+result in a more efficient implementation; this document does not make
+any particular assumptions about choice of basis.)
 
 An elliptic curve E is specified by an equation in two variables and a
 finite field F. An elliptic curve equation takes one of several standard forms,
@@ -1147,7 +1150,7 @@ including (but not limited to) Weierstrass, Montgomery, and Edwards.
 The curve E induces an algebraic group of order n, meaning that the group
 has n distinct elements.
 (This document uses additive notation for the elliptic curve group operation.)
-Elements of an elliptic curve group are points with coordinates (x, y)
+Elements of an elliptic curve group are points with affine coordinates (x, y)
 satisfying the curve equation, where x and y are elements of F.
 In addition, all elliptic curve groups have a distinguished element, the identity
 point, which acts as the identity element for the group operation.
@@ -1481,7 +1484,7 @@ material {{MOV96}} {{CFADLNV05}}.
 
 -   I2OSP and OS2IP: These functions are used to convert a byte string to
     and from a non-negative integer as described in {{!RFC8017}}.
-    (Note that these functions operate on byte strings in big endian byte
+    (Note that these functions operate on byte strings in big-endian byte
     order.)
 
 -   a \|\| b: denotes the concatenation of byte strings a and b. For example,
@@ -1584,6 +1587,8 @@ Implementors MUST NOT use rejection sampling to generate a uniformly random elem
 The reason is that rejection sampling procedures are difficult to implement
 in constant time, and later well-meaning "optimizations" may silently render
 an implementation non-constant-time.
+This means that any hash\_to\_field function based on rejection sampling
+would be incompatible with constant-time implementation.
 
 ## Security considerations {#hashtofield-sec}
 
@@ -1860,7 +1865,7 @@ cryptographic primitives inside of expand\_message are domain separated
 from invocations outside of expand\_message.
 For example, if the expand\_message variant uses a hash function H, an encoding
 of DST MUST be added either as a prefix or a suffix of the input to each invocation
-of H (a suffix is the RECOMMENDED approach).
+of H. Adding DST as a suffix is the RECOMMENDED approach.
 
 - SHOULD read msg exactly once, for efficiency when msg is long.
 
