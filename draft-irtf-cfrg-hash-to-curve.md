@@ -1583,7 +1583,9 @@ appropriate for extensible-output functions such as SHAKE128 {{FIPS202}}.
 Security considerations for each expand\_message variant are discussed
 below ({{hashtofield-expand-xmd}}, {{hashtofield-expand-xof}}).
 
-Implementors MUST NOT use rejection sampling to generate a uniformly random element of F.
+Implementors MUST NOT use rejection sampling to generate a uniformly random
+element of F, to ensure that the hash\_to\_field function is amenable to
+constant-time implementation.
 The reason is that rejection sampling procedures are difficult to implement
 in constant time, and later well-meaning "optimizations" may silently render
 an implementation non-constant-time.
