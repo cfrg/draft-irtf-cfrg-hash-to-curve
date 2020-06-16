@@ -1011,6 +1011,27 @@ informative:
         ins: K. Bhargavan
         name: Karthikeyan Bhargavan
         org: INRIA Paris
+  RCB16:
+    title: "Complete addition formulas for prime order elliptic curves"
+    seriesinfo:
+      "In": Advances in Cryptology - EUROCRYPT 2016
+      "pages": 403-428
+      DOI: 10.1007/978-3-662-49890-3_16
+    target: https://doi.org/10.1007/978-3-662-49890-3_16
+    date: May, 2016
+    author:
+      -
+        ins: J. Renes
+        name: Joost Renes
+        org: Radboud University
+      -
+        ins: C. Costello
+        name: Craig Costello
+        org: Microsoft Research
+      -
+        ins: L. Batina
+        name: Lejla Batina
+        org: Radboud University
   RSS11:
     title: "Careful with Composition: Limitations of the Indifferentiability Framework"
     seriesinfo:
@@ -1135,16 +1156,23 @@ i.e., x = (x\_1, x\_2, ..., x\_m).
 For example, if q = p^2 and the primitive element basis is (1, I),
 then x = (a, b) corresponds to the element a + b * I, where
 x\_1 = a and x\_2 = b.
+(Note that all choices of basis are isomorphic, but certain choices may
+result in a more efficient implementation; this document does not make
+any particular assumptions about choice of basis.)
 
 An elliptic curve E is specified by an equation in two variables and a
 finite field F. An elliptic curve equation takes one of several standard forms,
 including (but not limited to) Weierstrass, Montgomery, and Edwards.
 
-The curve E induces an algebraic group whose elements are those points
-with coordinates (x, y) satisfying the curve equation, and where x and y
-are elements of F.
-This group has order n, meaning that there are n distinct points.
-This document uses additive notation for the elliptic curve group operation.
+The curve E induces an algebraic group of order n, meaning that the group
+has n distinct elements.
+(This document uses additive notation for the elliptic curve group operation.)
+Elements of an elliptic curve group are points with affine coordinates (x, y)
+satisfying the curve equation, where x and y are elements of F.
+In addition, all elliptic curve groups have a distinguished element, the identity
+point, which acts as the identity element for the group operation.
+On certain curves (including Weierstrass and Montgomery curves), the identity
+point cannot be represented as an (x, y) coordinate pair.
 
 For security reasons, cryptographic uses of elliptic curves generally require
 using a (sub)group of prime order.
@@ -1220,7 +1248,7 @@ is not invertible. Thus, the encodings are also not invertible.
 In some applications of hashing to elliptic curves, it is important that
 encodings do not leak information through side channels.
 {{VR20}} is one example of this type of leakage leading to a security vulnerability.
-{{security-considerations}} discusses further.
+See {{security-considerations}} for further discussion.
 
 ### Random oracle encodings {#term-rom}
 
@@ -1276,7 +1304,16 @@ one might define
 where \|\| is the concatenation operator.
 In this example, "RO1" and "RO2" are called domain separation tags;
 they ensure that queries to RO1 and RO2 cannot result in identical
-queries to RO. Thus, it is safe to treat RO1 and RO2 as independent oracles.
+queries to RO, meaning that it is safe to treat RO1 and RO2 as
+independent oracles.
+
+In general, domain separation requires defining a distinct injective
+encoding for each oracle being simulated.
+In the above example, "RO1" and "RO2" have the same length and thus
+satisfy this requirement when used as prefixes.
+The algorithms specified in this document take a different approach to ensuring
+injectivity; see {{hashtofield-expand}} and {{security-considerations-domain-separation}}
+for more details.
 
 # Encoding byte strings to elliptic curves {#roadmap}
 
@@ -1391,6 +1428,11 @@ Reasonable choices of tags for these oracles are
 "BAZ-V\<xx\>-CS\<yy\>-\<suiteID\>-ENC1" and "BAZ-V\<xx\>-CS\<yy\>-\<suiteID\>-ENC2",
 respectively, where \<xx\>, \<yy\>, and \<suiteID\> are as described above.
 
+The example tags given above are assumed to be ASCII-encoded byte strings
+without null termination, which is the RECOMMENDED format.
+Other encodings CAN be used, but in all cases the encoding as a sequence of
+bytes MUST be specified unambiguously.
+
 # Utility functions {#utility}
 
 Algorithms in this document use the utility functions described below,
@@ -1398,10 +1440,11 @@ plus standard arithmetic operations (addition, multiplication, modular
 reduction, etc.) and elliptic curve point operations (point addition and
 scalar multiplication).
 
-For security, implementations of these functions SHOULD be constant time,
-i.e., execution time SHOULD NOT depend on the values of the inputs.
+For security, implementations of these functions SHOULD be constant time:
+in brief, this means that execution time and memory access patterns SHOULD NOT
+depend on the values of secret inputs, intermediate values, or outputs.
 For such constant-time implementations, all arithmetic, comparisons, and
-assignments MUST be implemented in constant time.
+assignments MUST also be implemented in constant time.
 {{security-considerations}} briefly discusses constant-time security issues.
 
 Guidance on implementing low-level operations (in constant time or otherwise)
@@ -1430,7 +1473,7 @@ material {{MOV96}} {{CFADLNV05}}.
     {{appx-sqrt-issq}} gives an optimized straight-line method for GF(p^2).
 
 -   sqrt(x): The sqrt operation is a multi-valued function, i.e., there exist
-    two roots of x in the field F whenever x is square.
+    two roots of x in the field F whenever x is square (except when x = 0).
     To maintain compatibility across implementations while allowing implementors
     leeway for optimizations, this document does not require sqrt() to return a
     particular value. Instead, as explained in {{point-sign}}, any function that
@@ -1446,11 +1489,20 @@ material {{MOV96}} {{CFADLNV05}}.
 
 -   inv0(x): This function returns the multiplicative inverse of x in F,
     extended to all of F by fixing inv0(0) == 0.
-    To implement inv0 in constant time, compute inv0(x) := x^(q - 2).
-    Notice on input 0, the output is 0 as required.
+    A straightforward way to implement inv0 in constant time is to compute
+
+    ~~~
+    inv0(x) := x^(q - 2).
+    ~~~
+
+    Notice that on input 0, the output is 0 as required.
+    Certain fields may allow faster inversion methods; detailed discussion
+    of such methods is beyond the scope of this document.
 
 -   I2OSP and OS2IP: These functions are used to convert a byte string to
     and from a non-negative integer as described in {{!RFC8017}}.
+    (Note that these functions operate on byte strings in big-endian byte
+    order.)
 
 -   a \|\| b: denotes the concatenation of byte strings a and b. For example,
     "ABC" \|\| "DEF" == "ABCDEF".
@@ -1544,14 +1596,18 @@ as one or more elements of F.
 For the first step, hash\_to\_field calls an auxiliary function expand\_message.
 This document defines two variants of expand\_message: one appropriate
 for hash functions like SHA-2 {{FIPS180-4}} or SHA-3 {{FIPS202}}, and another
-appropriate for extensible-output functions such as SHAKE-128 {{FIPS202}}.
+appropriate for extensible-output functions such as SHAKE128 {{FIPS202}}.
 Security considerations for each expand\_message variant are discussed
 below ({{hashtofield-expand-xmd}}, {{hashtofield-expand-xof}}).
 
-Implementors MUST NOT use rejection sampling to generate a uniformly random element of F.
+Implementors MUST NOT use rejection sampling to generate a uniformly random
+element of F, to ensure that the hash\_to\_field function is amenable to
+constant-time implementation.
 The reason is that rejection sampling procedures are difficult to implement
 in constant time, and later well-meaning "optimizations" may silently render
 an implementation non-constant-time.
+This means that any hash\_to\_field function based on rejection sampling
+would be incompatible with constant-time implementation.
 
 ## Security considerations {#hashtofield-sec}
 
@@ -1655,7 +1711,9 @@ a cryptographic hash function H that outputs b bits. For security, H must meet
 the following requirements:
 
 - The number of bits output by H MUST be b >= 2 * k, for k the target
-security level in bits. This ensures k-bit collision resistance.
+security level in bits, and b MUST be divisible by 8.
+The first requirement ensures k-bit collision resistance; the second
+ensures uniformity of expand\_message\_xmd's output.
 
 - H MAY be a Merkle-Damgaard hash function like SHA-2.
 In this case, security holds when the underlying compression function is
@@ -1673,6 +1731,13 @@ SHA-2 {{FIPS180-4}} and SHA-3 {{FIPS202}} are typical and RECOMMENDED choices.
 As an example, for the 128-bit security level, b >= 256 bits and either SHA-256 or
 SHA3-256 would be an appropriate choice.
 
+The hash function H is assumed to work by repeatedly ingesting fixed-length
+blocks of data.
+The length of these blocks is called the input block size.
+As examples,
+the input block size of SHA-512 {{FIPS180-4}} is 128 bytes and
+the input block size of SHA3-512 {{FIPS202}} is 72 bytes.
+
 The following procedure implements expand\_message\_xmd.
 
 ~~~
@@ -1680,10 +1745,10 @@ expand_message_xmd(msg, DST, len_in_bytes)
 
 Parameters:
 - H, a hash function (see requirements above).
-- b_in_bytes, ceil(b / 8) for b the output size of H in bits.
+- b_in_bytes, b / 8 for b the output size of H in bits.
   For example, for b = 256, b_in_bytes = 32.
-- r_in_bytes, the input block size of H, measured in bytes.
-  For example, for SHA-256, r_in_bytes = 64.
+- r_in_bytes, the input block size of H, measured in bytes (see
+  discussion above). For example, for SHA-256, r_in_bytes = 64.
 
 Input:
 - msg, a byte string.
@@ -1709,7 +1774,7 @@ Steps:
 12. return substr(uniform_bytes, 0, len_in_bytes)
 ~~~
 
-Note that the string Z\_pad is prepended to msg when computing b\_0 (step 7).
+Note that the string Z\_pad is prefixed to msg when computing b\_0 (step 7).
 This is necessary for security when H is a Merkle-Damgaard hash, e.g., SHA-2
 (see {{security-considerations-expand-xmd}}).
 Hashing this additional data means that the cost of computing b\_0 is higher
@@ -1736,7 +1801,7 @@ For security, H must meet the following criteria:
 under a reasonable cryptographic assumption.
 
 The SHAKE {{FIPS202}} XOF family is a typical and RECOMMENDED choice.
-As an example, for 128-bit security, SHAKE-128 would be an appropriate choice.
+As an example, for 128-bit security, SHAKE128 would be an appropriate choice.
 
 The following procedure implements expand\_message\_xof.
 
@@ -1818,8 +1883,8 @@ to avoid this issue.
 cryptographic primitives inside of expand\_message are domain separated
 from invocations outside of expand\_message.
 For example, if the expand\_message variant uses a hash function H, an encoding
-of DST MUST be either prepended or appended to the input to each invocation
-of H (appending is the RECOMMENDED approach).
+of DST MUST be added either as a prefix or a suffix of the input to each invocation
+of H. Adding DST as a suffix is the RECOMMENDED approach.
 
 - SHOULD read msg exactly once, for efficiency when msg is long.
 
@@ -1978,17 +2043,18 @@ Operations:
 2. tv2 = 1 + tv1
 3. tv1 = 1 - tv1
 4. tv3 = inv0(tv1 * tv2)
-5. tv4 = sqrt(-g(Z) * (3 * Z^2 + 4 * A))
+5. tv4 = sqrt(-g(Z) * (3 * Z^2 + 4 * A))    # can be precomputed
 6. If sgn0(tv4) == 1, set tv4 = -tv4        # sgn0(tv4) MUST equal 0
 7. tv5 = u * tv1 * tv3 * tv4
-8.  x1 = -Z / 2 - tv5
-9.  x2 = -Z / 2 + tv5
-10. x3 = Z - 4 * g(Z) * (tv2^2 * tv3)^2 / (3 * Z^2 + 4 * A)
-11. If is_square(g(x1)), set x = x1 and y = sqrt(g(x1))
-12. Else If is_square(g(x2)), set x = x2 and y = sqrt(g(x2))
-13. Else set x = x3 and y = sqrt(g(x3))
-14. If sgn0(u) != sgn0(y), set y = -y
-15. return (x, y)
+8. tv6 = -4 * g(Z) / (3 * Z^2 + 4 * A)      # can be precomputed
+9.  x1 = -Z / 2 - tv5
+10. x2 = -Z / 2 + tv5
+11. x3 = Z + tv6 * (tv2^2 * tv3)^2
+12. If is_square(g(x1)), set x = x1 and y = sqrt(g(x1))
+13. Else If is_square(g(x2)), set x = x2 and y = sqrt(g(x2))
+14. Else set x = x3 and y = sqrt(g(x3))
+15. If sgn0(u) != sgn0(y), set y = -y
+16. return (x, y)
 ~~~
 
 {{straightline-svdw}} gives an example straight-line implementation of this
@@ -2689,8 +2755,8 @@ Suite ID fields MUST be chosen as follows:
   HASH\_NAME is a human-readable name for the underlying hash primitive.
   As examples:
 
-    1. For expand\_message\_xof ({{hashtofield-expand-xof}}) with SHAKE-128,
-       HASH\_ID is "XOF:SHAKE-128".
+    1. For expand\_message\_xof ({{hashtofield-expand-xof}}) with SHAKE128,
+       HASH\_ID is "XOF:SHAKE128".
 
     2. For expand\_message\_xmd ({{hashtofield-expand-xmd}}) with SHA3-256,
        HASH\_ID is "XMD:SHA3-256".
@@ -2760,8 +2826,9 @@ When hashing passwords using any function described in this document, an adversa
 who learns the output of the hash function (or potentially any intermediate value,
 e.g., the output of hash\_to\_field) may be able to carry out a dictionary attack.
 To mitigate such attacks, it is recommended to first execute a more costly key
-derivation function (e.g., PBKDF2 {{?RFC2898}} or scrypt {{?RFC7914}}) on the password,
-then hash the output of that function to the target elliptic curve.
+derivation function (e.g., PBKDF2 {{?RFC2898}}, scrypt {{?RFC7914}}, or Argon2
+{{?I-D.irtf-cfrg-argon2}}) on the password, then hash the output of that
+function to the target elliptic curve.
 For collision resistance, the hash underlying the key derivation function
 should be chosen according to the guidelines listed in {{hashtofield-expand-xmd}}.
 
@@ -2776,7 +2843,7 @@ utility functions must be implemented in constant time, as discussed in
 In some applications (e.g., embedded systems), leakage through other side
 channels (e.g., power or electromagnetic side channels) may be pertinent.
 Defending against such leakage is outside the scope of this document, because
-the nature of the leakage and the appropriate defense depends on the application.
+the nature of the leakage and the appropriate defense depend on the application.
 
 ## hash\_to\_field security {#security-considerations-hash-to-field}
 
@@ -2815,8 +2882,8 @@ directly from the indifferentiability of H.
 
 For case (3), i.e., for H a Merkle-Damgaard hash function, indifferentiability
 follows from {{CDMP05}}, Theorem 3.5.
-In particular, expand\_message\_xmd computes b\_0 by prepending one block of
-0-bytes to the message and auxiliary information (length, counter, and DST).
+In particular, expand\_message\_xmd computes b\_0 by prefixing the message
+with one block of 0-bytes plus auxiliary information (length, counter, and DST).
 Then, each of the output blocks b\_i, i >= 1 in expand\_message\_xmd is the
 result of invoking H on a unique, prefix-free encoding of b\_0.
 This is true, first, because the length of the input to all such invocations
@@ -2890,8 +2957,8 @@ These methods can be used to instantiate multiple domain separated functions
 
         Hps(msg) = H(DST_ext || msg || I2OSP(0, 1))
 
-    DST\_ext should be prefix-free encoded (e.g., by prepending one byte
-    encoding the length of DST\_ext) to make it infeasible to find distinct
+    DST\_ext should be prefix-free encoded (e.g., by adding a one-byte prefix
+    that encodes the length of DST\_ext) to make it infeasible to find distinct
     (msg, DST\_ext) pairs that hash to the same value.
 
     This method ensures domain separation because
@@ -2914,8 +2981,8 @@ These methods can be used to instantiate multiple domain separated functions
     be at least b bits long, where b is the number of bits output by the
     hash function H.
     In addition, at least one of the first b bits must be nonzero.
-    Finally, DST\_ext should be prefix-free encoded (e.g., by prepending
-    one byte encoding the length of DST\_ext) to make it infeasible to
+    Finally, DST\_ext should be prefix-free encoded (e.g., by adding a
+    one-byte prefix that encodes the length of DST\_ext) to make it infeasible to
     find distinct (msg, DST\_ext) pairs that hash to the same value.
 
     This method ensures domain separation as follows.
@@ -3582,6 +3649,16 @@ system.
 This is desirable, for example, when the resulting point will be
 immediately multiplied by a scalar, since most scalar multiplication
 algorithms operate on projective points.
+
+Projective coordinates are also useful when implementing random oracle
+encodings ({{roadmap}}).
+One reason is that, in general, point addition is faster using projective
+coordinates.
+Another reason is that, for Weierstrass curves, projective coordinates
+allow using complete addition formulas {{RCB16}}.
+This is especially convenient when implementing a constant-time encoding,
+because it eliminates the need for a special case when Q0 == Q1, which
+incomplete addition formulas usually do not handle.
 
 The following are two commonly used projective coordinate systems
 and the corresponding conversions:
@@ -4469,8 +4546,8 @@ The following is\_square method applies to any field F = GF(p^2)
 with basis (1, I) represented as described in {{bg-curves}}, i.e.,
 an element x = (x\_1, x\_2) = x\_1 + x\_2 * I.
 
-Other optimizations of this type are possible in other even-order
-extension fields; see {{AR13}}.
+Other optimizations of this type are possible in other extension
+fields; see, e.g., {{AR13}} for more information.
 
 ~~~
 is_square(x)
@@ -7164,7 +7241,7 @@ uniform_bytes = 01524feea5b22f6509f6b1e805c97df94faf4d821b01aade
 
 ~~~
 
-## expand_message_xof(SHAKE-128)
+## expand_message_xof(SHAKE128)
 
 ~~~
 
