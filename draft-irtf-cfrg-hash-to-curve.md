@@ -1162,7 +1162,7 @@ The table below summarizes quantities relevant to hashing to curves:
 
 | Symbol | Meaning | Relevance |
 |:------:|---------|-----------|
-| F,q,p | Finite field F of characteristic p and #F = q = p^m. | For prime fields, q = p; otherwise, q = p^m and m>1. |
+| F,q,p | A finite field F of characteristic p and #F = q = p^m. | For prime fields, q = p; otherwise, q = p^m and m>1. |
 | E | Elliptic curve. | E is specified by an equation and a field F. |
 | n | Number of points on the elliptic curve E. | n = h * r, for h and r defined below. |
 | G | A prime-order subgroup of the points on E. | Destination group to which byte strings are encoded. |
