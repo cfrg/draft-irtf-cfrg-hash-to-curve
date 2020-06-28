@@ -1087,6 +1087,15 @@ informative:
       - ins: M. Matsumoto
       - ins: T. Nishimura
     target: https://doi.org/10.1145/272991.272995
+  P20:
+    title: "Efficient Elliptic Curve Operations On Microcontrollers With Finite Field Extensions"
+    target: https://eprint.iacr.org/2020/009
+    date: 2020
+    author:
+      -
+        ins: T. Pornin
+        name: Thomas Pornin
+        org: NCC Group
 
 --- abstract
 
@@ -1662,6 +1671,7 @@ meets the following security requirements:
 For example, Pornin {{P20}} describes a method for hashing to GF(9767^19) that meets
 these requirements while using fewer output bits from expand\_message than
 hash\_to\_field would for that field.
+
 ## hash\_to\_field implementation {#hashtofield-impl}
 
 The following procedure implements hash\_to\_field.
@@ -2781,6 +2791,9 @@ Suite ID fields MUST be chosen as follows:
 
     2. For expand\_message\_xmd ({{hashtofield-expand-xmd}}) with SHA3-256,
        HASH\_ID is "XMD:SHA3-256".
+
+Suites that use an alternative hash\_to\_field function that meets the requirements
+in {{hashtofield-exteff}} MUST indicate this by choosing a unique identifier for HASH\_ID.
 
 - MAP\_ID: a human-readable representation of the map\_to\_curve function
   as defined in {{mappings}}. These are defined as follows:
