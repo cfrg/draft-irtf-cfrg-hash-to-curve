@@ -1641,8 +1641,10 @@ corresponding curve.
 See {{security-considerations-targets}} for more details, and
 {{new-suite}} for guidelines on choosing k for a given curve.
 
-The hash\_to\_field function described below may not be most efficient
-for all fields. For example, when hashing to an element of the extension
+## Efficiency considerations in extension fields {#hashtofield-exteff}
+
+The hash\_to\_field function described in this section is inefficient for certain
+extension fields. Specifically, when hashing to an element of the extension
 field GF(p^m), hash\_to\_field requires expanding msg into m * L bytes.
 For extension fields where log2(p) is significantly smaller than the security
 level k, this approach is inefficient: it requires expand\_message to output
