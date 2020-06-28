@@ -1659,6 +1659,9 @@ meets the following security requirements:
 
 - The function SHOULD be amenable to straight line implementations.
 
+For example, Pornin {{P20}} describes a method for hashing to GF(9767^19) that meets
+these requirements while using fewer output bits from expand\_message than
+hash\_to\_field would for that field.
 ## hash\_to\_field implementation {#hashtofield-impl}
 
 The following procedure implements hash\_to\_field.
