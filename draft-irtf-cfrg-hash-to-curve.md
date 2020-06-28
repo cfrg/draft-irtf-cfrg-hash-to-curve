@@ -1651,7 +1651,7 @@ generate an element of GF(p^m) with bias at most 2^-k. In such cases, an
 applications MAY use an alternative hash\_to\_field function, provided it
 meets the following security requirements:
 
-- The function output MUST be a uniformly random field element.
+- The function MUST output field element(s) that are uniformly random except with bias at most 2^-k.
 
 - The function MUST NOT use rejection sampling.
 
