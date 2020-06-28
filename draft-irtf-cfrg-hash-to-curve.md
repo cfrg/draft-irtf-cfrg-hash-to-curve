@@ -1645,7 +1645,7 @@ See {{security-considerations-targets}} for more details, and
 
 The hash\_to\_field function described in this section is inefficient for certain
 extension fields. Specifically, when hashing to an element of the extension
-field GF(p^m), hash\_to\_field requires expanding msg into m * L bytes.
+field GF(p^m), hash\_to\_field requires expanding msg into m * L bytes (for L as defined above).
 For extension fields where log2(p) is significantly smaller than the security
 level k, this approach is inefficient: it requires expand\_message to output
 roughly m * log2(p) + m * k bits, whereas m * log2(p) + k bytes suffices to
