@@ -2792,8 +2792,9 @@ Suite ID fields MUST be chosen as follows:
     2. For expand\_message\_xmd ({{hashtofield-expand-xmd}}) with SHA3-256,
        HASH\_ID is "XMD:SHA3-256".
 
-Suites that use an alternative hash\_to\_field function that meets the requirements
-in {{hashtofield-exteff}} MUST indicate this by choosing a unique identifier for HASH\_ID.
+  Suites that use an alternative hash\_to\_field function that meets the requirements
+  in {{hashtofield-exteff}} MUST indicate this by appending a tag identifying that function
+  to the HASH\_ID field, separated by a colon (":", ASCII 0x3A).
 
 - MAP\_ID: a human-readable representation of the map\_to\_curve function
   as defined in {{mappings}}. These are defined as follows:
