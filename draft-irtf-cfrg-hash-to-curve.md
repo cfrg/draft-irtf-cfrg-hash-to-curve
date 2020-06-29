@@ -1087,6 +1087,15 @@ informative:
       - ins: M. Matsumoto
       - ins: T. Nishimura
     target: https://doi.org/10.1145/272991.272995
+  P20:
+    title: "Efficient Elliptic Curve Operations On Microcontrollers With Finite Field Extensions"
+    target: https://eprint.iacr.org/2020/009
+    date: 2020
+    author:
+      -
+        ins: T. Pornin
+        name: Thomas Pornin
+        org: NCC Group
 
 --- abstract
 
@@ -1640,6 +1649,28 @@ Note that k is an upper bound on the security level for the
 corresponding curve.
 See {{security-considerations-targets}} for more details, and
 {{new-suite}} for guidelines on choosing k for a given curve.
+
+## Efficiency considerations in extension fields {#hashtofield-exteff}
+
+The hash\_to\_field function described in this section is inefficient for certain
+extension fields. Specifically, when hashing to an element of the extension
+field GF(p^m), hash\_to\_field requires expanding msg into m * L bytes (for L as defined above).
+For extension fields where log2(p) is significantly smaller than the security
+level k, this approach is inefficient: it requires expand\_message to output
+roughly m * log2(p) + m * k bits, whereas m * log2(p) + k bytes suffices to
+generate an element of GF(p^m) with bias at most 2^-k. In such cases, an
+applications MAY use an alternative hash\_to\_field function, provided it
+meets the following security requirements:
+
+- The function MUST output field element(s) that are uniformly random except with bias at most 2^-k.
+
+- The function MUST NOT use rejection sampling.
+
+- The function SHOULD be amenable to straight line implementations.
+
+For example, Pornin {{P20}} describes a method for hashing to GF(9767^19) that meets
+these requirements while using fewer output bits from expand\_message than
+hash\_to\_field would for that field.
 
 ## hash\_to\_field implementation {#hashtofield-impl}
 
@@ -2760,6 +2791,10 @@ Suite ID fields MUST be chosen as follows:
 
     2. For expand\_message\_xmd ({{hashtofield-expand-xmd}}) with SHA3-256,
        HASH\_ID is "XMD:SHA3-256".
+
+  Suites that use an alternative hash\_to\_field function that meets the requirements
+  in {{hashtofield-exteff}} MUST indicate this by appending a tag identifying that function
+  to the HASH\_ID field, separated by a colon (":", ASCII 0x3A).
 
 - MAP\_ID: a human-readable representation of the map\_to\_curve function
   as defined in {{mappings}}. These are defined as follows:
