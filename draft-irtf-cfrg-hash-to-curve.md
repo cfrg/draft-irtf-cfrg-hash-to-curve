@@ -1629,6 +1629,10 @@ an implementation non-constant-time.
 This means that any hash\_to\_field function based on rejection sampling
 would be incompatible with constant-time implementation.
 
+The hash\_to\_field function is also suitable for securely hashing to scalars.
+For example, when hashing to scalars for an elliptic curve group with order r,
+it suffices to instantiate hash\_to\_curve with target field GF(r).
+
 ## Security considerations {#hashtofield-sec}
 
 The hash\_to\_field function is designed to be indifferentiable from a
