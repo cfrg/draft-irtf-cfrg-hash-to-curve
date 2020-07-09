@@ -1354,7 +1354,7 @@ different distributions:
   first, the distribution includes at least one eighth of the points in G, and
   second, the distribution assigns probabilities to each included point such
   that each point is at most four times as likely as any other point.
-  See {{security-considerations-image-size}} for further discussion.
+  See {{security-considerations-encode}} for further discussion.
 
 ~~~
 encode_to_curve(msg)
@@ -2894,7 +2894,7 @@ channels (e.g., power or electromagnetic side channels) may be pertinent.
 Defending against such leakage is outside the scope of this document, because
 the nature of the leakage and the appropriate defense depend on the application.
 
-## encode\_to\_curve output distribution {#security-considerations-image-size}
+## encode\_to\_curve: output distribution and indifferentiability {#security-considerations-encode}
 
 The encode\_to\_curve function ({{roadmap}}) returns points sampled from a
 distribution that is statistically far from uniform.
@@ -2903,32 +2903,59 @@ first, it includes at least one eighth of the points in G, and second, the
 probability of points in the distribution varies by at most a factor of four.
 These bounds hold when encode\_to\_curve is instantiated with one of the
 map\_to\_curve functions in {{mappings}}.
-We now discuss these bounds in more detail.
+We discuss these bounds in more detail and sketch an indifferentiability
+proof for encode\_to\_curve.
 
-Shallue and van de Woestijne show {{SW06}} that their mapping ({{svdw}}) has
-an image whose size is at least (p - 4) / 8 for a curve over GF(p), meaning
-that it covers roughly one eighth of the points on the curve;
-Fouque and Tibouchi {{FT12}} give a tighter analysis, showing that the size
-of the image is closer to p / 2.
-Fouque and Tibouchi also show that each point in the image of this mapping has
-at most four preimages, meaning that any point in the image is at most four
-times as likely as any other point when the mapping is evaluated on a random
-input.
+The bounds details are as follows:
 
-Fouque and Tibouchi {{FT10}} show that the Simplified SWU mapping ({{simple-swu}},
-{{simple-swu-AB0}}) has an image whose size is roughly 3 * p / 8 for a curve
-over GF(p), meaning that this mapping covers roughly three eighths of the
-points on the curve.
-Tibouchi {{T14}} shows that each point in the image of this mapping has at
-most four preimages, meaning that any point in the image is at most four
-times as likely as any other point when the mapping is evaluated on a random
-input.
+- Shallue and van de Woestijne show {{SW06}} that their mapping ({{svdw}})
+  has an image whose size is at least (p - 4) / 8 for a curve over GF(p),
+  meaning that it covers roughly one eighth of the points on the curve;
+  Fouque and Tibouchi {{FT12}} give a tighter analysis, showing that the size
+  of the image is closer to p / 2.
+  Fouque and Tibouchi also show that each point in the image of this mapping
+  has at most four preimages, meaning that any point in the image is at most
+  four times as likely as any other point when the mapping is evaluated
+  on a random input.
 
-Bernstein et al. {{BHKL13}} show that the Elligator 2 mapping ({{elligator2}},
-{{ell2edwards}}) has an image that covers roughly half the points on the curve.
-Moreover, each point in the image of the mapping has at most two preimages,
-meaning that any point in the image is at most twice as likely as any other
-point when the mapping is evaluated on a random input.
+- Fouque and Tibouchi {{FT10}} show that the Simplified SWU mapping
+  ({{simple-swu}}, {{simple-swu-AB0}}) has an image whose size is roughly
+  3 * p / 8 for a curve over GF(p), meaning that this mapping covers roughly
+  three eighths of the points on the curve.
+  Tibouchi {{T14}} shows that each point in the image of this mapping has
+  at most four preimages, meaning that any point in the image is at most
+  four times as likely as any other point when the mapping is evaluated
+  on a random input.
+
+- Bernstein et al. {{BHKL13}} show that the Elligator 2 mapping ({{elligator2}},
+  {{ell2edwards}}) has an image that covers roughly half the points on the
+  curve.
+  Moreover, each point in the image of the mapping has at most two preimages,
+  meaning that any point in the image is at most twice as likely as any other
+  point when the mapping is evaluated on a random input.
+
+Indifferentiability of encode\_to\_curve follows from an argument similar
+to the one given by Brier et al. {{BCIMRT10}}.
+Consider an ideal random oracle Hc() that samples from the distribution induced
+by the map\_to\_curve function called by encode\_to\_curve, and assume for
+simplicity that the target elliptic curve has cofactor 1 (a similar argument
+applies for non-unity cofactors).
+Indifferentiability holds just if it is possible to efficiently simulate
+the "inner" random oracle in encode\_to\_curve, namely, hash\_to\_field.
+The simulator works as follows:
+on a fresh query msg, the simulator queries Hc(msg) and receives a point
+P in the image of map\_to\_curve (if msg is the same as a prior query,
+the simulator just returns the value it gave in response to that query).
+The simulator then computes the possible preimages of P under map\_to\_curve,
+i.e., elements u of F such that map\_to\_curve(u) == P
+(Tibouchi {{T14}} shows that this can be done efficiently for the Shallue-van
+de Woestijne and Simplified SWU maps, and Bernstein et al. show the same for
+Elligator 2).
+The simulator selects one such preimage at random and returns this value
+as the simulated output of the "inner" random oracle.
+By hypothesis, Hc() samples from the distribution induced by map\_to\_curve
+on a uniformly random input element of F, so this value is uniformly random
+and induces the correct point P when passed through map\_to\_curve.
 
 ## hash\_to\_field security {#security-considerations-hash-to-field}
 
