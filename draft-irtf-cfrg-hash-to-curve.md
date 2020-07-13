@@ -1261,19 +1261,17 @@ See {{security-considerations}} for further discussion.
 
 ### Random oracle encodings {#term-rom}
 
-A random-oracle encoding is an encoding satisfying a strong property: it can be
-proved indifferentiable from a random oracle {{MRH04}} under a suitable assumption.
-This makes random-oracle encodings appropriate for use in many cryptographic
-protocols proven secure in the random oracle model.
-Note, however, that indifferentiability is not always sufficient for security;
-see {{security-considerations}} for further discussion.
+A random-oracle encoding satisfies a strong property: it can be proved
+indifferentiable from a random oracle {{MRH04}} under a suitable assumption.
 
 Both constructions described in {{roadmap}} are indifferentiable from
 random oracles {{MRH04}} when instantiated following the guidelines in this document.
 The constructions differ in their output distributions: one gives a uniformly random
 point on the curve, the other gives a point sampled from a nonuniform distribution.
 
-{{security-considerations}} and {{related}} discuss further.
+A random-oracle encoding with a uniform output distribution is suitable for use
+in many cryptographic protocols proven secure in the random oracle model.
+See {{security-considerations}} for further discussion.
 
 ### Serialization {#term-serialization}
 
@@ -1347,14 +1345,11 @@ The difference between the two is that their outputs are sampled from
 different distributions:
 
 - encode\_to\_curve is a nonuniform encoding from byte strings to points in G.
-  That is, the distribution of its output is not uniformly random in G.
-
-  When instantiated with any of the map\_to\_curve functions described in
-  {{mappings}}, the distribution of the output has the following properties:
-  first, the distribution includes at least one eighth of the points in G, and
-  second, the distribution assigns probabilities to each included point such
-  that each point is at most four times as likely as any other point.
-  See {{security-considerations-encode}} for further discussion.
+  That is, the distribution of its output is not uniformly random in G:
+  the set of possible outputs of encode\_to\_curve is only a fraction of the
+  points in G, and some points in this set are more likely to be output than others.
+  {{security-considerations-encode}} gives a more precise definition of
+  encode\_to\_curve's output distribution.
 
 ~~~
 encode_to_curve(msg)
@@ -1630,7 +1625,7 @@ This means that any hash\_to\_field function based on rejection sampling
 would be incompatible with constant-time implementation.
 
 The hash\_to\_field function is also suitable for securely hashing to scalars.
-For example, when hashing to scalars for an elliptic curve group with order r,
+For example, when hashing to scalars for an elliptic curve (sub)group with prime order r,
 it suffices to instantiate hash\_to\_curve with target field GF(r).
 
 ## Security considerations {#hashtofield-sec}
@@ -2440,7 +2435,7 @@ When applicable, these MUST be specified.
 The below table lists suites RECOMMENDED for some elliptic curves.
 The corresponding parameters are given in the following subsections.
 Applications instantiating cryptographic protocols whose security analysis
-relies on a random oracle that outputs uniform points MUST NOT use a
+relies on a random oracle that outputs points with a uniform distribution MUST NOT use a
 nonuniform encoding.
 Moreover, applications that use a nonuniform encoding SHOULD carefully
 analyze the security implications of nonuniformity.
@@ -2898,44 +2893,26 @@ the nature of the leakage and the appropriate defense depend on the application.
 
 The encode\_to\_curve function ({{roadmap}}) returns points sampled from a
 distribution that is statistically far from uniform.
-As discussed in {{roadmap}}, however, this distribution is bounded as follows:
+This distribution is bounded roughly as follows:
 first, it includes at least one eighth of the points in G, and second, the
 probability of points in the distribution varies by at most a factor of four.
-These bounds hold when encode\_to\_curve is instantiated with one of the
+These bounds hold when encode\_to\_curve is instantiated with any of the
 map\_to\_curve functions in {{mappings}}.
-We discuss these bounds in more detail and sketch an indifferentiability
-proof for encode\_to\_curve.
 
-The bounds details are as follows:
+The bounds above are derived from several works in the literature.
+Specifically:
 
-- Shallue and van de Woestijne show {{SW06}} that their mapping ({{svdw}})
-  has an image whose size is at least (p - 4) / 8 for a curve over GF(p),
-  meaning that it covers roughly one eighth of the points on the curve;
-  Fouque and Tibouchi {{FT12}} give a tighter analysis, showing that the size
-  of the image is closer to p / 2.
-  Fouque and Tibouchi also show that each point in the image of this mapping
-  has at most four preimages, meaning that any point in the image is at most
-  four times as likely as any other point when the mapping is evaluated
-  on a random input.
+- Shallue and van de Woestijne {{SW06}} and Fouque and Tibouchi {{FT12}}
+  derive bounds on the Shallue-van de Woestijne mapping ({{svdw}}).
 
-- Fouque and Tibouchi {{FT10}} show that the Simplified SWU mapping
-  ({{simple-swu}}, {{simple-swu-AB0}}) has an image whose size is roughly
-  3 * p / 8 for a curve over GF(p), meaning that this mapping covers roughly
-  three eighths of the points on the curve.
-  Tibouchi {{T14}} shows that each point in the image of this mapping has
-  at most four preimages, meaning that any point in the image is at most
-  four times as likely as any other point when the mapping is evaluated
-  on a random input.
+- Fouque and Tibouchi {{FT10}} and Tibouchi {{T14}} derive bounds for the
+  Simplified SWU mapping ({{simple-swu}}, {{simple-swu-AB0}}).
 
-- Bernstein et al. {{BHKL13}} show that the Elligator 2 mapping ({{elligator2}},
-  {{ell2edwards}}) has an image that covers roughly half the points on the
-  curve.
-  Moreover, each point in the image of the mapping has at most two preimages,
-  meaning that any point in the image is at most twice as likely as any other
-  point when the mapping is evaluated on a random input.
+- Bernstein et al. {{BHKL13}} derive bounds for the Elligator 2 mapping
+  ({{elligator2}}, {{ell2edwards}}).
 
 Indifferentiability of encode\_to\_curve follows from an argument similar
-to the one given by Brier et al. {{BCIMRT10}}.
+to the one given by Brier et al. {{BCIMRT10}}; we briefly sketch.
 Consider an ideal random oracle Hc() that samples from the distribution induced
 by the map\_to\_curve function called by encode\_to\_curve, and assume for
 simplicity that the target elliptic curve has cofactor 1 (a similar argument
