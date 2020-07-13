@@ -1261,20 +1261,17 @@ See {{security-considerations}} for further discussion.
 
 ### Random oracle encodings {#term-rom}
 
-Two different types of encodings are possible, nonuniform encodings and random oracle encodings.
-Nonuniform encodings induce a distribution of points that is not uniformly random.
-Random oracle encodings, in contrast, induce a distribution of points that
-is statistically close to uniformly random.
-They also satisfy a stronger property: a random oracle encoding can be proved
-indifferentiable from a random oracle {{MRH04}} under a suitable assumption,
-meaning it is appropriate for use in many cryptographic protocols proven secure
-in the random oracle model.
-(Note, however, that indifferentiability is not always sufficient for security;
-see {{security-considerations}} for further discussion.)
+A random-oracle encoding satisfies a strong property: it can be proved
+indifferentiable from a random oracle {{MRH04}} under a suitable assumption.
 
-The construction described in {{roadmap}} {{BCIMRT10}} is indifferentiable from a random
-oracle {{MRH04}} when instantiated following the guidelines in this document.
-{{security-considerations}} and {{related}} discuss this construction further.
+Both constructions described in {{roadmap}} are indifferentiable from
+random oracles {{MRH04}} when instantiated following the guidelines in this document.
+The constructions differ in their output distributions: one gives a uniformly random
+point on the curve, the other gives a point sampled from a nonuniform distribution.
+
+A random-oracle encoding with a uniform output distribution is suitable for use
+in many cryptographic protocols proven secure in the random oracle model.
+See {{security-considerations}} for further discussion.
 
 ### Serialization {#term-serialization}
 
@@ -1327,8 +1324,8 @@ for more details.
 # Encoding byte strings to elliptic curves {#roadmap}
 
 This section presents a general framework and interface for encoding byte strings
-to points on an elliptic curve. To construct these encodings, we rely on three basic
-functions:
+to points on an elliptic curve. The constructions in this section rely on three
+basic functions:
 
 -   The function hash\_to\_field, {0, 1}^\* x {1, 2, ...} -> (F, F, ...), hashes arbitrary-length byte strings
     to a list of one or more elements of a finite field F; its implementation is defined in
@@ -1342,12 +1339,17 @@ functions:
     the subgroup G of E. {{cofactor-clearing}} describes methods to perform
     this operation.
 
-We describe two high-level encoding functions ({{term-encoding}}), a nonuniform encoding
-and a random oracle encoding. Although these functions have the same interface, the
-distributions of their outputs are different.
+The two encodings ({{term-encoding}}) defined in this section have the
+same interface and are both random-oracle encodings ({{term-rom}}).
+The difference between the two is that their outputs are sampled from
+different distributions:
 
--   Nonuniform encoding (encode\_to\_curve). This function encodes byte strings to points in G.
-    The distribution of the output is not uniformly random in G.
+- encode\_to\_curve is a nonuniform encoding from byte strings to points in G.
+  That is, the distribution of its output is not uniformly random in G:
+  the set of possible outputs of encode\_to\_curve is only a fraction of the
+  points in G, and some points in this set are more likely to be output than others.
+  {{security-considerations-encode}} gives a more precise definition of
+  encode\_to\_curve's output distribution.
 
 ~~~
 encode_to_curve(msg)
@@ -1362,9 +1364,13 @@ Steps:
 4. return P
 ~~~
 
--   Random oracle encoding (hash\_to\_curve). This function encodes byte strings to points in G.
-    This function is suitable for applications requiring a random oracle returning points in G
-    when instantiated with any of the map\_to\_curve functions described in {{mappings}}.
+- hash\_to\_curve is a uniform encoding from byte strings to points in G.
+  That is, the distribution of its output is statistically close to uniform in G.
+
+  This function is suitable for most applications requiring a random oracle
+  returning points in G, when instantiated with any of the map\_to\_curve
+  functions described in {{mappings}}.
+  See {{security-considerations}} for further discussion.
 
 ~~~
 hash_to_curve(msg)
@@ -1617,6 +1623,10 @@ in constant time, and later well-meaning "optimizations" may silently render
 an implementation non-constant-time.
 This means that any hash\_to\_field function based on rejection sampling
 would be incompatible with constant-time implementation.
+
+The hash\_to\_field function is also suitable for securely hashing to scalars.
+For example, when hashing to scalars for an elliptic curve (sub)group with prime order r,
+it suffices to instantiate hash\_to\_curve with target field GF(r).
 
 ## Security considerations {#hashtofield-sec}
 
@@ -1925,7 +1935,7 @@ that identifies that variant in a Suite ID. See {{suiteIDformat}} for more infor
 # Deterministic mappings {#mappings}
 
 The mappings in this section are suitable for implementing either nonuniform
-or random oracle encodings using the constructions in {{roadmap}}.
+or uniform encodings using the constructions in {{roadmap}}.
 Certain mappings restrict the form of the curve or its parameters.
 For each mapping presented, this document lists the relevant restrictions.
 
@@ -1972,9 +1982,7 @@ The generic interface shared by all mappings in this section is as follows:
 
 The input u and outputs x and y are elements of the field F.
 The affine coordinates (x, y) specify a point on an elliptic curve defined
-over F. Note that the point (x, y) is not a uniformly random point. If uniformity
-is required for security, the random oracle construction of {{roadmap}} MUST be
-used instead.
+over F. Note, however, that the point (x, y) is not a uniformly random point.
 
 ## Notation
 
@@ -2398,15 +2406,15 @@ an existing suite or a new suite specified as described in {{new-suite}}.
 
 All applications using a hash-to-curve suite MUST choose a domain
 separation tag (DST) in accordance with the guidelines in {{domain-separation}}.
-In addition, applications whose security requires a random oracle
-that returns points on the target curve MUST use a suite whose encoding type
+In addition, applications whose security requires a random oracle that returns
+uniformly random points on the target curve MUST use a suite whose encoding type
 is hash\_to\_curve; see {{roadmap}} and immediately below for more information.
 
 A hash-to-curve suite comprises the following parameters:
 
 - Suite ID, a short name used to refer to a given suite.
   {{suiteIDformat}} discusses the naming conventions for suite IDs.
-- encoding type, either random oracle (hash\_to\_curve) or nonuniform (encode\_to\_curve).
+- encoding type, either uniform (hash\_to\_curve) or nonuniform (encode\_to\_curve).
   See {{roadmap}} for definitions of these encoding types.
 - E, the target elliptic curve over a field F.
 - p, the characteristic of the field F.
@@ -2427,11 +2435,12 @@ When applicable, these MUST be specified.
 The below table lists suites RECOMMENDED for some elliptic curves.
 The corresponding parameters are given in the following subsections.
 Applications instantiating cryptographic protocols whose security analysis
-relies on a random oracle MUST NOT use a nonuniform encoding.
+relies on a random oracle that outputs points with a uniform distribution MUST NOT use a
+nonuniform encoding.
 Moreover, applications that use a nonuniform encoding SHOULD carefully
 analyze the security implications of nonuniformity.
 When the required encoding is not clear, applications SHOULD use a
-random oracle for security.
+uniform encoding for security.
 
 
 | E            | Suites | Section |
@@ -2817,7 +2826,7 @@ Suite ID fields MUST be chosen as follows:
     The RECOMMENDED way to do so is to add one or more subfields separated
     by colons.
     For example, "RO:V02" is an appropriate ENC\_VAR value for the second
-    version of a random-oracle suite, while "RO:V02:FOO01:BAR17" might be
+    version of a uniform encoding suite, while "RO:V02:FOO01:BAR17" might be
     used to indicate a variant of that suite.
 
 # IANA considerations
@@ -2841,16 +2850,16 @@ evaluating one of the mappings of {{mappings}} produces an output that is
 easily distinguished from a uniformly random point.
 Applications that use a nonuniform encoding SHOULD carefully analyze the security
 implications of nonuniformity.
-When the required encoding is not clear, applications SHOULD use a random
-oracle encoding.
+When the required encoding is not clear, applications SHOULD use a uniform
+encoding.
 
 When the hash\_to\_curve function ({{roadmap}}) is instantiated with a
 hash\_to\_field function that is indifferentiable from a random oracle
 ({{hashtofield}}), the resulting function is indifferentiable from a random
 oracle ({{MRH04}}, {{BCIMRT10}}, {{FFSTV13}}, {{LBB19}}).
 In many cases such a function can be safely used in cryptographic protocols
-whose security analysis assumes a random oracle that outputs points on an
-elliptic curve.
+whose security analysis assumes a random oracle that outputs uniformly random
+points on an elliptic curve.
 As Ristenpart et al. discuss in {{RSS11}}, however, not all security proofs
 that rely on random oracles continue to hold when those oracles are replaced
 by indifferentiable functionalities.
@@ -2879,6 +2888,51 @@ In some applications (e.g., embedded systems), leakage through other side
 channels (e.g., power or electromagnetic side channels) may be pertinent.
 Defending against such leakage is outside the scope of this document, because
 the nature of the leakage and the appropriate defense depend on the application.
+
+## encode\_to\_curve: output distribution and indifferentiability {#security-considerations-encode}
+
+The encode\_to\_curve function ({{roadmap}}) returns points sampled from a
+distribution that is statistically far from uniform.
+This distribution is bounded roughly as follows:
+first, it includes at least one eighth of the points in G, and second, the
+probability of points in the distribution varies by at most a factor of four.
+These bounds hold when encode\_to\_curve is instantiated with any of the
+map\_to\_curve functions in {{mappings}}.
+
+The bounds above are derived from several works in the literature.
+Specifically:
+
+- Shallue and van de Woestijne {{SW06}} and Fouque and Tibouchi {{FT12}}
+  derive bounds on the Shallue-van de Woestijne mapping ({{svdw}}).
+
+- Fouque and Tibouchi {{FT10}} and Tibouchi {{T14}} derive bounds for the
+  Simplified SWU mapping ({{simple-swu}}, {{simple-swu-AB0}}).
+
+- Bernstein et al. {{BHKL13}} derive bounds for the Elligator 2 mapping
+  ({{elligator2}}, {{ell2edwards}}).
+
+Indifferentiability of encode\_to\_curve follows from an argument similar
+to the one given by Brier et al. {{BCIMRT10}}; we briefly sketch.
+Consider an ideal random oracle Hc() that samples from the distribution induced
+by the map\_to\_curve function called by encode\_to\_curve, and assume for
+simplicity that the target elliptic curve has cofactor 1 (a similar argument
+applies for non-unity cofactors).
+Indifferentiability holds just if it is possible to efficiently simulate
+the "inner" random oracle in encode\_to\_curve, namely, hash\_to\_field.
+The simulator works as follows:
+on a fresh query msg, the simulator queries Hc(msg) and receives a point
+P in the image of map\_to\_curve (if msg is the same as a prior query,
+the simulator just returns the value it gave in response to that query).
+The simulator then computes the possible preimages of P under map\_to\_curve,
+i.e., elements u of F such that map\_to\_curve(u) == P
+(Tibouchi {{T14}} shows that this can be done efficiently for the Shallue-van
+de Woestijne and Simplified SWU maps, and Bernstein et al. show the same for
+Elligator 2).
+The simulator selects one such preimage at random and returns this value
+as the simulated output of the "inner" random oracle.
+By hypothesis, Hc() samples from the distribution induced by map\_to\_curve
+on a uniformly random input element of F, so this value is uniformly random
+and induces the correct point P when passed through map\_to\_curve.
 
 ## hash\_to\_field security {#security-considerations-hash-to-field}
 
