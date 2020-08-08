@@ -7336,7 +7336,7 @@ uniform_bytes = 01524feea5b22f6509f6b1e805c97df94faf4d821b01aade
 
 name    = expand_message_xof
 DST     = QUUX-V01-CS02-with-expander
-hash    = SHAKE_128
+hash    = SHAKE128
 
 msg     =
 len_in_bytes = 0x20
