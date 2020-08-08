@@ -142,7 +142,11 @@ class Expander(object):
         raise Exception("Not implemented")
 
     def hash_name(self):
-        return self.hash_fn().name.upper()
+        name = self.hash_fn().name.upper()
+        # Python incorrectly says SHAKE_128 rather than SHAKE128
+        if name[:6] == "SHAKE_":
+            name = "SHAKE" + name[6:]
+        return name
 
     def __dict__(self):
         return {
