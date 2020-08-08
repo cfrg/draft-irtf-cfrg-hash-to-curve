@@ -1,6 +1,6 @@
 {
   "DST": "QUUX-V01-CS02-with-expander",
-  "hash": "SHAKE_128",
+  "hash": "SHAKE128",
   "name": "expand_message_xof",
   "tests": [
     {

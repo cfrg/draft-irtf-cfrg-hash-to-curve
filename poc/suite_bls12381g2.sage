@@ -45,7 +45,7 @@ suite_name = "BLS12381G2_XMD:SHA-256_SSWU_NU_"
 bls12381g2_sswu_nu = IsoH2CSuite(suite_name,bls12381g2_sswu(suite_name, False))
 
 assert bls12381g2_sswu_ro.m2c.Z == bls12381g2_sswu_nu.m2c.Z == F(-2 - II)
-assert bls12381g2_svdw_ro.m2c.Z == bls12381g2_svdw_nu.m2c.Z == F(II)
+assert bls12381g2_svdw_ro.m2c.Z == bls12381g2_svdw_nu.m2c.Z == F(-1)
 
 bls12381g2_order = 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001
 
