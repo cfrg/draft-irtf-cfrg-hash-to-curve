@@ -3266,10 +3266,12 @@ to implement a random-oracle encoding with a uniform output distribution
 ({{term-rom}}) with the same security properties as the hash\_to\_curve
 function ({{roadmap}}).
 
-The hash\_to\_ristretto function MUST be instantiated with a domain separation
-tag constructed as described in {{domain-separation}}.
-In addition, it MUST be instantiated with an expand\_message function that
-conforms to the requirements given in {{hashtofield-expand}}.
+The hash\_to\_ristretto function MUST be instantiated with an expand\_message
+function that conforms to the requirements given in {{hashtofield-expand}}.
+In addition, it MUST use a domain separation tag constructed as described
+in {{domain-separation}}, and all domain separation recommendations given
+in {{security-considerations-domain-separation}} apply when implementing
+protocols that use hash\_to\_ristretto255.
 
 ~~~
 hash_to_ristretto255(msg)
