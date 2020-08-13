@@ -3148,9 +3148,9 @@ may reduce the effective security level for any curve.
 
 The authors would like to thank Adam Langley for his detailed writeup of Elligator 2 with
 Curve25519 {{L13}};
-Dan Boneh, Christopher Patton, Benjamin Lipp, and Leonid Reyzin for educational discussions;
-and David Benjamin, Frank Denis, Sean Devlin, Justin Drake, Bjoern Haase, Mike Hamburg,
-Dan Harkins, Thomas Icart, Andy Polyakov, Mamy Ratsimbazafy, Michael Scott,
+Dan Boneh, Christopher Patton, Benjamin Lipp, and Leonid Reyzin for educational discussions; and
+David Benjamin, Daniel Bourdrez, Frank Denis, Sean Devlin, Justin Drake, Bjoern Haase, Mike Hamburg,
+Dan Harkins, Thomas Icart, Andy Polyakov, Mamy Ratsimbazafy, Michael Scott, Filippo Valsorda,
 and Mathy Vanhoef for helpful feedback.
 
 # Contributors
@@ -3257,14 +3257,15 @@ This document does not deal with this complementary problem.
 
 # Hashing to ristretto255 {#appx-ristretto255}
 
-ristretto255 {{?I-D.irtf-cfrg-ristretto255}} provides an abstract prime-order
-group based on curve25519.
-The ristretto255 API includes a function, FROM_UNIFORM_BYTES, that returns
-a uniformly distributed group element.
-This section describes hash\_to\_ristretto255, which uses FROM_UNIFORM_BYTES
-to implement a random-oracle encoding with a uniform output distribution
-({{term-rom}}) with the same security properties as the hash\_to\_curve
-function ({{roadmap}}).
+ristretto255 {{!I-D.irtf-cfrg-ristretto255}} provides an abstract prime-order
+group based on Curve25519 {{!RFC7748}}.
+This section describes hash\_to\_ristretto255, which implements a random-oracle
+encoding to this group that has a uniform output distribution ({{term-rom}})
+and the same security properties and interface as the hash\_to\_curve function
+({{roadmap}}).
+
+The ristretto255 API defines a one-way map ({{?I-D.irtf-cfrg-ristretto255}},
+Section 4.2.4); this section refers to this map as ristretto255\_map.
 
 The hash\_to\_ristretto function MUST be instantiated with an expand\_message
 function that conforms to the requirements given in {{hashtofield-expand}}.
@@ -3281,31 +3282,31 @@ Parameters:
 - expand_message, a function that expands a byte string and
   domain separation tag into a uniformly random byte string
   (see discussion above).
-- FROM_UNIFORM_BYTES, the ristretto255 API function.
+- ristretto255_map, the one-way map from the ristretto255 API.
 
 Input: msg, an arbitrary-length byte string.
 Output: P, an element of the ristretto255 group.
 
 Steps:
 1. uniform_bytes = expand_message(msg, DST, 64)
-2. P = FROM_UNIFORM_BYTES(uniform_bytes)
+2. P = ristretto255_map(uniform_bytes)
 3. return P
 ~~~
 
-Since hash\_to\_ristretto255 is not a hash-to-curve suite, it does not have
-Suite ID.
-If a similar identifier is needed, however, it SHOULD be constructed following
+Since hash\_to\_ristretto255 is not a hash-to-curve suite, it does not
+have a Suite ID.
+If a similar identifier is needed, it MUST be constructed following
 the guidelines in {{suiteIDformat}}, with the following parameters:
 
 - CURVE\_ID: "ristretto255"
 - HASH\_ID: as described in {{suiteIDformat}}
-- MAP\_ID: "FROMUNIFORMBYTES"
+- MAP\_ID: "R255MAP"
 - ENC\_VAR: "RO"
 
 For example, if expand\_message is expand\_message\_xmd using SHA-512, the
-RECOMMENDED identifier is:
+REQUIRED identifier is:
 
-    ristretto255_XMD:SHA-512_FROMUNIFORMBYTES_RO_
+    ristretto255_XMD:SHA-512_R255MAP_RO_
 
 # Rational maps {#appx-rational-map}
 
