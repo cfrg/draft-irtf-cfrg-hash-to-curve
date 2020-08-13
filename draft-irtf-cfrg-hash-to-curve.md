@@ -3265,7 +3265,7 @@ and the same security properties and interface as the hash\_to\_curve function
 ({{roadmap}}).
 
 The ristretto255 API defines a one-way map ({{?I-D.irtf-cfrg-ristretto255}},
-Section 4.2.4); this section refers to this map as ristretto255\_map.
+Section 4.2.4); this section refers to that map as ristretto255\_map.
 
 The hash\_to\_ristretto function MUST be instantiated with an expand\_message
 function that conforms to the requirements given in {{hashtofield-expand}}.
