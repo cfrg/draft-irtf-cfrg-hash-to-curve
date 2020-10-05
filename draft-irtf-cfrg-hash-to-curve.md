@@ -2560,7 +2560,7 @@ to P-521 is given in {{sswu-map-to-3mod4}}.
 
 This section defines ciphersuites for curve25519 and edwards25519 {{!RFC7748}}.
 Note that these ciphersuites SHOULD NOT be used when hashing to ristretto255
-{{?I-D.irtf-cfrg-ristretto255}}.
+{{?I-D.irtf-cfrg-ristretto255-decaf448}}.
 See {{appx-ristretto255}} for information on how to hash to that group.
 
 curve25519\_XMD:SHA-512\_ELL2\_RO\_ is defined as follows:
@@ -2601,6 +2601,9 @@ Optimized example implementations of the above mappings are given in
 ## Suites for curve448 and edwards448 {#suites-448}
 
 This section defines ciphersuites for curve448 and edwards448 {{!RFC7748}}.
+Note that these ciphersuites SHOULD NOT be used when hashing to decaf448
+{{?I-D.irtf-cfrg-ristretto255-decaf448}}.
+See {{appx-decaf448}} for information on how to hash to that group.
 
 curve448\_XMD:SHA-512\_ELL2\_RO\_ is defined as follows:
 
@@ -3257,17 +3260,17 @@ This document does not deal with this complementary problem.
 
 # Hashing to ristretto255 {#appx-ristretto255}
 
-ristretto255 {{!I-D.irtf-cfrg-ristretto255}} provides an abstract prime-order
+ristretto255 {{!I-D.irtf-cfrg-ristretto255-decaf448}} provides an abstract prime-order
 group based on Curve25519 {{!RFC7748}}.
 This section describes hash\_to\_ristretto255, which implements a random-oracle
 encoding to this group that has a uniform output distribution ({{term-rom}})
 and the same security properties and interface as the hash\_to\_curve function
 ({{roadmap}}).
 
-The ristretto255 API defines a one-way map ({{?I-D.irtf-cfrg-ristretto255}},
-Section 4.2.4); this section refers to that map as ristretto255\_map.
+The ristretto255 API defines a one-way map ({{?I-D.irtf-cfrg-ristretto255-decaf448}},
+Section 4.3.4); this section refers to that map as ristretto255\_map.
 
-The hash\_to\_ristretto function MUST be instantiated with an expand\_message
+The hash\_to\_ristretto255 function MUST be instantiated with an expand\_message
 function that conforms to the requirements given in {{hashtofield-expand}}.
 In addition, it MUST use a domain separation tag constructed as described
 in {{domain-separation}}, and all domain separation recommendations given
@@ -3307,6 +3310,58 @@ For example, if expand\_message is expand\_message\_xmd using SHA-512, the
 REQUIRED identifier is:
 
     ristretto255_XMD:SHA-512_R255MAP_RO_
+
+# Hashing to decaf448 {#appx-decaf448}
+
+Similar to ristretto255, decaf448 {{!I-D.irtf-cfrg-ristretto255-decaf448}} provides
+an abstract prime-order group based on Curve448 {{!RFC7748}}.
+This section describes hash\_to\_decaf448, which implements a random-oracle
+encoding to this group that has a uniform output distribution ({{term-rom}})
+and the same security properties and interface as the hash\_to\_curve function
+({{roadmap}}).
+
+The decaf448 API defines a one-way map ({{?I-D.irtf-cfrg-ristretto255-decaf448}},
+Section 5.3.4); this section refers to that map as decaf448\_map.
+
+The hash\_to\_decaf448 function MUST be instantiated with an expand\_message
+function that conforms to the requirements given in {{hashtofield-expand}}.
+In addition, it MUST use a domain separation tag constructed as described
+in {{domain-separation}}, and all domain separation recommendations given
+in {{security-considerations-domain-separation}} apply when implementing
+protocols that use hash\_to\_decaf448.
+
+~~~
+hash_to_decaf448(msg)
+
+Parameters:
+- DST, a domain separation tag (see discussion above).
+- expand_message, a function that expands a byte string and
+  domain separation tag into a uniformly random byte string
+  (see discussion above).
+- decaf448_map, the one-way map from the decaf448 API.
+
+Input: msg, an arbitrary-length byte string.
+Output: P, an element of the decaf448 group.
+
+Steps:
+1. uniform_bytes = expand_message(msg, DST, 112)
+2. P = decaf448_map(uniform_bytes)
+3. return P
+~~~
+
+Since hash\_to\_decaf448 is not a hash-to-curve suite, it does not
+have a Suite ID. If a similar identifier is needed, it MUST be constructed
+following the guidelines in {{suiteIDformat}}, with the following parameters:
+
+- CURVE\_ID: "decaf448"
+- HASH\_ID: as described in {{suiteIDformat}}
+- MAP\_ID: "D448MAP"
+- ENC\_VAR: "RO"
+
+For example, if expand\_message is expand\_message\_xmd using SHA-512, the
+REQUIRED identifier is:
+
+    decaf448_XMD:SHA-512_D448MAP_RO_
 
 # Rational maps {#appx-rational-map}
 
