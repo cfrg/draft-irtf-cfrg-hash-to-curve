@@ -60,6 +60,30 @@ normative:
       -
         ins: A. Langley
         name: Adam Langley
+
+  I-D.irtf-cfrg-ristretto255-decaf448:
+    title: "The ristretto255 and decaf448 Groups"
+    date: Oct, 2020
+    author:
+      -
+        ins: H. de Valence
+        name: Henry de Valence
+      -
+        ins: J. Grigg
+        name: Jack Grigg
+      -
+        ins: G. Tankersley
+        name: George Tankersley
+      -
+        ins: F. Valsorda
+        name: Filippo Valsorda
+      -
+        ins: I. Lovecruft
+        name: Isis Lovecruft
+      -
+        ins: M. Hamburg
+        name: Mike Hamburg
+
 informative:
   BLS12-381:
     target: https://electriccoin.co/blog/new-snark-curve/
@@ -2560,7 +2584,7 @@ to P-521 is given in {{sswu-map-to-3mod4}}.
 
 This section defines ciphersuites for curve25519 and edwards25519 {{!RFC7748}}.
 Note that these ciphersuites SHOULD NOT be used when hashing to ristretto255
-{{?I-D.irtf-cfrg-ristretto255-decaf448}}.
+{{I-D.irtf-cfrg-ristretto255-decaf448}}.
 See {{appx-ristretto255}} for information on how to hash to that group.
 
 curve25519\_XMD:SHA-512\_ELL2\_RO\_ is defined as follows:
@@ -2602,7 +2626,7 @@ Optimized example implementations of the above mappings are given in
 
 This section defines ciphersuites for curve448 and edwards448 {{!RFC7748}}.
 Note that these ciphersuites SHOULD NOT be used when hashing to decaf448
-{{?I-D.irtf-cfrg-ristretto255-decaf448}}.
+{{I-D.irtf-cfrg-ristretto255-decaf448}}.
 See {{appx-decaf448}} for information on how to hash to that group.
 
 curve448\_XMD:SHA-512\_ELL2\_RO\_ is defined as follows:
@@ -3260,14 +3284,14 @@ This document does not deal with this complementary problem.
 
 # Hashing to ristretto255 {#appx-ristretto255}
 
-ristretto255 {{!I-D.irtf-cfrg-ristretto255-decaf448}} provides an abstract prime-order
+ristretto255 {{I-D.irtf-cfrg-ristretto255-decaf448}} provides an abstract prime-order
 group based on Curve25519 {{!RFC7748}}.
 This section describes hash\_to\_ristretto255, which implements a random-oracle
 encoding to this group that has a uniform output distribution ({{term-rom}})
 and the same security properties and interface as the hash\_to\_curve function
 ({{roadmap}}).
 
-The ristretto255 API defines a one-way map ({{?I-D.irtf-cfrg-ristretto255-decaf448}},
+The ristretto255 API defines a one-way map ({{I-D.irtf-cfrg-ristretto255-decaf448}},
 Section 4.3.4); this section refers to that map as ristretto255\_map.
 
 The hash\_to\_ristretto255 function MUST be instantiated with an expand\_message
@@ -3313,14 +3337,14 @@ REQUIRED identifier is:
 
 # Hashing to decaf448 {#appx-decaf448}
 
-Similar to ristretto255, decaf448 {{!I-D.irtf-cfrg-ristretto255-decaf448}} provides
+Similar to ristretto255, decaf448 {{I-D.irtf-cfrg-ristretto255-decaf448}} provides
 an abstract prime-order group based on Curve448 {{!RFC7748}}.
 This section describes hash\_to\_decaf448, which implements a random-oracle
 encoding to this group that has a uniform output distribution ({{term-rom}})
 and the same security properties and interface as the hash\_to\_curve function
 ({{roadmap}}).
 
-The decaf448 API defines a one-way map ({{?I-D.irtf-cfrg-ristretto255-decaf448}},
+The decaf448 API defines a one-way map ({{I-D.irtf-cfrg-ristretto255-decaf448}},
 Section 5.3.4); this section refers to that map as decaf448\_map.
 
 The hash\_to\_decaf448 function MUST be instantiated with an expand\_message
