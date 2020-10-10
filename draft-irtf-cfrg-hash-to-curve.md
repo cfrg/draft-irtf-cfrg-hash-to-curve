@@ -3284,7 +3284,7 @@ This document does not deal with this complementary problem.
 
 # Hashing to ristretto255 {#appx-ristretto255}
 
-ristretto255 {{I-D.irtf-cfrg-ristretto255-decaf448}} provides an abstract prime-order
+ristretto255 {{I-D.irtf-cfrg-ristretto255-decaf448}} provides a prime-order
 group based on Curve25519 {{!RFC7748}}.
 This section describes hash\_to\_ristretto255, which implements a random-oracle
 encoding to this group that has a uniform output distribution ({{term-rom}})
