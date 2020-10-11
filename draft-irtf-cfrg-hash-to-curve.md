@@ -61,29 +61,6 @@ normative:
         ins: A. Langley
         name: Adam Langley
 
-  I-D.irtf-cfrg-ristretto255-decaf448:
-    title: "The ristretto255 and decaf448 Groups"
-    date: Oct, 2020
-    author:
-      -
-        ins: H. de Valence
-        name: Henry de Valence
-      -
-        ins: J. Grigg
-        name: Jack Grigg
-      -
-        ins: G. Tankersley
-        name: George Tankersley
-      -
-        ins: F. Valsorda
-        name: Filippo Valsorda
-      -
-        ins: I. Lovecruft
-        name: Isis Lovecruft
-      -
-        ins: M. Hamburg
-        name: Mike Hamburg
-
 informative:
   BLS12-381:
     target: https://electriccoin.co/blog/new-snark-curve/
@@ -2584,7 +2561,7 @@ to P-521 is given in {{sswu-map-to-3mod4}}.
 
 This section defines ciphersuites for curve25519 and edwards25519 {{!RFC7748}}.
 Note that these ciphersuites SHOULD NOT be used when hashing to ristretto255
-{{I-D.irtf-cfrg-ristretto255-decaf448}}.
+{{?I-D.irtf-cfrg-ristretto255-decaf448}}.
 See {{appx-ristretto255}} for information on how to hash to that group.
 
 curve25519\_XMD:SHA-512\_ELL2\_RO\_ is defined as follows:
