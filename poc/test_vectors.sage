@@ -160,6 +160,7 @@ ALL_EXPANDERS = [
     XMDExpander(test_dst("expander"), hashlib.sha512, 256),
     XMDExpander(test_dst("expander"), hashlib.sha256, 128),
     XOFExpander(test_dst("expander"), hashlib.shake_128),
+    XOFExpander(test_dst("expander"), hashlib.shake_256),
 ]
 
 if __name__ == '__main__':

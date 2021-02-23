@@ -69,6 +69,7 @@ for curve in (P256, P384, P521, curve25519, edwards25519, curve448, edwards448, 
 expand_message_xmd_sha256 = ("expand_message_xmd(SHA-256)", "expand_message_xmd_SHA256")
 expand_message_xmd_sha512 = ("expand_message_xmd(SHA-512)", "expand_message_xmd_SHA512")
 expand_message_xof_shake128 = ("expand_message_xof(SHAKE128)", "expand_message_xof_SHAKE128")
+expand_message_xof_shake256 = ("expand_message_xof(SHAKE256)", "expand_message_xof_SHAKE256")
 
 # section header
 print("""
@@ -85,7 +86,7 @@ DST and msg are represented as ASCII strings.
 Intermediate and output values are represented as byte strings in hexadecimal.
 """)
 
-for expander in (expand_message_xmd_sha256, expand_message_xmd_sha512, expand_message_xof_shake128):
+for expander in (expand_message_xmd_sha256, expand_message_xmd_sha512, expand_message_xof_shake128, expand_message_xof_shake256):
     print("## %s\n" % expander[0])
     with open("ascii/%s.txt" % expander[1], "r") as f:
         print("~~~\n")
