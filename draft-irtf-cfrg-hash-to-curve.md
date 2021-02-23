@@ -3359,7 +3359,7 @@ following the guidelines in {{suiteIDformat}}, with the following parameters:
 - MAP\_ID: "D448MAP"
 - ENC\_VAR: "RO"
 
-For example, if expand\_message is expand\_message\_xmd using SHAKE256, the
+For example, if expand\_message is expand\_message\_xof using SHAKE256, the
 REQUIRED identifier is:
 
     decaf448_XOF:SHAKE256_D448MAP_RO_
