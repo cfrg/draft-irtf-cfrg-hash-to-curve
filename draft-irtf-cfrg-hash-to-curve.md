@@ -1097,6 +1097,15 @@ informative:
         ins: T. Pornin
         name: Thomas Pornin
         org: NCC Group
+  H20:
+    title: "Indifferentiable hashing from Elligator 2"
+    target: https://eprint.iacr.org/2020/1513
+    date: 2020
+    author:
+      -
+        ins: M. Hamburg
+        name: Mike Hamburg
+        org: Rambus Inc
 
 --- abstract
 
@@ -2863,7 +2872,7 @@ encoding.
 When the hash\_to\_curve function ({{roadmap}}) is instantiated with a
 hash\_to\_field function that is indifferentiable from a random oracle
 ({{hashtofield}}), the resulting function is indifferentiable from a random
-oracle ({{MRH04}}, {{BCIMRT10}}, {{FFSTV13}}, {{LBB19}}).
+oracle ({{MRH04}}, {{BCIMRT10}}, {{FFSTV13}}, {{LBB19}}, {{H20}}).
 In many cases such a function can be safely used in cryptographic protocols
 whose security analysis assumes a random oracle that outputs uniformly random
 points on an elliptic curve.
