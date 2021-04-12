@@ -2874,12 +2874,10 @@ Assuming that the encoding is instantiated with a hash\_to\_field function
 that follows all guidelines in {{hashtofield}}, for a uniformly random input
 to either encoding the probability that the identity element is output is
 roughly 1/r, which is negligible for cryptographically useful elliptic curves.
-Further, it is computationally infeasible to find an input to either encoding
+Further, it is computationally infeasible to find an input to either encoding function
 whose corresponding output is the identity element.
-In general, protocols that use these encoding functions SHOULD NOT add a
-special case to detect and "fix" the identity element, because implementation
-errors in this special-case logic are astronomically more likely than a
-"bad" input ever occurring.
+Protocols that use these encoding functions SHOULD NOT add a special case 
+to detect and "fix" the identity element.
 
 When the hash\_to\_curve function ({{roadmap}}) is instantiated with a
 hash\_to\_field function that is indifferentiable from a random oracle
