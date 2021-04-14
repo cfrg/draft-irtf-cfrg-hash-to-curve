@@ -2869,6 +2869,17 @@ implications of nonuniformity.
 When the required encoding is not clear, applications SHOULD use a uniform
 encoding.
 
+Both encodings given in {{roadmap}} can output the identity element of the group G.
+The probability that either encoding function outputs the identity element is
+roughly 1/r for a random input, which is negligible for cryptographically useful
+elliptic curves.
+Further, it is computationally infeasible to find an input to either encoding function
+whose corresponding output is the identity element.
+(Both of these properties hold when the encoding functions are instantiated with a
+hash\_to\_field function that follows all guidelines in {{hashtofield}}.)
+Protocols that use these encoding functions SHOULD NOT add a special case 
+to detect and "fix" the identity element.
+
 When the hash\_to\_curve function ({{roadmap}}) is instantiated with a
 hash\_to\_field function that is indifferentiable from a random oracle
 ({{hashtofield}}), the resulting function is indifferentiable from a random
