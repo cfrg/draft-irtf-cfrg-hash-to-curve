@@ -26,7 +26,7 @@ def show_iso(iso):
     for (idx, (m, s)) in enumerate(zip(maps, strs), 1):
         max_jdx = -1
         skipped_one = False
-        for ((jdx, _), val) in sorted(m.dict().iteritems()):
+        for ((jdx, _), val) in sorted(m.dict().items()):
             if val == 1 and jdx + 1 == len(m.dict()):
                 skipped_one = True
                 continue

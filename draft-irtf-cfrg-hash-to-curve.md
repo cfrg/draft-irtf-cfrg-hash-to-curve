@@ -1428,7 +1428,7 @@ which is a byte string constructed according to the following requirements:
    or to different curves, each encoding MUST use a different tag.
    For this purpose, it is RECOMMENDED to include the encoding's
    Suite ID ({{suites}}) in the domain separation tag.
-   For independent encodings based on the same suite, each tag should
+   For independent encodings based on the same suite, each tag SHOULD
    also include a distinct identifier, e.g., "ENC1" and "ENC2".
 
 As an example, consider a fictional application named Quux
@@ -1566,7 +1566,7 @@ Steps:
 8. return sign
 ~~~
 
-Note that any valid sgn0 function for extension fields must iterate over
+Note that any sgn0 function for extension fields must iterate over
 the entire vector representation of the input element.
 To see why, imagine a function sgn0\* that ignores the final entry in its
 input vector, and consider a field element x = (0, x\_2).
@@ -1626,8 +1626,9 @@ This means that any hash\_to\_field function based on rejection sampling
 would be incompatible with constant-time implementation.
 
 The hash\_to\_field function is also suitable for securely hashing to scalars.
-For example, when hashing to scalars for an elliptic curve (sub)group with prime order r,
-it suffices to instantiate hash\_to\_curve with target field GF(r).
+For example, when hashing to the scalar field for an elliptic curve (sub)group
+with prime order r, it suffices to instantiate hash\_to\_field with target field
+GF(r).
 
 ## Security considerations {#hashtofield-sec}
 
@@ -1796,7 +1797,8 @@ Input:
 - msg, a byte string.
 - DST, a byte string of at most 255 bytes.
   See below for information on using longer DSTs.
-- len_in_bytes, the length of the requested output in bytes.
+- len_in_bytes, the length of the requested output in bytes,
+  not greater than the lesser of (255 * b_in_bytes) or 2^16-1.
 
 Output:
 - uniform_bytes, a byte string.
@@ -2020,7 +2022,7 @@ in optimizing square-root implementations.
 
 ## Exceptional cases {#map-exceptions}
 
-Mappings may have have exceptional cases, i.e., inputs u
+Mappings may have exceptional cases, i.e., inputs u
 on which the mapping is undefined. These cases must be handled
 carefully, especially for constant-time implementations.
 
