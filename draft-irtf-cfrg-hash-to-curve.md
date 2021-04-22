@@ -1542,7 +1542,11 @@ material {{MOV96}} {{CFADLNV05}}.
 This section defines a generic sgn0 implementation that applies to any field F = GF(p^m).
 It also gives simplified implementations for the cases F = GF(p) and F = GF(p^2).
 
-See {{bg-curves}} for a discussion of representing elements of extension fields as vectors.
+The definition of the sgn0 function for extension fields relies on
+the polynomial basis or vector representation of field elements, and
+iterates over the entire vector representation of the input element.
+See {{bg-curves}} for a discussion of representing elements of
+extension fields as vectors.
 
 ~~~
 sgn0(x)
@@ -1565,14 +1569,6 @@ Steps:
 7.   zero = zero AND zero_i
 8. return sign
 ~~~
-
-Note that any sgn0 function for extension fields must iterate over
-the entire vector representation of the input element.
-To see why, imagine a function sgn0\* that ignores the final entry in its
-input vector, and consider a field element x = (0, x\_2).
-Since sgn0\* ignores x\_2, sgn0\*(x) == sgn0\*(-x), which is incorrect
-when x\_2 != 0.
-A similar argument applies to any entry of the vector representation of x.
 
 When m == 1, sgn0 can be significantly simplified:
 
