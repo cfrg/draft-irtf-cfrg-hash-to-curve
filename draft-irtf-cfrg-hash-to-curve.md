@@ -3685,6 +3685,8 @@ This section gives a straight-line implementation of the Shallue and van
 de Woestijne method for any Weierstrass curve of the form given in
 {{weierstrass}}.
 See {{svdw}} for information on the constants used in this mapping.
+Note that the sign of constant c3 below MUST equal 0. If sgn0(c3) = -1,
+c3 MUST instead be set to -c3.
 
 ~~~
 map_to_curve_svdw(u)
