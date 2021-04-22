@@ -1570,7 +1570,7 @@ Steps:
 3. for i in (1, 2, ..., m):
 4.   sign_i = x_i mod 2
 5.   zero_i = x_i == 0
-6.   sign = sign OR (zero AND sign_i)    # Avoid short-circuit logic ops
+6.   sign = sign OR (zero AND sign_i) # Avoid short-circuit logic ops
 7.   zero = zero AND zero_i
 8. return sign
 ~~~
@@ -1607,7 +1607,8 @@ Steps:
 1. sign_0 = x_0 mod 2
 2. zero_0 = x_0 == 0
 3. sign_1 = x_1 mod 2
-4. return sign_0 OR (zero_0 AND sign_1)  # Avoid short-circuit logic ops
+4. s = sign_0 OR (zero_0 AND sign_1) # Avoid short-circuit logic ops
+5. return s
 ~~~
 
 # Hashing to a finite field {#hashtofield}
@@ -2877,7 +2878,7 @@ Further, it is computationally infeasible to find an input to either encoding fu
 whose corresponding output is the identity element.
 (Both of these properties hold when the encoding functions are instantiated with a
 hash\_to\_field function that follows all guidelines in {{hashtofield}}.)
-Protocols that use these encoding functions SHOULD NOT add a special case 
+Protocols that use these encoding functions SHOULD NOT add a special case
 to detect and "fix" the identity element.
 
 When the hash\_to\_curve function ({{roadmap}}) is instantiated with a
@@ -3737,14 +3738,14 @@ Steps:
 18. gx2 = gx2 + A
 19. gx2 = gx2 * x2
 20. gx2 = gx2 + B
-21.  e2 = is_square(gx2) AND NOT e1     # Avoid short-circuit logic ops
+21.  e2 = is_square(gx2) AND NOT e1   # Avoid short-circuit logic ops
 22.  x3 = tv2^2
 23.  x3 = x3 * tv3
 24.  x3 = x3^2
 25.  x3 = x3 * c4
 26.  x3 = x3 + Z
-27.   x = CMOV(x3, x1, e1)      # x = x1 if gx1 is square, else x = x3
-28.   x = CMOV(x, x2, e2)       # x = x2 if gx2 is square and gx1 is not
+27.   x = CMOV(x3, x1, e1)   # x = x1 if gx1 is square, else x = x3
+28.   x = CMOV(x, x2, e2)    # x = x2 if gx2 is square and gx1 is not
 29.  gx = x^2
 30.  gx = gx + A
 31.  gx = gx * x
@@ -3782,7 +3783,7 @@ Steps:
 5.   e1 = x1 == 0
 6.   x1 = x1 + 1
 7.   x1 = CMOV(x1, c2, e1)    # If (tv1 + tv2) == 0, set x1 = -1 / Z
-8.   x1 = x1 * c1      # x1 = (-B / A) * (1 + (1 / (Z^2 * u^4 + Z * u^2)))
+8.   x1 = x1 * c1 # x1 = (-B / A) * (1 + (1 / (Z^2 * u^4 + Z * u^2)))
 9.  gx1 = x1^2
 10. gx1 = gx1 + A
 11. gx1 = gx1 * x1
@@ -3790,9 +3791,9 @@ Steps:
 13.  x2 = tv1 * x1            # x2 = Z * u^2 * x1
 14. tv2 = tv1 * tv2
 15. gx2 = gx1 * tv2           # gx2 = (Z * u^2)^3 * gx1
-16.  e2 = is_square(gx1)
-17.   x = CMOV(x2, x1, e2)    # If is_square(gx1), x = x1, else x = x2
-18.  y2 = CMOV(gx2, gx1, e2)  # If is_square(gx1), y2 = gx1, else y2 = gx2
+16.  e2 = is_square(gx1)      # If is_square(gx1)
+17.   x = CMOV(x2, x1, e2)    #   then  x = x1,  else  x = x2
+18.  y2 = CMOV(gx2, gx1, e2)  #   then y2 = gx1, else y2 = gx2
 19.   y = sqrt(y2)
 20.  e3 = sgn0(u) == sgn0(y)  # Fix sign of y
 21.   y = CMOV(-y, y, e3)
@@ -3820,21 +3821,21 @@ Constants:
 
 Steps:
 1.  tv1 = u^2
-2.  tv1 = Z * tv1             # Z * u^2
-3.   e1 = tv1 == -1           # exceptional case: Z * u^2 == -1
-4.  tv1 = CMOV(tv1, 0, e1)    # if tv1 == -1, set tv1 = 0
+2.  tv1 = Z * tv1            # Z * u^2
+3.   e1 = tv1 == -1          # exceptional case: Z * u^2 == -1
+4.  tv1 = CMOV(tv1, 0, e1)   # if tv1 == -1, set tv1 = 0
 5.   x1 = tv1 + 1
 6.   x1 = inv0(x1)
-7.   x1 = -c1 * x1             # x1 = -(J / K) / (1 + Z * u^2)
+7.   x1 = -c1 * x1           # x1 = -(J / K) / (1 + Z * u^2)
 8.  gx1 = x1 + c1
 9.  gx1 = gx1 * x1
 10. gx1 = gx1 + c2
-11. gx1 = gx1 * x1            # gx1 = x1^3 + (J / K) * x1^2 + x1 / K^2
+11. gx1 = gx1 * x1           # gx1 = x1^3 + (J / K) * x1^2 + x1 / K^2
 12.  x2 = -x1 - c1
 13. gx2 = tv1 * gx1
-14.  e2 = is_square(gx1)
-15.   x = CMOV(x2, x1, e2)    # If is_square(gx1), x = x1, else x = x2
-16.  y2 = CMOV(gx2, gx1, e2)  # If is_square(gx1), y2 = gx1, else y2 = gx2
+14.  e2 = is_square(gx1)     # If is_square(gx1)
+15.   x = CMOV(x2, x1, e2)   #   then  x = x1,  else  x = x2
+16.  y2 = CMOV(gx2, gx1, e2) #   then y2 = gx1, else y2 = gx2
 17.   y = sqrt(y2)
 18.  e3 = sgn0(y) == 1
 19.   y = CMOV(y, -y, e2 XOR e3)    # fix sign of y
@@ -3937,28 +3938,28 @@ Steps:
 8.   e1 = xd == 0
 9.   xd = CMOV(xd, Z * A, e1)  # If xd == 0, set xd = Z * A
 10. tv2 = xd^2
-11. gxd = tv2 * xd             # gxd == xd^3
+11. gxd = tv2 * xd          # gxd == xd^3
 12. tv2 = A * tv2
 13. gx1 = x1n^2
-14. gx1 = gx1 + tv2            # x1n^2 + A * xd^2
-15. gx1 = gx1 * x1n            # x1n^3 + A * x1n * xd^2
+14. gx1 = gx1 + tv2         # x1n^2 + A * xd^2
+15. gx1 = gx1 * x1n         # x1n^3 + A * x1n * xd^2
 16. tv2 = B * gxd
-17. gx1 = gx1 + tv2            # x1n^3 + A * x1n * xd^2 + B * xd^3
+17. gx1 = gx1 + tv2         # x1n^3 + A * x1n * xd^2 + B * xd^3
 18. tv4 = gxd^2
 19. tv2 = gx1 * gxd
-20. tv4 = tv4 * tv2            # gx1 * gxd^3
-21.  y1 = tv4^c1               # (gx1 * gxd^3)^((q - 3) / 4)
-22.  y1 = y1 * tv2             # gx1 * gxd * (gx1 * gxd^3)^((q - 3) / 4)
-23. x2n = tv3 * x1n            # x2 = x2n / xd = Z * u^2 * x1n / xd
-24.  y2 = y1 * c2              # y2 = y1 * sqrt(-Z^3)
+20. tv4 = tv4 * tv2         # gx1 * gxd^3
+21.  y1 = tv4^c1            # (gx1 * gxd^3)^((q - 3) / 4)
+22.  y1 = y1 * tv2          # gx1 * gxd * (gx1 * gxd^3)^((q - 3) / 4)
+23. x2n = tv3 * x1n         # x2 = x2n / xd = Z * u^2 * x1n / xd
+24.  y2 = y1 * c2           # y2 = y1 * sqrt(-Z^3)
 25.  y2 = y2 * tv1
 26.  y2 = y2 * u
 27. tv2 = y1^2
 28. tv2 = tv2 * gxd
 29.  e2 = tv2 == gx1
-30.  xn = CMOV(x2n, x1n, e2)   # If e2, x = x1, else x = x2
-31.   y = CMOV(y2, y1, e2)     # If e2, y = y1, else y = y2
-32.  e3 = sgn0(u) == sgn0(y)   # Fix sign of y
+30.  xn = CMOV(x2n, x1n, e2)  # If e2, x = x1, else x = x2
+31.   y = CMOV(y2, y1, e2)    # If e2, y = y1, else y = y2
+32.  e3 = sgn0(u) == sgn0(y)  # Fix sign of y
 33.   y = CMOV(-y, y, e3)
 34. return (xn, xd, y, 1)
 ~~~
@@ -4142,29 +4143,29 @@ Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on curve25519.
 
 Constants:
-1. c1 = (q + 3) / 8           # Integer arithmetic
+1. c1 = (q + 3) / 8       # Integer arithmetic
 2. c2 = 2^c1
 3. c3 = sqrt(-1)
-4. c4 = (q - 5) / 8           # Integer arithmetic
+4. c4 = (q - 5) / 8       # Integer arithmetic
 
 Steps:
 1.  tv1 = u^2
 2.  tv1 = 2 * tv1
-3.   xd = tv1 + 1             # Nonzero: -1 is square (mod p), tv1 is not
-4.  x1n = -J                  # x1 = x1n / xd = -J / (1 + 2 * u^2)
+3.   xd = tv1 + 1         # Nonzero: -1 is square (mod p), tv1 is not
+4.  x1n = -J              # x1 = x1n / xd = -J / (1 + 2 * u^2)
 5.  tv2 = xd^2
-6.  gxd = tv2 * xd            # gxd = xd^3
-7.  gx1 = J * tv1             # x1n + J * xd
-8.  gx1 = gx1 * x1n           # x1n^2 + J * x1n * xd
-9.  gx1 = gx1 + tv2           # x1n^2 + J * x1n * xd + xd^2
-10. gx1 = gx1 * x1n           # x1n^3 + J * x1n^2 * xd + x1n * xd^2
+6.  gxd = tv2 * xd        # gxd = xd^3
+7.  gx1 = J * tv1         # x1n + J * xd
+8.  gx1 = gx1 * x1n       # x1n^2 + J * x1n * xd
+9.  gx1 = gx1 + tv2       # x1n^2 + J * x1n * xd + xd^2
+10. gx1 = gx1 * x1n       # x1n^3 + J * x1n^2 * xd + x1n * xd^2
 11. tv3 = gxd^2
-12. tv2 = tv3^2               # gxd^4
-13. tv3 = tv3 * gxd           # gxd^3
-14. tv3 = tv3 * gx1           # gx1 * gxd^3
-15. tv2 = tv2 * tv3           # gx1 * gxd^7
-16. y11 = tv2^c4              # (gx1 * gxd^7)^((p - 5) / 8)
-17. y11 = y11 * tv3           # gx1 * gxd^3 * (gx1 * gxd^7)^((p - 5) / 8)
+12. tv2 = tv3^2           # gxd^4
+13. tv3 = tv3 * gxd       # gxd^3
+14. tv3 = tv3 * gx1       # gx1 * gxd^3
+15. tv2 = tv2 * tv3       # gx1 * gxd^7
+16. y11 = tv2^c4          # (gx1 * gxd^7)^((p - 5) / 8)
+17. y11 = y11 * tv3       # gx1 * gxd^3 * (gx1 * gxd^7)^((p - 5) / 8)
 18. y12 = y11 * c3
 19. tv2 = y11^2
 20. tv2 = tv2 * gxd
@@ -4208,15 +4209,15 @@ Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on edwards25519.
 
 Constants:
-1. c1 = sqrt(-486664)    # sgn0(c1) MUST equal 0
+1. c1 = sqrt(-486664) # sgn0(c1) MUST equal 0
 
 Steps:
 1.  (xMn, xMd, yMn, yMd) = map_to_curve_elligator2_curve25519(u)
 2.  xn = xMn * yMd
 3.  xn = xn * c1
-4.  xd = xMd * yMn       # xn / xd = c1 * xM / yM
+4.  xd = xMd * yMn    # xn / xd = c1 * xM / yM
 5.  yn = xMn - xMd
-6.  yd = xMn + xMd       # (n / d - 1) / (n / d + 1) = (n - d) / (n + d)
+6.  yd = xMn + xMd    # (n / d - 1) / (n / d + 1) = (n - d) / (n + d)
 7. tv1 = xd * yd
 8.   e = tv1 == 0
 9.  xn = CMOV(xn, 0, e)
@@ -4242,26 +4243,26 @@ Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on curve448.
 
 Constants:
-1. c1 = (q - 3) / 4           # Integer arithmetic
+1. c1 = (q - 3) / 4         # Integer arithmetic
 
 Steps:
 1.  tv1 = u^2
 2.   e1 = tv1 == 1
-3.  tv1 = CMOV(tv1, 0, e1)    # If Z * u^2 == -1, set tv1 = 0
+3.  tv1 = CMOV(tv1, 0, e1)  # If Z * u^2 == -1, set tv1 = 0
 4.   xd = 1 - tv1
 5.  x1n = -J
 6.  tv2 = xd^2
-7.  gxd = tv2 * xd            # gxd = xd^3
-8.  gx1 = -J * tv1            # x1n + J * xd
-9.  gx1 = gx1 * x1n           # x1n^2 + J * x1n * xd
-10. gx1 = gx1 + tv2           # x1n^2 + J * x1n * xd + xd^2
-11. gx1 = gx1 * x1n           # x1n^3 + J * x1n^2 * xd + x1n * xd^2
+7.  gxd = tv2 * xd          # gxd = xd^3
+8.  gx1 = -J * tv1          # x1n + J * xd
+9.  gx1 = gx1 * x1n         # x1n^2 + J * x1n * xd
+10. gx1 = gx1 + tv2         # x1n^2 + J * x1n * xd + xd^2
+11. gx1 = gx1 * x1n         # x1n^3 + J * x1n^2 * xd + x1n * xd^2
 12. tv3 = gxd^2
-13. tv2 = gx1 * gxd           # gx1 * gxd
-14. tv3 = tv3 * tv2           # gx1 * gxd^3
-15.  y1 = tv3^c1              # (gx1 * gxd^3)^((p - 3) / 4)
-16.  y1 = y1 * tv2            # gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
-17. x2n = -tv1 * x1n          # x2 = x2n / xd = -1 * u^2 * x1n / xd
+13. tv2 = gx1 * gxd         # gx1 * gxd
+14. tv3 = tv3 * tv2         # gx1 * gxd^3
+15.  y1 = tv3^c1            # (gx1 * gxd^3)^((p - 3) / 4)
+16.  y1 = y1 * tv2          # gx1 * gxd * (gx1 * gxd^3)^((p - 3) / 4)
+17. x2n = -tv1 * x1n        # x2 = x2n / xd = -1 * u^2 * x1n / xd
 18.  y2 = y1 * u
 19.  y2 = CMOV(y2, 0, e1)
 20. tv2 = y1^2
@@ -4345,31 +4346,31 @@ Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
         point on the target curve.
 
 Constants:
-1. c1 = (q - 3) / 4           # Integer arithmetic
+1. c1 = (q - 3) / 4        # Integer arithmetic
 2. c2 = K^2
 
 Steps:
 1.  tv1 = u^2
 2.   e1 = tv1 == 1
-3.  tv1 = CMOV(tv1, 0, e1)    # If Z * u^2 == -1, set tv1 = 0
+3.  tv1 = CMOV(tv1, 0, e1) # If Z * u^2 == -1, set tv1 = 0
 4.   xd = 1 - tv1
 5.   xd = xd * K
-6.  x1n = -J                  # x1 = x1n / xd = -J / (K * (1 + 2 * u^2))
+6.  x1n = -J          # x1 = x1n / xd = -J / (K * (1 + 2 * u^2))
 7.  tv2 = xd^2
 8.  gxd = tv2 * xd
-9.  gxd = gxd * c2            # gxd = xd^3 * K^2
+9.  gxd = gxd * c2    # gxd = xd^3 * K^2
 10. gx1 = x1n * K
 11. tv3 = xd * J
-12. tv3 = gx1 + tv3           # x1n * K + xd * J
-13. gx1 = gx1 * tv3           # K^2 * x1n^2 + J * K * x1n * xd
-14. gx1 = gx1 + tv2           # K^2 * x1n^2 + J * K * x1n * xd + xd^2
-15. gx1 = gx1 * x1n           # K^2 * x1n^3 + J * K * x1n^2 * xd + x1n * xd^2
+12. tv3 = gx1 + tv3   # x1n * K + xd * J
+13. gx1 = gx1 * tv3   # K^2 * x1n^2 + J * K * x1n * xd
+14. gx1 = gx1 + tv2   # K^2 * x1n^2 + J * K * x1n * xd + xd^2
+15. gx1 = gx1 * x1n   # K^2 * x1n^3 + J * K * x1n^2 * xd + x1n * xd^2
 16. tv3 = gxd^2
-17. tv2 = gx1 * gxd           # gx1 * gxd
-18. tv3 = tv3 * tv2           # gx1 * gxd^3
-19.  y1 = tv3^c1              # (gx1 * gxd^3)^((q - 3) / 4)
-20.  y1 = y1 * tv2            # gx1 * gxd * (gx1 * gxd^3)^((q - 3) / 4)
-21. x2n = -tv1 * x1n          # x2 = x2n / xd = -1 * u^2 * x1n / xd
+17. tv2 = gx1 * gxd   # gx1 * gxd
+18. tv3 = tv3 * tv2   # gx1 * gxd^3
+19.  y1 = tv3^c1      # (gx1 * gxd^3)^((q - 3) / 4)
+20.  y1 = y1 * tv2    # gx1 * gxd * (gx1 * gxd^3)^((q - 3) / 4)
+21. x2n = -tv1 * x1n  # x2 = x2n / xd = -1 * u^2 * x1n / xd
 22.  y2 = y1 * u
 23.  y2 = CMOV(y2, 0, e1)
 24. tv2 = y1^2
@@ -4409,25 +4410,25 @@ Constants:
 Steps:
 1.  tv1 = u^2
 2.  tv1 = 2 * tv1
-3.   xd = tv1 + 1             # Nonzero: -1 is square (mod p), tv1 is not
+3.   xd = tv1 + 1     # Nonzero: -1 is square (mod p), tv1 is not
 4.   xd = xd * K
-5.  x1n = -J                  # x1 = x1n / xd = -J / (K * (1 + 2 * u^2))
+5.  x1n = -J          # x1 = x1n / xd = -J / (K * (1 + 2 * u^2))
 6.  tv2 = xd^2
 7.  gxd = tv2 * xd
-8.  gxd = gxd * c5            # gxd = xd^3 * K^2
+8.  gxd = gxd * c5    # gxd = xd^3 * K^2
 9.  gx1 = x1n * K
 10. tv3 = xd * J
-11. tv3 = gx1 + tv3           # x1n * K + xd * J
-12. gx1 = gx1 * tv3           # K^2 * x1n^2 + J * K * x1n * xd
-13. gx1 = gx1 + tv2           # K^2 * x1n^2 + J * K * x1n * xd + xd^2
-14. gx1 = gx1 * x1n           # K^2 * x1n^3 + J * K * x1n^2 * xd + x1n * xd^2
+11. tv3 = gx1 + tv3   # x1n * K + xd * J
+12. gx1 = gx1 * tv3   # K^2 * x1n^2 + J * K * x1n * xd
+13. gx1 = gx1 + tv2   # K^2 * x1n^2 + J * K * x1n * xd + xd^2
+14. gx1 = gx1 * x1n   # K^2 * x1n^3 + J * K * x1n^2 * xd + x1n * xd^2
 15. tv3 = gxd^2
-16. tv2 = tv3^2               # gxd^4
-17. tv3 = tv3 * gxd           # gxd^3
-18. tv3 = tv3 * gx1           # gx1 * gxd^3
-19. tv2 = tv2 * tv3           # gx1 * gxd^7
-20. y11 = tv2^c4              # (gx1 * gxd^7)^((q - 5) / 8)
-21. y11 = y11 * tv3           # gx1 * gxd^3 * (gx1 * gxd^7)^((q - 5) / 8)
+16. tv2 = tv3^2       # gxd^4
+17. tv3 = tv3 * gxd   # gxd^3
+18. tv3 = tv3 * gx1   # gx1 * gxd^3
+19. tv2 = tv2 * tv3   # gx1 * gxd^7
+20. y11 = tv2^c4      # (gx1 * gxd^7)^((q - 5) / 8)
+21. y11 = y11 * tv3   # gx1 * gxd^3 * (gx1 * gxd^7)^((q - 5) / 8)
 22. y12 = y11 * c3
 23. tv2 = y11^2
 24. tv2 = tv2 * gxd
@@ -4569,7 +4570,7 @@ The below function outputs an appropriate Z for the Shallue and van de Woestijne
 ~~~sage
 # Arguments:
 # - F, a field object, e.g., F = GF(2^521 - 1)
-# - A and B, the coefficients of the curve equation y^2 = x^3 + A * x + B
+# - A and B, the coefficients of the curve y^2 = x^3 + A * x + B
 def find_z_svdw(F, A, B, init_ctr=1):
     g = lambda x: F(x)^3 + F(A) * F(x) + F(B)
     h = lambda Z: -(F(3) * Z^2 + F(4) * A) / (F(4) * g(Z))
@@ -4577,17 +4578,21 @@ def find_z_svdw(F, A, B, init_ctr=1):
     ctr = init_ctr
     while True:
         for Z_cand in (F(ctr), F(-ctr)):
+            # Criterion 1:
+            #   g(Z) != 0 in F.
             if g(Z_cand) == F(0):
-                # Criterion 1: g(Z) != 0 in F.
                 continue
+            # Criterion 2:
+            #   -(3 * Z^2 + 4 * A) / (4 * g(Z)) != 0 in F.
             if h(Z_cand) == F(0):
-                # Criterion 2: -(3 * Z^2 + 4 * A) / (4 * g(Z)) != 0 in F.
                 continue
+            # Criterion 3:
+            #   -(3 * Z^2 + 4 * A) / (4 * g(Z)) is square in F.
             if not h(Z_cand).is_square():
-                # Criterion 3: -(3 * Z^2 + 4 * A) / (4 * g(Z)) is square in F.
                 continue
-            if g(Z_cand).is_square() or g(-Z_cand / F(2)).is_square():
-                # Criterion 4: At least one of g(Z) and g(-Z / 2) is square in F.
+            # Criterion 4:
+            #   At least one of g(Z) and g(-Z / 2) is square in F.
+            if is_square(g(Z_cand)) or is_square(g(-Z_cand / F(2))):
                 return Z_cand
         ctr += 1
 ~~~
@@ -4599,10 +4604,10 @@ The below function outputs an appropriate Z for the Simplified SWU map ({{simple
 ~~~sage
 # Arguments:
 # - F, a field object, e.g., F = GF(2^521 - 1)
-# - A and B, the coefficients of the curve equation y^2 = x^3 + A * x + B
+# - A and B, the coefficients of the curve y^2 = x^3 + A * x + B
 def find_z_sswu(F, A, B):
-    R.<xx> = F[]                        # Polynomial ring over F
-    g = xx^3 + F(A) * xx + F(B)         # y^2 = g(x) = x^3 + A * x + B
+    R.<xx> = F[]                       # Polynomial ring over F
+    g = xx^3 + F(A) * xx + F(B)        # y^2 = g(x) = x^3 + A * x + B
     ctr = F.gen()
     while True:
         for Z_cand in (F(ctr), F(-ctr)):
