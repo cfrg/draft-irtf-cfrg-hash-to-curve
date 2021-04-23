@@ -1437,7 +1437,7 @@ which is a byte string constructed according to the following requirements:
    or to different curves, each encoding MUST use a different tag.
    For this purpose, it is RECOMMENDED to include the encoding's
    Suite ID ({{suites}}) in the domain separation tag.
-   For independent encodings based on the same suite, each tag should
+   For independent encodings based on the same suite, each tag SHOULD
    also include a distinct identifier, e.g., "ENC1" and "ENC2".
 
 As an example, consider a fictional application named Quux
@@ -1551,7 +1551,11 @@ material {{MOV96}} {{CFADLNV05}}.
 This section defines a generic sgn0 implementation that applies to any field F = GF(p^m).
 It also gives simplified implementations for the cases F = GF(p) and F = GF(p^2).
 
-See {{bg-curves}} for a discussion of representing elements of extension fields as vectors.
+The definition of the sgn0 function for extension fields relies on
+the polynomial basis or vector representation of field elements, and
+iterates over the entire vector representation of the input element.
+See {{bg-curves}} for a discussion of representing elements of
+extension fields as vectors.
 
 ~~~
 sgn0(x)
@@ -1574,14 +1578,6 @@ Steps:
 7.   zero = zero AND zero_i
 8. return sign
 ~~~
-
-Note that any valid sgn0 function for extension fields must iterate over
-the entire vector representation of the input element.
-To see why, imagine a function sgn0\* that ignores the final entry in its
-input vector, and consider a field element x = (0, x\_2).
-Since sgn0\* ignores x\_2, sgn0\*(x) == sgn0\*(-x), which is incorrect
-when x\_2 != 0.
-A similar argument applies to any entry of the vector representation of x.
 
 When m == 1, sgn0 can be significantly simplified:
 
@@ -1636,8 +1632,9 @@ This means that any hash\_to\_field function based on rejection sampling
 would be incompatible with constant-time implementation.
 
 The hash\_to\_field function is also suitable for securely hashing to scalars.
-For example, when hashing to scalars for an elliptic curve (sub)group with prime order r,
-it suffices to instantiate hash\_to\_curve with target field GF(r).
+For example, when hashing to the scalar field for an elliptic curve (sub)group
+with prime order r, it suffices to instantiate hash\_to\_field with target field
+GF(r).
 
 ## Security considerations {#hashtofield-sec}
 
@@ -1806,7 +1803,8 @@ Input:
 - msg, a byte string.
 - DST, a byte string of at most 255 bytes.
   See below for information on using longer DSTs.
-- len_in_bytes, the length of the requested output in bytes.
+- len_in_bytes, the length of the requested output in bytes,
+  not greater than the lesser of (255 * b_in_bytes) or 2^16-1.
 
 Output:
 - uniform_bytes, a byte string.
@@ -2030,7 +2028,7 @@ in optimizing square-root implementations.
 
 ## Exceptional cases {#map-exceptions}
 
-Mappings may have have exceptional cases, i.e., inputs u
+Mappings may have exceptional cases, i.e., inputs u
 on which the mapping is undefined. These cases must be handled
 carefully, especially for constant-time implementations.
 
@@ -3704,6 +3702,10 @@ This section gives a straight-line implementation of the Shallue and van
 de Woestijne method for any Weierstrass curve of the form given in
 {{weierstrass}}.
 See {{svdw}} for information on the constants used in this mapping.
+
+Note that the constant c3 below MUST be chosen such that sgn0(c3) = 0.
+In other words, if the square-root computation returns a value cx such that
+sgn0(cx) = 1, set c3 = -cx; otherwise, set c3 = cx.
 
 ~~~
 map_to_curve_svdw(u)
