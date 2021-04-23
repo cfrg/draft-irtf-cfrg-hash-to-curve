@@ -4588,7 +4588,7 @@ def find_z_svdw(F, A, B, init_ctr=1):
                 continue
             # Criterion 3:
             #   -(3 * Z^2 + 4 * A) / (4 * g(Z)) is square in F.
-            if not h(Z_cand).is_square():
+            if not is_square(h(Z_cand)):
                 continue
             # Criterion 4:
             #   At least one of g(Z) and g(-Z / 2) is square in F.
@@ -4611,17 +4611,17 @@ def find_z_sswu(F, A, B):
     ctr = F.gen()
     while True:
         for Z_cand in (F(ctr), F(-ctr)):
-            if Z_cand.is_square():
-                # Criterion 1: Z is non-square in F.
+            # Criterion 1: Z is non-square in F.
+            if is_square(Z_cand):
                 continue
+            # Criterion 2: Z != -1 in F.
             if Z_cand == F(-1):
-                # Criterion 2: Z != -1 in F.
                 continue
+            # Criterion 3: g(x) - Z is irreducible over F.
             if not (g - Z_cand).is_irreducible():
-                # Criterion 3: g(x) - Z is irreducible over F.
                 continue
-            if g(B / (Z_cand * A)).is_square():
-                # Criterion 4: g(B / (Z * A)) is square in F.
+            # Criterion 4: g(B / (Z * A)) is square in F.
+            if is_square(g(B / (Z_cand * A))):
                 return Z_cand
         ctr += 1
 ~~~
@@ -4637,8 +4637,8 @@ def find_z_ell2(F):
     ctr = F.gen()
     while True:
         for Z_cand in (F(ctr), F(-ctr)):
-            if Z_cand.is_square():
-                # Z must be a non-square in F.
+            # Z must be a non-square in F.
+            if is_square(Z_cand):
                 continue
             return Z_cand
         ctr += 1
