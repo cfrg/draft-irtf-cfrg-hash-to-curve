@@ -1784,7 +1784,7 @@ SHA3-256 would be an appropriate choice.
 
 The hash function H is assumed to work by repeatedly ingesting fixed-length
 blocks of data. The length in bits of these blocks is called the input block
-size (s). As examples, s = 1024 for SHA-512 {{FIPS180-4}} and s = 856 for
+size (s). As examples, s = 1024 for SHA-512 {{FIPS180-4}} and s = 576 for
 SHA3-512 {{FIPS202}}. For correctness, H requires b <= s.
 
 The following procedure implements expand\_message\_xmd.
