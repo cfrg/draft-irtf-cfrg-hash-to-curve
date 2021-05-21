@@ -32,7 +32,7 @@ class OptimizedSSWU(GenericMap):
         self.h = find_h_sswu(F)
         self.E = EllipticCurve(F, [F(A), F(B)])
 
-        # constv2nts for straight-line impl
+        # constants for straight-line impl
         self.c1 = -F(B) / F(A)
         self.c2 = -F(1) / self.Z
         self.c3 = self.sqrt(self.Z / self.h)
