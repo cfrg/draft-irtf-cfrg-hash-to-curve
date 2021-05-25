@@ -6,16 +6,15 @@ try:
     from sagelib.common import CMOV
     from sagelib.generic_map import GenericMap
     from sagelib.z_selection import find_z_sswu
+    from sagelib.sqrt import sqrt_checked
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
 # Arguments:
 # - F, a field object, e.g., F = GF(2^521 - 1)
 def find_h_sswu(F):
-    ctr = F.gen()
-    while is_square(ctr):
-        ctr += 1
-    return ctr
+    h = F.primitive_element()
+    return h
 
 class OptimizedSSWU(GenericMap):
     def __init__(self, F, A, B):
@@ -73,18 +72,8 @@ class OptimizedSSWU(GenericMap):
         return (x, y)
 
     def sqrt_ratio(self, u, v):
-        '''
-        Let h be some fixed nonsquare in Fq. Define sqrt_ratio for u ∊ Fq and v ∊ Fq* as:
-
-        sqrt_ratio(u, v) = (true, sqrt(u/v)),    if u/v is square in Fq
-                         = (false, sqrt(h*u/v)), otherwise.
-        '''
-        is_square = self.is_square
-        sqrt = self.sqrt
-        if is_square(u/v):
-            return (True, sqrt(u/v))
-        else:
-            return (False, sqrt((self.h * u) / v))
+        x = self.F(u)/self.F(v)
+        return sqrt_checked(self.F, x)
 
     def straight_line(self, u):
         A = self.A
