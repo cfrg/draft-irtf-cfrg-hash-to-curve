@@ -1554,8 +1554,10 @@ It also gives simplified implementations for the cases F = GF(p) and F = GF(p^2)
 The definition of the sgn0 function for extension fields relies on
 the polynomial basis or vector representation of field elements, and
 iterates over the entire vector representation of the input element.
-See {{bg-curves}} for a discussion of representing elements of
-extension fields as vectors.
+As a result, sgn0 depends on the primitive polynomial used to define
+the polynomial basis; see {{suites}} for more information about this
+basis, and see {{bg-curves}} for a discussion of representing elements
+of extension fields as vectors.
 
 ~~~
 sgn0(x)
@@ -1766,8 +1768,8 @@ ensures uniformity of expand\_message\_xmd's output.
 
 - H MAY be a Merkle-Damgaard hash function like SHA-2.
 In this case, security holds when the underlying compression function is
-modeled as a random oracle {{CDMP05}}.
-(See {{security-considerations-expand-xmd}} for discussion.)
+modeled as a random oracle {{CDMP05}}. (See
+{{security-considerations-expand-xmd}} for discussion.)
 
 - H MAY be a sponge-based hash function like SHA-3 or BLAKE2.
 In this case, security holds when the inner function is modeled as a
@@ -1781,11 +1783,9 @@ As an example, for the 128-bit security level, b >= 256 bits and either SHA-256 
 SHA3-256 would be an appropriate choice.
 
 The hash function H is assumed to work by repeatedly ingesting fixed-length
-blocks of data.
-The length of these blocks is called the input block size.
-As examples,
-the input block size of SHA-512 {{FIPS180-4}} is 128 bytes and
-the input block size of SHA3-512 {{FIPS202}} is 72 bytes.
+blocks of data. The length in bits of these blocks is called the input block
+size (s). As examples, s = 1024 for SHA-512 {{FIPS180-4}} and s = 576 for
+SHA3-512 {{FIPS202}}. For correctness, H requires b <= s.
 
 The following procedure implements expand\_message\_xmd.
 
@@ -1796,8 +1796,8 @@ Parameters:
 - H, a hash function (see requirements above).
 - b_in_bytes, b / 8 for b the output size of H in bits.
   For example, for b = 256, b_in_bytes = 32.
-- r_in_bytes, the input block size of H, measured in bytes (see
-  discussion above). For example, for SHA-256, r_in_bytes = 64.
+- s_in_bytes, the input block size of H, measured in bytes (see
+  discussion above). For example, for SHA-256, s_in_bytes = 64.
 
 Input:
 - msg, a byte string.
@@ -1813,7 +1813,7 @@ Steps:
 1.  ell = ceil(len_in_bytes / b_in_bytes)
 2.  ABORT if ell > 255
 3.  DST_prime = DST || I2OSP(len(DST), 1)
-4.  Z_pad = I2OSP(0, r_in_bytes)
+4.  Z_pad = I2OSP(0, s_in_bytes)
 5.  l_i_b_str = I2OSP(len_in_bytes, 2)
 6.  msg_prime = Z_pad || msg || l_i_b_str || I2OSP(0, 1) || DST_prime
 7.  b_0 = H(msg_prime)
@@ -2427,7 +2427,8 @@ A hash-to-curve suite comprises the following parameters:
   See {{roadmap}} for definitions of these encoding types.
 - E, the target elliptic curve over a field F.
 - p, the characteristic of the field F.
-- m, the extension degree of the field F.
+- m, the extension degree of the field F. If m > 1, the suite MUST also specify
+  the polynomial basis used to represent extension field elements.
 - k, the target security level of the suite in bits.
   (See {{security-considerations-targets}} for discussion.)
 - L, the length parameter for hash\_to\_field ({{hashtofield-sec}}).
