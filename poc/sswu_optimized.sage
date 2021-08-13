@@ -6,7 +6,7 @@ try:
     from sagelib.common import CMOV
     from sagelib.generic_map import GenericMap
     from sagelib.z_selection import find_z_sswu
-    from sagelib.sqrt import sqrt_checked
+    from sagelib.sqrt import sqrt_checked, sqrt_ratio
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
@@ -73,7 +73,10 @@ class OptimizedSSWU(GenericMap):
 
     def sqrt_ratio(self, u, v):
         x = self.F(u)/self.F(v)
-        return sqrt_checked(self.F, x)
+        r1 = sqrt_checked(self.F, x)
+        r2 = sqrt_ratio(self.F, u, v)
+        assert r1 == r2
+        return r2
 
     def straight_line(self, u):
         A = self.A
@@ -82,21 +85,34 @@ class OptimizedSSWU(GenericMap):
         u = self.F(u)
         c3 = self.c3
 
-        # XXX(caw): break this up into proper temporaries
-        tv1 = Z * u^2
-        tv2 = tv1^2 + tv1
-        tv3 = B * (tv2 + 1)
-        tv4 = A * CMOV(Z, -tv2, tv2 != 0)
-        tv2 = (tv3^2 + A*tv4^2) * tv3 + B*tv4^3
+        tv1 = u^2
+        tv1 = Z * tv1
+        tv2 = tv1^2
+        tv2 = tv2 + tv1
+        tv3 = tv2 + 1
+        tv3 = B * tv3
+        tv4 = CMOV(Z, -tv2, tv2 != 0)
+        tv4 = A * tv4
+        tv2 = tv3^2
+        tv5 = tv4^2
+        tv5 = A * tv5
+        tv2 = tv2 + tv5
+        tv2 = tv2 * tv3
+        tv6 = tv4^3
+        tv5 = B * tv6
+        tv2 = tv2 + tv5
         x = tv1 * tv3
-        (is_gx1_square, y1) = self.sqrt_ratio(tv2, tv4^3)
-        y = c3 * tv1 * u * y1
+        (is_gx1_square, y1) = self.sqrt_ratio(tv2, tv6)
+        y = c3 * tv1 
+        y = y * u
+        y = y * y1
         x = CMOV(x, tv3, is_gx1_square)
         y = CMOV(y, y1, is_gx1_square)
         u_parity = mod(u, self.F(2))
         y_parity = mod(y, self.F(2))
         y = CMOV(-y, y, u_parity == y_parity)
         x = x / tv4
+
         return (x, y)
 
 if __name__ == "__main__":

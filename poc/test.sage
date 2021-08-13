@@ -78,6 +78,7 @@ if __name__ == "__main__":
         u = F.random_element()
         (x1, y1) = m1.straight_line(u)
         (x2, y2) = m2.straight_line(u)
+        (x3, y4) = m2.straight_line2(u)
         assert(x1 == x2)
         assert(y1 == y2)
 
