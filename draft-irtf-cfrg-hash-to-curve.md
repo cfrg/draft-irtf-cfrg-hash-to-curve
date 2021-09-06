@@ -3839,7 +3839,7 @@ Procedure:
 16. tv4 = r - 1
 17. tv4 = tv4 / 2
 18. tv5 = u * tv3
-19. tv5 = tv5 ^ tv4
+19. tv5 = tv5^tv4
 20. tv5 = tv5 * tv2
 21. tv2 = tv5 * v # y
 22. tv3 = tv5 * u # z
