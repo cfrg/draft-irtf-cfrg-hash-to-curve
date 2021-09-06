@@ -3826,7 +3826,7 @@ Procedure:
 3. while r % 2 == 0:
 4.    r = r / 2
 5.    m = m + 1
-6. tv0 = h^r
+6. tv0 = S^r
 7. tv1 = r + 1
 8. tv1 = tv1 / 2
 9. tv1 = h^tv1
