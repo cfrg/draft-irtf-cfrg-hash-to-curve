@@ -3844,7 +3844,7 @@ Procedure:
 21. tv2 = tv5 * v # y
 22. tv3 = tv5 * u # z
 23. tv4 = tv3 * tv2 # t
-24. tv5 = m-1
+24. tv5 = m - 1
 25. tv5 = 2^tv5
 26. tv5 = tv4^tv5
 27. isQR = CMOV(isQR, False, tv5 != 1)
