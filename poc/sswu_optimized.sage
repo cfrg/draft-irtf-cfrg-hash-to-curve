@@ -107,9 +107,8 @@ class OptimizedSSWU(GenericMap):
         y = y * y1
         x = CMOV(x, tv3, is_gx1_square)
         y = CMOV(y, y1, is_gx1_square)
-        u_parity = mod(u, self.F(2))
-        y_parity = mod(y, self.F(2))
-        y = CMOV(-y, y, u_parity == y_parity)
+        e1 = self.sgn0(u) == self.sgn0(y)
+        y = CMOV(-y, y, e1)
         x = x / tv4
 
         return (x, y)
