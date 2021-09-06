@@ -33,46 +33,9 @@ def sqrt_checked(F, x):
         assert z*z==x*h, "incorrect tweaked square root: %s squared is not %s"%(z,x*h)
     return (isQR, z)
 
-# Compute sqrt(N/D) if it exists and sqrt(h*N/D) if it doesn't
-def sqrt_ratio(F, N, D):
-    N = F(N)
-    D = F(D)
-    isQR = True
-    order = F.order()
-    m = 0
-    r = order - 1
-    while r % 2 == 0:
-        r = r / 2
-        m += 1
-    assert 2^m * r  == order-1, "bad initialization"
-    h = F.primitive_element()
-    c = h^r
-    inital_tweak_z = h^((r+1)/2)
-
-    a = D^(2^m -1)
-    b = a^2*D
-    w = (N * b)^((r-1)/2) * a
-
-    y = w * D
-    z = N * w
-    t = z * y
-
-    if t^(2^(m-1)) != 1:
-        isQR = false
-        z = z*inital_tweak_z
-        t = t*c
-
-    for i in range(m,1, -1):
-        if t^(2^(i-2)) != 1:
-            z = z * c
-            t = t * c * c
-        c = c * c
-    assert (isQR, z)==sqrt_checked(F, N/D), "incorrect sqrt_ratio"
-    return (isQR, z)
-
-def sqrt_ratio_straightline(F, N, D):
-    N = F(N)
-    D = F(D)
+def sqrt_ratio_straightline(F, u, v):
+    u = F(u)
+    v = F(v)
     isQR = True
     order = F.order()
     m = 0
@@ -88,16 +51,16 @@ def sqrt_ratio_straightline(F, N, D):
     tv1 = h^tv1
     tv2 = 2^m
     tv2 = tv2 - 1
-    tv2 = D^tv2
+    tv2 = v^tv2
     tv3 = tv2^2
-    tv3 = tv3 * D
+    tv3 = tv3 * v
     tv4 = r - 1
     tv4 = tv4 / 2
-    tv5 = N * tv3
+    tv5 = u * tv3
     tv5 = tv5 ^ tv4
     tv5 = tv5 * tv2
-    tv2 = tv5 * D # y
-    tv3 = tv5 * N # z
+    tv2 = tv5 * v
+    tv3 = tv5 * u
     tv4 = tv3 * tv2 # t
     tv5 = m-1
     tv5 = 2^tv5
@@ -114,10 +77,32 @@ def sqrt_ratio_straightline(F, N, D):
         tv4 = CMOV(tv4, tv4 * tv0, tv5 != 1)
         tv0 = tv0 * tv0
     
-    assert (isQR, tv3) == sqrt_checked(F, N/D), "incorrect sqrt_ratio"
+    assert (isQR, tv3) == sqrt_checked(F, u/v), "incorrect sqrt_ratio"
     return (isQR, tv3)
 
+def test_sqrt_ratio():
+    print("Testing sqrt_ratio")
+    def _test(F):
+        for _ in range(0, 256):
+            u = F.random_element()
+            v = F.random_element()
+            S = F.primitive_element()
+
+            is_square, s = sqrt_ratio_straightline(F, u, v)
+            if (u / v).is_square():
+                assert is_square == True
+                assert s^2 == (u / v)
+            else:
+                assert is_square == False
+                assert s^2 == (S * u / v)
+
+    for _ in range(0, 32):
+        p = random_prime(1 << 256)
+        F = GF(p)
+        _test(F)
+
 if __name__ == "__main__":
+    test_sqrt_ratio()
     for i in range(1, 256):
         sqrt_checked(GF(257), i)
     for i in range(1, 193):
@@ -126,5 +111,4 @@ if __name__ == "__main__":
         sqrt_checked(GF(419), i)
     for i in range(1, 193):
         for j in range(1, 193):
-            sqrt_ratio(GF(193), i,j)
-            sqrt_ratio_straightline(GF(193), i,j)
+            sqrt_ratio_straightline(GF(193), i, j)

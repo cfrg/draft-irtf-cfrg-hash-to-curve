@@ -9,6 +9,7 @@ print("Importing modules...")
 
 try:
     from sagelib.common import test_sqrt_issq
+    from sagelib.sqrt import test_sqrt_ratio
     from sagelib.clear_h_bls12381g2 import test_clear_cofactor_bls12381_g2
     from sagelib.ell2_generic import GenericEll2
     from sagelib.ell2edw_generic import GenericEll2Edw
@@ -39,6 +40,9 @@ if __name__ == "__main__":
 
     print("Testing sqrt and is_square functions")
     test_sqrt_issq()
+
+    print("Testing sqrt_ratio function")
+    test_sqrt_ratio()
 
     print("Checking maps")
     map_check()

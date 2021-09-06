@@ -3761,9 +3761,9 @@ This section gives a straight-line implementation of the simplified
 SWU method for any Weierstrass curve of the form given in {{weierstrass}}.
 See {{simple-swu}} for information on the constants used in this mapping.
 
-This optimized, straight-line procedure applies to any classes of curves
-and base field. The constant c1 depends on a fixed, non-square value h, which
-is a parameter of the sqrt_ratio subroutine defined below.
+This optimized, straight-line procedure applies to any base field. The
+constant c1 depends on a value S, which is a parameter of the sqrt_ratio
+subroutine defined below. See {{sswu-z-code}} for generating this value.
 
 ~~~
 map_to_curve_simple_swu(u)
@@ -3821,43 +3821,44 @@ Output: (b, y), where b = True and y = sqrt(u / v) if (u / v) is square in F,
   and b = False and y = sqrt(S * (u / v)) otherwise.
 
 Procedure:
-1. m = 0
-2. r = q - 1
-3. while r % 2 == 0:
-4.    r = r / 2
-5.    m = m + 1
-6. tv0 = S^r
-7. tv1 = r + 1
-8. tv1 = tv1 / 2
-9. tv1 = S^tv1
-10. tv2 = 2^m
-11. tv2 = tv2 - 1
-12. tv2 = v^tv2
-13. tv3 = tv2^2
-14. tv3 = tv3 * v
-15. tv4 = r - 1
-16. tv4 = tv4 / 2
-17. tv5 = u * tv3
-18. tv5 = tv5 ^ tv4
-19. tv5 = tv5 * tv2
-20. tv2 = tv5 * v # y
-21. tv3 = tv5 * u # z
-22. tv4 = tv3 * tv2 # t
-23. tv5 = m-1
-24. tv5 = 2^tv5
-25. tv5 = tv4^tv5
-26. isQR = CMOV(isQR, False, tv5 != 1)
-27. tv3 = CMOV(tv3, tv3 * tv1, tv5 != 1)
-28. tv4 = CMOV(tv4, tv4 * tv0, tv5 != 1)
-29. for i in (m, m - 1, ..., 2):
-30.    tv5 = i - 2
-31.    tv5 = 2^tv5
-32.    tv5 = tv4^tv5
-33.    tv3 = CMOV(tv3, tv3 * tv0, tv5 != 1)
-34.    tv4 = CMOV(tv4, tv4 * tv0, tv5 != 1)
+1. isQR = True
+2. m = 0
+3. r = q - 1
+4. while r % 2 == 0:
+5.    r = r / 2
+6.    m = m + 1
+7. tv0 = S^r
+8. tv1 = r + 1
+9. tv1 = tv1 / 2
+10. tv1 = S^tv1
+11. tv2 = 2^m
+12. tv2 = tv2 - 1
+13. tv2 = v^tv2
+14. tv3 = tv2^2
+15. tv3 = tv3 * v
+16. tv4 = r - 1
+17. tv4 = tv4 / 2
+18. tv5 = u * tv3
+19. tv5 = tv5 ^ tv4
+20. tv5 = tv5 * tv2
+21. tv2 = tv5 * v # y
+22. tv3 = tv5 * u # z
+23. tv4 = tv3 * tv2 # t
+24. tv5 = m-1
+25. tv5 = 2^tv5
+26. tv5 = tv4^tv5
+27. isQR = CMOV(isQR, False, tv5 != 1)
+28. tv3 = CMOV(tv3, tv3 * tv1, tv5 != 1)
+29. tv4 = CMOV(tv4, tv4 * tv0, tv5 != 1)
+30. for i in   (m, m - 1, ..., 2):
+31.    tv5 = i - 2
+32.    tv5 = 2^tv5
+33.    tv5 = tv4^tv5
+34.    tv3 = CMOV(tv3, tv3 * tv0, tv5 != 1)
 35.    tv4 = CMOV(tv4, tv4 * tv0, tv5 != 1)
-36.    tv0 = tv0 * tv0
-37. return (isQR, tv3)
+36.    tv4 = CMOV(tv4, tv4 * tv0, tv5 != 1)
+37.    tv0 = tv0 * tv0
+38. return (isQR, tv3)
 ~~~
 
 ## Elligator 2 method {#straightline-ell2}
@@ -3903,7 +3904,6 @@ Steps:
 21.   t = y * K
 22. return (s, t)
 ~~~
-
 
 # Curve-specific optimized sample code {#samplecode}
 
@@ -4429,7 +4429,7 @@ def find_z_svdw(F, A, B, init_ctr=1):
         ctr += 1
 ~~~
 
-## Finding Z for Simplified SWU {#sswu-z-code}
+## Finding Z and S for Simplified SWU {#sswu-z-code}
 
 The below function outputs an appropriate Z for the Simplified SWU map ({{simple-swu}}).
 
@@ -4456,6 +4456,15 @@ def find_z_sswu(F, A, B):
             if is_square(g(B / (Z_cand * A))):
                 return Z_cand
         ctr += 1
+~~~
+
+The below function outputs an appropriate S for the Simplified SWU map ({{simple-swu}}).
+
+~~~sage
+# Arguments:
+# - F, a field object, e.g., F = GF(2^255 - 19)
+def find_S(F):
+    return F.primitive_element()
 ~~~
 
 ## Finding Z for Elligator 2 {#elligator-z-code}
