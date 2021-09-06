@@ -3829,7 +3829,7 @@ Procedure:
 6. tv0 = S^r
 7. tv1 = r + 1
 8. tv1 = tv1 / 2
-9. tv1 = h^tv1
+9. tv1 = S^tv1
 10. tv2 = 2^m
 11. tv2 = tv2 - 1
 12. tv2 = D^tv2
