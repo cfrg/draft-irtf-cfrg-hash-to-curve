@@ -205,4 +205,5 @@ def test_sqrt_issq():
     test_issq()
 
 if __name__ == "__main__":
+    test_ts()
     test_sqrt_issq()

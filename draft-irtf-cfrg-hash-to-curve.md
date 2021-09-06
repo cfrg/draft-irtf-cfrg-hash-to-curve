@@ -2153,12 +2153,9 @@ Operations:
 10. return (x, y)
 ~~~
 
-{{straightline-sswu}} gives an example straight-line implementation of this
-mapping.
-{{sswu-opt}} gives optimized straight-line procedures that apply to specific
-classes of curves and base fields.
-For more information on optimizing this mapping, see
-{{WB19}} Section 4 or the example code found at {{hash2curve-repo}}.
+{{straightline-sswu}} gives a general and optimized straight-line implementation of
+this mapping. For more information on optimizing this mapping, see {{WB19}} Section
+4 or the example code found at {{hash2curve-repo}}.
 
 ### Simplified SWU for AB == 0 {#simple-swu-AB0}
 
@@ -2512,7 +2509,7 @@ P256\_XMD:SHA-256\_SSWU\_NU\_ is identical to P256\_XMD:SHA-256\_SSWU\_RO\_,
 except that the encoding type is encode\_to\_curve ({{roadmap}}).
 
 An optimized example implementation of the Simplified SWU mapping
-to P-256 is given in {{sswu-map-to-3mod4}}.
+to P-256 is given in {{straightline-sswu}}.
 
 ## Suites for NIST P-384 {#suites-p384}
 
@@ -2538,7 +2535,7 @@ P384\_XMD:SHA-512\_SSWU\_NU\_ is identical to P384\_XMD:SHA-512\_SSWU\_RO\_,
 except that the encoding type is encode\_to\_curve ({{roadmap}}).
 
 An optimized example implementation of the Simplified SWU mapping
-to P-384 is given in {{sswu-map-to-3mod4}}.
+to P-384 is given in {{straightline-sswu}}.
 
 ## Suites for NIST P-521 {#suites-p521}
 
@@ -2564,7 +2561,7 @@ P521\_XMD:SHA-512\_SSWU\_NU\_ is identical to P521\_XMD:SHA-512\_SSWU\_RO\_,
 except that the encoding type is encode\_to\_curve ({{roadmap}}).
 
 An optimized example implementation of the Simplified SWU mapping
-to P-521 is given in {{sswu-map-to-3mod4}}.
+to P-521 is given in {{straightline-sswu}}.
 
 ## Suites for curve25519 and edwards25519 {#suites-25519}
 
@@ -2676,7 +2673,7 @@ secp256k1\_XMD:SHA-256\_SSWU\_NU\_ is identical to secp256k1\_XMD:SHA-256\_SSWU\
 except that the encoding type is encode\_to\_curve ({{roadmap}}).
 
 An optimized example implementation of the Simplified SWU mapping
-to the curve E' isogenous to secp256k1 is given in {{sswu-map-to-3mod4}}.
+to the curve E' isogenous to secp256k1 is given in {{straightline-sswu}}.
 
 ## Suites for BLS12-381 {#suites-bls12381}
 
@@ -2712,7 +2709,7 @@ Note that the h\_eff values for these suites are chosen for compatibility
 with the fast cofactor clearing method described by Scott ({{WB19}} Section 5).
 
 An optimized example implementation of the Simplified SWU mapping
-to the curve E' isogenous to BLS12-381 G1 is given in {{sswu-map-to-3mod4}}.
+to the curve E' isogenous to BLS12-381 G1 is given in {{straightline-sswu}}.
 
 ### BLS12-381 G2 {#suites-bls12381-g2}
 
@@ -2744,7 +2741,7 @@ with the fast cofactor clearing method described by
 Budroni and Pintore ({{BP17}}, Section 4.1), and summarized in {{clear-cofactor-bls12381-g2}}.
 
 An optimized example implementation of the Simplified SWU mapping
-to the curve E' isogenous to BLS12-381 G2 is given in {{sswu-map-to-9mod16}}.
+to the curve E' isogenous to BLS12-381 G2 is given in {{straightline-sswu}}.
 
 ## Defining a new hash-to-curve suite {#new-suite}
 
@@ -3694,7 +3691,7 @@ The constants used to compute y\_den are as follows:
 
 This section gives straight-line implementations of the mappings of {{mappings}}.
 These implementations are generic, i.e., they are defined for any curve and field.
-{{samplecode}} gives example implementations that are optimized for specific
+{{samplecode}} gives further implementations that are optimized for specific
 classes of curves and fields.
 
 ## Shallue-van de Woestijne method {#straightline-svdw}
@@ -3765,8 +3762,9 @@ This section gives a straight-line implementation of the simplified
 SWU method for any Weierstrass curve of the form given in {{weierstrass}}.
 See {{simple-swu}} for information on the constants used in this mapping.
 
-{{sswu-opt}} gives optimized straight-line procedures that apply to specific
-classes of curves and base fields.
+This optimized, straight-line procedure applies to any base field. The
+constant c1 depends on a value S, which is a parameter of the sqrt_ratio
+subroutine defined below. See {{sswu-z-code}} for generating this value.
 
 ~~~
 map_to_curve_simple_swu(u)
@@ -3775,32 +3773,92 @@ Input: u, an element of F.
 Output: (x, y), a point on E.
 
 Constants:
-1.  c1 = -B / A
-2.  c2 = -1 / Z
+1.  c1 = Z / S
 
 Steps:
-1.  tv1 = Z * u^2
-2.  tv2 = tv1^2
-3.   x1 = tv1 + tv2
-4.   x1 = inv0(x1)
-5.   e1 = x1 == 0
-6.   x1 = x1 + 1
-7.   x1 = CMOV(x1, c2, e1)    # If (tv1 + tv2) == 0, set x1 = -1 / Z
-8.   x1 = x1 * c1 # x1 = (-B / A) * (1 + (1 / (Z^2 * u^4 + Z * u^2)))
-9.  gx1 = x1^2
-10. gx1 = gx1 + A
-11. gx1 = gx1 * x1
-12. gx1 = gx1 + B             # gx1 = g(x1) = x1^3 + A * x1 + B
-13.  x2 = tv1 * x1            # x2 = Z * u^2 * x1
-14. tv2 = tv1 * tv2
-15. gx2 = gx1 * tv2           # gx2 = (Z * u^2)^3 * gx1
-16.  e2 = is_square(gx1)      # If is_square(gx1)
-17.   x = CMOV(x2, x1, e2)    #   then  x = x1,  else  x = x2
-18.  y2 = CMOV(gx2, gx1, e2)  #   then y2 = gx1, else y2 = gx2
-19.   y = sqrt(y2)
-20.  e3 = sgn0(u) == sgn0(y)  # Fix sign of y
-21.   y = CMOV(-y, y, e3)
-22. return (x, y)
+1.  tv1 = u^2
+2.  tv1 = Z * tv1
+3.  tv2 = tv1^2
+4.  tv2 = tv2 + tv1
+5.  tv3 = tv2 + 1
+6.  tv3 = B * tv3
+7.  tv4 = CMOV(Z, -tv2, tv2 != 0)
+8.  tv4 = A * tv4
+9.  tv2 = tv3^2
+10. tv5 = tv4^2
+11. tv5 = A * tv5
+12. tv2 = tv2 + tv5
+13. tv2 = tv2 * tv3
+14. tv6 = tv4^3
+15. tv5 = B * tv6
+16. tv2 = tv2 + tv5
+17.   x = tv1 * tv3
+18. (is_gx1_square, y1) = sqrt_ratio(tv2, tv6)
+19.   y = c1 * tv1
+20.   y = y * u
+21.   y = y * y1
+22.   x = CMOV(x, tv3, is_gx1_square)
+23.   y = CMOV(y, y1, is_gx1_square)
+24.  e1 = sgn0(u) == sgn0(y)
+25.   y = CMOV(-y, y, e1)
+26.   x = x / tv4
+27. return (x, y)
+~~~
+
+The sqrt_ratio subroutine used by the above procedure is defined immediately below.
+It depends on a constant S, which MUST be chosen to be a primitive element of the field F.
+See {{sswu-z-code}} for more information on identifying an appropriate value for S.
+
+~~~
+sqrt_ratio(u, v)
+
+Parameters:
+- F, a finite field of characteristic p and order q = p^m.
+- S, a primitive element of F.
+
+Input: u and v, elements of F.
+Output: (b, y), where b = True and y = sqrt(u / v) if (u / v) is square in F,
+  and b = False and y = sqrt(S * (u / v)) otherwise.
+
+Procedure:
+1. isQR = True
+2. m = 0
+3. r = q - 1
+4. while r % 2 == 0:
+5.    r = r / 2
+6.    m = m + 1
+7. tv0 = S^r
+8. tv1 = r + 1
+9. tv1 = tv1 / 2
+10. tv1 = S^tv1
+11. tv2 = 2^m
+12. tv2 = tv2 - 1
+13. tv2 = v^tv2
+14. tv3 = tv2^2
+15. tv3 = tv3 * v
+16. tv4 = r - 1
+17. tv4 = tv4 / 2
+18. tv5 = u * tv3
+19. tv5 = tv5^tv4
+20. tv5 = tv5 * tv2
+21. tv2 = tv5 * v # y
+22. tv3 = tv5 * u # z
+23. tv4 = tv3 * tv2 # t
+24. tv5 = m - 1
+25. tv5 = 2^tv5
+26. tv5 = tv4^tv5
+27. isQR = CMOV(isQR, False, tv5 != 1)
+28. tv3 = CMOV(tv3, tv3 * tv1, tv5 != 1)
+29. tv4 = CMOV(tv4, tv4 * tv0, tv5 != 1)
+30. for i in (m, m - 1, ..., 2):
+31.    tv5 = i - 2
+32.    tv5 = 2^tv5
+33.    tv5 = tv4^tv5
+34.    tv3 = CMOV(tv3, tv3 * tv0, tv5 != 1)
+35.    tv4 = CMOV(tv4, tv4 * tv0, tv5 != 1)
+36.    tv4 = CMOV(tv4, tv4 * tv0, tv5 != 1)
+37.    tv0 = tv0 * tv0
+38. return (isQR, tv3)
 ~~~
 
 ## Elligator 2 method {#straightline-ell2}
@@ -3847,8 +3905,7 @@ Steps:
 22. return (s, t)
 ~~~
 
-
-# Optimized sample code {#samplecode}
+# Curve-specific optimized sample code {#samplecode}
 
 This section gives sample implementations optimized for some of the
 elliptic curves listed in {{suites}}.
@@ -3899,234 +3956,6 @@ and the corresponding conversions:
   the inverse conversion is given by (X', Y', Z') = (x, y, 1).
   To convert (xn, xd, yn, yd) to Jacobian projective coordinates,
   compute (X', Y', Z') = (xn * xd * yd^2, yn * yd^2 * xd^3, xd * yd).
-
-## Simplified SWU {#sswu-opt}
-
-### q = 3 (mod 4) {#sswu-map-to-3mod4}
-
-The following is a straight-line implementation of the Simplified SWU
-mapping that applies to any curve over GF(q) where q = 3 (mod 4).
-This includes the ciphersuites for NIST curves P-256, P-384, and P-521 {{FIPS186-4}} given in {{suites}}.
-It also includes the curves isogenous to secp256k1 ({{suites-secp256k1}}) and BLS12-381 G1 ({{suites-bls12381-g1}}).
-
-The implementations for these curves differ only in the constants
-and the base field.
-The constant definitions below are given in terms of the parameters for the
-Simplified SWU mapping; for parameter values for the curves listed above, see
-{{suites-p256}} (P-256),
-{{suites-p384}} (P-384),
-{{suites-p521}} (P-521),
-{{suites-secp256k1}} (E' isogenous to secp256k1), and
-{{suites-bls12381-g1}} (E' isogenous to BLS12-381 G1).
-
-~~~
-map_to_curve_simple_swu_3mod4(u)
-
-Input: u, an element of F.
-Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
-        point on the target curve.
-
-Constants:
-1.  c1 = (q - 3) / 4           # Integer arithmetic
-2.  c2 = sqrt(-Z^3)
-
-Steps:
-1.  tv1 = u^2
-2.  tv3 = Z * tv1
-3.  tv2 = tv3^2
-4.   xd = tv2 + tv3
-5.  x1n = xd + 1
-6.  x1n = x1n * B
-7.   xd = -A * xd
-8.   e1 = xd == 0
-9.   xd = CMOV(xd, Z * A, e1)  # If xd == 0, set xd = Z * A
-10. tv2 = xd^2
-11. gxd = tv2 * xd          # gxd == xd^3
-12. tv2 = A * tv2
-13. gx1 = x1n^2
-14. gx1 = gx1 + tv2         # x1n^2 + A * xd^2
-15. gx1 = gx1 * x1n         # x1n^3 + A * x1n * xd^2
-16. tv2 = B * gxd
-17. gx1 = gx1 + tv2         # x1n^3 + A * x1n * xd^2 + B * xd^3
-18. tv4 = gxd^2
-19. tv2 = gx1 * gxd
-20. tv4 = tv4 * tv2         # gx1 * gxd^3
-21.  y1 = tv4^c1            # (gx1 * gxd^3)^((q - 3) / 4)
-22.  y1 = y1 * tv2          # gx1 * gxd * (gx1 * gxd^3)^((q - 3) / 4)
-23. x2n = tv3 * x1n         # x2 = x2n / xd = Z * u^2 * x1n / xd
-24.  y2 = y1 * c2           # y2 = y1 * sqrt(-Z^3)
-25.  y2 = y2 * tv1
-26.  y2 = y2 * u
-27. tv2 = y1^2
-28. tv2 = tv2 * gxd
-29.  e2 = tv2 == gx1
-30.  xn = CMOV(x2n, x1n, e2)  # If e2, x = x1, else x = x2
-31.   y = CMOV(y2, y1, e2)    # If e2, y = y1, else y = y2
-32.  e3 = sgn0(u) == sgn0(y)  # Fix sign of y
-33.   y = CMOV(-y, y, e3)
-34. return (xn, xd, y, 1)
-~~~
-
-### q = 5 (mod 8) {#sswu-map-to-5mod8}
-
-The following is a straight-line implementation of the Simplified SWU
-mapping that applied to any curve over GF(q) where q = 5 (mod 8).
-
-~~~
-map_to_curve_simple_sswu_5mod8(u)
-
-Input: u, an element of F.
-Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
-        point on the target curve.
-
-Constants:
-1. c1 = (q - 5) / 8             # Integer arithmetic
-2. c2 = sqrt(-1)
-3. c3 = sqrt(Z^3 / c2)
-
-Steps:
-1.  tv1 = u^2
-2.  tv3 = Z * tv1
-3.  tv5 = tv3^2
-4.   xd = tv5 + tv3
-5.  x1n = xd + 1
-6.  x1n = x1n * B
-7.   xd = -A * xd
-8.   e1 = xd == 0
-9.   xd = CMOV(xd, Z * A, e1)   # If xd == 0, set xd = Z * A
-10. tv2 = xd^2
-11. gxd = tv2 * xd              # gxd == xd^3
-12. tv2 = A * tv2
-13. gx1 = x1n^2
-14. gx1 = gx1 + tv2             # x1n^2 + A * xd^2
-15. gx1 = gx1 * x1n             # x1n^3 + A * x1n * xd^2
-16. tv2 = B * gxd
-17. gx1 = gx1 + tv2             # x1n^3 + A * x1n * xd^2 + B * xd^3
-18. tv4 = gxd^2
-19. tv2 = tv4 * gxd             # gxd^3
-20. tv4 = tv4^2                 # gxd^4
-21. tv2 = tv2 * gx1             # gx1 * gxd^3
-22. tv4 = tv4 * tv2             # gx1 * gxd^7
-23.   y = tv4^c1                # (gx1 * gxd^7)^((q - 5) / 8)
-24.   y = y * tv2               # This is almost sqrt(gx1)
-25. tv4 = y * c2                # check the two possible sqrts
-26. tv2 = tv4^2
-27. tv2 = tv2 * gxd
-28.  e2 = tv2 == gx1
-29.   y = CMOV(y, tv4, e2)
-30. gx2 = gx1 * tv5
-31. gx2 = gx2 * tv3             # gx2 = gx1 * Z^3 * u^6
-32. tv1 = y * tv1
-33. tv1 = tv1 * u               # This is almost sqrt(gx2)
-34. tv1 = tv1 * c3              # check the two possible sqrts
-35. tv4 = tv1 * c2
-36. tv2 = tv4^2
-37. tv2 = tv2 * gxd
-38.  e3 = tv2 == gx2
-39. tv1 = CMOV(tv1, tv4, e3)
-40. tv2 = y^2
-41. tv2 = tv2 * gxd
-42.  e4 = tv2 == gx1
-43.   y = CMOV(tv1, y, e4)      # choose correct y-coordinate
-44. tv2 = tv3 * x1n             # x2n = x2n / xd = Z * u^2 * x1n / xd
-45.  xn = CMOV(tv2, x1n, e4)    # choose correct x-coordinate
-46.  e5 = sgn0(u) == sgn0(y)    # Fix sign of y
-47.   y = CMOV(-y, y, e5)
-48. return (xn, xd, y, 1)
-~~~
-
-### q = 9 (mod 16) {#sswu-map-to-9mod16}
-
-The following is a straight-line implementation of the Simplified SWU
-mapping that applies to any curve over GF(q) where q = 9 (mod 16).
-This includes the curve isogenous to BLS12-381 G2 ({{suites-bls12381-g2}}).
-
-~~~
-map_to_curve_simple_swu_9mod16(u)
-
-Input: u, an element of F.
-Output: (xn, xd, yn, yd) such that (xn / xd, yn / yd) is a
-        point on the target curve.
-
-Constants:
-1. c1 = (q - 9) / 16            # Integer arithmetic
-2. c2 = sqrt(-1)
-3. c3 = sqrt(c2)
-4. c4 = sqrt(Z^3 / c3)
-5. c5 = sqrt(Z^3 / (c2 * c3))
-
-Steps:
-1.  tv1 = u^2
-2.  tv3 = Z * tv1
-3.  tv5 = tv3^2
-4.   xd = tv5 + tv3
-5.  x1n = xd + 1
-6.  x1n = x1n * B
-7.   xd = -A * xd
-8.   e1 = xd == 0
-9.   xd = CMOV(xd, Z * A, e1)   # If xd == 0, set xd = Z * A
-10. tv2 = xd^2
-11. gxd = tv2 * xd              # gxd == xd^3
-12. tv2 = A * tv2
-13. gx1 = x1n^2
-14. gx1 = gx1 + tv2             # x1n^2 + A * xd^2
-15. gx1 = gx1 * x1n             # x1n^3 + A * x1n * xd^2
-16. tv2 = B * gxd
-17. gx1 = gx1 + tv2             # x1n^3 + A * x1n * xd^2 + B * xd^3
-18. tv4 = gxd^2
-19. tv2 = tv4 * gxd             # gxd^3
-20. tv4 = tv4^2                 # gxd^4
-21. tv2 = tv2 * tv4             # gxd^7
-22. tv2 = tv2 * gx1             # gx1 * gxd^7
-23. tv4 = tv4^2                 # gxd^8
-24. tv4 = tv2 * tv4             # gx1 * gxd^15
-25.   y = tv4^c1                # (gx1 * gxd^15)^((q - 9) / 16)
-26.   y = y * tv2               # This is almost sqrt(gx1)
-27. tv4 = y * c2                # check the four possible sqrts
-28. tv2 = tv4^2
-29. tv2 = tv2 * gxd
-30.  e2 = tv2 == gx1
-31.   y = CMOV(y, tv4, e2)
-32. tv4 = y * c3
-33. tv2 = tv4^2
-34. tv2 = tv2 * gxd
-35.  e3 = tv2 == gx1
-36.   y = CMOV(y, tv4, e3)
-37. tv4 = tv4 * c2
-38. tv2 = tv4^2
-39. tv2 = tv2 * gxd
-40.  e4 = tv2 == gx1
-41.   y = CMOV(y, tv4, e4)      # if x1 is square, this is its sqrt
-42. gx2 = gx1 * tv5
-43. gx2 = gx2 * tv3             # gx2 = gx1 * Z^3 * u^6
-44. tv5 = y * tv1
-45. tv5 = tv5 * u               # This is almost sqrt(gx2)
-46. tv1 = tv5 * c4              # check the four possible sqrts
-47. tv4 = tv1 * c2
-48. tv2 = tv4^2
-49. tv2 = tv2 * gxd
-50.  e5 = tv2 == gx2
-51. tv1 = CMOV(tv1, tv4, e5)
-52. tv4 = tv5 * c5
-53. tv2 = tv4^2
-54. tv2 = tv2 * gxd
-55.  e6 = tv2 == gx2
-56. tv1 = CMOV(tv1, tv4, e6)
-57. tv4 = tv4 * c2
-58. tv2 = tv4^2
-59. tv2 = tv2 * gxd
-60.  e7 = tv2 == gx2
-61. tv1 = CMOV(tv1, tv4, e7)
-62. tv2 = y^2
-63. tv2 = tv2 * gxd
-64.  e8 = tv2 == gx1
-65.   y = CMOV(tv1, y, e8)      # choose correct y-coordinate
-66. tv2 = tv3 * x1n             # x2n = x2n / xd = Z * u^2 * x1n / xd
-67.  xn = CMOV(tv2, x1n, e8)    # choose correct x-coordinate
-68.  e9 = sgn0(u) == sgn0(y)    # Fix sign of y
-69.   y = CMOV(-y, y, e9)
-70. return (xn, xd, y, 1)
-~~~
 
 ## Elligator 2 {#ell2-opt}
 
@@ -4600,7 +4429,7 @@ def find_z_svdw(F, A, B, init_ctr=1):
         ctr += 1
 ~~~
 
-## Finding Z for Simplified SWU {#sswu-z-code}
+## Finding Z and S for Simplified SWU {#sswu-z-code}
 
 The below function outputs an appropriate Z for the Simplified SWU map ({{simple-swu}}).
 
@@ -4627,6 +4456,15 @@ def find_z_sswu(F, A, B):
             if is_square(g(B / (Z_cand * A))):
                 return Z_cand
         ctr += 1
+~~~
+
+The below function outputs an appropriate S for the Simplified SWU map ({{simple-swu}}).
+
+~~~sage
+# Arguments:
+# - F, a field object, e.g., F = GF(2^255 - 19)
+def find_S(F):
+    return F.primitive_element()
 ~~~
 
 ## Finding Z for Elligator 2 {#elligator-z-code}
