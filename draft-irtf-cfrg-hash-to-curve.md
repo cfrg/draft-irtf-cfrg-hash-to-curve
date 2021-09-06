@@ -3848,7 +3848,7 @@ Procedure:
 26. isQR = CMOV(isQR, False, tv5 != 1)
 27. tv3 = CMOV(tv3, tv3 * tv1, tv5 != 1)
 28. tv4 = CMOV(tv4, tv4 * tv0, tv5 != 1)
-29. for i in range(m, 1, -1):
+29. for i in (m, m - 1, ..., 2):
 30.    tv5 = i - 2
 31.    tv5 = 2^tv5
 32.    tv5 = tv4^tv5
