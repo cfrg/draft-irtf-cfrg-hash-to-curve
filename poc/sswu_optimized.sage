@@ -102,7 +102,7 @@ class OptimizedSSWU(GenericMap):
         tv2 = tv2 + tv5
         x = tv1 * tv3
         (is_gx1_square, y1) = self.sqrt_ratio(tv2, tv6)
-        y = c3 * tv1 
+        y = c1 * tv1 
         y = y * u
         y = y * y1
         x = CMOV(x, tv3, is_gx1_square)
