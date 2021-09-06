@@ -3798,11 +3798,10 @@ Steps:
 21.   y = y * y1
 22.   x = CMOV(x, tv3, is_gx1_square)
 23.   y = CMOV(y, y1, is_gx1_square)
-24. tv1 = u mod 2
-25. tv2 = y mod 2
-26.   y = CMOV(-y, y, tv1 == tv2)s
-27.   x = x / tv4
-28. return (x, y)
+24.  e1 = sgn0(u) == sgn0(y)
+25.   y = CMOV(-y, y, e1)
+26.   x = x / tv4
+27. return (x, y)
 ~~~
 
 The sqrt_ratio subroutine used by the above procedure is defined immediately below.
