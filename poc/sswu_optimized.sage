@@ -1,5 +1,5 @@
 #!/usr/bin/sage
-# vim: syntv2x=python
+# vim: syntax=python
 
 import sys
 try:
