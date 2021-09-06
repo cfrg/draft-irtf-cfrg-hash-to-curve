@@ -3834,7 +3834,7 @@ Procedure:
 11. tv2 = tv2 - 1
 12. tv2 = v^tv2
 13. tv3 = tv2^2
-14. tv3 = tv3 * D
+14. tv3 = tv3 * v
 15. tv4 = r - 1
 16. tv4 = tv4 / 2
 17. tv5 = N * tv3
