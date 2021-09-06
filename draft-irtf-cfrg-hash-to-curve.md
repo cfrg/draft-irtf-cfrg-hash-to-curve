@@ -3763,7 +3763,7 @@ See {{simple-swu}} for information on the constants used in this mapping.
 
 This optimized, straight-line procedure applies to any classes of curves
 and base field. The constant c1 depends on a fixed, non-square value h, which
-is defined to be the smallest primitive element in the base field.
+is a parameter of the sqrt_ratio subroutine defined below.
 
 ~~~
 map_to_curve_simple_swu(u)
