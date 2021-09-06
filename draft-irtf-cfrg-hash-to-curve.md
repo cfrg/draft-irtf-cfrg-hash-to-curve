@@ -3806,7 +3806,7 @@ Steps:
 
 The sqrt_ratio subroutine used by the above procedure is defined immediately below.
 It depends on a constant S, which MUST be chosen to be a primitive element of the field F.
-See below for more information on identifying an appropriate value for S.
+See {{sswu-z-code}} for more information on identifying an appropriate value for S.
 
 ~~~
 sqrt_ratio(u, v)
