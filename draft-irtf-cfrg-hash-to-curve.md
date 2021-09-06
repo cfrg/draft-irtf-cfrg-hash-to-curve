@@ -3832,7 +3832,7 @@ Procedure:
 9. tv1 = S^tv1
 10. tv2 = 2^m
 11. tv2 = tv2 - 1
-12. tv2 = D^tv2
+12. tv2 = v^tv2
 13. tv3 = tv2^2
 14. tv3 = tv3 * D
 15. tv4 = r - 1
