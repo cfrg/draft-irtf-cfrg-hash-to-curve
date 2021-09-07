@@ -3762,18 +3762,13 @@ This section gives a straight-line implementation of the simplified
 SWU method for any Weierstrass curve of the form given in {{weierstrass}}.
 See {{simple-swu}} for information on the constants used in this mapping.
 
-This optimized, straight-line procedure applies to any base field. The
-constant c1 depends on a value S, which is a parameter of the sqrt_ratio
-subroutine defined below. See {{sswu-z-code}} for generating this value.
+This optimized, straight-line procedure applies to any base field.
 
 ~~~
 map_to_curve_simple_swu(u)
 
 Input: u, an element of F.
 Output: (x, y), a point on E.
-
-Constants:
-1.  c1 = sqrt(Z / S)
 
 Steps:
 1.  tv1 = u^2
@@ -3794,49 +3789,58 @@ Steps:
 16. tv2 = tv2 + tv5
 17.   x = tv1 * tv3
 18. (is_gx1_square, y1) = sqrt_ratio(tv2, tv6)
-19.   y = c1 * tv1
-20.   y = y * u
-21.   y = y * y1
-22.   x = CMOV(x, tv3, is_gx1_square)
-23.   y = CMOV(y, y1, is_gx1_square)
-24.  e1 = sgn0(u) == sgn0(y)
-25.   y = CMOV(-y, y, e1)
-26.   x = x / tv4
-27. return (x, y)
+19.   y = tv1 * u
+20.   y = y * y1
+21.   x = CMOV(x, tv3, is_gx1_square)
+22.   y = CMOV(y, y1, is_gx1_square)
+23.  e1 = sgn0(u) == sgn0(y)
+24.   y = CMOV(-y, y, e1)
+25.   x = x / tv4
+26. return (x, y)
 ~~~
 
-The sqrt_ratio subroutine used by the above procedure is defined immediately below.
-It depends on a constant S, which MUST be chosen to be a primitive element of the field F.
-See {{sswu-z-code}} for more information on identifying an appropriate value for S.
+### sqrt_ratio subroutines {#straightline-sswu-sqrt-ratio}
+
+This section defines several variants of the sqrt_ratio subroutine used by the
+above procedure.
+One variant can be used with any field; the others are optimized variants that
+are restricted to specific fields.
+
+#### sqrt_ratio for any field
+
+This routine depends on the constant Z from the simplified SWU map.
+Note that for a given F, the values l, o, tv0, and tv1 do not depend
+on the inputs to the procedure and can be precomputed.
 
 ~~~
 sqrt_ratio(u, v)
 
 Parameters:
 - F, a finite field of characteristic p and order q = p^m.
-- S, a primitive element of F.
+- Z, the constant from the simplified SWU map.
 
 Input: u and v, elements of F, where v != 0.
-Output: (b, y), where b = True and y = sqrt(u / v) if (u / v) is square in F,
-  and b = False and y = sqrt(S * (u / v)) otherwise.
+Output: (b, y), where
+  b = True and y = sqrt(u / v) if (u / v) is square in F, and
+  b = False and y = sqrt(Z * (u / v)) otherwise.
 
 Procedure:
 1. isQR = True
-2. m = 0
-3. r = q - 1
-4. while r % 2 == 0:
-5.    r = r / 2
-6.    m = m + 1
-7. tv0 = S^r
-8. tv1 = r + 1
+2. l = 0
+3. o = q - 1
+4. while o % 2 == 0:
+5.    o = o / 2
+6.    l = l + 1
+7. tv0 = Z^o
+8. tv1 = o + 1
 9. tv1 = tv1 / 2
-10. tv1 = S^tv1
-11. tv2 = 2^m
+10. tv1 = Z^tv1
+11. tv2 = 2^l
 12. tv2 = tv2 - 1
 13. tv2 = v^tv2
 14. tv3 = tv2^2
 15. tv3 = tv3 * v
-16. tv4 = r - 1
+16. tv4 = o - 1
 17. tv4 = tv4 / 2
 18. tv5 = u * tv3
 19. tv5 = tv5^tv4
@@ -3844,13 +3848,13 @@ Procedure:
 21. tv2 = tv5 * v # y
 22. tv3 = tv5 * u # z
 23. tv4 = tv3 * tv2 # t
-24. tv5 = m - 1
+24. tv5 = l - 1
 25. tv5 = 2^tv5
 26. tv5 = tv4^tv5
 27. isQR = CMOV(isQR, False, tv5 != 1)
 28. tv3 = CMOV(tv3, tv3 * tv1, tv5 != 1)
 29. tv4 = CMOV(tv4, tv4 * tv0, tv5 != 1)
-30. for i in (m, m - 1, ..., 2):
+30. for i in (l, l - 1, ..., 2):
 31.    tv5 = i - 2
 32.    tv5 = 2^tv5
 33.    tv5 = tv4^tv5
@@ -3860,6 +3864,13 @@ Procedure:
 37.    tv0 = tv0 * tv0
 38. return (isQR, tv3)
 ~~~
+
+#### sqrt_ratio for q = 3 mod 4
+
+#### sqrt_ratio for q = 5 mod 8
+
+#### sqrt_ratio for q = 9 mod 16
+
 
 ## Elligator 2 method {#straightline-ell2}
 
@@ -4429,7 +4440,7 @@ def find_z_svdw(F, A, B, init_ctr=1):
         ctr += 1
 ~~~
 
-## Finding Z and S for Simplified SWU {#sswu-z-code}
+## Finding Z for Simplified SWU {#sswu-z-code}
 
 The below function outputs an appropriate Z for the Simplified SWU map ({{simple-swu}}).
 
@@ -4456,15 +4467,6 @@ def find_z_sswu(F, A, B):
             if is_square(g(B / (Z_cand * A))):
                 return Z_cand
         ctr += 1
-~~~
-
-The below function outputs an appropriate S for the Simplified SWU map ({{simple-swu}}).
-
-~~~sage
-# Arguments:
-# - F, a field object, e.g., F = GF(2^255 - 19)
-def find_S(F):
-    return F.primitive_element()
 ~~~
 
 ## Finding Z for Elligator 2 {#elligator-z-code}

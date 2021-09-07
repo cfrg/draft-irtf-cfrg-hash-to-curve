@@ -10,12 +10,6 @@ try:
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
-# Arguments:
-# - F, a field object, e.g., F = GF(2^521 - 1)
-def find_S_sswu(F):
-    S = F.primitive_element()
-    return S
-
 class OptimizedSSWU(GenericMap):
     def __init__(self, F, A, B):
         self.name = "SSWU"
@@ -28,19 +22,15 @@ class OptimizedSSWU(GenericMap):
         if self.B == 0:
             raise ValueError("S-SWU requires B != 0")
         self.Z = find_z_sswu(F, F(A), F(B))
-        self.S = find_S_sswu(F)
         self.E = EllipticCurve(F, [F(A), F(B)])
-
-        # constants for straight-line impl
-        self.c2 = -F(1) / self.Z
-        self.c1 = self.sqrt(self.Z / self.S)
 
         # values at which the map is undefined
         # i.e., when Z^2 * u^4 + Z * u^2 = 0
         # which is at u = 0 and when Z * u^2 = -1
+        c = -F(1) / self.Z
         self.undefs = [F(0)]
-        if self.c2.is_square():
-            ex = self.c2.sqrt()
+        if c.is_square():
+            ex = c.sqrt()
             self.undefs += [ex, -ex]
 
     def not_straight_line(self, u):
@@ -72,8 +62,8 @@ class OptimizedSSWU(GenericMap):
 
     def sqrt_ratio(self, u, v):
         x = self.F(u) / self.F(v)
-        r1 = sqrt_checked(self.F, x)
-        r2 = sqrt_ratio_straightline(self.F, u, v)
+        r1 = sqrt_checked(self.F, x, self.Z)
+        r2 = sqrt_ratio_straightline(self.F, u, v, self.Z)
         assert r1 == r2
         return r2
 
@@ -82,7 +72,6 @@ class OptimizedSSWU(GenericMap):
         B = self.B
         Z = self.Z
         u = self.F(u)
-        c1 = self.c1
         sqrt_ratio = self.sqrt_ratio
         sgn0 = self.sgn0
 
@@ -104,8 +93,7 @@ class OptimizedSSWU(GenericMap):
         tv2 = tv2 + tv5
         x = tv1 * tv3
         (is_gx1_square, y1) = sqrt_ratio(tv2, tv6)
-        y = c1 * tv1
-        y = y * u
+        y = tv1 * u
         y = y * y1
         x = CMOV(x, tv3, is_gx1_square)
         y = CMOV(y, y1, is_gx1_square)
