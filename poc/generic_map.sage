@@ -54,7 +54,7 @@ class GenericMap(object):
     @classmethod
     def get_random(cls):
         while True:
-            p = random_prime(1 << 256)
+            p = random_prime(1 << 128)
             F = GF(p)
             A = B = None
             while A is None:
