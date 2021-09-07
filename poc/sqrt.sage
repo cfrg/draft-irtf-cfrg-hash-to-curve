@@ -1,14 +1,17 @@
 from sagelib.common import CMOV
 # vim: syntax=python
 
-def find_S(F):
-    q = F.order()
+def _get_lo(q):
     o = q - 1
     l = 0
     while o % 2 == 0:
         o = o // 2
         l = l + 1
     assert o * 2^l == q - 1
+    return (l, o)
+
+def find_S(F):
+    (l, o) = _get_lo(F.order())
     ctr = F.gen()
     ll0 = 2^l
     ll1 = 2^(l-1)
@@ -31,6 +34,26 @@ def _get_s_val(F):
     pe = find_S(F)
     _s_vals[F] = pe
     return pe
+
+_consts = {}
+def _get_consts(F, Z):
+    global _consts
+    if (F, Z) in _consts:
+        return _consts[(F, Z)]
+    q = F.order()
+    (l, o) = _get_lo(q)
+    # c1, the largest integer such that 2^c1 divides q - 1.
+    c1 = l
+    c2 = (q - 1) / (2^c1)        # Integer arithmetic
+    assert c2 == o
+    c3 = (c2 - 1) / 2            # Integer arithmetic
+    c4 = 2^c1 - 1                # Integer arithmetic
+    c5 = 2^(c1 - 1)              # Integer arithmetic
+    c6 = Z^c2
+    c7 = Z^((c2 + 1) / 2)
+    ret = (c1, c3, c4, c5, c6, c7)
+    _consts[(F, Z)] = ret
+    return ret
 
 def sqrt_checked(F, x, S=None):
     x = F(x)
@@ -71,47 +94,32 @@ def sqrt_ratio_straightline(F, u, v, Z=None):
     v = F(v)
     if Z is None:
         Z = _get_s_val(F)
-    q = F.order()
+    (c1, c3, c4, c5, c6, c7) = _get_consts(F, Z)
 
     isQR = True
-    l = 0
-    o = q - 1
-    while o % 2 == 0:
-       o = o / 2
-       l = l + 1
-    tv0 = Z^o
-    tv1 = o + 1
-    tv1 = tv1 / 2
-    tv1 = Z^tv1
-    tv2 = 2^l
-    tv2 = tv2 - 1
-    tv2 = v^tv2
+    tv1 = c6
+    tv2 = v^c4
     tv3 = tv2^2
     tv3 = tv3 * v
-    tv4 = o - 1
-    tv4 = tv4 / 2
     tv5 = u * tv3
-    tv5 = tv5^tv4
+    tv5 = tv5^c3
     tv5 = tv5 * tv2
     tv2 = tv5 * v # y
     tv3 = tv5 * u # z
     tv4 = tv3 * tv2 # t
-    tv5 = l - 1
-    tv5 = 2^tv5
-    tv5 = tv4^tv5
+    tv5 = tv4^c5
     isQR = CMOV(isQR, False, tv5 != 1)
-    tv3 = CMOV(tv3, tv3 * tv1, tv5 != 1)
-    tv4 = CMOV(tv4, tv4 * tv0, tv5 != 1)
-    for i in range(l, 1, -1):
+    tv3 = CMOV(tv3, tv3 * c7, tv5 != 1)
+    tv4 = CMOV(tv4, tv4 * tv1, tv5 != 1)
+    for i in range(c1, 1, -1):
        tv5 = i - 2
        tv5 = 2^tv5
        tv5 = tv4^tv5
-       tv3 = CMOV(tv3, tv3 * tv0, tv5 != 1)
-       tv4 = CMOV(tv4, tv4 * tv0, tv5 != 1)
-       tv4 = CMOV(tv4, tv4 * tv0, tv5 != 1)
-       tv0 = tv0 * tv0
+       tv3 = CMOV(tv3, tv3 * tv1, tv5 != 1)
+       tv4 = CMOV(tv4, tv4 * tv1, tv5 != 1)
+       tv4 = CMOV(tv4, tv4 * tv1, tv5 != 1)
+       tv1 = tv1 * tv1
 
-    assert 2^l * o  == q - 1, "bad initialization"
     assert (isQR, tv3) == sqrt_checked(F, u/v, Z), "incorrect sqrt_ratio"
     return (isQR, tv3)
 

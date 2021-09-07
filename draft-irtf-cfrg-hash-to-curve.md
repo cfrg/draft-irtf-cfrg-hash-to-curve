@@ -3811,10 +3811,6 @@ The routines given in this section depend on the constant Z from the simplified 
 
 #### sqrt_ratio for any field
 
-This routine applies to any field.
-Note that for a given F, the values l, o, tv0, and tv1 do not depend
-on the inputs to the procedure and can be precomputed.
-
 ~~~
 sqrt_ratio(u, v)
 
@@ -3827,45 +3823,40 @@ Output: (b, y), where
   b = True and y = sqrt(u / v) if (u / v) is square in F, and
   b = False and y = sqrt(Z * (u / v)) otherwise.
 
+Constants:
+1. c1, the largest integer such that 2^c1 divides q - 1.
+2. c2 = (q - 1) / (2^c1)        # Integer arithmetic
+3. c3 = (c2 - 1) / 2            # Integer arithmetic
+4. c4 = 2^c1 - 1                # Integer arithmetic
+5. c5 = 2^(c1 - 1)              # Integer arithmetic
+6. c6 = Z^c2
+7. c7 = Z^((c2 + 1) / 2)
+
 Procedure:
 1. isQR = True
-2. l = 0
-3. o = q - 1
-4. while o % 2 == 0:
-5.    o = o / 2
-6.    l = l + 1
-7. tv0 = Z^o
-8. tv1 = o + 1
-9. tv1 = tv1 / 2
-10. tv1 = Z^tv1
-11. tv2 = 2^l
-12. tv2 = tv2 - 1
-13. tv2 = v^tv2
-14. tv3 = tv2^2
-15. tv3 = tv3 * v
-16. tv4 = o - 1
-17. tv4 = tv4 / 2
-18. tv5 = u * tv3
-19. tv5 = tv5^tv4
-20. tv5 = tv5 * tv2
-21. tv2 = tv5 * v # y
-22. tv3 = tv5 * u # z
-23. tv4 = tv3 * tv2 # t
-24. tv5 = l - 1
-25. tv5 = 2^tv5
-26. tv5 = tv4^tv5
-27. isQR = CMOV(isQR, False, tv5 != 1)
-28. tv3 = CMOV(tv3, tv3 * tv1, tv5 != 1)
-29. tv4 = CMOV(tv4, tv4 * tv0, tv5 != 1)
-30. for i in (l, l - 1, ..., 2):
-31.    tv5 = i - 2
-32.    tv5 = 2^tv5
-33.    tv5 = tv4^tv5
-34.    tv3 = CMOV(tv3, tv3 * tv0, tv5 != 1)
-35.    tv4 = CMOV(tv4, tv4 * tv0, tv5 != 1)
-36.    tv4 = CMOV(tv4, tv4 * tv0, tv5 != 1)
-37.    tv0 = tv0 * tv0
-38. return (isQR, tv3)
+2. tv1 = c6
+3. tv2 = v^c4
+4. tv3 = tv2^2
+5. tv3 = tv3 * v
+6. tv5 = u * tv3
+7. tv5 = tv5^c3
+8. tv5 = tv5 * tv2
+9. tv2 = tv5 * v
+10. tv3 = tv5 * u
+11. tv4 = tv3 * tv2
+12. tv5 = tv4^c5
+13. isQR = CMOV(isQR, False, tv5 != 1)
+14. tv3 = CMOV(tv3, tv3 * c7, tv5 != 1)
+15. tv4 = CMOV(tv4, tv4 * tv1, tv5 != 1)
+16. for i in (c1, c1 - 1, ..., 2):
+17.    tv5 = i - 2
+18.    tv5 = 2^tv5
+19.    tv5 = tv4^tv5
+20.    tv3 = CMOV(tv3, tv3 * tv1, tv5 != 1)
+21.    tv4 = CMOV(tv4, tv4 * tv1, tv5 != 1)
+22.    tv4 = CMOV(tv4, tv4 * tv1, tv5 != 1)
+23.    tv1 = tv1 * tv1
+24. return (isQR, tv3)
 ~~~
 
 #### optimized sqrt_ratio for q = 3 mod 4
