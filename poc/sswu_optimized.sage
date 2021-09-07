@@ -103,6 +103,15 @@ class OptimizedSSWU(GenericMap):
 
         return (x, y)
 
+# curve isogenous to BLS12-381 G2
+p_bls12381 = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
+F.<II> = GF(p_bls12381^2, modulus=[1,0,1])
+Ap_bls12381g2 = 240 * II
+Bp_bls12381g2 = 1012 * (1 + II)
+test_bls12381g2 = OptimizedSSWU(F, Ap_bls12381g2, Bp_bls12381g2)
+assert test_bls12381g2.Z == -2 - II
+
 if __name__ == "__main__":
+    test_bls12381g2.test()
     for _ in range(0, 32):
         OptimizedSSWU.test_random()
