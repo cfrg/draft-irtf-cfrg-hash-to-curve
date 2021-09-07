@@ -46,9 +46,6 @@ class OptimizedSSWU_3mod4(OptimizedSSWU):
     def sqrt_ratio(self, u, v):
         (b1, y1) = super(OptimizedSSWU_3mod4, self).sqrt_ratio(u, v)
         (b2, y2) = self.sqrt_ratio_3mod4(u, v)
-        if y1^2 != y2^2 or b1 != b2:
-            print((b1, y1))
-            print((b2, y2))
         assert b1 == b2
         assert y1^2 == y2^2
         return (b2, y2)
