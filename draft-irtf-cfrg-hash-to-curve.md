@@ -3773,7 +3773,7 @@ Input: u, an element of F.
 Output: (x, y), a point on E.
 
 Constants:
-1.  c1 = Z / S
+1.  c1 = sqrt(Z / S)
 
 Steps:
 1.  tv1 = u^2
