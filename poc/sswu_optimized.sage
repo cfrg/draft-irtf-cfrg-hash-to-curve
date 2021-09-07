@@ -3,10 +3,11 @@
 
 import sys
 try:
-    from sagelib.common import CMOV
+    from sagelib.common import CMOV, square_root_random_sign
     from sagelib.generic_map import GenericMap
-    from sagelib.z_selection import find_z_sswu
     from sagelib.sqrt import sqrt_checked, sqrt_ratio_straightline
+    from sagelib.sswu_generic import GenericSSWU
+    from sagelib.z_selection import find_z_sswu
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
@@ -24,14 +25,9 @@ class OptimizedSSWU(GenericMap):
         self.Z = find_z_sswu(F, F(A), F(B))
         self.E = EllipticCurve(F, [F(A), F(B)])
 
-        # values at which the map is undefined
-        # i.e., when Z^2 * u^4 + Z * u^2 = 0
-        # which is at u = 0 and when Z * u^2 = -1
-        c = -F(1) / self.Z
-        self.undefs = [F(0)]
-        if c.is_square():
-            ex = c.sqrt()
-            self.undefs += [ex, -ex]
+        self.ref_map = GenericSSWU(F, A, B)
+        self.ref_map.set_sqrt(square_root_random_sign)
+        self.undefs = self.ref_map.undefs
 
     def not_straight_line(self, u):
         inv0 = self.inv0
@@ -58,6 +54,13 @@ class OptimizedSSWU(GenericMap):
             y = sqrt(gx2)
         if sgn0(u) != sgn0(y):
             y = -y
+
+        (xp, yp, zp) = self.ref_map.map_to_curve(u)
+        xp = xp / zp
+        yp = yp / zp
+        assert xp == x
+        assert yp == y
+
         return (x, y)
 
     def sqrt_ratio(self, u, v):

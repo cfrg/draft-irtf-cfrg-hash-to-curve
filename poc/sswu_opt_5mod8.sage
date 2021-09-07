@@ -3,8 +3,7 @@
 
 import sys
 try:
-    from sagelib.common import CMOV, square_root_random_sign
-    from sagelib.sswu_generic import GenericSSWU
+    from sagelib.common import CMOV
     from sagelib.sswu_optimized import OptimizedSSWU
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
@@ -24,9 +23,7 @@ class OptimizedSSWU_5mod8(OptimizedSSWU):
         (self.c1, self.c2, self.c3) = (c1, c2, c3)
 
         # map for testing
-        self.ref_map = GenericSSWU(F, self.A, self.B)
-        self.ref_map.set_sqrt(square_root_random_sign)
-        self.opt_map = OptimizedSSWU(F, self.A, self.B)
+        self.ref_map = OptimizedSSWU(F, self.A, self.B)
 
     def sqrt_ratio_5mod8(self, u, v):
         c1 = self.c1
@@ -78,11 +75,6 @@ class OptimizedSSWU_5mod8(OptimizedSSWU):
         y = yn / zn
         assert y^2 == x^3 + A * x + B
         (xp, yp, zp) = self.ref_map.map_to_curve(u)
-        xp = xp / zp
-        yp = yp / zp
-        assert xp == x
-        assert yp == y
-        (xp, yp, zp) = self.opt_map.map_to_curve(u)
         xp = xp / zp
         yp = yp / zp
         assert xp == x
