@@ -3785,11 +3785,11 @@ Steps:
 7.  tv4 = CMOV(Z, -tv2, tv2 != 0)
 8.  tv4 = A * tv4
 9.  tv2 = tv3^2
-10. tv5 = tv4^2
-11. tv5 = A * tv5
+10. tv6 = tv4^2
+11. tv5 = A * tv6
 12. tv2 = tv2 + tv5
 13. tv2 = tv2 * tv3
-14. tv6 = tv4^3
+14. tv6 = tv6 * tv4
 15. tv5 = B * tv6
 16. tv2 = tv2 + tv5
 17.   x = tv1 * tv3

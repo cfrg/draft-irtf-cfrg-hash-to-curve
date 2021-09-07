@@ -83,6 +83,8 @@ class OptimizedSSWU(GenericMap):
         Z = self.Z
         u = self.F(u)
         c1 = self.c1
+        sqrt_ratio = self.sqrt_ratio
+        sgn0 = self.sgn0
 
         tv1 = u^2
         tv1 = Z * tv1
@@ -93,21 +95,21 @@ class OptimizedSSWU(GenericMap):
         tv4 = CMOV(Z, -tv2, tv2 != 0)
         tv4 = A * tv4
         tv2 = tv3^2
-        tv5 = tv4^2
-        tv5 = A * tv5
+        tv6 = tv4^2
+        tv5 = A * tv6
         tv2 = tv2 + tv5
         tv2 = tv2 * tv3
-        tv6 = tv4^3
+        tv6 = tv6 * tv4
         tv5 = B * tv6
         tv2 = tv2 + tv5
         x = tv1 * tv3
-        (is_gx1_square, y1) = self.sqrt_ratio(tv2, tv6)
-        y = c1 * tv1 
+        (is_gx1_square, y1) = sqrt_ratio(tv2, tv6)
+        y = c1 * tv1
         y = y * u
         y = y * y1
         x = CMOV(x, tv3, is_gx1_square)
         y = CMOV(y, y1, is_gx1_square)
-        e1 = self.sgn0(u) == self.sgn0(y)
+        e1 = sgn0(u) == sgn0(y)
         y = CMOV(-y, y, e1)
         x = x / tv4
 
