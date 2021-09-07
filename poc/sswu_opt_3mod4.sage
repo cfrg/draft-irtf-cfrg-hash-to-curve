@@ -5,6 +5,7 @@ import sys
 try:
     from sagelib.common import CMOV, square_root_random_sign
     from sagelib.sswu_generic import GenericSSWU
+    from sagelib.sswu_optimized import OptimizedSSWU
     from sagelib.z_selection import find_z_sswu
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
@@ -29,6 +30,7 @@ class OptimizedSSWU_3mod4(object):
         # map for testing
         self.ref_map = GenericSSWU(F, self.A, self.B)
         self.ref_map.set_sqrt(square_root_random_sign)
+        self.opt_map = OptimizedSSWU(F, self.A, self.B)
 
     def map_to_curve(self, u):
         sgn0 = self.ref_map.sgn0
@@ -86,6 +88,11 @@ class OptimizedSSWU_3mod4(object):
         y = yn / yd
         assert y^2 == x^3 + A * x + B
         (xp, yp, zp) = self.ref_map.map_to_curve(u)
+        xp = xp / zp
+        yp = yp / zp
+        assert xp == x
+        assert yp == y
+        (xp, yp, zp) = self.opt_map.map_to_curve(u)
         xp = xp / zp
         yp = yp / zp
         assert xp == x
