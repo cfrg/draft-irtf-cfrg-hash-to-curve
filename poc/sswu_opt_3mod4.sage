@@ -6,25 +6,19 @@ try:
     from sagelib.common import CMOV, square_root_random_sign
     from sagelib.sswu_generic import GenericSSWU
     from sagelib.sswu_optimized import OptimizedSSWU
-    from sagelib.z_selection import find_z_sswu
 except ImportError:
     sys.exit("Error loading preprocessed sage files. Try running `make clean pyfiles`")
 
-class OptimizedSSWU_3mod4(object):
+class OptimizedSSWU_3mod4(OptimizedSSWU):
     def __init__(self, F, A, B):
         assert F.order() % 4 == 3
-        assert A != 0
-        assert B != 0
-        self.F = F
-        self.A = F(A)
-        self.B = F(B)
+        super(OptimizedSSWU_3mod4, self).__init__(F, A, B)
 
         # constants
-        Z = find_z_sswu(F, self.A, self.B)
+        Z = self.Z
         q = F.order()
-        self.Z = Z
-        c1 = (q - 3) // 4           # Integer arithmetic
-        c2 = sqrt(-Z^3)
+        c1 = (q - 3) / 4     # Integer arithmetic
+        c2 = sqrt(-Z)
         (self.c1, self.c2) = (c1, c2)
 
         # map for testing
@@ -32,50 +26,32 @@ class OptimizedSSWU_3mod4(object):
         self.ref_map.set_sqrt(square_root_random_sign)
         self.opt_map = OptimizedSSWU(F, self.A, self.B)
 
-    def map_to_curve(self, u):
-        sgn0 = self.ref_map.sgn0
-        A = self.A
-        B = self.B
-        F = self.F
-        Z = self.Z
+    def sqrt_ratio_3mod4(self, u, v):
         c1 = self.c1
         c2 = self.c2
-        u = F(u)
 
-        tv1 = u^2
-        tv3 = Z * tv1
-        tv2 = tv3^2
-        xd = tv2 + tv3
-        x1n = xd + 1
-        x1n = x1n * B
-        xd = -A * xd
-        e1 = xd == 0
-        xd = CMOV(xd, Z * A, e1)  # If xd == 0, set xd = Z * A
-        tv2 = xd^2
-        gxd = tv2 * xd             # gxd == xd^3
-        tv2 = A * tv2
-        gx1 = x1n^2
-        gx1 = gx1 + tv2            # x1n^2 + A * xd^2
-        gx1 = gx1 * x1n            # x1n^3 + A * x1n * xd^2
-        tv2 = B * gxd
-        gx1 = gx1 + tv2            # x1n^3 + A * x1n * xd^2 + B * xd^3
-        tv4 = gxd^2
-        tv2 = gx1 * gxd
-        tv4 = tv4 * tv2            # gx1 * gxd^3
-        y1 = tv4^c1               # (gx1 * gxd^3)^((q - 3) / 4)
-        y1 = y1 * tv2             # gx1 * gxd * (gx1 * gxd^3)^((q - 3) / 4)
-        x2n = tv3 * x1n            # x2 = x2n / xd = Z * u^2 * x1n / xd
-        y2 = y1 * c2              # y2 = y1 * sqrt(-Z^3)
-        y2 = y2 * tv1
-        y2 = y2 * u
-        tv2 = y1^2
-        tv2 = tv2 * gxd
-        e2 = tv2 == gx1
-        xn = CMOV(x2n, x1n, e2)   # If e2, x = x1, else x = x2
-        y = CMOV(y2, y1, e2)     # If e2, y = y1, else y = y2
-        e3 = sgn0(u) == sgn0(y)   # Fix sign of y
-        y = CMOV(-y, y, e3)
-        return (xn, xd, y, 1)
+        tv1 = v^2
+        tv2 = u * v
+        tv1 = tv1 * tv2
+        y1 = tv1^c1
+        y1 = y1 * tv2
+        y2 = y1 * c2
+        tv3 = y1^2
+        tv3 = tv3 * v
+        isQR = tv3 == u
+        y = CMOV(y2, y1, isQR)
+
+        return (isQR, y)
+
+    def sqrt_ratio(self, u, v):
+        (b1, y1) = super(OptimizedSSWU_3mod4, self).sqrt_ratio(u, v)
+        (b2, y2) = self.sqrt_ratio_3mod4(u, v)
+        if y1^2 != y2^2 or b1 != b2:
+            print((b1, y1))
+            print((b2, y2))
+        assert b1 == b2
+        assert y1^2 == y2^2
+        return (b2, y2)
 
     def test_map(self, u=None):
         F = self.F
@@ -83,9 +59,9 @@ class OptimizedSSWU_3mod4(object):
         B = self.B
         if u is None:
             u = F.random_element()
-        (xn, xd, yn, yd) = self.map_to_curve(u)
-        x = xn / xd
-        y = yn / yd
+        (xn, yn, zn) = self.map_to_curve(u)
+        x = xn / zn
+        y = yn / zn
         assert y^2 == x^3 + A * x + B
         (xp, yp, zp) = self.ref_map.map_to_curve(u)
         xp = xp / zp

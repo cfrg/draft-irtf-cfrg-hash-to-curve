@@ -3806,9 +3806,11 @@ above procedure.
 One variant can be used with any field; the others are optimized variants that
 are restricted to specific fields.
 
+The routines given in this section depend on the constant Z from the simplified SWU map.
+
 #### sqrt_ratio for any field
 
-This routine depends on the constant Z from the simplified SWU map.
+This routine applies to any field.
 Note that for a given F, the values l, o, tv0, and tv1 do not depend
 on the inputs to the procedure and can be precomputed.
 
@@ -3866,6 +3868,37 @@ Procedure:
 ~~~
 
 #### sqrt_ratio for q = 3 mod 4
+
+~~~
+sqrt_ratio_3mod4(u, v)
+
+Parameters:
+- F, a finite field of characteristic p and order q = p^m,
+  where q = 3 mod 4.
+- Z, the constant from the simplified SWU map.
+
+Input: u and v, elements of F, where v != 0.
+Output: (b, y), where
+  b = True and y = sqrt(u / v) if (u / v) is square in F, and
+  b = False and y = sqrt(Z * (u / v)) otherwise.
+
+Constants:
+1. c1 = (q - 3) / 4     # Integer arithmetic
+2. c2 = sqrt(-Z)
+
+Procedure:
+1. tv1 = v^2
+2. tv2 = u * v
+3. tv1 = tv1 * tv2
+4. y1 = tv1^c1
+5. y1 = y1 * tv2
+6. y2 = y1 * c2
+7. tv3 = y1^2
+8. tv3 = tv3 * v
+9. isQR = tv3 == u
+10. y = CMOV(y2, y1, isQR)
+11. return (isQR, y)
+~~~
 
 #### sqrt_ratio for q = 5 mod 8
 
