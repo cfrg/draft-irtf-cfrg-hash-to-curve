@@ -3763,6 +3763,7 @@ SWU method for any Weierstrass curve of the form given in {{weierstrass}}.
 See {{simple-swu}} for information on the constants used in this mapping.
 
 This optimized, straight-line procedure applies to any base field.
+The sqrt_ratio subroutine is defined in {{straightline-sswu-sqrt-ratio}}.
 
 ~~~
 map_to_curve_simple_swu(u)
@@ -3801,10 +3802,10 @@ Steps:
 
 ### sqrt_ratio subroutines {#straightline-sswu-sqrt-ratio}
 
-This section defines several variants of the sqrt_ratio subroutine used by the
+This section defines three variants of the sqrt_ratio subroutine used by the
 above procedure.
-One variant can be used with any field; the others are optimized variants that
-are restricted to specific fields.
+The first variant can be used with any field; the others are optimized versions
+for specific fields.
 
 The routines given in this section depend on the constant Z from the simplified SWU map.
 
@@ -3867,7 +3868,7 @@ Procedure:
 38. return (isQR, tv3)
 ~~~
 
-#### sqrt_ratio for q = 3 mod 4
+#### optimized sqrt_ratio for q = 3 mod 4
 
 ~~~
 sqrt_ratio_3mod4(u, v)
@@ -3900,10 +3901,52 @@ Procedure:
 11. return (isQR, y)
 ~~~
 
-#### sqrt_ratio for q = 5 mod 8
+#### optimized sqrt_ratio for q = 5 mod 8
 
-#### sqrt_ratio for q = 9 mod 16
+~~~
+sqrt_ratio_5mod8(u, v)
 
+Parameters:
+- F, a finite field of characteristic p and order q = p^m,
+  where q = 5 mod 8.
+- Z, the constant from the simplified SWU map.
+
+Input: u and v, elements of F, where v != 0.
+Output: (b, y), where
+  b = True and y = sqrt(u / v) if (u / v) is square in F, and
+  b = False and y = sqrt(Z * (u / v)) otherwise.
+
+Constants:
+1. c1 = (q - 5) / 8
+2. c2 = sqrt(-1)
+3. c3 = sqrt(Z / c2)
+
+Steps:
+1. tv1 = v^2
+2. tv2 = tv1 * v
+3. tv1 = tv1^2
+4. tv2 = tv2 * u
+5. tv1 = tv1 * tv2
+6. y1 = tv1^c1
+7. y1 = y1 * tv2
+8. tv1 = y1 * c2
+9. tv2 = tv1^2
+10. tv2 = tv2 * v
+11. e1 = tv2 == u
+12. y1 = CMOV(y1, tv1, e1)
+13. tv2 = y1^2
+14. tv2 = tv2 * v
+15. isQR = tv2 == u
+16. y2 = y1 * c3
+17. tv1 = y2 * c2
+18. tv2 = tv1^2
+19. tv2 = tv2 * v
+20. tv3 = Z * u
+21. e2 = tv2 == tv3
+22. y2 = CMOV(y2, tv1, e2)
+23. y = CMOV(y2, y1, isQR)
+24. return (isQR, y)
+~~~
 
 ## Elligator 2 method {#straightline-ell2}
 
