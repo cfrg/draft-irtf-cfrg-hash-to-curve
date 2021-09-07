@@ -1,4 +1,5 @@
 from sagelib.common import CMOV
+# vim: syntax=python
 
 _primitive_elements = {}
 def _get_primitive_element(F):
@@ -98,6 +99,8 @@ def test_sqrt_ratio():
         for _ in range(0, 256):
             u = F.random_element()
             v = F.random_element()
+            while v == F(0):
+                v = F.random_element()
             S = _get_primitive_element(F)
 
             is_square, s = sqrt_ratio_straightline(F, u, v)

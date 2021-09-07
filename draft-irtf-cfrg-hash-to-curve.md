@@ -3816,7 +3816,7 @@ Parameters:
 - F, a finite field of characteristic p and order q = p^m.
 - S, a primitive element of F.
 
-Input: u and v, elements of F.
+Input: u and v, elements of F, where v != 0.
 Output: (b, y), where b = True and y = sqrt(u / v) if (u / v) is square in F,
   and b = False and y = sqrt(S * (u / v)) otherwise.
 
