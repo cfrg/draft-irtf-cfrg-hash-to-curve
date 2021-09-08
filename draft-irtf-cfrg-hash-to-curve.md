@@ -3833,30 +3833,33 @@ Constants:
 7. c7 = Z^((c2 + 1) / 2)
 
 Procedure:
-1. isQR = True
-2. tv1 = c6
-3. tv2 = v^c4
-4. tv3 = tv2^2
-5. tv3 = tv3 * v
-6. tv5 = u * tv3
-7. tv5 = tv5^c3
-8. tv5 = tv5 * tv2
-9. tv2 = tv5 * v
-10. tv3 = tv5 * u
-11. tv4 = tv3 * tv2
-12. tv5 = tv4^c5
-13. isQR = CMOV(isQR, False, tv5 != 1)
-14. tv3 = CMOV(tv3, tv3 * c7, tv5 != 1)
-15. tv4 = CMOV(tv4, tv4 * tv1, tv5 != 1)
-16. for i in (c1, c1 - 1, ..., 2):
-17.    tv5 = i - 2
-18.    tv5 = 2^tv5
-19.    tv5 = tv4^tv5
-20.    tv3 = CMOV(tv3, tv3 * tv1, tv5 != 1)
-21.    tv4 = CMOV(tv4, tv4 * tv1, tv5 != 1)
-22.    tv4 = CMOV(tv4, tv4 * tv1, tv5 != 1)
+1. tv1 = c6
+2. tv2 = v^c4
+3. tv3 = tv2^2
+4. tv3 = tv3 * v
+5. tv5 = u * tv3
+6. tv5 = tv5^c3
+7. tv5 = tv5 * tv2
+8. tv2 = tv5 * v
+9. tv3 = tv5 * u
+10. tv4 = tv3 * tv2
+11. tv5 = tv4^c5
+12. isQR = tv5 == 1
+13. tv2 = tv3 * c7
+14. tv5 = tv4 * tv1
+15. tv3 = CMOV(tv2, tv3, isQR)
+16. tv4 = CMOV(tv5, tv4, isQR)
+17. for i in (c1, c1 - 1, ..., 2):
+18.    tv5 = i - 2
+19.    tv5 = 2^tv5
+20.    tv5 = tv4^tv5
+21.    e1 = tv5 == 1
+22.    tv2 = tv3 * tv1
 23.    tv1 = tv1 * tv1
-24. return (isQR, tv3)
+24.    tv5 = tv4 * tv1
+25.    tv3 = CMOV(tv2, tv3, e1)
+26.    tv4 = CMOV(tv5, tv4, e1)
+27. return (isQR, tv3)
 ~~~
 
 #### optimized sqrt_ratio for q = 3 mod 4

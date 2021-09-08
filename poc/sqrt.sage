@@ -96,7 +96,6 @@ def sqrt_ratio_straightline(F, u, v, Z=None):
         Z = _get_s_val(F)
     (c1, c3, c4, c5, c6, c7) = _get_consts(F, Z)
 
-    isQR = True
     tv1 = c6
     tv2 = v^c4
     tv3 = tv2^2
@@ -104,21 +103,25 @@ def sqrt_ratio_straightline(F, u, v, Z=None):
     tv5 = u * tv3
     tv5 = tv5^c3
     tv5 = tv5 * tv2
-    tv2 = tv5 * v # y
-    tv3 = tv5 * u # z
-    tv4 = tv3 * tv2 # t
+    tv2 = tv5 * v
+    tv3 = tv5 * u
+    tv4 = tv3 * tv2
     tv5 = tv4^c5
-    isQR = CMOV(isQR, False, tv5 != 1)
-    tv3 = CMOV(tv3, tv3 * c7, tv5 != 1)
-    tv4 = CMOV(tv4, tv4 * tv1, tv5 != 1)
+    isQR = tv5 == 1
+    tv2 = tv3 * c7
+    tv5 = tv4 * tv1
+    tv3 = CMOV(tv2, tv3, isQR)
+    tv4 = CMOV(tv5, tv4, isQR)
     for i in range(c1, 1, -1):
        tv5 = i - 2
        tv5 = 2^tv5
        tv5 = tv4^tv5
-       tv3 = CMOV(tv3, tv3 * tv1, tv5 != 1)
-       tv4 = CMOV(tv4, tv4 * tv1, tv5 != 1)
-       tv4 = CMOV(tv4, tv4 * tv1, tv5 != 1)
+       e1 = tv5 == 1
+       tv2 = tv3 * tv1
        tv1 = tv1 * tv1
+       tv5 = tv4 * tv1
+       tv3 = CMOV(tv2, tv3, e1)
+       tv4 = CMOV(tv5, tv4, e1)
 
     assert (isQR, tv3) == sqrt_checked(F, u/v, Z), "incorrect sqrt_ratio"
     return (isQR, tv3)
@@ -126,7 +129,7 @@ def sqrt_ratio_straightline(F, u, v, Z=None):
 def test_sqrt_ratio():
     print("Testing sqrt_ratio")
     def _test(F):
-        for _ in range(0, 256):
+        for _ in range(0, 512):
             u = F.random_element()
             v = F.random_element()
             while v == F(0):
@@ -143,6 +146,14 @@ def test_sqrt_ratio():
 
     for _ in range(0, 128):
         p = random_prime(1 << 128)
+        F = GF(p)
+        _test(F)
+
+    # test some high 2-adicity primes
+    for _ in range(0, 128):
+        p = 4
+        while not is_prime(p):
+            p = (getrandbits(96) << 32) + 1
         F = GF(p)
         _test(F)
 
