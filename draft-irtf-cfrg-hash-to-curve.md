@@ -3171,8 +3171,8 @@ The authors would like to thank Adam Langley for his detailed writeup of Elligat
 Curve25519 {{L13}};
 Dan Boneh, Christopher Patton, Benjamin Lipp, and Leonid Reyzin for educational discussions; and
 David Benjamin, Daniel Bourdrez, Frank Denis, Sean Devlin, Justin Drake, Bjoern Haase, Mike Hamburg,
-Dan Harkins, Thomas Icart, Andy Polyakov, Mamy Ratsimbazafy, Michael Scott, Filippo Valsorda,
-and Mathy Vanhoef for helpful feedback.
+Dan Harkins, Daira Hopwood, Thomas Icart, Andy Polyakov, Mamy Ratsimbazafy, Michael Scott,
+Filippo Valsorda, and Mathy Vanhoef for helpful feedback.
 
 # Contributors
 
@@ -3808,6 +3808,7 @@ The first variant can be used with any field; the others are optimized versions
 for specific fields.
 
 The routines given in this section depend on the constant Z from the simplified SWU map.
+For correctness, sqrt_ratio and map_to_curve_simple_swu MUST use the same value for Z.
 
 #### sqrt_ratio for any field
 
