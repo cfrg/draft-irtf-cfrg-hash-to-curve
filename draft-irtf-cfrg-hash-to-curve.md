@@ -4665,18 +4665,22 @@ Constants:
 
 Procedure:
 1.  z = x^c3
-2.  t = z * z * x
-3.  z = z * x
-4.  b = t
-5.  c = c5
-6.  for i in (c1, c1 - 1, ..., 2):
-7.      for j in (1, 2, ..., i - 2):
-8.           b = b * b
-9.      z = CMOV(z, z * c, b != 1)
-10.     c = c * c
-11.     t = CMOV(t, t * c, b != 1)
-12.     b = t
-13. return z
+2.  t = z * z
+3.  t = t * x
+4.  z = z * x
+5.  b = t
+6.  c = c5
+7.  for i in (c1, c1 - 1, ..., 2):
+8.      for j in (1, 2, ..., i - 2):
+9.           b = b * b
+10.     e = b == 1
+11.     zt = z * c
+12.     z = CMOV(zt, z, e)
+13.     c = c * c
+14.     tt = t * c
+15.     t = CMOV(tt, t, e)
+16.     b = t
+17. return z
 ~~~
 
 ## is\_square for F = GF(p^2) {#appx-sqrt-issq}

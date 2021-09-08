@@ -110,18 +110,23 @@ def tonelli_shanks_ct(x):
     p = F.order()
     if sqrt_cache.get(p) is None:
         ts_precompute(p, F)
+    (c1, c3, c5) = sqrt_cache[p]
 
-    (q, m, c) = sqrt_cache[p]
-    z = x ** ((q - 1) // 2)
-    t = z * z * x
+    z = x^c3
+    t = z * z
+    t = t * x
     z = z * x
     b = t
-    for i in range(m, 1, -1):
-        for _ in range(1, i - 1):
-            b = b * b
-        z = CMOV(z, z * c, b != 1)
+    c = c5
+    for i in range(c1, 1, -1):
+        for j in range(1, i - 1):
+             b = b * b
+        e = b == 1
+        zt = z * c
+        z = CMOV(zt, z, e)
         c = c * c
-        t = CMOV(t, t * c, b != 1)
+        tt = t * c
+        t = CMOV(tt, t, e)
         b = t
 
     if z ** 2 == x:
@@ -131,17 +136,19 @@ def tonelli_shanks_ct(x):
 
 # cache pre-computable values -- no need for CT here
 def ts_precompute(p, F):
-    q = p - 1
-    m = 0
-    while q % 2 == 0:
-        q //= 2
-        m += 1
-    z = F.gen()
-    while z.is_square():
-        z += 1
-    c = z ** q
-    assert p == q * 2**m + 1
-    sqrt_cache[p] = (q, m, c)
+    c2 = p - 1
+    c1 = 0
+    while c2 % 2 == 0:
+        c2 //= 2
+        c1 += 1
+    assert c2 == (p - 1) // (2^c1)
+    c4 = F.gen()
+    while c4.is_square():
+        c4 += 1
+    assert p == c2 * 2**c1 + 1
+    c3 = (c2 - 1) // 2
+    c5 = c4^c2
+    sqrt_cache[p] = (c1, c3, c5)
 
 def is_square_quadratic(x):
     F = x.parent()
