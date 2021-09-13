@@ -2501,7 +2501,7 @@ P256\_XMD:SHA-256\_SSWU\_RO\_ is defined as follows:
 - expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-256
 - L: 48
-- f: Simplified SWU method, {{simple-swu}}
+- f: Simplified SWU method ({{simple-swu}})
 - Z: -10
 - h\_eff: 1
 
@@ -2527,7 +2527,7 @@ P384\_XMD:SHA-384\_SSWU\_RO\_ is defined as follows:
 - expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-384
 - L: 72
-- f: Simplified SWU method, {{simple-swu}}
+- f: Simplified SWU method ({{simple-swu}})
 - Z: -12
 - h\_eff: 1
 
@@ -2553,7 +2553,7 @@ P521\_XMD:SHA-512\_SSWU\_RO\_ is defined as follows:
 - expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-512
 - L: 98
-- f: Simplified SWU method, {{simple-swu}}
+- f: Simplified SWU method ({{simple-swu}})
 - Z: -4
 - h\_eff: 1
 
@@ -2582,7 +2582,7 @@ curve25519\_XMD:SHA-512\_ELL2\_RO\_ is defined as follows:
 - expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-512
 - L: 48
-- f: Elligator 2 method, {{elligator2}}
+- f: Elligator 2 method ({{elligator2}})
 - Z: 2
 - h\_eff: 8
 
@@ -2592,7 +2592,7 @@ except for the following parameters:
 - E: a * v^2 + w^2 = 1 + d * v^2 * w^2, where
   - a = -1
   - d = 0x52036cee2b6ffe738cc740797779e89800700a4d4141d8ab75eb4dca135978a3
-- f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
+- f: Twisted Edwards Elligator 2 method ({{ell2edwards}})
 - M: curve25519 defined in {{!RFC7748}}, Section 4.1
 - rational\_map: the birational map defined in {{!RFC7748}}, Section 4.1
 
@@ -2624,7 +2624,7 @@ curve448\_XMD:SHA-512\_ELL2\_RO\_ is defined as follows:
 - expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-512
 - L: 84
-- f: Elligator 2 method, {{elligator2}}
+- f: Elligator 2 method ({{elligator2}})
 - Z: -1
 - h\_eff: 4
 
@@ -2634,7 +2634,7 @@ except for the following parameters:
 - E: a * v^2 + w^2 = 1 + d * v^2 * w^2, where
   - a = 1
   - d = -39081
-- f: Twisted Edwards Elligator 2 method, {{ell2edwards}}
+- f: Twisted Edwards Elligator 2 method ({{ell2edwards}})
 - M: curve448, defined in {{!RFC7748}}, Section 4.2
 - rational\_map: the 4-isogeny map defined in {{!RFC7748}}, Section 4.2
 
@@ -2661,7 +2661,7 @@ secp256k1\_XMD:SHA-256\_SSWU\_RO\_ is defined as follows:
 - expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-256
 - L: 48
-- f: Simplified SWU for AB == 0, {{simple-swu-AB0}}
+- f: Simplified SWU for AB == 0 ({{simple-swu-AB0}})
 - Z: -11
 - E': y'^2 = x'^3 + A' * x' + B', where
   - A': 0x3f8731abdd661adca08a5558f0f5d272e953d363cb6f0e5d405447c01a444533
@@ -2694,7 +2694,7 @@ BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_ is defined as follows:
 - expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-256
 - L: 64
-- f: Simplified SWU for AB == 0, {{simple-swu-AB0}}
+- f: Simplified SWU for AB == 0 ({{simple-swu-AB0}})
 - Z: 11
 - E': y'^2 = x'^3 + A' * x' + B', where
   - A' = 0x144698a3b8e9433d693a02c96d4982b0ea985383ee66a8d8e8981aefd881ac98936f8da0e0f97f5cf428082d584c1d
@@ -2725,7 +2725,7 @@ BLS12381G2\_XMD:SHA-256\_SSWU\_RO\_ is defined as follows:
 - expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
 - H: SHA-256
 - L: 64
-- f: Simplified SWU for AB == 0, {{simple-swu-AB0}}
+- f: Simplified SWU for AB == 0 ({{simple-swu-AB0}})
 - Z: -(2 + I)
 - E': y'^2 = x'^3 + A' * x' + B', where
   - A' = 240 * I
