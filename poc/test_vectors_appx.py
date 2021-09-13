@@ -7,8 +7,8 @@ P256 = ("NIST P-256",
         , "P256_XMD:SHA-256_SSWU_NU_"))
 
 P384 = ("NIST P-384",
-        ( "P384_XMD:SHA-512_SSWU_RO_"
-        , "P384_XMD:SHA-512_SSWU_NU_"))
+        ( "P384_XMD:SHA-384_SSWU_RO_"
+        , "P384_XMD:SHA-384_SSWU_NU_"))
 
 P521 = ("NIST P-521",
         ( "P521_XMD:SHA-512_SSWU_RO_"
