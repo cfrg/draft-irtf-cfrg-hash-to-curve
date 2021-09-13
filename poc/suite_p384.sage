@@ -19,21 +19,21 @@ A = F(-3)
 B = F(0xb3312fa7e23ee7e4988e056be3f82d19181d9c6efe8141120314088f5013875ac656398d8a2ed19d2a85c8edd3ec2aef)
 
 def p384_sswu(suite_name, is_ro):
-    return BasicH2CSuiteDef("NIST P-384", F, A, B, expand_message_xmd, hashlib.sha512, 72, GenericSSWU, 1, 192, is_ro, test_dst(suite_name))
+    return BasicH2CSuiteDef("NIST P-384", F, A, B, expand_message_xmd, hashlib.sha384, 72, GenericSSWU, 1, 192, is_ro, test_dst(suite_name))
 
 def p384_svdw(suite_name, is_ro):
     return p384_sswu(suite_name, is_ro)._replace(MapT=GenericSvdW)
 
-suite_name = "P384_XMD:SHA-512_SSWU_RO_"
+suite_name = "P384_XMD:SHA-384_SSWU_RO_"
 p384_sswu_ro = BasicH2CSuite(suite_name,p384_sswu(suite_name, True))
 
-suite_name = "P384_XMD:SHA-512_SVDW_RO_"
+suite_name = "P384_XMD:SHA-384_SVDW_RO_"
 p384_svdw_ro = BasicH2CSuite(suite_name,p384_svdw(suite_name, True))
 
-suite_name = "P384_XMD:SHA-512_SSWU_NU_"
+suite_name = "P384_XMD:SHA-384_SSWU_NU_"
 p384_sswu_nu = BasicH2CSuite(suite_name,p384_sswu(suite_name, False))
 
-suite_name = "P384_XMD:SHA-512_SVDW_NU_"
+suite_name = "P384_XMD:SHA-384_SVDW_NU_"
 p384_svdw_nu = BasicH2CSuite(suite_name,p384_svdw(suite_name, False))
 
 assert p384_sswu_ro.m2c.Z == p384_sswu_nu.m2c.Z == -12
