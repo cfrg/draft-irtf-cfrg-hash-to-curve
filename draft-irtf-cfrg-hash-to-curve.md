@@ -2453,7 +2453,7 @@ uniform encoding for security.
 | E            | Suites | Section |
 |--------------|--------|---------|
 | NIST P-256   | P256\_XMD:SHA-256\_SSWU\_RO\_ P256\_XMD:SHA-256\_SSWU\_NU\_ | {{suites-p256}} |
-| NIST P-384   | P384\_XMD:SHA-512\_SSWU\_RO\_ P384\_XMD:SHA-512\_SSWU\_NU\_ | {{suites-p384}} |
+| NIST P-384   | P384\_XMD:SHA-384\_SSWU\_RO\_ P384\_XMD:SHA-384\_SSWU\_NU\_ | {{suites-p384}} |
 | NIST P-521   | P521\_XMD:SHA-512\_SSWU\_RO\_ P521\_XMD:SHA-512\_SSWU\_NU\_ | {{suites-p521}} |
 | curve25519   | curve25519\_XMD:SHA-512\_ELL2\_RO\_ curve25519\_XMD:SHA-512\_ELL2\_NU\_ | {{suites-25519}} |
 | edwards25519 | edwards25519\_XMD:SHA-512\_ELL2\_RO\_ edwards25519\_XMD:SHA-512\_ELL2\_NU\_ | {{suites-25519}} |
@@ -2515,7 +2515,7 @@ to P-256 is given in {{straightline-sswu}}.
 
 This section defines ciphersuites for the NIST P-384 elliptic curve {{FIPS186-4}}.
 
-P384\_XMD:SHA-512\_SSWU\_RO\_ is defined as follows:
+P384\_XMD:SHA-384\_SSWU\_RO\_ is defined as follows:
 
 - encoding type: hash\_to\_curve ({{roadmap}})
 - E: y^2 = x^3 + A * x + B, where
@@ -2525,13 +2525,13 @@ P384\_XMD:SHA-512\_SSWU\_RO\_ is defined as follows:
 - m: 1
 - k: 192
 - expand\_message: expand\_message\_xmd ({{hashtofield-expand-xmd}})
-- H: SHA-512
+- H: SHA-384
 - L: 72
 - f: Simplified SWU method, {{simple-swu}}
 - Z: -12
 - h\_eff: 1
 
-P384\_XMD:SHA-512\_SSWU\_NU\_ is identical to P384\_XMD:SHA-512\_SSWU\_RO\_,
+P384\_XMD:SHA-384\_SSWU\_NU\_ is identical to P384\_XMD:SHA-384\_SSWU\_RO\_,
 except that the encoding type is encode\_to\_curve ({{roadmap}}).
 
 An optimized example implementation of the Simplified SWU mapping
@@ -4919,11 +4919,11 @@ Q.y     = c801e7c0782af1f74f24fc385a8555da0582032a3ce038de637ccd
 
 ## NIST P-384
 
-### P384\_XMD:SHA-512\_SSWU\_RO\_
+### P384\_XMD:SHA-384\_SSWU\_RO\_
 
 ~~~
-suite   = P384_XMD:SHA-512_SSWU_RO_
-dst     = QUUX-V01-CS02-with-P384_XMD:SHA-512_SSWU_RO_
+suite   = P384_XMD:SHA-384_SSWU_RO_
+dst     = QUUX-V01-CS02-with-P384_XMD:SHA-384_SSWU_RO_
 
 msg     =
 P.x     = c3144d47428d071d4169420c91006a0bd48d7259d492af86e7f82d
