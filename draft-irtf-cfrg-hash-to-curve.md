@@ -3171,8 +3171,8 @@ The authors would like to thank Adam Langley for his detailed writeup of Elligat
 Curve25519 {{L13}};
 Dan Boneh, Christopher Patton, Benjamin Lipp, and Leonid Reyzin for educational discussions; and
 David Benjamin, Daniel Bourdrez, Frank Denis, Sean Devlin, Justin Drake, Bjoern Haase, Mike Hamburg,
-Dan Harkins, Thomas Icart, Andy Polyakov, Mamy Ratsimbazafy, Michael Scott, Filippo Valsorda,
-and Mathy Vanhoef for helpful feedback.
+Dan Harkins, Daira Hopwood, Thomas Icart, Andy Polyakov, Mamy Ratsimbazafy, Michael Scott,
+Filippo Valsorda, and Mathy Vanhoef for helpful feedback.
 
 # Contributors
 
@@ -3762,18 +3762,14 @@ This section gives a straight-line implementation of the simplified
 SWU method for any Weierstrass curve of the form given in {{weierstrass}}.
 See {{simple-swu}} for information on the constants used in this mapping.
 
-This optimized, straight-line procedure applies to any base field. The
-constant c1 depends on a value S, which is a parameter of the sqrt_ratio
-subroutine defined below. See {{sswu-z-code}} for generating this value.
+This optimized, straight-line procedure applies to any base field.
+The sqrt_ratio subroutine is defined in {{straightline-sswu-sqrt-ratio}}.
 
 ~~~
 map_to_curve_simple_swu(u)
 
 Input: u, an element of F.
 Output: (x, y), a point on E.
-
-Constants:
-1.  c1 = Z / S
 
 Steps:
 1.  tv1 = u^2
@@ -3785,80 +3781,166 @@ Steps:
 7.  tv4 = CMOV(Z, -tv2, tv2 != 0)
 8.  tv4 = A * tv4
 9.  tv2 = tv3^2
-10. tv5 = tv4^2
-11. tv5 = A * tv5
+10. tv6 = tv4^2
+11. tv5 = A * tv6
 12. tv2 = tv2 + tv5
 13. tv2 = tv2 * tv3
-14. tv6 = tv4^3
+14. tv6 = tv6 * tv4
 15. tv5 = B * tv6
 16. tv2 = tv2 + tv5
 17.   x = tv1 * tv3
 18. (is_gx1_square, y1) = sqrt_ratio(tv2, tv6)
-19.   y = c1 * tv1
-20.   y = y * u
-21.   y = y * y1
-22.   x = CMOV(x, tv3, is_gx1_square)
-23.   y = CMOV(y, y1, is_gx1_square)
-24.  e1 = sgn0(u) == sgn0(y)
-25.   y = CMOV(-y, y, e1)
-26.   x = x / tv4
-27. return (x, y)
+19.   y = tv1 * u
+20.   y = y * y1
+21.   x = CMOV(x, tv3, is_gx1_square)
+22.   y = CMOV(y, y1, is_gx1_square)
+23.  e1 = sgn0(u) == sgn0(y)
+24.   y = CMOV(-y, y, e1)
+25.   x = x / tv4
+26. return (x, y)
 ~~~
 
-The sqrt_ratio subroutine used by the above procedure is defined immediately below.
-It depends on a constant S, which MUST be chosen to be a primitive element of the field F.
-See {{sswu-z-code}} for more information on identifying an appropriate value for S.
+### sqrt_ratio subroutines {#straightline-sswu-sqrt-ratio}
+
+This section defines three variants of the sqrt_ratio subroutine used by the
+above procedure.
+The first variant can be used with any field; the others are optimized versions
+for specific fields.
+
+The routines given in this section depend on the constant Z from the simplified SWU map.
+For correctness, sqrt_ratio and map_to_curve_simple_swu MUST use the same value for Z.
+
+#### sqrt_ratio for any field
 
 ~~~
 sqrt_ratio(u, v)
 
 Parameters:
 - F, a finite field of characteristic p and order q = p^m.
-- S, a primitive element of F.
+- Z, the constant from the simplified SWU map.
 
-Input: u and v, elements of F.
-Output: (b, y), where b = True and y = sqrt(u / v) if (u / v) is square in F,
-  and b = False and y = sqrt(S * (u / v)) otherwise.
+Input: u and v, elements of F, where v != 0.
+Output: (b, y), where
+  b = True and y = sqrt(u / v) if (u / v) is square in F, and
+  b = False and y = sqrt(Z * (u / v)) otherwise.
+
+Constants:
+1. c1, the largest integer such that 2^c1 divides q - 1.
+2. c2 = (q - 1) / (2^c1)        # Integer arithmetic
+3. c3 = (c2 - 1) / 2            # Integer arithmetic
+4. c4 = 2^c1 - 1                # Integer arithmetic
+5. c5 = 2^(c1 - 1)              # Integer arithmetic
+6. c6 = Z^c2
+7. c7 = Z^((c2 + 1) / 2)
 
 Procedure:
-1. isQR = True
-2. m = 0
-3. r = q - 1
-4. while r % 2 == 0:
-5.    r = r / 2
-6.    m = m + 1
-7. tv0 = S^r
-8. tv1 = r + 1
-9. tv1 = tv1 / 2
-10. tv1 = S^tv1
-11. tv2 = 2^m
-12. tv2 = tv2 - 1
-13. tv2 = v^tv2
-14. tv3 = tv2^2
-15. tv3 = tv3 * v
-16. tv4 = r - 1
-17. tv4 = tv4 / 2
-18. tv5 = u * tv3
-19. tv5 = tv5^tv4
-20. tv5 = tv5 * tv2
-21. tv2 = tv5 * v # y
-22. tv3 = tv5 * u # z
-23. tv4 = tv3 * tv2 # t
-24. tv5 = m - 1
-25. tv5 = 2^tv5
-26. tv5 = tv4^tv5
-27. isQR = CMOV(isQR, False, tv5 != 1)
-28. tv3 = CMOV(tv3, tv3 * tv1, tv5 != 1)
-29. tv4 = CMOV(tv4, tv4 * tv0, tv5 != 1)
-30. for i in (m, m - 1, ..., 2):
-31.    tv5 = i - 2
-32.    tv5 = 2^tv5
-33.    tv5 = tv4^tv5
-34.    tv3 = CMOV(tv3, tv3 * tv0, tv5 != 1)
-35.    tv4 = CMOV(tv4, tv4 * tv0, tv5 != 1)
-36.    tv4 = CMOV(tv4, tv4 * tv0, tv5 != 1)
-37.    tv0 = tv0 * tv0
-38. return (isQR, tv3)
+1. tv1 = c6
+2. tv2 = v^c4
+3. tv3 = tv2^2
+4. tv3 = tv3 * v
+5. tv5 = u * tv3
+6. tv5 = tv5^c3
+7. tv5 = tv5 * tv2
+8. tv2 = tv5 * v
+9. tv3 = tv5 * u
+10. tv4 = tv3 * tv2
+11. tv5 = tv4^c5
+12. isQR = tv5 == 1
+13. tv2 = tv3 * c7
+14. tv5 = tv4 * tv1
+15. tv3 = CMOV(tv2, tv3, isQR)
+16. tv4 = CMOV(tv5, tv4, isQR)
+17. for i in (c1, c1 - 1, ..., 2):
+18.    tv5 = i - 2
+19.    tv5 = 2^tv5
+20.    tv5 = tv4^tv5
+21.    e1 = tv5 == 1
+22.    tv2 = tv3 * tv1
+23.    tv1 = tv1 * tv1
+24.    tv5 = tv4 * tv1
+25.    tv3 = CMOV(tv2, tv3, e1)
+26.    tv4 = CMOV(tv5, tv4, e1)
+27. return (isQR, tv3)
+~~~
+
+#### optimized sqrt_ratio for q = 3 mod 4
+
+~~~
+sqrt_ratio_3mod4(u, v)
+
+Parameters:
+- F, a finite field of characteristic p and order q = p^m,
+  where q = 3 mod 4.
+- Z, the constant from the simplified SWU map.
+
+Input: u and v, elements of F, where v != 0.
+Output: (b, y), where
+  b = True and y = sqrt(u / v) if (u / v) is square in F, and
+  b = False and y = sqrt(Z * (u / v)) otherwise.
+
+Constants:
+1. c1 = (q - 3) / 4     # Integer arithmetic
+2. c2 = sqrt(-Z)
+
+Procedure:
+1. tv1 = v^2
+2. tv2 = u * v
+3. tv1 = tv1 * tv2
+4. y1 = tv1^c1
+5. y1 = y1 * tv2
+6. y2 = y1 * c2
+7. tv3 = y1^2
+8. tv3 = tv3 * v
+9. isQR = tv3 == u
+10. y = CMOV(y2, y1, isQR)
+11. return (isQR, y)
+~~~
+
+#### optimized sqrt_ratio for q = 5 mod 8
+
+~~~
+sqrt_ratio_5mod8(u, v)
+
+Parameters:
+- F, a finite field of characteristic p and order q = p^m,
+  where q = 5 mod 8.
+- Z, the constant from the simplified SWU map.
+
+Input: u and v, elements of F, where v != 0.
+Output: (b, y), where
+  b = True and y = sqrt(u / v) if (u / v) is square in F, and
+  b = False and y = sqrt(Z * (u / v)) otherwise.
+
+Constants:
+1. c1 = (q - 5) / 8
+2. c2 = sqrt(-1)
+3. c3 = sqrt(Z / c2)
+
+Steps:
+1. tv1 = v^2
+2. tv2 = tv1 * v
+3. tv1 = tv1^2
+4. tv2 = tv2 * u
+5. tv1 = tv1 * tv2
+6. y1 = tv1^c1
+7. y1 = y1 * tv2
+8. tv1 = y1 * c2
+9. tv2 = tv1^2
+10. tv2 = tv2 * v
+11. e1 = tv2 == u
+12. y1 = CMOV(y1, tv1, e1)
+13. tv2 = y1^2
+14. tv2 = tv2 * v
+15. isQR = tv2 == u
+16. y2 = y1 * c3
+17. tv1 = y2 * c2
+18. tv2 = tv1^2
+19. tv2 = tv2 * v
+20. tv3 = Z * u
+21. e2 = tv2 == tv3
+22. y2 = CMOV(y2, tv1, e2)
+23. y = CMOV(y2, y1, isQR)
+24. return (isQR, y)
 ~~~
 
 ## Elligator 2 method {#straightline-ell2}
@@ -4429,7 +4511,7 @@ def find_z_svdw(F, A, B, init_ctr=1):
         ctr += 1
 ~~~
 
-## Finding Z and S for Simplified SWU {#sswu-z-code}
+## Finding Z for Simplified SWU {#sswu-z-code}
 
 The below function outputs an appropriate Z for the Simplified SWU map ({{simple-swu}}).
 
@@ -4456,15 +4538,6 @@ def find_z_sswu(F, A, B):
             if is_square(g(B / (Z_cand * A))):
                 return Z_cand
         ctr += 1
-~~~
-
-The below function outputs an appropriate S for the Simplified SWU map ({{simple-swu}}).
-
-~~~sage
-# Arguments:
-# - F, a field object, e.g., F = GF(2^255 - 19)
-def find_S(F):
-    return F.primitive_element()
 ~~~
 
 ## Finding Z for Elligator 2 {#elligator-z-code}
@@ -4593,18 +4666,22 @@ Constants:
 
 Procedure:
 1.  z = x^c3
-2.  t = z * z * x
-3.  z = z * x
-4.  b = t
-5.  c = c5
-6.  for i in (c1, c1 - 1, ..., 2):
-7.      for j in (1, 2, ..., i - 2):
-8.           b = b * b
-9.      z = CMOV(z, z * c, b != 1)
-10.     c = c * c
-11.     t = CMOV(t, t * c, b != 1)
-12.     b = t
-13. return z
+2.  t = z * z
+3.  t = t * x
+4.  z = z * x
+5.  b = t
+6.  c = c5
+7.  for i in (c1, c1 - 1, ..., 2):
+8.      for j in (1, 2, ..., i - 2):
+9.           b = b * b
+10.     e = b == 1
+11.     zt = z * c
+12.     z = CMOV(zt, z, e)
+13.     c = c * c
+14.     tt = t * c
+15.     t = CMOV(tt, t, e)
+16.     b = t
+17. return z
 ~~~
 
 ## is\_square for F = GF(p^2) {#appx-sqrt-issq}
