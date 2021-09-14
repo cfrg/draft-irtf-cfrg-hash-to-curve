@@ -54,11 +54,6 @@ class Printer:
             return Printer._lv(label, [value])
 
         @staticmethod
-        def hex(label, value):
-            """ Prints a string message """
-            return Printer._lv(label, [value.hex()])
-
-        @staticmethod
         def gf(label, num, length=None):
             """ Prints a field element """
             if length is None:
