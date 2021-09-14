@@ -3,7 +3,7 @@
   "Z": "0xffffffff00000001000000000000000000000000fffffffffffffffffffffff5",
   "ciphersuite": "P256_XMD:SHA-256_SSWU_RO_",
   "curve": "NIST P-256",
-  "dst": "QUUX-V01-CS02-with-P256_XMD:SHA-256_SSWU_RO_-",
+  "dst": "QUUX-V01-CS02-with-P256_XMD:SHA-256_SSWU_RO_",
   "expand": "XMD",
   "field": {
     "m": "0x1",
@@ -18,97 +18,97 @@
   "vectors": [
     {
       "P": {
-        "x": "0x2192ab7089e70b22ad14ed77c0ce6e8678ca7a878b9d49dc9feabadead1e56d0",
-        "y": "0x4ed1ab230c162c3ce9afb8681716fb7b4a600b027f3fefb4974d207ed94ff8c8"
+        "x": "0x2c15230b26dbc6fc9a37051158c95b79656e17a1a920b11394ca91c44247d3e4",
+        "y": "0x8a7a74985cc5c776cdfe4b1f19884970453912e9d31528c060be9ab5c43e8415"
       },
       "Q0": {
-        "x": "0xd7ff69180f1ac7a0d5f2bc21afe811d3a853a4b97cd879afb0e37b79fe5ca2b4",
-        "y": "0x32410e8945aaafdbf7db6ed4b11b8c43a3a4bb8aa5aca766b0d177ac3a7acd0d"
+        "x": "0xab640a12220d3ff283510ff3f4b1953d09fad35795140b1c5d64f313967934d5",
+        "y": "0xdccb558863804a881d4fff3455716c836cef230e5209594ddd33d85c565b19b1"
       },
       "Q1": {
-        "x": "0xdf75e0668c5e671c86e30d0b2e9c649a5f1a387f8a8e2ffa86a9d8bceb5d4496",
-        "y": "0x73244a3aea239d3239c32e3a738ca913e661928722f3cc1b947f193efbf8c48b"
+        "x": "0x51cce63c50d972a6e51c61334f0f4875c9ac1cd2d3238412f84e31da7d980ef5",
+        "y": "0xb45d1a36d00ad90e5ec7840a60a4de411917fbe7c82c3949a6e699e5a1b66aac"
       },
       "msg": "",
       "u": [
-        "0x6a87329bb91d3d1407a2bd8cbe8e1f1dd41c7af4fa98228d4dae69278ff8110d",
-        "0xb10803700b9f899d9c8407875cb9a606fa2abfdcb43c1be6ccc9fd35834618c3"
+        "0xad5342c66a6dd0ff080df1da0ea1c04b96e0330dd89406465eeba11582515009",
+        "0x8c0f1d43204bd6f6ea70ae8013070a1518b43873bcd850aafa0a9e220e2eea5a"
       ]
     },
     {
       "P": {
-        "x": "0xabf433905743356a28ea3e425fef2085c70cb6664e0e26bdac412088118cfb7d",
-        "y": "0xf1975e5f32702558d07f04e863f23fa8ae0172c033d05fa38b53fec0c2787dca"
+        "x": "0x0bb8b87485551aa43ed54f009230450b492fead5f1cc91658775dac4a3388a0f",
+        "y": "0x5c41b3d0731a27a7b14bc0bf0ccded2d8751f83493404c84a88e71ffd424212e"
       },
       "Q0": {
-        "x": "0x5587402be67216fceebef433b92c6b9c41eac0fd0586cebb187548605d247804",
-        "y": "0x53a023b747f68d72ada8fbee4b6f29e3460dcb2631fabaa8dd0aa480d6fae9f6"
+        "x": "0x5219ad0ddef3cc49b714145e91b2f7de6ce0a7a7dc7406c7726c7e373c58cb48",
+        "y": "0x7950144e52d30acbec7b624c203b1996c99617d0b61c2442354301b191d93ecf"
       },
       "Q1": {
-        "x": "0x676991b1b82c3638ecd26415924c4f2bffa65435a3ca093d673641b6c6bf7763",
-        "y": "0x2a97c58d547b6c21a374d393a88848c641b5d8dd336e9ac77da2d3bcbf9b77db"
+        "x": "0x019b7cb4efcfeaf39f738fe638e31d375ad6837f58a852d032ff60c69ee3875f",
+        "y": "0x589a62d2b22357fed5449bc38065b760095ebe6aeac84b01156ee4252715446e"
       },
       "msg": "abc",
       "u": [
-        "0x4832cc52ea389032472a92525401c69b4be761e91f79f3cdeac94c35902f1060",
-        "0xbb2f445cf70f3dffd0589e1cb1a2aed4ca46df06bdbfe3a2db495b37ab601807"
+        "0xafe47f2ea2b10465cc26ac403194dfb68b7f5ee865cda61e9f3e07a537220af1",
+        "0x379a27833b0bfe6f7bdca08e1e83c760bf9a338ab335542704edcd69ce9e46e0"
       ]
     },
     {
       "P": {
-        "x": "0x4371106eb5fe75b392f0a1bd4961f41c6e5ad2d7de7e7bc09f8f78d4f7bff0af",
-        "y": "0x88fa1183fd9c14812ffe0e3c41fd25a638c8c05b9debcef4391dcd354517274e"
+        "x": "0x65038ac8f2b1def042a5df0b33b1f4eca6bff7cb0f9c6c1526811864e544ed80",
+        "y": "0xcad44d40a656e7aff4002a8de287abc8ae0482b5ae825822bb870d6df9b56ca3"
       },
       "Q0": {
-        "x": "0x810fb0ba51009dbd880bd771cccb74d4c12ce94694f4193c7bc98c2c6c0a8f2c",
-        "y": "0x9eacc5e076ff6a06d28f5125c879957a8067097f31ac94c449023a64000f6982"
+        "x": "0xa17bdf2965eb88074bc01157e644ed409dac97cfcf0c61c998ed0fa45e79e4a2",
+        "y": "0x4f1bc80c70d411a3cc1d67aeae6e726f0f311639fee560c7f5a664554e3c9c2e"
       },
       "Q1": {
-        "x": "0x9e703c2d820d414e8c4c4fd04b23544ee6bd90dad92e385d78710b15ab3ec77c",
-        "y": "0xad1c4ef8823577a4aec7f14dd5c2366f8ee9a11fa7b9440bebfe80e1d0539571"
+        "x": "0x7da48bb67225c1a17d452c983798113f47e438e4202219dd0715f8419b274d66",
+        "y": "0xb765696b2913e36db3016c47edb99e24b1da30e761a8a3215dc0ec4d8f96e6f9"
       },
       "msg": "abcdef0123456789",
       "u": [
-        "0xa0f6256416be7a5371547baf44fa7d3f8ebb15129bc7c806cff9c7b4a66f81b0",
-        "0xa316017a9dd7c77b0cf0db0b04f940e8a0ee51c59d2b66fff620ebf621a35c3f"
+        "0x0fad9d125a9477d55cf9357105b0eb3a5c4259809bf87180aa01d651f53d312c",
+        "0xb68597377392cd3419d8fcc7d7660948c8403b19ea78bbca4b133c9d2196c0fb"
       ]
     },
     {
       "P": {
-        "x": "0x30d2e5c5e891f930ba3fe1ffd9fce9e3a11fd1b1a59b19bab834d16f74f88e4a",
-        "y": "0x85689855b8cf7e78326373c4a148301bb1dc0f71b7e68f7db06686b11d9ea47b"
+        "x": "0x4be61ee205094282ba8a2042bcb48d88dfbb609301c49aa8b078533dc65a0b5d",
+        "y": "0x98f8df449a072c4721d241a3b1236d3caccba603f916ca680f4539d2bfb3c29e"
       },
       "Q0": {
-        "x": "0xc5c1daa359a5f8ab231f27d649900e4b39f229520dd2bcfd9e1a8f3d0534643b",
-        "y": "0x6db72978ef430a6d7ab67f7459f8f01c2af7e3b49a35fe593d2a534a3bd6d6f2"
+        "x": "0xc76aaa823aeadeb3f356909cb08f97eee46ecb157c1f56699b5efebddf0e6398",
+        "y": "0x776a6f45f528a0e8d289a4be12c4fab80762386ec644abf2bffb9b627e4352b1"
       },
       "Q1": {
-        "x": "0x7ed97bad8717b3514846c8f97b4b977a7361a277064cc9e5e4428a6eaf7b6f6c",
-        "y": "0x324433bb97015b30dfb5f67df5788f699abb806e4e973d70adbf2d99c9f09859"
+        "x": "0x418ac3d85a5ccc4ea8dec14f750a3a9ec8b85176c95a7022f391826794eb5a75",
+        "y": "0xfd6604f69e9d9d2b74b072d14ea13050db72c932815523305cb9e807cc900aff"
       },
       "msg": "q128_qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",
       "u": [
-        "0x839439a48070a2355e96f3a5b594af9f9125329124cb0446255c3243c13dc948",
-        "0xe664b2ce95b6379713cef294db65baefb949abe9b39fec596107863c4bb45305"
+        "0x3bbc30446f39a7befad080f4d5f32ed116b9534626993d2cc5033f6f8d805919",
+        "0x76bb02db019ca9d3c1e02f0c17f8baf617bbdae5c393a81d9ce11e3be1bf1d33"
       ]
     },
     {
       "P": {
-        "x": "0x341dc4491302755882bcd272e1f1b74e1e531f7b5cf5ef26765238ec13267e32",
-        "y": "0x955107374ccefa0fece9ed3fd352bf6cdee16d9e8eea865fd6701071522956b4"
+        "x": "0x457ae2981f70ca85d8e24c308b14db22f3e3862c5ea0f652ca38b5e49cd64bc5",
+        "y": "0xecb9f0eadc9aeed232dabc53235368c1394c78de05dd96893eefa62b0f4757dc"
       },
       "Q0": {
-        "x": "0x3b20b9d8bd7b17395728111b54e133d99aa4ba99e3d36d5070c1ca6360261278",
-        "y": "0x180e58a9286f9434f610302741f4e734289429ae76bab89c451368fb63d1707c"
+        "x": "0xd88b989ee9d1295df413d4456c5c850b8b2fb0f5402cc5c4c7e815412e926db8",
+        "y": "0xbb4a1edeff506cf16def96afff41b16fc74f6dbd55c2210e5b8f011ba32f4f40"
       },
       "Q1": {
-        "x": "0xf9505b59ea14087ca4b50eb13b9b43ed2a3c5e8fc3b046a7c14c9601f4f01e6c",
-        "y": "0x8038feb8ffdfda879368f9e2da57fb4abb62a2d18274de299a8fee1cfd302486"
+        "x": "0xa281e34e628f3a4d2a53fa87ff973537d68ad4fbc28d3be5e8d9f6a2571c5a4b",
+        "y": "0xf6ed88a7aab56a488100e6f1174fa9810b47db13e86be999644922961206e184"
       },
       "msg": "a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
       "u": [
-        "0xd1e1d7373515fbbcc8f8e89893dae94883c85c91c45bd873004bc64aebc509cc",
-        "0x4bc1458ae52820fd80ad062919d979247d196a97b06568611f5bb474639fdcf4"
+        "0x4ebc95a6e839b1ae3c63b847798e85cb3c12d3817ec6ebc10af6ee51adb29fec",
+        "0x4e21af88e22ea80156aff790750121035b3eefaa96b425a8716e0d20b4e269ee"
       ]
     }
   ]
