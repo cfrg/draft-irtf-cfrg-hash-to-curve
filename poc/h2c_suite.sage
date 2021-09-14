@@ -78,7 +78,7 @@ class BasicH2CSuite(object):
         return self.test_vector["P"]
 
     def hash_to_field(self, msg, count):
-        xi_vals = hash_to_field(msg, count, self.dst, self.p, self.m, self.L, self.expand, self.H, self.k)
+        xi_vals = hash_to_field(msg, count, self.p, self.m, self.L, self.expand)
         return [ sum( a * b for (a, b) in zip(xi, self.field_gens) ) for xi in xi_vals ]
 
     def map_to_curve(self, u):

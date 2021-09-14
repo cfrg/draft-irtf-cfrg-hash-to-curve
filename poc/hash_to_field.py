@@ -45,9 +45,9 @@ def OS2IP(octets, skip_assert=False):
     return ret
 
 # from draft-irtf-cfrg-hash-to-curve-07
-def hash_to_field(msg, count, dst, modulus, degree, blen, expand_fn, hash_fn, security_param):
+def hash_to_field(msg, count, modulus, degree, blen, expander):
     len_in_bytes = count * degree * blen
-    uniform_bytes = expand_fn(msg, dst, len_in_bytes, hash_fn, security_param)
+    uniform_bytes = expander.expand_message(msg, len_in_bytes)
     u_vals = [None] * count
     for i in xrange(0, count):
         e_vals = [None] * degree
@@ -61,7 +61,6 @@ def hash_to_field(msg, count, dst, modulus, degree, blen, expand_fn, hash_fn, se
 # from draft-irtf-cfrg-hash-to-curve-07
 # hash_fn should be, e.g., hashlib.shake_128 (available in Python3 only)
 def expand_message_xof(msg, dst, len_in_bytes, hash_fn, _, result_set=[]):
-    dst = _as_bytes(dst)
     if len(dst) > 255:
         raise ValueError("dst len should be at most 255 bytes")
 
@@ -90,7 +89,6 @@ def expand_message_xmd(msg, dst, len_in_bytes, hash_fn, security_param, result_s
     b_in_bytes = hash_fn().digest_size
     r_in_bytes = hash_fn().block_size
     assert 8 * b_in_bytes >= 2 * security_param
-    dst = _as_bytes(dst)
     if len(dst) > 255:
         raise ValueError("dst len should be at most 255 bytes")
 
@@ -131,8 +129,9 @@ def expand_message_xmd(msg, dst, len_in_bytes, hash_fn, security_param, result_s
     return output
 
 class Expander(object):
-    def __init__(self, name, dst, hash_fn, security_param):
+    def __init__(self, name, dst, dst_prime, hash_fn, security_param):
         self.name = name
+        self._dst = dst_prime
         self.dst = dst
         self.hash_fn = hash_fn
         self.security_param = security_param
@@ -151,31 +150,41 @@ class Expander(object):
     def __dict__(self):
         return {
             "name": self.name,
-            "dst": self.dst,
+            "dst": to_hex(self.dst),
             "hash": self.hash_name(),
             "tests": json.dumps(self.test_vectors),
         }
 
 class XMDExpander(Expander):
     def __init__(self, dst, hash_fn, security_param):
-        super(XMDExpander, self).__init__("expand_message_xmd", dst, hash_fn, security_param)
+        dst_prime = _as_bytes(dst)
+        if len(dst_prime) > 255:
+            # https://cfrg.github.io/draft-irtf-cfrg-hash-to-curve/draft-irtf-cfrg-hash-to-curve.html#name-using-dsts-longer-than-255-
+            dst_prime = hash_fn(_as_bytes("H2C-OVERSIZE-DST-") + _as_bytes(dst)).digest()
+        else:
+            dst_prime = _as_bytes(dst)
+        super(XMDExpander, self).__init__("expand_message_xmd", dst, dst_prime, hash_fn, security_param)
 
     def expand_message(self, msg, len_in_bytes):
-        return expand_message_xmd(msg, self.dst, len_in_bytes, self.hash_fn, self.security_param, self.test_vectors)
+        return expand_message_xmd(msg, self._dst, len_in_bytes, self.hash_fn, self.security_param, self.test_vectors)
 
 class XOFExpander(Expander):
     def __init__(self, dst, hash_fn):
-        super(XOFExpander, self).__init__("expand_message_xof", dst, hash_fn, 128)
+        dst_prime = _as_bytes(dst)
+        if len(dst_prime) > 255:
+            # https://cfrg.github.io/draft-irtf-cfrg-hash-to-curve/draft-irtf-cfrg-hash-to-curve.html#name-using-dsts-longer-than-255-
+            dst_prime = hash_fn(_as_bytes("H2C-OVERSIZE-DST-") + _as_bytes(dst)).digest(32) # 2 * k / 8 = 32
+        super(XOFExpander, self).__init__("expand_message_xof", dst, dst_prime, hash_fn, 128)
 
     def expand_message(self, msg, len_in_bytes):
-        return expand_message_xof(msg, self.dst, len_in_bytes, self.hash_fn, self.security_param, self.test_vectors)
+        return expand_message_xof(msg, self._dst, len_in_bytes, self.hash_fn, self.security_param, self.test_vectors)
 
 def _random_string(strlen):
     return ''.join( chr(choice(range(65, 65 + 26))) for _ in range(0, strlen))
 
 def _test_xmd():
     msg = _random_string(48)
-    dst = _random_string(16)
+    dst = _as_bytes(_random_string(16))
     ress = {}
     for l in range(16, 8192):
         result = expand_message_xmd(msg, dst, l, hashlib.sha512, 256)
@@ -188,7 +197,7 @@ def _test_xmd():
 
 def _test_xof():
     msg = _random_string(48)
-    dst = _random_string(16)
+    dst = _as_bytes(_random_string(16))
     ress = {}
     for l in range(16, 8192):
         result = expand_message_xof(msg, dst, l, hashlib.shake_128, 128)
