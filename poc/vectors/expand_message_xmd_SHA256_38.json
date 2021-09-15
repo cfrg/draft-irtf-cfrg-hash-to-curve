@@ -1,6 +1,7 @@
 {
   "DST": "QUUX-V01-CS02-with-expander-SHA256-128",
   "hash": "SHA256",
+  "k": 128,
   "name": "expand_message_xmd",
   "tests": [
     {

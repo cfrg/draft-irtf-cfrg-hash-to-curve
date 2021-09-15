@@ -3,6 +3,7 @@
 
 import hashlib
 import json
+import math
 import struct
 from random import choice
 import sys
@@ -60,7 +61,7 @@ def hash_to_field(msg, count, modulus, degree, blen, expander):
 
 # from draft-irtf-cfrg-hash-to-curve-07
 # hash_fn should be, e.g., hashlib.shake_128 (available in Python3 only)
-def expand_message_xof(msg, dst, len_in_bytes, hash_fn, _, result_set=[]):
+def expand_message_xof(msg, dst, len_in_bytes, hash_fn, security_param, result_set=[]):
     if len(dst) > 255:
         raise ValueError("dst len should be at most 255 bytes")
 
@@ -74,6 +75,7 @@ def expand_message_xof(msg, dst, len_in_bytes, hash_fn, _, result_set=[]):
     vector = {
         "msg": msg,
         "len_in_bytes": "0x%x" % len_in_bytes,
+        "k": "0x%x" % security_param,
         "DST_prime": to_hex(dst_prime),
         "msg_prime": to_hex(msg_prime),
         "uniform_bytes": to_hex(uniform_bytes),
@@ -120,6 +122,7 @@ def expand_message_xmd(msg, dst, len_in_bytes, hash_fn, security_param, result_s
     vector = {
         "msg": msg,
         "len_in_bytes": "0x%x" % len_in_bytes,
+        "k": "0x%x" % security_param,
         "DST_prime": to_hex(dst_prime),
         "msg_prime": to_hex(msg_prime),
         "uniform_bytes": to_hex(output),
@@ -152,6 +155,7 @@ class Expander(object):
             "name": self.name,
             "dst": to_hex(self.dst),
             "hash": self.hash_name(),
+            "k": "0x%x" % self.security_param,
             "tests": json.dumps(self.test_vectors),
         }
 
@@ -169,12 +173,12 @@ class XMDExpander(Expander):
         return expand_message_xmd(msg, self._dst, len_in_bytes, self.hash_fn, self.security_param, self.test_vectors)
 
 class XOFExpander(Expander):
-    def __init__(self, dst, hash_fn):
+    def __init__(self, dst, hash_fn, security_param):
         dst_prime = _as_bytes(dst)
         if len(dst_prime) > 255:
             # https://cfrg.github.io/draft-irtf-cfrg-hash-to-curve/draft-irtf-cfrg-hash-to-curve.html#name-using-dsts-longer-than-255-
-            dst_prime = hash_fn(_as_bytes("H2C-OVERSIZE-DST-") + _as_bytes(dst)).digest(32) # 2 * k / 8 = 32
-        super(XOFExpander, self).__init__("expand_message_xof", dst, dst_prime, hash_fn, 128)
+            dst_prime = hash_fn(_as_bytes("H2C-OVERSIZE-DST-") + _as_bytes(dst)).digest(math.ceil(2*security_param / 8))
+        super(XOFExpander, self).__init__("expand_message_xof", dst, dst_prime, hash_fn, security_param)
 
     def expand_message(self, msg, len_in_bytes):
         return expand_message_xof(msg, self._dst, len_in_bytes, self.hash_fn, self.security_param, self.test_vectors)
