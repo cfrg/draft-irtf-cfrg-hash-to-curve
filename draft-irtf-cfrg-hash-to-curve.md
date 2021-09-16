@@ -1119,7 +1119,7 @@ arbitrary string to a point on an elliptic curve.
 Many cryptographic protocols require a procedure that encodes an arbitrary input,
 e.g., a password, to a point on an elliptic curve. This procedure is known
 as hashing to an elliptic curve, where the hashing procedure provides collision
-resistance and does not reveal the discrete log of the output point.
+resistance and does not reveal the discrete logarithm of the output point.
 Prominent examples of cryptosystems that hash to elliptic curves include
 password-authenticated key exchanges {{BM92}} {{J96}} {{BMP00}} {{p1363.2}}, Identity-Based
 Encryption {{BF01}}, Boneh-Lynn-Shacham signatures {{BLS01}} {{?I-D.irtf-cfrg-bls-signature}},
