@@ -177,7 +177,7 @@ class XOFExpander(Expander):
         dst_prime = _as_bytes(dst)
         if len(dst_prime) > 255:
             # https://cfrg.github.io/draft-irtf-cfrg-hash-to-curve/draft-irtf-cfrg-hash-to-curve.html#name-using-dsts-longer-than-255-
-            dst_prime = hash_fn(_as_bytes("H2C-OVERSIZE-DST-") + _as_bytes(dst)).digest(math.ceil(2*security_param / 8))
+            dst_prime = hash_fn(_as_bytes("H2C-OVERSIZE-DST-") + _as_bytes(dst)).digest(math.ceil(2 * security_param / 8))
         super(XOFExpander, self).__init__("expand_message_xof", dst, dst_prime, hash_fn, security_param)
 
     def expand_message(self, msg, len_in_bytes):
