@@ -1,8 +1,10 @@
 #!/usr/bin/sage
 # vim: syntax=python
 
-def test_dst(suite_name):
-    return "QUUX-V01-CS02-with-%s" % suite_name
+def test_dst(suite_name, L = 0):
+    length = len("QUUX-V01-CS02-with-") + len(suite_name) + 1
+    dst = "-".join(filter(None, ["QUUX-V01-CS02-with", suite_name, "1" * max(0, L - length)]))
+    return dst
 
 def CMOV(x, y, b):
     """

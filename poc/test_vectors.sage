@@ -5,6 +5,10 @@ import json
 import sys
 import hashlib
 from hash_to_field import XMDExpander, XOFExpander
+if sys.version_info[0] == 3:
+    _as_bytes = lambda x: x if isinstance(x, bytes) else bytes(x, "utf-8")
+else:
+    _as_bytes = lambda x: x
 
 print("Importing modules...")
 
@@ -101,7 +105,7 @@ def create_suite_files(suite):
 
 
 def expander_to_json_file(expander, path="vectors"):
-    with open(path + "/" + expander.name + "_" + expander.hash_name() + ".json", 'wt') as f:
+    with open(path + "/" + expander.name + "_" + expander.hash_name() + "_" + str(len(expander.dst)) + ".json", 'wt') as f:
         vector = {}
         vector["name"] = expander.name
         vector["DST"] = expander.dst
@@ -120,7 +124,7 @@ def expander_to_json_file(expander, path="vectors"):
 
 
 def expander_to_ascii_file(expander, path="ascii"):
-    with open(path + "/" + expander.name + "_" + expander.hash_name() + ".txt", 'wt') as f:
+    with open(path + "/" + expander.name + "_" + expander.hash_name() + "_" + str(len(expander.dst)) + ".txt", 'wt') as f:
         f.write(Printer.tv.text("name", expander.name) + "\n")
         f.write(Printer.tv.text("DST", expander.dst) + "\n")
         f.write(Printer.tv.text("hash", expander.hash_name()) + "\n")
@@ -157,10 +161,12 @@ ALL_SUITES = [
 ]
 
 ALL_EXPANDERS = [
-    XMDExpander(test_dst("expander"), hashlib.sha512, 256),
-    XMDExpander(test_dst("expander"), hashlib.sha256, 128),
-    XOFExpander(test_dst("expander"), hashlib.shake_128),
-    XOFExpander(test_dst("expander"), hashlib.shake_256),
+    XMDExpander(test_dst("expander-SHA256-256"), hashlib.sha512, 256),
+    XMDExpander(test_dst("expander-SHA256-128"), hashlib.sha256, 128),
+    XMDExpander(test_dst("expander-SHA256-128-long-DST", 256), hashlib.sha256, 128),
+    XOFExpander(test_dst("expander-SHAKE256"), hashlib.shake_256),
+    XOFExpander(test_dst("expander-SHAKE128"), hashlib.shake_128),
+    XOFExpander(test_dst("expander-SHAKE128-long-DST", 256), hashlib.shake_128),
 ]
 
 if __name__ == '__main__':

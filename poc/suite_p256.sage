@@ -3,7 +3,7 @@
 
 import hashlib
 import sys
-from hash_to_field import expand_message_xmd
+from hash_to_field import XMDExpander
 try:
     from sagelib.common import test_dst
     from sagelib.h2c_suite import BasicH2CSuiteDef, BasicH2CSuite
@@ -18,7 +18,10 @@ A = F(-3)
 B = F(0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b)
 
 def p256_sswu(suite_name, is_ro):
-    return BasicH2CSuiteDef("NIST P-256", F, A, B, expand_message_xmd, hashlib.sha256, 48, GenericSSWU, 1, 128, is_ro, test_dst(suite_name))
+    dst = test_dst(suite_name)
+    k = 128
+    expander = XMDExpander(dst, hashlib.sha256, k)
+    return BasicH2CSuiteDef("NIST P-256", F, A, B, expander, hashlib.sha256, 48, GenericSSWU, 1, k, is_ro, expander.dst)
 
 def p256_svdw(suite_name, is_ro):
     return p256_sswu(suite_name, is_ro)._replace(MapT=GenericSvdW)

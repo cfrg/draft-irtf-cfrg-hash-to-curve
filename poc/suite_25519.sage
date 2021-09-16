@@ -3,7 +3,7 @@
 
 import hashlib
 import sys
-from hash_to_field import expand_message_xmd
+from hash_to_field import XMDExpander
 try:
     from sagelib.common import sgn0, test_dst
     from sagelib.h2c_suite import BasicH2CSuiteDef, EdwH2CSuiteDef, EdwH2CSuite, MontyH2CSuite
@@ -40,7 +40,10 @@ def m2e_25519(P):
     return (v, w, 1)
 
 def monty_suite(suite_name, hash_fn, is_ro):
-    return BasicH2CSuiteDef("curve25519", F, Ap, Bp, expand_message_xmd, hash_fn, 48, None, 8, 128, is_ro, test_dst(suite_name))
+    dst = test_dst(suite_name)
+    k = 128
+    expander = XMDExpander(dst, hash_fn, k)
+    return BasicH2CSuiteDef("curve25519", F, Ap, Bp, expander, hash_fn, 48, None, 8, k, is_ro, expander.dst)
 
 def edw_suite(suite_name, hash_fn, is_ro):
     return EdwH2CSuiteDef(monty_suite(suite_name, hash_fn, is_ro)._replace(E="edwards25519",Aa=a, Bd=d), Ap, Bp, m2e_25519)

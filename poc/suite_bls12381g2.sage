@@ -3,7 +3,7 @@
 
 import hashlib
 import sys
-from hash_to_field import expand_message_xmd
+from hash_to_field import XMDExpander
 try:
     from sagelib.common import test_dst
     from sagelib.h2c_suite import BasicH2CSuiteDef, BasicH2CSuite, IsoH2CSuiteDef, IsoH2CSuite
@@ -27,7 +27,10 @@ h_eff = h2 * (3 * ell_u^2 - 3)
 iso_map = iso_bls12381g2()
 
 def bls12381g2_svdw(suite_name, is_ro):
-    return BasicH2CSuiteDef("BLS12-381 G2", F, A, B, expand_message_xmd, hashlib.sha256, 64, GenericSvdW, h_eff, 128, is_ro, test_dst(suite_name))
+    dst = test_dst(suite_name)
+    k = 128
+    expander = XMDExpander(dst, hashlib.sha256, k)
+    return BasicH2CSuiteDef("BLS12-381 G2", F, A, B, expander, hashlib.sha256, 64, GenericSvdW, h_eff, k, is_ro, expander.dst)
 
 def bls12381g2_sswu(suite_name, is_ro):
     return IsoH2CSuiteDef(bls12381g2_svdw(suite_name, is_ro)._replace(MapT=GenericSSWU), Ap, Bp, iso_map)
