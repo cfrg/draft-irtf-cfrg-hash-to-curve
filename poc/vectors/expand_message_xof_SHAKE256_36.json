@@ -1,6 +1,7 @@
 {
   "DST": "QUUX-V01-CS02-with-expander-SHAKE256",
   "hash": "SHAKE256",
+  "k": 256,
   "name": "expand_message_xof",
   "tests": [
     {
