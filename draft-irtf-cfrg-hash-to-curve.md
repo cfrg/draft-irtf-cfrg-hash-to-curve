@@ -1153,7 +1153,7 @@ methods is NOT RECOMMENDED, because they have been a perennial cause of
 side-channel vulnerabilities. See Dragonblood {{VR20}} as one example of this
 problem in practice.
 
-This document is a product of the Crypto Forum Research Group (CFRG) in the IRTF.
+This document represents the consensus of the Crypto Forum Research Group (CFRG).
 
 ## Requirements Notation
 
