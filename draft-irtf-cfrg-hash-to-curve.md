@@ -1110,7 +1110,8 @@ informative:
 --- abstract
 
 This document specifies a number of algorithms for encoding or hashing an
-arbitrary string to a point on an elliptic curve.
+arbitrary string to a point on an elliptic curve. This document is a product
+of the Crypto Forum Research Group (CFRG) in the IRTF.
 
 --- middle
 
@@ -1151,6 +1152,8 @@ algorithms that can plausibly be computed in constant time. Use of these rejecti
 methods is NOT RECOMMENDED, because they have been a perennial cause of
 side-channel vulnerabilities. See Dragonblood {{VR20}} as one example of this
 problem in practice.
+
+This document represents the consensus of the Crypto Forum Research Group (CFRG).
 
 ## Requirements Notation
 
@@ -3172,8 +3175,8 @@ The authors would like to thank Adam Langley for his detailed writeup of Elligat
 Curve25519 {{L13}};
 Dan Boneh, Christopher Patton, Benjamin Lipp, and Leonid Reyzin for educational discussions; and
 David Benjamin, Daniel Bourdrez, Frank Denis, Sean Devlin, Justin Drake, Bjoern Haase, Mike Hamburg,
-Dan Harkins, Daira Hopwood, Thomas Icart, Andy Polyakov, Mamy Ratsimbazafy, Michael Scott,
-Filippo Valsorda, and Mathy Vanhoef for helpful feedback.
+Dan Harkins, Daira Hopwood, Thomas Icart, Andy Polyakov, Thomas Pornin, Mamy Ratsimbazafy, Michael Scott,
+Filippo Valsorda, and Mathy Vanhoef for helpful reviews and feedback.
 
 # Contributors
 
