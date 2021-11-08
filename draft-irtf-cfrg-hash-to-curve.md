@@ -2258,8 +2258,8 @@ Operations:
 3. gx1 = x1^3 + (J / K) * x1^2 + x1 / K^2
 4.  x2 = -x1 - (J / K)
 5. gx2 = x2^3 + (J / K) * x2^2 + x2 / K^2
-6.  If is_square(gx1), set x = x1, y = sqrt(gx1), and sgn0(y) == 1.
-7.  Else set x = x2, y = sqrt(gx2), and sgn0(y) == 0.
+6.  If is_square(gx1), set x = x1, y = sqrt(gx1) with sgn0(y) == 1.
+7.  Else set x = x2, y = sqrt(gx2) with sgn0(y) == 0.
 8.   s = x * K
 9.   t = y * K
 10. return (s, t)
