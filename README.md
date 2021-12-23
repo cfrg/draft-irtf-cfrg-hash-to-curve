@@ -37,7 +37,7 @@ These implementations are for reference only. They MUST NOT be used in productio
      [v08](https://github.com/armfazh/h2c-rust-ref/tree/v8.0.0),
      **[v12](https://github.com/armfazh/h2c-rust-ref/tree/v12.0.0)**.
 
-- [hacspec/Rust](https://github.com/hacspec/hacspec/tree/master/examples/bls12-381-hash) Tested (with quickcheck) against all the rust implementations below.
+- [hacspec/Rust](https://github.com/hacspec/hacspec/tree/master/examples/bls12-381-hash) BLS12-381 (tested against all the rust implementations below).
 
 
 ### Other Implementations
