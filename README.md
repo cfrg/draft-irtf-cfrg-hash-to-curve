@@ -37,6 +37,10 @@ These implementations are for reference only. They MUST NOT be used in productio
      [v08](https://github.com/armfazh/h2c-rust-ref/tree/v8.0.0),
      **[v12](https://github.com/armfazh/h2c-rust-ref/tree/v12.0.0)**.
 
+Executable specification in [hacspec](https://github.com/hacspec/), a subset of rust with a precise semantics and backends for various formal method tools.
+- [hacspec/Rust](https://github.com/hacspec/hacspec/tree/master/examples/bls12-381-hash) Tested (with quickcheck) against all the rust implementations below.
+
+
 ### Other Implementations
 
 This is a (likely incomplete) list of other libraries that have implemented hash-to-curve per the standard.
