@@ -70,7 +70,7 @@ def expand_message_xof(msg, dst, len_in_bytes, hash_fn, security_param, result_s
     assert len(dst_prime) == len(dst) + 1
 
     msg_prime = _as_bytes(msg) + I2OSP(len_in_bytes, 2) + dst_prime
-    uniform_bytes = hash_fn(msg_prime).digest(len_in_bytes)
+    uniform_bytes = hash_fn(msg_prime).digest(int(len_in_bytes))
 
     vector = {
         "msg": msg,

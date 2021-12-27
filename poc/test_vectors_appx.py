@@ -23,12 +23,12 @@ edwards25519 = ("edwards25519",
                 , "edwards25519_XMD:SHA-512_ELL2_NU_"))
 
 curve448 = ("curve448",
-            ( "curve448_XMD:SHA-512_ELL2_RO_"
-            , "curve448_XMD:SHA-512_ELL2_NU_"))
+            ( "curve448_XOF:SHAKE256_ELL2_RO_"
+            , "curve448_XOF:SHAKE256_ELL2_NU_"))
 
 edwards448 = ("edwards448",
-              ( "edwards448_XMD:SHA-512_ELL2_RO_"
-              , "edwards448_XMD:SHA-512_ELL2_NU_"))
+              ( "edwards448_XOF:SHAKE256_ELL2_RO_"
+              , "edwards448_XOF:SHAKE256_ELL2_NU_"))
 
 secp256k1 = ("secp256k1",
              ( "secp256k1_XMD:SHA-256_SSWU_RO_"

@@ -4,7 +4,7 @@
 from collections import namedtuple
 import sys
 
-from hash_to_field import hash_to_field, expand_message_xof
+from hash_to_field import hash_to_field, XOFExpander
 
 try:
     from sagelib.curves import EdwardsCurve, MontgomeryCurve
@@ -58,7 +58,7 @@ class BasicH2CSuite(object):
             "hash": (self.H()).name,
             "map": self.m2c.__dict__(),
             "k": '0x%x' % ZZ(self.k),
-            "expand": "XOF" if self.expand == expand_message_xof else "XMD",
+            "expand": "XOF" if type(self.expand) == XOFExpander else "XMD",
             "randomOracle": bool(self.is_ro),
             "L": '0x%x' % ZZ(self.L),
             "Z": ','.join( '0x%x' % ZZ(z) for z in self.m2c.Z.polynomial() ),
