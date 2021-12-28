@@ -1702,7 +1702,8 @@ The following procedure implements hash\_to\_field.
 
 The expand\_message parameter to this function MUST conform to the requirements
 given in {{hashtofield-expand}}. {{domain-separation}} discusses the REQUIRED
-method for constructing DST, the domain separation tag.
+method for constructing DST, the domain separation tag. Note that hash\_to\_field
+may fail (abort) if expand\_message fails.
 
 ~~~
 hash_to_field(msg, count)
@@ -1815,7 +1816,7 @@ Output:
 
 Steps:
 1.  ell = ceil(len_in_bytes / b_in_bytes)
-2.  ABORT if ell > 255
+2.  ABORT if ell > 255 or len_in_bytes > 65535 or len(DST) > 255
 3.  DST_prime = DST || I2OSP(len(DST), 1)
 4.  Z_pad = I2OSP(0, s_in_bytes)
 5.  l_i_b_str = I2OSP(len_in_bytes, 2)
