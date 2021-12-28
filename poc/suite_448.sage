@@ -3,7 +3,7 @@
 
 import hashlib
 import sys
-from hash_to_field import XMDExpander
+from hash_to_field import XOFExpander
 try:
     from sagelib.common import test_dst
     from sagelib.h2c_suite import BasicH2CSuiteDef, EdwH2CSuiteDef, EdwH2CSuite, MontyH2CSuite
@@ -39,22 +39,22 @@ def m2e_448(P):
 def monty_suite(suite_name, is_ro):
     dst = test_dst(suite_name)
     k = 224
-    expander = XMDExpander(dst, hashlib.sha512, k)
-    return BasicH2CSuiteDef("curve448", F, Ap, Bp, expander, hashlib.sha512, 84, None, 4, k, is_ro, expander.dst)
+    expander = XOFExpander(dst, hashlib.shake_256, k)
+    return BasicH2CSuiteDef("curve448", F, Ap, Bp, expander, hashlib.shake_256, 84, None, 4, k, is_ro, expander.dst)
 
 def edw_suite(suite_name, is_ro):
     return EdwH2CSuiteDef(monty_suite(suite_name, is_ro)._replace(E="edwards448",Aa=a, Bd=d), Ap, Bp, m2e_448)
 
-suite_name = "edwards448_XMD:SHA-512_ELL2_RO_"
+suite_name = "edwards448_XOF:SHAKE256_ELL2_RO_"
 edw448_hash_ro = EdwH2CSuite(suite_name,edw_suite(suite_name, True))
 
-suite_name = "curve448_XMD:SHA-512_ELL2_RO_"
+suite_name = "curve448_XOF:SHAKE256_ELL2_RO_"
 monty448_hash_ro = MontyH2CSuite(suite_name,monty_suite(suite_name, True))
 
-suite_name = "edwards448_XMD:SHA-512_ELL2_NU_"
+suite_name = "edwards448_XOF:SHAKE256_ELL2_NU_"
 edw448_hash_nu = EdwH2CSuite(suite_name,edw_suite(suite_name, False))
 
-suite_name = "curve448_XMD:SHA-512_ELL2_NU_"
+suite_name = "curve448_XOF:SHAKE256_ELL2_NU_"
 monty448_hash_nu = MontyH2CSuite(suite_name,monty_suite(suite_name, False))
 
 assert edw448_hash_ro.m2c.Z == edw448_hash_nu.m2c.Z == -1
