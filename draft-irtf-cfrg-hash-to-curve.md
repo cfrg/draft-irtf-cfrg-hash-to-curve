@@ -1816,7 +1816,7 @@ Output:
 
 Steps:
 1.  ell = ceil(len_in_bytes / b_in_bytes)
-2.  ABORT if ell > 255 or len_in_bytes > 2^16-1 or len(DST) > 255
+2.  ABORT if ell > 255 or len_in_bytes > 65535 or len(DST) > 255
 3.  DST_prime = DST || I2OSP(len(DST), 1)
 4.  Z_pad = I2OSP(0, s_in_bytes)
 5.  l_i_b_str = I2OSP(len_in_bytes, 2)
