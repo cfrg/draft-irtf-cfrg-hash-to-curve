@@ -1345,13 +1345,40 @@ basic functions:
     of one or more elements of a finite field F; its implementation is defined in
     {{hashtofield}}.
 
+~~~
+hash_to_field(msg, count)
+
+Inputs:
+- msg, a byte string containing the message to hash.
+- count, the number of elements of F to output.
+Outputs:
+- (u_0, ..., u_(count - 1)), a list of field elements.
+Steps: defined in Section 5.
+~~~
+
 -   The function map\_to\_curve, calculates a point on the elliptic curve E
     from an element of the finite field F over which E is defined.
     {{mappings}} describes mappings for a range of curve families.
 
+~~~
+map_to_curve(u)
+
+Input: u, a element in field F.
+Output: Q, a point on the elliptic curve E.
+Steps: defined in Section 6.
+~~~
+
 -   The function clear\_cofactor, sends any point on the curve E to
     the subgroup G of E. {{cofactor-clearing}} describes methods to perform
     this operation.
+
+~~~
+clear_cofactor(Q)
+
+Input: Q, a point on the elliptic curve E.
+Output: P, a point in G.
+Steps: defined in Section 7.
+~~~
 
 The two encodings ({{term-encoding}}) defined in this section have the
 same interface and are both random-oracle encodings ({{term-rom}}).
