@@ -1473,7 +1473,7 @@ which is a byte string constructed according to the following requirements:
    also include a distinct identifier, e.g., "ENC1" and "ENC2".
 
 As an example, consider a fictional application named Quux
-that defines several different ciphersuites.
+that defines several different ciphersuites, each for a different curve.
 A reasonable choice of tag is "QUUX-V\<xx\>-CS\<yy\>-\<suiteID\>", where
 \<xx\> and \<yy\> are two-digit numbers indicating the version and
 ciphersuite, respectively, and \<suiteID\> is the Suite ID of the
