@@ -1857,7 +1857,7 @@ Steps:
 12. return substr(uniform_bytes, 0, len_in_bytes)
 ~~~
 
-Note that the string Z\_pad is prefixed to msg when computing b\_0 (step 7).
+Note that the string Z\_pad (step 6) is prefixed to msg before computing b\_0 (step 7).
 This is necessary for security when H is a Merkle-Damgaard hash, e.g., SHA-2
 (see {{security-considerations-expand-xmd}}).
 Hashing this additional data means that the cost of computing b\_0 is higher
