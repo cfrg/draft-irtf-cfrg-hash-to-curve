@@ -1791,7 +1791,7 @@ variants are possible; {{hashtofield-expand-other}} discusses requirements.
 ### expand\_message\_xmd {#hashtofield-expand-xmd}
 
 The expand\_message\_xmd function produces a uniformly random byte string using
-a cryptographic hash function H that outputs b bits. For security, H must meet
+a cryptographic hash function H that outputs b bits. For security, H MUST meet
 the following requirements:
 
 - The number of bits output by H MUST be b >= 2 * k, for k the target
