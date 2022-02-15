@@ -1876,7 +1876,7 @@ Further details are implementation dependent, and beyond the scope of this docum
 
 The expand\_message\_xof function produces a uniformly random byte string
 using an extensible-output function (XOF) H.
-For security, H must meet the following criteria:
+For security, H MUST meet the following criteria:
 
 - The collision resistance of H MUST be at least k bits.
 
