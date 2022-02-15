@@ -1486,9 +1486,9 @@ Reasonable choices of tags for these oracles are
 respectively, where \<xx\>, \<yy\>, and \<suiteID\> are as described above.
 
 The example tags given above are assumed to be ASCII-encoded byte strings
-without null termination, which is the RECOMMENDED format.
-Other encodings CAN be used, but in all cases the encoding as a sequence of
-bytes MUST be specified unambiguously.
+without null termination, which is the RECOMMENDED format. Other encodings
+CAN be used, but in all cases the encoding as a sequence of bytes MUST be
+specified unambiguously.
 
 # Utility functions {#utility}
 
@@ -1737,7 +1737,7 @@ may fail (abort) if expand\_message fails.
 hash_to_field(msg, count)
 
 Parameters:
-- DST, a domain separation tag (see discussion above).
+- DST, a domain separation tag (see {{domain-separation}}).
 - F, a finite field of characteristic p and order q = p^m.
 - p, the characteristic of F (see immediately above).
 - m, the extension degree of F, m >= 1 (see immediately above).
@@ -1745,7 +1745,7 @@ Parameters:
   parameter of the suite (e.g., k = 128).
 - expand_message, a function that expands a byte string and
   domain separation tag into a uniformly random byte string
-  (see discussion above).
+  (see {{hashtofield-expand}}).
 
 Inputs:
 - msg, a byte string containing the message to hash.
