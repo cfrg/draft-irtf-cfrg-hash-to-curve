@@ -1341,20 +1341,21 @@ This section presents a general framework and interface for encoding byte string
 to points on an elliptic curve. The constructions in this section rely on three
 basic functions:
 
--   The function hash\_to\_field, {0, 1}^\* x {1, 2, ...} -> (F, F, ...), hashes arbitrary-length byte strings
-    to a list of one or more elements of a finite field F; its implementation is defined in
+-   The function hash\_to\_field, hashes arbitrary-length byte strings to a list
+    of one or more elements of a finite field F; its implementation is defined in
     {{hashtofield}}.
 
--   The function map\_to\_curve, F -> E, calculates a point on the elliptic curve E
+-   The function map\_to\_curve, calculates a point on the elliptic curve E
     from an element of the finite field F over which E is defined.
     {{mappings}} describes mappings for a range of curve families.
 
--   The function clear\_cofactor, E -> G, sends any point on the curve E to
+-   The function clear\_cofactor, sends any point on the curve E to
     the subgroup G of E. {{cofactor-clearing}} describes methods to perform
     this operation.
 
 The two encodings ({{term-encoding}}) defined in this section have the
 same interface and are both random-oracle encodings ({{term-rom}}).
+Both are implemented as a composition of the three basic functions above
 The difference between the two is that their outputs are sampled from
 different distributions:
 
@@ -3181,14 +3182,9 @@ Filippo Valsorda, and Mathy Vanhoef for helpful reviews and feedback.
 
 # Contributors
 
-*   Sharon Goldberg \\
-    Boston University \\
-    goldbe@cs.bu.edu
-*   Ela Lee \\
-    Royal Holloway, University of London \\
-    Ela.Lee.2010@live.rhul.ac.uk
-*   Michele Orru \\
-    michele.orru@ens.fr
+*   Sharon Goldberg, Boston University (goldbe@cs.bu.edu)
+*   Ela Lee, Royal Holloway, University of London (Ela.Lee.2010@live.rhul.ac.uk)
+*   Michele Orru (michele.orru@ens.fr)
 
 --- back
 
