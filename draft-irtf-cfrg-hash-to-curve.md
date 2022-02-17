@@ -1368,7 +1368,7 @@ Output: Q, a point on the elliptic curve E.
 Steps: defined in Section 6.
 ~~~
 
--   The function clear\_cofactor, sends any point on the curve E to
+-   The function clear\_cofactor sends any point on the curve E to
     the subgroup G of E. {{cofactor-clearing}} describes methods to perform
     this operation.
 
