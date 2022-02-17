@@ -1739,7 +1739,7 @@ may fail (abort) if expand\_message fails.
 hash_to_field(msg, count)
 
 Parameters:
-- DST, a domain separation tag (see {{domain-separation}}).
+- DST, a domain separation tag (see Section 3.1).
 - F, a finite field of characteristic p and order q = p^m.
 - p, the characteristic of F (see immediately above).
 - m, the extension degree of F, m >= 1 (see immediately above).
