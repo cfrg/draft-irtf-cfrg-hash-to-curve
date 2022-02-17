@@ -1489,7 +1489,7 @@ respectively, where \<xx\>, \<yy\>, and \<suiteID\> are as described above.
 
 The example tags given above are assumed to be ASCII-encoded byte strings
 without null termination, which is the RECOMMENDED format. Other encodings
-CAN be used, but in all cases the encoding as a sequence of bytes MUST be
+can be used, but in all cases the encoding as a sequence of bytes MUST be
 specified unambiguously.
 
 # Utility functions {#utility}
