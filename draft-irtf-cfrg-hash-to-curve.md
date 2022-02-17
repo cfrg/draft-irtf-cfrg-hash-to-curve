@@ -1384,7 +1384,7 @@ Steps: defined in Section 7.
 
 The two encodings ({{term-encoding}}) defined in this section have the
 same interface and are both random-oracle encodings ({{term-rom}}).
-Both are implemented as a composition of the three basic functions above
+Both are implemented as a composition of the three basic functions above.
 The difference between the two is that their outputs are sampled from
 different distributions:
 
