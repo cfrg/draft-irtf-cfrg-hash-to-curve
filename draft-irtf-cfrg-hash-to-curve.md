@@ -1341,7 +1341,7 @@ This section presents a general framework and interface for encoding byte string
 to points on an elliptic curve. The constructions in this section rely on three
 basic functions:
 
--   The function hash\_to\_field, hashes arbitrary-length byte strings to a list
+-   The function hash\_to\_field hashes arbitrary-length byte strings to a list
     of one or more elements of a finite field F; its implementation is defined in
     {{hashtofield}}.
 
