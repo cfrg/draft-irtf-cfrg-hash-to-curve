@@ -1356,7 +1356,7 @@ Outputs:
 Steps: defined in Section 5.
 ~~~
 
--   The function map\_to\_curve, calculates a point on the elliptic curve E
+-   The function map\_to\_curve calculates a point on the elliptic curve E
     from an element of the finite field F over which E is defined.
     {{mappings}} describes mappings for a range of curve families.
 
