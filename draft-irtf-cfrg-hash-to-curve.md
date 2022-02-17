@@ -1747,7 +1747,7 @@ Parameters:
   parameter of the suite (e.g., k = 128).
 - expand_message, a function that expands a byte string and
   domain separation tag into a uniformly random byte string
-  (see {{hashtofield-expand}}).
+  (see Section 5.4).
 
 Inputs:
 - msg, a byte string containing the message to hash.
