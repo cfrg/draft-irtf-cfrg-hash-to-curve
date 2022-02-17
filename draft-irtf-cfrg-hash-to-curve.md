@@ -1365,7 +1365,7 @@ Steps: defined in Section 5.
 ~~~
 map_to_curve(u)
 
-Input: u, a element in field F.
+Input: u, an element of field F.
 Output: Q, a point on the elliptic curve E.
 Steps: defined in Section 6.
 ~~~
