@@ -1341,20 +1341,50 @@ This section presents a general framework and interface for encoding byte string
 to points on an elliptic curve. The constructions in this section rely on three
 basic functions:
 
--   The function hash\_to\_field, {0, 1}^\* x {1, 2, ...} -> (F, F, ...), hashes arbitrary-length byte strings
-    to a list of one or more elements of a finite field F; its implementation is defined in
+-   The function hash\_to\_field hashes arbitrary-length byte strings to a list
+    of one or more elements of a finite field F; its implementation is defined in
     {{hashtofield}}.
 
--   The function map\_to\_curve, F -> E, calculates a point on the elliptic curve E
+~~~
+hash_to_field(msg, count)
+
+Inputs:
+- msg, a byte string containing the message to hash.
+- count, the number of elements of F to output.
+
+Outputs:
+- (u_0, ..., u_(count - 1)), a list of field elements.
+
+Steps: defined in Section 5.
+~~~
+
+-   The function map\_to\_curve calculates a point on the elliptic curve E
     from an element of the finite field F over which E is defined.
     {{mappings}} describes mappings for a range of curve families.
 
--   The function clear\_cofactor, E -> G, sends any point on the curve E to
+~~~
+map_to_curve(u)
+
+Input: u, an element of field F.
+Output: Q, a point on the elliptic curve E.
+Steps: defined in Section 6.
+~~~
+
+-   The function clear\_cofactor sends any point on the curve E to
     the subgroup G of E. {{cofactor-clearing}} describes methods to perform
     this operation.
 
+~~~
+clear_cofactor(Q)
+
+Input: Q, a point on the elliptic curve E.
+Output: P, a point in G.
+Steps: defined in Section 7.
+~~~
+
 The two encodings ({{term-encoding}}) defined in this section have the
 same interface and are both random-oracle encodings ({{term-rom}}).
+Both are implemented as a composition of the three basic functions above.
 The difference between the two is that their outputs are sampled from
 different distributions:
 
@@ -1445,7 +1475,7 @@ which is a byte string constructed according to the following requirements:
    also include a distinct identifier, e.g., "ENC1" and "ENC2".
 
 As an example, consider a fictional application named Quux
-that defines several different ciphersuites.
+that defines several different ciphersuites, each for a different curve.
 A reasonable choice of tag is "QUUX-V\<xx\>-CS\<yy\>-\<suiteID\>", where
 \<xx\> and \<yy\> are two-digit numbers indicating the version and
 ciphersuite, respectively, and \<suiteID\> is the Suite ID of the
@@ -1458,9 +1488,9 @@ Reasonable choices of tags for these oracles are
 respectively, where \<xx\>, \<yy\>, and \<suiteID\> are as described above.
 
 The example tags given above are assumed to be ASCII-encoded byte strings
-without null termination, which is the RECOMMENDED format.
-Other encodings CAN be used, but in all cases the encoding as a sequence of
-bytes MUST be specified unambiguously.
+without null termination, which is the RECOMMENDED format. Other encodings
+can be used, but in all cases the encoding as a sequence of bytes MUST be
+specified unambiguously.
 
 # Utility functions {#utility}
 
@@ -1709,7 +1739,7 @@ may fail (abort) if expand\_message fails.
 hash_to_field(msg, count)
 
 Parameters:
-- DST, a domain separation tag (see discussion above).
+- DST, a domain separation tag (see Section 3.1).
 - F, a finite field of characteristic p and order q = p^m.
 - p, the characteristic of F (see immediately above).
 - m, the extension degree of F, m >= 1 (see immediately above).
@@ -1717,7 +1747,7 @@ Parameters:
   parameter of the suite (e.g., k = 128).
 - expand_message, a function that expands a byte string and
   domain separation tag into a uniformly random byte string
-  (see discussion above).
+  (see Section 5.4).
 
 Inputs:
 - msg, a byte string containing the message to hash.
@@ -1763,7 +1793,7 @@ variants are possible; {{hashtofield-expand-other}} discusses requirements.
 ### expand\_message\_xmd {#hashtofield-expand-xmd}
 
 The expand\_message\_xmd function produces a uniformly random byte string using
-a cryptographic hash function H that outputs b bits. For security, H must meet
+a cryptographic hash function H that outputs b bits. For security, H MUST meet
 the following requirements:
 
 - The number of bits output by H MUST be b >= 2 * k, for k the target
@@ -1829,7 +1859,7 @@ Steps:
 12. return substr(uniform_bytes, 0, len_in_bytes)
 ~~~
 
-Note that the string Z\_pad is prefixed to msg when computing b\_0 (step 7).
+Note that the string Z\_pad (step 6) is prefixed to msg before computing b\_0 (step 7).
 This is necessary for security when H is a Merkle-Damgaard hash, e.g., SHA-2
 (see {{security-considerations-expand-xmd}}).
 Hashing this additional data means that the cost of computing b\_0 is higher
@@ -1848,7 +1878,7 @@ Further details are implementation dependent, and beyond the scope of this docum
 
 The expand\_message\_xof function produces a uniformly random byte string
 using an extensible-output function (XOF) H.
-For security, H must meet the following criteria:
+For security, H MUST meet the following criteria:
 
 - The collision resistance of H MUST be at least k bits.
 
@@ -3181,14 +3211,9 @@ Filippo Valsorda, and Mathy Vanhoef for helpful reviews and feedback.
 
 # Contributors
 
-*   Sharon Goldberg \\
-    Boston University \\
-    goldbe@cs.bu.edu
-*   Ela Lee \\
-    Royal Holloway, University of London \\
-    Ela.Lee.2010@live.rhul.ac.uk
-*   Michele Orru \\
-    michele.orru@ens.fr
+*   Sharon Goldberg, Boston University (goldbe@cs.bu.edu)
+*   Ela Lee, Royal Holloway, University of London (Ela.Lee.2010@live.rhul.ac.uk)
+*   Michele Orru (michele.orru@ens.fr)
 
 --- back
 
