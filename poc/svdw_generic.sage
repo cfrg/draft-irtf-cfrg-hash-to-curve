@@ -28,6 +28,7 @@ class GenericSvdW(GenericMap):
         self.c3 = (mgZ * (3 * self.Z^2 + 4 * A)).sqrt()
         if self.sgn0(self.c3) == 1:
             self.c3 = -self.c3
+        assert self.sgn0(self.c3) == 0
         self.c4 = F(4) * mgZ / (3 * self.Z^2 + 4 * A)
 
         # values at which the map is undefined
