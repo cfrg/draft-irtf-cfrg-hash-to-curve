@@ -1907,10 +1907,11 @@ Output:
 - uniform_bytes, a byte string.
 
 Steps:
-1. DST_prime = DST || I2OSP(len(DST), 1)
-2. msg_prime = msg || I2OSP(len_in_bytes, 2) || DST_prime
-3. uniform_bytes = H(msg_prime, len_in_bytes)
-4. return uniform_bytes
+1. ABORT if len_in_bytes > 65535 or len(DST) > 255
+2. DST_prime = DST || I2OSP(len(DST), 1)
+3. msg_prime = msg || I2OSP(len_in_bytes, 2) || DST_prime
+4. uniform_bytes = H(msg_prime, len_in_bytes)
+5. return uniform_bytes
 ~~~
 
 ### Using DSTs longer than 255 bytes {#hashtofield-expand-dst}
