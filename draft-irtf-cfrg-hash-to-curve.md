@@ -1346,42 +1346,42 @@ basic functions:
     of one or more elements of a finite field F; its implementation is defined in
     {{hashtofield}}.
 
-~~~
-hash_to_field(msg, count)
+    ~~~ pseudocode
+    hash_to_field(msg, count)
 
-Inputs:
-- msg, a byte string containing the message to hash.
-- count, the number of elements of F to output.
+    Inputs:
+    - msg, a byte string containing the message to hash.
+    - count, the number of elements of F to output.
 
-Outputs:
-- (u_0, ..., u_(count - 1)), a list of field elements.
+    Outputs:
+    - (u_0, ..., u_(count - 1)), a list of field elements.
 
-Steps: defined in Section 5.
-~~~
+    Steps: defined in Section 5.
+    ~~~
 
 -   The function map\_to\_curve calculates a point on the elliptic curve E
     from an element of the finite field F over which E is defined.
     {{mappings}} describes mappings for a range of curve families.
 
-~~~
-map_to_curve(u)
+    ~~~ pseudocode
+    map_to_curve(u)
 
-Input: u, an element of field F.
-Output: Q, a point on the elliptic curve E.
-Steps: defined in Section 6.
-~~~
+    Input: u, an element of field F.
+    Output: Q, a point on the elliptic curve E.
+    Steps: defined in Section 6.
+    ~~~
 
 -   The function clear\_cofactor sends any point on the curve E to
     the subgroup G of E. {{cofactor-clearing}} describes methods to perform
     this operation.
 
-~~~
-clear_cofactor(Q)
+    ~~~ pseudocode
+    clear_cofactor(Q)
 
-Input: Q, a point on the elliptic curve E.
-Output: P, a point in G.
-Steps: defined in Section 7.
-~~~
+    Input: Q, a point on the elliptic curve E.
+    Output: P, a point in G.
+    Steps: defined in Section 7.
+    ~~~
 
 The two encodings ({{term-encoding}}) defined in this section have the
 same interface and are both random-oracle encodings ({{term-rom}}).
@@ -1396,18 +1396,18 @@ different distributions:
   {{security-considerations-encode}} gives a more precise definition of
   encode\_to\_curve's output distribution.
 
-~~~
-encode_to_curve(msg)
+  ~~~ pseudocode
+  encode_to_curve(msg)
 
-Input: msg, an arbitrary-length byte string.
-Output: P, a point in G.
+  Input: msg, an arbitrary-length byte string.
+  Output: P, a point in G.
 
-Steps:
-1. u = hash_to_field(msg, 1)
-2. Q = map_to_curve(u[0])
-3. P = clear_cofactor(Q)
-4. return P
-~~~
+  Steps:
+  1. u = hash_to_field(msg, 1)
+  2. Q = map_to_curve(u[0])
+  3. P = clear_cofactor(Q)
+  4. return P
+  ~~~
 
 - hash\_to\_curve is a uniform encoding from byte strings to points in G.
   That is, the distribution of its output is statistically close to uniform in G.
@@ -1417,20 +1417,20 @@ Steps:
   functions described in {{mappings}}.
   See {{security-considerations}} for further discussion.
 
-~~~
-hash_to_curve(msg)
+  ~~~ pseudocode
+  hash_to_curve(msg)
 
-Input: msg, an arbitrary-length byte string.
-Output: P, a point in G.
+  Input: msg, an arbitrary-length byte string.
+  Output: P, a point in G.
 
-Steps:
-1. u = hash_to_field(msg, 2)
-2. Q0 = map_to_curve(u[0])
-3. Q1 = map_to_curve(u[1])
-4. R = Q0 + Q1              # Point addition
-5. P = clear_cofactor(R)
-6. return P
-~~~
+  Steps:
+  1. u = hash_to_field(msg, 2)
+  2. Q0 = map_to_curve(u[0])
+  3. Q1 = map_to_curve(u[1])
+  4. R = Q0 + Q1              # Point addition
+  5. P = clear_cofactor(R)
+  6. return P
+  ~~~
 
 Each hash-to-curve suite in {{suites}} instantiates one of these encoding
 functions for a specifc elliptic curve.
@@ -1522,7 +1522,7 @@ material {{MOV96}} {{CFADLNV05}}.
     square in the field F. By Euler's criterion, this function can be
     calculated in constant time as
 
-    ~~~
+    ~~~ pseudocode
     is_square(x) := { True,  if x^((q - 1) / 2) is 0 or 1 in F;
                     { False, otherwise.
     ~~~
@@ -1551,7 +1551,7 @@ material {{MOV96}} {{CFADLNV05}}.
     extended to all of F by fixing inv0(0) == 0.
     A straightforward way to implement inv0 in constant time is to compute
 
-    ~~~
+    ~~~ pseudocode
     inv0(x) := x^(q - 2).
     ~~~
 
@@ -1594,7 +1594,7 @@ the polynomial basis; see {{suites}} for more information about this
 basis, and see {{bg-curves}} for a discussion of representing elements
 of extension fields as vectors.
 
-~~~
+~~~ pseudocode
 sgn0(x)
 
 Parameters:
@@ -1618,7 +1618,7 @@ Steps:
 
 When m == 1, sgn0 can be significantly simplified:
 
-~~~
+~~~ pseudocode
 sgn0_m_eq_1(x)
 
 Input: x, an element of GF(p).
@@ -1630,7 +1630,7 @@ Steps:
 
 The case m == 2 is only slightly more complicated:
 
-~~~
+~~~ pseudocode
 sgn0_m_eq_2(x)
 
 Input: x, an element of GF(p^2).
@@ -1736,7 +1736,7 @@ given in {{hashtofield-expand}}. {{domain-separation}} discusses the REQUIRED
 method for constructing DST, the domain separation tag. Note that hash\_to\_field
 may fail (abort) if expand\_message fails.
 
-~~~
+~~~ pseudocode
 hash_to_field(msg, count)
 
 Parameters:
@@ -1825,7 +1825,7 @@ SHA3-512 {{FIPS202}}. For correctness, H requires b <= s.
 
 The following procedure implements expand\_message\_xmd.
 
-~~~
+~~~ pseudocode
 expand_message_xmd(msg, DST, len_in_bytes)
 
 Parameters:
@@ -1891,7 +1891,7 @@ As an example, for 128-bit security, SHAKE128 would be an appropriate choice.
 
 The following procedure implements expand\_message\_xof.
 
-~~~
+~~~ pseudocode
 expand_message_xof(msg, DST, len_in_bytes)
 
 Parameters:
@@ -1925,15 +1925,15 @@ domain separation tag by hashing, as follows:
 
 - For expand\_message\_xmd using hash function H, DST is computed as
 
-~~~
-DST = H("H2C-OVERSIZE-DST-" || a_very_long_DST)
-~~~
+  ~~~ pseudocode
+  DST = H("H2C-OVERSIZE-DST-" || a_very_long_DST)
+  ~~~
 
 - For expand\_message\_xof using extendable-output function H, DST is computed as
 
-~~~
-DST = H("H2C-OVERSIZE-DST-" || a_very_long_DST, ceil(2 * k / 8))
-~~~
+  ~~~ pseudocode
+  DST = H("H2C-OVERSIZE-DST-" || a_very_long_DST, ceil(2 * k / 8))
+  ~~~
 
 Here, a\_very\_long\_DST is the DST whose length is greater than 255 bytes,
 "H2C-OVERSIZE-DST-" is a 17-byte ASCII string literal, and
@@ -2022,7 +2022,7 @@ expensive than the curve-specific recommendations above.
 
 The generic interface shared by all mappings in this section is as follows:
 
-~~~
+~~~ pseudocode
     (x, y) = map_to_curve(u)
 ~~~
 
@@ -2078,7 +2078,7 @@ cases that result from attempting to compute the inverse of 0.
 
 The mappings in this section apply to a target curve E defined by the equation
 
-~~~
+~~~ pseudocode
     y^2 = g(x) = x^3 + A * x + B
 ~~~
 
@@ -2123,7 +2123,7 @@ to invert this product are exception free.
 
 Operations:
 
-~~~
+~~~ pseudocode
 1. tv1 = u^2 * g(Z)
 2. tv2 = 1 + tv1
 3. tv1 = 1 - tv1
@@ -2177,7 +2177,7 @@ is square by the condition on Z given above.
 
 Operations:
 
-~~~
+~~~ pseudocode
 1. tv1 = inv0(Z^2 * u^4 + Z * u^2)
 2.  x1 = (-B / A) * (1 + tv1)
 3.  If tv1 == 0, set x1 = B / (Z * A)
@@ -2206,7 +2206,7 @@ curves in the Barreto-Lynn-Scott {{BLS03}}, Barreto-Naehrig {{BN05}}, and other 
 
 This method requires finding another elliptic curve E' given by the equation
 
-~~~
+~~~ pseudocode
     y'^2 = g'(x') = x'^3 + A' * x' + B'
 ~~~
 
@@ -2245,7 +2245,7 @@ identity point on E.
 
 Operations:
 
-~~~
+~~~ pseudocode
 1. (x', y') = map_to_curve_simple_swu(u)    # (x', y') is on E'
 2.   (x, y) = iso_map(x', y')               # (x, y) is on E
 3. return (x, y)
@@ -2257,7 +2257,7 @@ See {{hash2curve-repo}} or {{WB19}} Section 4.3 for details on implementing the 
 
 The mapping defined in this section applies to a target curve M defined by the equation
 
-~~~
+~~~ pseudocode
     K * t^2 = s^3 + J * s^2 + s
 ~~~
 
@@ -2285,7 +2285,7 @@ Note that this can only happen when q = 3 (mod 4).
 
 Operations:
 
-~~~
+~~~ pseudocode
 1.  x1 = -(J / K) * inv0(1 + Z * u^2)
 2.  If x1 == 0, set x1 = -(J / K)
 3. gx1 = x1^3 + (J / K) * x1^2 + x1 / K^2
@@ -2308,7 +2308,7 @@ classes of curves and base fields.
 Twisted Edwards curves (a class of curves that includes Edwards curves)
 are given by the equation
 
-~~~
+~~~ pseudocode
     a * v^2 + w^2 = 1 + d * v^2 * w^2
 ~~~
 
@@ -2376,7 +2376,7 @@ Edwards curve.
 (Note that the output point is denoted (v, w) because it is a point on
 the target twisted Edwards curve.)
 
-~~~
+~~~ pseudocode
 map_to_curve_elligator2_edwards(u)
 
 Input: u, an element of F.
@@ -2423,7 +2423,7 @@ Examples of fast cofactor clearing methods include the following:
 The clear\_cofactor function is parameterized by a scalar h\_eff.
 Specifically,
 
-~~~
+~~~ pseudocode
     clear_cofactor(P) := h_eff * P
 ~~~
 
@@ -3328,7 +3328,7 @@ in {{domain-separation}}, and all domain separation recommendations given
 in {{security-considerations-domain-separation}} apply when implementing
 protocols that use hash\_to\_ristretto255.
 
-~~~
+~~~ pseudocode
 hash_to_ristretto255(msg)
 
 Parameters:
@@ -3381,7 +3381,7 @@ in {{domain-separation}}, and all domain separation recommendations given
 in {{security-considerations-domain-separation}} apply when implementing
 protocols that use hash\_to\_decaf448.
 
-~~~
+~~~ pseudocode
 hash_to_decaf448(msg)
 
 Parameters:
@@ -3455,13 +3455,13 @@ curve's prime-order subgroup.
 
 The twisted Edwards curve
 
-~~~
+~~~ pseudocode
     a * v^2 + w^2 = 1 + d * v^2 * w^2
 ~~~
 
 is birationally equivalent to the Montgomery curve
 
-~~~
+~~~ pseudocode
     K * t^2 = s^3 + J * s^2 + s
 ~~~
 
@@ -3485,7 +3485,7 @@ Implementations MUST detect exceptional cases and return the value
 The following straight-line implementation of the above rational map
 handles the exceptional cases.
 
-~~~
+~~~ pseudocode
 edw_to_monty_generic(s, t)
 
 Input: (s, t), a point on the curve K * t^2 = s^3 + J * s^2 + s.
@@ -3527,13 +3527,13 @@ in the exceptional cases.
 
 The rational map from the point (s, t) on the Montgomery curve
 
-~~~
+~~~ pseudocode
     K * t^2 = s^3 + J * s^2 + s
 ~~~
 
 to the point (x, y) on the equivalent Weierstrass curve
 
-~~~
+~~~ pseudocode
     y^2 = x^3 + A * x + B
 ~~~
 
@@ -3738,7 +3738,7 @@ Note that the constant c3 below MUST be chosen such that sgn0(c3) = 0.
 In other words, if the square-root computation returns a value cx such that
 sgn0(cx) = 1, set c3 = -cx; otherwise, set c3 = cx.
 
-~~~
+~~~ pseudocode
 map_to_curve_svdw(u)
 
 Input: u, an element of F.
@@ -3798,7 +3798,7 @@ See {{simple-swu}} for information on the constants used in this mapping.
 This optimized, straight-line procedure applies to any base field.
 The sqrt_ratio subroutine is defined in {{straightline-sswu-sqrt-ratio}}.
 
-~~~
+~~~ pseudocode
 map_to_curve_simple_swu(u)
 
 Input: u, an element of F.
@@ -3845,7 +3845,7 @@ For correctness, sqrt_ratio and map_to_curve_simple_swu MUST use the same value 
 
 #### sqrt_ratio for any field
 
-~~~
+~~~ pseudocode
 sqrt_ratio(u, v)
 
 Parameters:
@@ -3898,7 +3898,7 @@ Procedure:
 
 #### optimized sqrt_ratio for q = 3 mod 4
 
-~~~
+~~~ pseudocode
 sqrt_ratio_3mod4(u, v)
 
 Parameters:
@@ -3931,7 +3931,7 @@ Procedure:
 
 #### optimized sqrt_ratio for q = 5 mod 8
 
-~~~
+~~~ pseudocode
 sqrt_ratio_5mod8(u, v)
 
 Parameters:
@@ -3985,7 +3985,7 @@ See {{elligator2}} for information on the constants used in this mapping.
 {{ell2-opt}} gives optimized straight-line procedures that apply to specific
 classes of curves and base fields, including curve25519 and curve448 {{!RFC7748}}.
 
-~~~
+~~~ pseudocode
 map_to_curve_elligator2(u)
 
 Input: u, an element of F.
@@ -4034,7 +4034,7 @@ the mappings of {{mappings}}.
 Specifically, each mapping function in this section has the following
 signature:
 
-~~~
+~~~ pseudocode
     (xn, xd, yn, yd) = map_to_curve(u)
 ~~~
 
@@ -4082,7 +4082,7 @@ for curve25519 {{!RFC7748}} as specified in {{suites-25519}}.
 This implementation can also be used for any Montgomery curve
 with K = 1 over GF(q) where q = 5 (mod 8).
 
-~~~
+~~~ pseudocode
 map_to_curve_elligator2_curve25519(u)
 
 Input: u, an element of F.
@@ -4148,7 +4148,7 @@ Note that the sign of the constant c1 below is chosen as specified
 in {{rational-map}}, i.e., applying the rational map to the edwards25519
 base point yields the curve25519 base point (see erratum {{EID4730}}).
 
-~~~
+~~~ pseudocode
 map_to_curve_elligator2_edwards25519(u)
 
 Input: u, an element of F.
@@ -4182,7 +4182,7 @@ for curve448 {{!RFC7748}} as specified in {{suites-448}}.
 This implementation can also be used for any Montgomery curve
 with K = 1 over GF(q) where q = 3 (mod 4).
 
-~~~
+~~~ pseudocode
 map_to_curve_elligator2_curve448(u)
 
 Input: u, an element of F.
@@ -4229,7 +4229,7 @@ for edwards448 {{!RFC7748}} as specified in {{suites-448}}.
 The subroutine map\_to\_curve\_elligator2\_curve448
 is defined in {{map-to-curve448}}.
 
-~~~
+~~~ pseudocode
 map_to_curve_elligator2_edwards448(u)
 
 Input: u, an element of F.
@@ -4285,7 +4285,7 @@ that applies to any Montgomery curve defined over GF(q) where q = 3 (mod 4).
 For curves where K = 1, the implementation given in {{map-to-curve448}}
 gives identical results with slightly reduced cost.
 
-~~~
+~~~ pseudocode
 map_to_curve_elligator2_3mod4(u)
 
 Input: u, an element of F.
@@ -4340,7 +4340,7 @@ that applies to any Montgomery curve defined over GF(q) where q = 5 (mod 8).
 For curves where K = 1, the implementation given in {{map-to-curve25519}}
 gives identical results with slightly reduced cost.
 
-~~~
+~~~ pseudocode
 map_to_curve_elligator2_5mod8(u)
 
 Input: u, an element of F.
@@ -4422,7 +4422,7 @@ The following function computes the Frobenius endomorphism for an element
 of F = GF(p^2) with basis (1, I), where I^2 + 1 == 0 in F.
 (This is the base field of the elliptic curve E defined in {{suites-bls12381-g2}}.)
 
-~~~
+~~~ pseudocode
 frobenius(x)
 
 Input: x, an element of GF(p^2).
@@ -4438,7 +4438,7 @@ Steps:
 The following function computes the endomorphism psi for points on the
 elliptic curve E defined in {{suites-bls12381-g2}}.
 
-~~~
+~~~ pseudocode
 psi(xn, xd, yn, yd)
 
 Input: P, a point (xn / xd, yn / yd) on the curve E (see above).
@@ -4458,7 +4458,7 @@ Steps:
 
 The following function efficiently computes psi(psi(P)).
 
-~~~
+~~~ pseudocode
 psi2(xn, xd, yn, yd)
 
 Input: P, a point (xn / xd, yn / yd) on the curve E (see above).
@@ -4478,7 +4478,7 @@ into the prime-order subgroup G2.
 This function returns a point equal to h\_eff * P, where h\_eff is the parameter
 given in {{suites-bls12381-g2}}.
 
-~~~
+~~~ pseudocode
 clear_cofactor_bls12381_g2(P)
 
 Input: P, a point (xn / xd, yn / yd) on the curve E (see above).
@@ -4601,7 +4601,7 @@ In addition, it gives an optimized is\_square method for GF(p^2).
 
 ## sqrt for q = 3 (mod 4) {#sqrt-3mod4}
 
-~~~
+~~~ pseudocode
 sqrt_3mod4(x)
 
 Parameters:
@@ -4619,7 +4619,7 @@ Procedure:
 
 ## sqrt for q = 5 (mod 8) {#sqrt-5mod8}
 
-~~~
+~~~ pseudocode
 sqrt_5mod8(x)
 
 Parameters:
@@ -4642,7 +4642,7 @@ Procedure:
 
 ## sqrt for q = 9 (mod 16) {#sqrt-9mod16}
 
-~~~
+~~~ pseudocode
 sqrt_9mod16(x)
 
 Parameters:
@@ -4681,7 +4681,7 @@ This algorithm applies to GF(p) for any p.
 Note, however, that the special-purpose algorithms given in the prior sections are
 faster, when they apply.
 
-~~~
+~~~ pseudocode
 sqrt_ts_ct(x)
 
 Parameters:
@@ -4705,15 +4705,15 @@ Procedure:
 5.  b = t
 6.  c = c5
 7.  for i in (c1, c1 - 1, ..., 2):
-8.      for j in (1, 2, ..., i - 2):
-9.           b = b * b
-10.     e = b == 1
-11.     zt = z * c
-12.     z = CMOV(zt, z, e)
-13.     c = c * c
-14.     tt = t * c
-15.     t = CMOV(tt, t, e)
-16.     b = t
+8.    for j in (1, 2, ..., i - 2):
+9.      b = b * b
+10.   e = b == 1
+11.   zt = z * c
+12.   z = CMOV(zt, z, e)
+13.   c = c * c
+14.   tt = t * c
+15.   t = CMOV(tt, t, e)
+16.   b = t
 17. return z
 ~~~
 
@@ -4726,7 +4726,7 @@ an element x = (x\_1, x\_2) = x\_1 + x\_2 * I.
 Other optimizations of this type are possible in other extension
 fields; see, e.g., {{AR13}} for more information.
 
-~~~
+~~~ pseudocode
 is_square(x)
 
 Parameters:
@@ -8206,4 +8206,3 @@ uniform_bytes = 09afc76d51c2cccbc129c2315df66c2be7295a231203b8ab
           8d5a2a09bcfe839c6396dc06ee5c8ff3c22d3b1f9deb7e
 
 ~~~
-
