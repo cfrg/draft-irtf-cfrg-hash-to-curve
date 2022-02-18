@@ -1219,6 +1219,7 @@ The table below summarizes quantities relevant to hashing to curves:
 | G | A prime-order subgroup of the points on E. | Destination group to which byte strings are encoded. |
 | r | Order of G. | r is a prime factor of n (usually, the largest such factor). |
 | h | Cofactor, h >= 1. | An integer satisfying n = h * r. |
+{: #table-1 title="Summary of symbols and their definition."}
 
 ## Terminology
 
@@ -1654,7 +1655,7 @@ as one or more elements of F.
 For the first step, hash\_to\_field calls an auxiliary function expand\_message.
 This document defines two variants of expand\_message: one appropriate
 for hash functions like SHA-2 {{FIPS180-4}} or SHA-3 {{FIPS202}}, and another
-appropriate for extensible-output functions such as SHAKE128 {{FIPS202}}.
+appropriate for extendable-output functions such as SHAKE128 {{FIPS202}}.
 Security considerations for each expand\_message variant are discussed
 below ({{hashtofield-expand-xmd}}, {{hashtofield-expand-xof}}).
 
@@ -1784,7 +1785,7 @@ with a wide range of hash functions, including SHA-2 {{FIPS180-4}}, SHA-3
 {{FIPS202}}, BLAKE2 {{?RFC7693}}, and others.
 
 - expand\_message\_xof ({{hashtofield-expand-xof}}) is appropriate for use
-with extensible-output functions (XOFs) including functions in the SHAKE
+with extendable-output functions (XOFs) including functions in the SHAKE
 {{FIPS202}} or BLAKE2X {{BLAKE2X}} families.
 
 These variants should suffice for the vast majority of use cases, but other
@@ -1877,7 +1878,7 @@ Further details are implementation dependent, and beyond the scope of this docum
 ### expand\_message\_xof {#hashtofield-expand-xof}
 
 The expand\_message\_xof function produces a uniformly random byte string
-using an extensible-output function (XOF) H.
+using an extendable-output function (XOF) H.
 For security, H MUST meet the following criteria:
 
 - The collision resistance of H MUST be at least k bits.
@@ -1894,8 +1895,8 @@ The following procedure implements expand\_message\_xof.
 expand_message_xof(msg, DST, len_in_bytes)
 
 Parameters:
-- H, an extensible-output function.
-  H(m, d) hashes message m and returns d bytes.
+- H(m, d), an extendable-output function with input
+           message m and returning d bytes.
 
 Input:
 - msg, a byte string.
@@ -1927,7 +1928,7 @@ domain separation tag by hashing, as follows:
 DST = H("H2C-OVERSIZE-DST-" || a_very_long_DST)
 ~~~
 
-- For expand\_message\_xof using extensible-output function H, DST is computed as
+- For expand\_message\_xof using extendable-output function H, DST is computed as
 
 ~~~
 DST = H("H2C-OVERSIZE-DST-" || a_very_long_DST, ceil(2 * k / 8))
@@ -2497,6 +2498,7 @@ uniform encoding for security.
 | secp256k1    | secp256k1\_XMD:SHA-256\_SSWU\_RO\_ secp256k1\_XMD:SHA-256\_SSWU\_NU\_ | {{suites-secp256k1}} |
 | BLS12-381 G1 | BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_ BLS12381G1\_XMD:SHA-256\_SSWU\_NU\_ | {{suites-bls12381}} |
 | BLS12-381 G2 | BLS12381G2\_XMD:SHA-256\_SSWU\_RO\_ BLS12381G2\_XMD:SHA-256\_SSWU\_NU\_ | {{suites-bls12381}} |
+{: #Table-2 title="Suites for hashing to elliptic curves."}
 
 ## Implementing a hash-to-curve suite {#suites-howto}
 
@@ -3060,8 +3062,8 @@ multiple independent random oracles remain valid even if all of these random
 oracles are instantiated based on one underlying function H.
 The expand\_message variants in this document ({{hashtofield-expand}}) ensure
 domain separation by appending a suffix-free-encoded domain separation tag
-DST\_prime to all strings hashed by H, an underlying hash or extensible
-output function.
+DST\_prime to all strings hashed by H, an underlying hash or
+extendable-output function.
 (Other expand\_message variants that follow the guidelines in
 {{hashtofield-expand-other}} are expected to behave similarly,
 but these should be analyzed on a case-by-case basis.)
@@ -4274,10 +4276,14 @@ Steps:
 38. return (xEn, xEd, yEn, yEd)
 ~~~
 
-### q = 3 (mod 4) {#ell2-map-to-3mod4}
+### Montgomery curves with q = 3 (mod 4) {#ell2-map-to-3mod4}
 
 The following is a straight-line implementation of Elligator 2
-that applies to any curve over GF(q) where q = 3 (mod 4).
+that applies to any Montgomery curve
+
+    K * t^2 = s^3 + J * s^2 + s
+
+defined over GF(q) where q = 3 (mod 4).
 
 For curves where K = 1, the implementation given in {{map-to-curve448}}
 gives identical results with slightly reduced cost.
@@ -4329,10 +4335,14 @@ Steps:
 33. return (xn, xd, y, 1)
 ~~~
 
-### q = 5 (mod 8) {#ell2-map-to-5mod8}
+###  Montgomery curves with q = 5 (mod 8) {#ell2-map-to-5mod8}
 
 The following is a straight-line implementation of Elligator 2
-that applies to any curve over GF(q) where q = 5 (mod 8).
+that applies to any Montgomery curve
+
+    K * t^2 = s^3 + J * s^2 + s
+
+defined over GF(q) where q = 5 (mod 8).
 
 For curves where K = 1, the implementation given in {{map-to-curve25519}}
 gives identical results with slightly reduced cost.
@@ -4438,7 +4448,7 @@ elliptic curve E defined in {{suites-bls12381-g2}}.
 ~~~
 psi(xn, xd, yn, yd)
 
-Input: P, the point (xn / xd, yn / yd) on the curve E (see above).
+Input: P, a point (xn / xd, yn / yd) on the curve E (see above).
 Output: Q, a point on the same curve.
 
 Constants:
@@ -4458,7 +4468,7 @@ The following function efficiently computes psi(psi(P)).
 ~~~
 psi2(xn, xd, yn, yd)
 
-Input: P, the point (xn / xd, yn / yd) on the curve E (see above).
+Input: P, a point (xn / xd, yn / yd) on the curve E (see above).
 Output: Q, a point on the same curve.
 
 Constants:
@@ -4472,13 +4482,13 @@ Steps:
 
 The following function maps any point on the elliptic curve E ({{suites-bls12381-g2}})
 into the prime-order subgroup G2.
-This function returns a point equal to h\_eff * G2, where h\_eff is the parameter
+This function returns a point equal to h\_eff * P, where h\_eff is the parameter
 given in {{suites-bls12381-g2}}.
 
 ~~~
 clear_cofactor_bls12381_g2(P)
 
-Input: P, the point (xn / xd, yn / yd) on the curve E (see above).
+Input: P, a point (xn / xd, yn / yd) on the curve E (see above).
 Output: Q, a point in the subgroup G2 of BLS12-381.
 
 Constants:
@@ -4596,7 +4606,7 @@ plus a generic constant-time algorithm that works for any prime modulus.
 
 In addition, it gives an optimized is\_square method for GF(p^2).
 
-## q = 3 (mod 4) {#sqrt-3mod4}
+## sqrt for q = 3 (mod 4) {#sqrt-3mod4}
 
 ~~~
 sqrt_3mod4(x)
@@ -4614,7 +4624,7 @@ Procedure:
 1. return x^c1
 ~~~
 
-## q = 5 (mod 8) {#sqrt-5mod8}
+## sqrt for q = 5 (mod 8) {#sqrt-5mod8}
 
 ~~~
 sqrt_5mod8(x)
@@ -4637,7 +4647,7 @@ Procedure:
 5. return z
 ~~~
 
-## q = 9 (mod 16) {#sqrt-9mod16}
+## sqrt for q = 9 (mod 16) {#sqrt-9mod16}
 
 ~~~
 sqrt_9mod16(x)
