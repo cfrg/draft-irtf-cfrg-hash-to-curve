@@ -1895,8 +1895,8 @@ The following procedure implements expand\_message\_xof.
 expand_message_xof(msg, DST, len_in_bytes)
 
 Parameters:
-- H(m, d), an extendable-output function with input
-           message m and returns d bytes.
+- H(m, d), an extendable-output function that processes
+           input message m and returns d bytes.
 
 Input:
 - msg, a byte string.
