@@ -1219,7 +1219,7 @@ The table below summarizes quantities relevant to hashing to curves:
 | G | A prime-order subgroup of the points on E. | Destination group to which byte strings are encoded. |
 | r | Order of G. | r is a prime factor of n (usually, the largest such factor). |
 | h | Cofactor, h >= 1. | An integer satisfying n = h * r. |
-{: #table-1 title="Summary of symbols and their definition."}
+{: #table-1 title="Summary of symbols and their definitions."}
 
 ## Terminology
 
