@@ -1896,7 +1896,7 @@ expand_message_xof(msg, DST, len_in_bytes)
 
 Parameters:
 - H(m, d), an extendable-output function with input
-           message m and returning d bytes.
+           message m and returns d bytes.
 
 Input:
 - msg, a byte string.
@@ -4279,11 +4279,7 @@ Steps:
 ### Montgomery curves with q = 3 (mod 4) {#ell2-map-to-3mod4}
 
 The following is a straight-line implementation of Elligator 2
-that applies to any Montgomery curve
-
-    K * t^2 = s^3 + J * s^2 + s
-
-defined over GF(q) where q = 3 (mod 4).
+that applies to any Montgomery curve defined over GF(q) where q = 3 (mod 4).
 
 For curves where K = 1, the implementation given in {{map-to-curve448}}
 gives identical results with slightly reduced cost.
@@ -4338,11 +4334,7 @@ Steps:
 ###  Montgomery curves with q = 5 (mod 8) {#ell2-map-to-5mod8}
 
 The following is a straight-line implementation of Elligator 2
-that applies to any Montgomery curve
-
-    K * t^2 = s^3 + J * s^2 + s
-
-defined over GF(q) where q = 5 (mod 8).
+that applies to any Montgomery curve defined over GF(q) where q = 5 (mod 8).
 
 For curves where K = 1, the implementation given in {{map-to-curve25519}}
 gives identical results with slightly reduced cost.
