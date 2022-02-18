@@ -9,12 +9,8 @@
 .tags
 .targets.mk
 /*-[0-9][0-9].xml
-draft-irtf-cfrg-hash-to-curve.xml
-issues.json
-lib
-pulls.json
+archive.json
 report.xml
 venv/
 lib
 draft-irtf-cfrg-hash-to-curve.xml
-metadata.min.js
