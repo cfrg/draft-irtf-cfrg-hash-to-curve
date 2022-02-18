@@ -1219,7 +1219,7 @@ The table below summarizes quantities relevant to hashing to curves:
 | G | A prime-order subgroup of the points on E. | Destination group to which byte strings are encoded. |
 | r | Order of G. | r is a prime factor of n (usually, the largest such factor). |
 | h | Cofactor, h >= 1. | An integer satisfying n = h * r. |
-{: #table-1 title="Summary of symbols and their definitions."}
+{: #definition-table title="Summary of symbols and their definitions."}
 
 ## Terminology
 
@@ -2499,7 +2499,7 @@ uniform encoding for security.
 | secp256k1    | secp256k1\_XMD:SHA-256\_SSWU\_RO\_ secp256k1\_XMD:SHA-256\_SSWU\_NU\_ | {{suites-secp256k1}} |
 | BLS12-381 G1 | BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_ BLS12381G1\_XMD:SHA-256\_SSWU\_NU\_ | {{suites-bls12381}} |
 | BLS12-381 G2 | BLS12381G2\_XMD:SHA-256\_SSWU\_RO\_ BLS12381G2\_XMD:SHA-256\_SSWU\_NU\_ | {{suites-bls12381}} |
-{: #Table-2 title="Suites for hashing to elliptic curves."}
+{: #suite-table title="Suites for hashing to elliptic curves."}
 
 ## Implementing a hash-to-curve suite {#suites-howto}
 
