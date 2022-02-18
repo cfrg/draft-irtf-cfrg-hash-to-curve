@@ -16,16 +16,17 @@ You agree to comply with all applicable IETF policies and procedures, including,
 BCP 78, 79, the TLP, and the TLP rules regarding code components (e.g. being
 subject to a Simplified BSD License) in Contributions.
 
+## Working Group Information
 
-## Other Resources
-
-Discussion of this work occurs on the
-[cfrg working group mailing list](https://mailarchive.ietf.org/arch/browse/cfrg/)
-([subscribe](https://www.ietf.org/mailman/listinfo/cfrg)).  In addition to
-contributions in GitHub, you are encouraged to participate in discussions there.
+Discussion of this work occurs on the [Crypto Forum
+Research Group mailing list](mailto:cfrg@ietf.org)
+([archive](https://mailarchive.ietf.org/arch/search/?email_list=cfrg),
+[subscribe](cfrg-request@ietf.org)).
+In addition to contributions in GitHub, you are encouraged to participate in
+discussions there.
 
 **Note**: Some working groups adopt a policy whereby substantive discussion of
 technical issues needs to occur on the mailing list.
 
 You might also like to familiarize yourself with other
-[working group documents](https://datatracker.ietf.org/wg/cfrg/documents/).
+[Research Group documents](https://datatracker.ietf.org/rg/cfrg/documents/).

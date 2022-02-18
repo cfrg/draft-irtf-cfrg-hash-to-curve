@@ -32,7 +32,9 @@ jobs:
     - name: "Cache References"
       uses: actions/cache@v2
       with:
-        path: ${{ steps.cache-setup.outputs.path }}
+        path: |
+          ${{ steps.cache-setup.outputs.path }}
+          .targets.mk
         key: refcache-${{ steps.cache-setup.outputs.date }}
         restore-keys: |
           refcache-${{ steps.cache-setup.outputs.date }}
@@ -40,21 +42,19 @@ jobs:
 
     - name: "Build Drafts"
       uses: martinthomson/i-d-template@v1
+      with:
+        token: ${{ github.token }}
 
     - name: "Update GitHub Pages"
       uses: martinthomson/i-d-template@v1
       if: ${{ github.event_name == 'push' }}
       with:
         make: gh-pages
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ github.token }}
 
-    - name: "Save HTML"
+    - name: "Archive Built Drafts"
       uses: actions/upload-artifact@v2
       with:
-        path: "*.html"
-
-    - name: "Save Text"
-      uses: actions/upload-artifact@v2
-      with:
-        path: "*.txt"
+        path: |
+          draft-*.html
+          draft-*.txt

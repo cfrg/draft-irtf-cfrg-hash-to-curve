@@ -1,0 +1,3 @@
+# Automatically generated CODEOWNERS
+# Regenerate with `make update-codeowners`
+draft-irtf-cfrg-hash-to-curve.md armfazh@cloudflare.com sam.scott@cornell.edu nick@cloudflare.com rsw@cs.stanford.edu caw@heapingbits.net
