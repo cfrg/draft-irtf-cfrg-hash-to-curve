@@ -3486,7 +3486,7 @@ The following straight-line implementation of the above rational map
 handles the exceptional cases.
 
 ~~~ pseudocode
-edw_to_monty_generic(s, t)
+monty_to_edw_generic(s, t)
 
 Input: (s, t), a point on the curve K * t^2 = s^3 + J * s^2 + s.
 Output: (v, w), a point on an equivalent twisted Edwards curve.
