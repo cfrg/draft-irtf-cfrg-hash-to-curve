@@ -2435,7 +2435,7 @@ When a curve admits a fast cofactor clearing method, clear\_cofactor
 MAY be evaluated either via that method or via scalar multiplication
 by the equivalent h\_eff; these two methods give the same result.
 Note that in this case scalar multiplication by the cofactor h does not
-generally give the same result as the fast method, and SHOULD NOT be used.
+generally give the same result as the fast method, and MUST NOT be used.
 
 # Suites for hashing {#suites}
 
