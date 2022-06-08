@@ -2604,7 +2604,7 @@ to P-521 is given in {{straightline-sswu}}.
 ## Suites for curve25519 and edwards25519 {#suites-25519}
 
 This section defines ciphersuites for curve25519 and edwards25519 {{!RFC7748}}.
-Note that these ciphersuites SHOULD NOT be used when hashing to ristretto255
+Note that these ciphersuites MUST NOT be used when hashing to ristretto255
 {{?I-D.irtf-cfrg-ristretto255-decaf448}}.
 See {{appx-ristretto255}} for information on how to hash to that group.
 
@@ -2646,7 +2646,7 @@ Optimized example implementations of the above mappings are given in
 ## Suites for curve448 and edwards448 {#suites-448}
 
 This section defines ciphersuites for curve448 and edwards448 {{!RFC7748}}.
-Note that these ciphersuites SHOULD NOT be used when hashing to decaf448
+Note that these ciphersuites MUST NOT be used when hashing to decaf448
 {{I-D.irtf-cfrg-ristretto255-decaf448}}.
 See {{appx-decaf448}} for information on how to hash to that group.
 
