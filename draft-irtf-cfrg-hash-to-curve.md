@@ -1674,11 +1674,10 @@ For example, when hashing to the scalar field for an elliptic curve (sub)group
 with prime order r, it suffices to instantiate hash\_to\_field with target field
 GF(r).
 
-## Security considerations {#hashtofield-sec}
-
 The hash\_to\_field function is designed to be indifferentiable from a
 random oracle {{MRH04}} when expand\_message ({{hashtofield-expand}})
-is modeled as a random oracle (see {{security-considerations-hash-to-field}}).
+is modeled as a random oracle (see {{security-considerations-hash-to-field}}
+for details about its indifferentiability).
 Ensuring indifferentiability requires care; to see why, consider a prime
 p that is close to 3/4 * 2^256.
 Reducing a random 256-bit integer modulo this p yields a value that is in
@@ -1697,7 +1696,7 @@ L uniform bytes, where
 L = ceil((ceil(log2(p)) + k) / 8)
 ~~~
 
-These uniform bytes are then interpreted as an integer via OS2IP {{RFC8017}}.
+These uniform bytes are then interpreted as an integer via OS2IP.
 For example, for a 255-bit prime p, and k = 128-bit security,
 L = ceil((255 + 128) / 8) = 48 bytes.
 
@@ -1714,7 +1713,7 @@ field GF(p^m), hash\_to\_field requires expanding msg into m * L bytes (for L as
 For extension fields where log2(p) is significantly smaller than the security
 level k, this approach is inefficient: it requires expand\_message to output
 roughly m * log2(p) + m * k bits, whereas m * log2(p) + k bytes suffices to
-generate an element of GF(p^m) with bias at most 2^-k. In such cases, an
+generate an element of GF(p^m) with bias at most 2^-k. In such cases,
 applications MAY use an alternative hash\_to\_field function, provided it
 meets the following security requirements:
 
@@ -1749,7 +1748,7 @@ Parameters:
   parameter of the suite (e.g., k = 128).
 - expand_message, a function that expands a byte string and
   domain separation tag into a uniformly random byte string
-  (see Section 5.4).
+  (see Section 5.3).
 
 Inputs:
 - msg, a byte string containing the message to hash.
@@ -2466,7 +2465,7 @@ A hash-to-curve suite comprises the following parameters:
   the polynomial basis used to represent extension field elements.
 - k, the target security level of the suite in bits.
   (See {{security-considerations-targets}} for discussion.)
-- L, the length parameter for hash\_to\_field ({{hashtofield-sec}}).
+- L, the length parameter for hash\_to\_field ({{hashtofield}}).
 - expand\_message, one of the variants specified in {{hashtofield-expand}}
   plus any parameters required for the specified variant (for example, H,
   the underlying hash function).
@@ -2795,7 +2794,7 @@ The RECOMMENDED way to define a new hash-to-curve suite is:
 
 3. Choose encoding type, either hash\_to\_curve or encode\_to\_curve ({{roadmap}}).
 
-4. Compute L as described in {{hashtofield-sec}}.
+4. Compute L as described in {{hashtofield}}.
 
 5. Choose an expand\_message variant from {{hashtofield-expand}} plus any
    underlying cryptographic primitives (e.g., a hash function H).
