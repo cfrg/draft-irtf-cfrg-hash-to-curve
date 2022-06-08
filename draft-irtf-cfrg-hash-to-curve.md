@@ -1334,7 +1334,7 @@ encoding for each oracle being simulated.
 In the above example, "RO1" and "RO2" have the same length and thus
 satisfy this requirement when used as prefixes.
 The algorithms specified in this document take a different approach to ensuring
-injectivity; see {{hashtofield-expand}} and {{security-considerations-domain-separation}}
+injectivity; see {{hashtofield-expand}} and {{security-considerations-domain-separation-expmsg-var}}
 for more details.
 
 # Encoding byte strings to elliptic curves {#roadmap}
@@ -2886,13 +2886,6 @@ This document has no IANA actions.
 
 # Security considerations {#security-considerations}
 
-{{domain-separation}} describes considerations related to domain separation.
-See {{security-considerations-domain-separation}} for further discussion.
-
-{{hashtofield}} describes considerations for uniformly hashing to field elements;
-see {{security-considerations-hash-to-field}} and {{security-considerations-expand-xmd}}
-for further discussion.
-
 Each encoding type ({{roadmap}}) accepts an arbitrary byte string and maps
 it to a point on the curve sampled from a distribution that depends on the
 encoding type.
@@ -3055,12 +3048,13 @@ function meeting one of the above criteria.
 Applications that use expand\_message\_xmd outside of hash\_to\_field should
 ensure domain separation by picking a distinct value for DST.
 
-## Domain separation recommendations {#security-considerations-domain-separation}
+## Domain separation for expand\_message variants {#security-considerations-domain-separation-expmsg-var}
 
 As discussed in {{term-domain-separation}}, the purpose of domain separation
 is to ensure that security analyses of cryptographic protocols that query
 multiple independent random oracles remain valid even if all of these random
 oracles are instantiated based on one underlying function H.
+
 The expand\_message variants in this document ({{hashtofield-expand}}) ensure
 domain separation by appending a suffix-free-encoded domain separation tag
 DST\_prime to all strings hashed by H, an underlying hash or
@@ -3327,7 +3321,7 @@ The hash\_to\_ristretto255 function MUST be instantiated with an expand\_message
 function that conforms to the requirements given in {{hashtofield-expand}}.
 In addition, it MUST use a domain separation tag constructed as described
 in {{domain-separation}}, and all domain separation recommendations given
-in {{security-considerations-domain-separation}} apply when implementing
+in {{security-considerations-domain-separation-expmsg-var}} apply when implementing
 protocols that use hash\_to\_ristretto255.
 
 ~~~ pseudocode
@@ -3380,7 +3374,7 @@ The hash\_to\_decaf448 function MUST be instantiated with an expand\_message
 function that conforms to the requirements given in {{hashtofield-expand}}.
 In addition, it MUST use a domain separation tag constructed as described
 in {{domain-separation}}, and all domain separation recommendations given
-in {{security-considerations-domain-separation}} apply when implementing
+in {{security-considerations-domain-separation-expmsg-var}} apply when implementing
 protocols that use hash\_to\_decaf448.
 
 ~~~ pseudocode
