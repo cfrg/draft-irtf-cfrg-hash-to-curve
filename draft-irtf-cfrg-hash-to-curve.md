@@ -1151,7 +1151,8 @@ as "try-and-increment" or "hunt-and-peck," because the goal is to describe
 algorithms that can plausibly be computed in constant time. Use of these rejection
 methods is NOT RECOMMENDED, because they have been a perennial cause of
 side-channel vulnerabilities. See Dragonblood {{VR20}} as one example of this
-problem in practice.
+problem in practice, and see {{related}} for a further description of
+rejection sampling methods.
 
 This document represents the consensus of the Crypto Forum Research Group (CFRG).
 
@@ -3238,6 +3239,8 @@ that the resulting point has a known discrete log relationship to P.
 Thus, except in cases where this method is specified by the protocol,
 it must not be used; doing so risks catastrophic security failures.
 
+The try-and-increment method is a probabilistic algorithm for hashing
+to curve.
 Boneh et al. {{BLS01}} describe an encoding method they call MapToGroup,
 which works roughly as follows: first, use the input string to initialize a
 pseudorandom number generator, then use the generator to produce a
@@ -3248,7 +3251,7 @@ Since a random value x in F has probability about 1/2 of corresponding to
 a point on the curve, the expected number of tries is just two.
 However, the running time of this method depends on the input string,
 which means that it is not safe to use in protocols sensitive to timing
-side channels.
+side channels, as was exemplified by the Dragonblood attack {{VR20}}.
 
 Schinzel and Skalba {{SS04}} introduce a method of constructing
 elliptic curve points deterministically, for a restricted class of curves
