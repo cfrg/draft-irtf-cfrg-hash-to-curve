@@ -1273,7 +1273,7 @@ is not invertible. Thus, the encodings are also not invertible.
 In some applications of hashing to elliptic curves, it is important that
 encodings do not leak information through side channels.
 {{VR20}} is one example of this type of leakage leading to a security vulnerability.
-See {{security-considerations}} for further discussion.
+See {{security-considerations-constant}} for further discussion.
 
 ### Random oracle encodings {#term-rom}
 
@@ -1287,7 +1287,7 @@ point on the curve, the other gives a point sampled from a nonuniform distributi
 
 A random-oracle encoding with a uniform output distribution is suitable for use
 in many cryptographic protocols proven secure in the random oracle model.
-See {{security-considerations}} for further discussion.
+See {{security-considerations-props}} for further discussion.
 
 ### Serialization {#term-serialization}
 
@@ -1416,7 +1416,7 @@ different distributions:
   This function is suitable for most applications requiring a random oracle
   returning points in G, when instantiated with any of the map\_to\_curve
   functions described in {{mappings}}.
-  See {{security-considerations}} for further discussion.
+  See {{security-considerations-props}} for further discussion.
 
   ~~~ pseudocode
   hash_to_curve(msg)
@@ -1506,7 +1506,7 @@ in brief, this means that execution time and memory access patterns SHOULD NOT
 depend on the values of secret inputs, intermediate values, or outputs.
 For such constant-time implementations, all arithmetic, comparisons, and
 assignments MUST also be implemented in constant time.
-{{security-considerations}} briefly discusses constant-time security issues.
+{{security-considerations-constant}} briefly discusses constant-time security issues.
 
 Guidance on implementing low-level operations (in constant time or otherwise)
 is beyond the scope of this document; readers should consult standard reference
@@ -2886,6 +2886,8 @@ This document has no IANA actions.
 
 # Security considerations {#security-considerations}
 
+## Properties of encodings {#security-considerations-props}
+
 Each encoding type ({{roadmap}}) accepts an arbitrary byte string and maps
 it to a point on the curve sampled from a distribution that depends on the
 encoding type.
@@ -2921,6 +2923,8 @@ by indifferentiable functionalities.
 This limitation should be considered when analyzing the security of protocols
 relying on the hash\_to\_curve function.
 
+## Considerations about hasing passwords {#security-considerations-passwords}
+
 When hashing passwords using any function described in this document, an adversary
 who learns the output of the hash function (or potentially any intermediate value,
 e.g., the output of hash\_to\_field) may be able to carry out a dictionary attack.
@@ -2930,6 +2934,8 @@ derivation function (e.g., PBKDF2 {{?RFC2898}}, scrypt {{?RFC7914}}, or Argon2
 function to the target elliptic curve.
 For collision resistance, the hash underlying the key derivation function
 should be chosen according to the guidelines listed in {{hashtofield-expand-xmd}}.
+
+## Constant-time requirements {#security-considerations-constant}
 
 Constant-time implementations of all functions in this document are STRONGLY
 RECOMMENDED for all uses, to avoid leaking information via side channels.
