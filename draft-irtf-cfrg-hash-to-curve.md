@@ -2783,7 +2783,8 @@ to the curve E' isogenous to BLS12-381 G2 is given in {{straightline-sswu}}.
 
 ## Defining a new hash-to-curve suite {#new-suite}
 
-The RECOMMENDED way to define a new hash-to-curve suite is:
+For elliptic curves not listed elsewhere in {{suites}}, a new hash-to-curve
+suite can be defined by:
 
 1. E, F, p, and m are determined by the elliptic curve and its base field.
 
@@ -2807,9 +2808,6 @@ The RECOMMENDED way to define a new hash-to-curve suite is:
    as discussed in {{cofactor-clearing}}.
 
 8. Construct a Suite ID following the guidelines in {{suiteIDformat}}.
-
-When hashing to an elliptic curve not listed in this section, corresponding
-hash-to-curve suites SHOULD be fully specified as described above.
 
 ## Suite ID naming conventions {#suiteIDformat}
 
