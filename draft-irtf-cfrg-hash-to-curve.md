@@ -2884,6 +2884,9 @@ This document has no IANA actions.
 
 # Security considerations {#security-considerations}
 
+This section contains additional security considerations about the hash-to-curve mechanisms
+described in this document.
+
 ## Properties of encodings {#security-considerations-props}
 
 Each encoding type ({{roadmap}}) accepts an arbitrary byte string and maps
@@ -2921,7 +2924,7 @@ by indifferentiable functionalities.
 This limitation should be considered when analyzing the security of protocols
 relying on the hash\_to\_curve function.
 
-## Considerations about hasing passwords {#security-considerations-passwords}
+## Hashing passwords {#security-considerations-passwords}
 
 When hashing passwords using any function described in this document, an adversary
 who learns the output of the hash function (or potentially any intermediate value,
@@ -3236,8 +3239,6 @@ that the resulting point has a known discrete log relationship to P.
 Thus, except in cases where this method is specified by the protocol,
 it must not be used; doing so risks catastrophic security failures.
 
-The try-and-increment method is a probabilistic algorithm for hashing
-to curve.
 Boneh et al. {{BLS01}} describe an encoding method they call MapToGroup,
 which works roughly as follows: first, use the input string to initialize a
 pseudorandom number generator, then use the generator to produce a
@@ -3246,8 +3247,9 @@ If x is the x-coordinate of a point on the elliptic curve, output that
 point. Otherwise, generate a new value x in F and try again.
 Since a random value x in F has probability about 1/2 of corresponding to
 a point on the curve, the expected number of tries is just two.
-However, the running time of this method depends on the input string,
-which means that it is not safe to use in protocols sensitive to timing
+However, the running time of this method, which is generally referred
+to as a probabilistic try-and-increment algorithm, depends on the input string.
+As such, it is not safe to use in protocols sensitive to timing
 side channels, as was exemplified by the Dragonblood attack {{VR20}}.
 
 Schinzel and Skalba {{SS04}} introduce a method of constructing
