@@ -1151,7 +1151,8 @@ as "try-and-increment" or "hunt-and-peck," because the goal is to describe
 algorithms that can plausibly be computed in constant time. Use of these rejection
 methods is NOT RECOMMENDED, because they have been a perennial cause of
 side-channel vulnerabilities. See Dragonblood {{VR20}} as one example of this
-problem in practice.
+problem in practice, and see {{related}} for a further description of
+rejection sampling methods.
 
 This document represents the consensus of the Crypto Forum Research Group (CFRG).
 
@@ -1272,7 +1273,7 @@ is not invertible. Thus, the encodings are also not invertible.
 In some applications of hashing to elliptic curves, it is important that
 encodings do not leak information through side channels.
 {{VR20}} is one example of this type of leakage leading to a security vulnerability.
-See {{security-considerations}} for further discussion.
+See {{security-considerations-constant}} for further discussion.
 
 ### Random oracle encodings {#term-rom}
 
@@ -1286,7 +1287,7 @@ point on the curve, the other gives a point sampled from a nonuniform distributi
 
 A random-oracle encoding with a uniform output distribution is suitable for use
 in many cryptographic protocols proven secure in the random oracle model.
-See {{security-considerations}} for further discussion.
+See {{security-considerations-props}} for further discussion.
 
 ### Serialization {#term-serialization}
 
@@ -1333,7 +1334,7 @@ encoding for each oracle being simulated.
 In the above example, "RO1" and "RO2" have the same length and thus
 satisfy this requirement when used as prefixes.
 The algorithms specified in this document take a different approach to ensuring
-injectivity; see {{hashtofield-expand}} and {{security-considerations-domain-separation}}
+injectivity; see {{hashtofield-expand}} and {{security-considerations-domain-separation-expmsg-var}}
 for more details.
 
 # Encoding byte strings to elliptic curves {#roadmap}
@@ -1415,7 +1416,7 @@ different distributions:
   This function is suitable for most applications requiring a random oracle
   returning points in G, when instantiated with any of the map\_to\_curve
   functions described in {{mappings}}.
-  See {{security-considerations}} for further discussion.
+  See {{security-considerations-props}} for further discussion.
 
   ~~~ pseudocode
   hash_to_curve(msg)
@@ -1505,7 +1506,7 @@ in brief, this means that execution time and memory access patterns SHOULD NOT
 depend on the values of secret inputs, intermediate values, or outputs.
 For such constant-time implementations, all arithmetic, comparisons, and
 assignments MUST also be implemented in constant time.
-{{security-considerations}} briefly discusses constant-time security issues.
+{{security-considerations-constant}} briefly discusses constant-time security issues.
 
 Guidance on implementing low-level operations (in constant time or otherwise)
 is beyond the scope of this document; readers should consult standard reference
@@ -1673,11 +1674,10 @@ For example, when hashing to the scalar field for an elliptic curve (sub)group
 with prime order r, it suffices to instantiate hash\_to\_field with target field
 GF(r).
 
-## Security considerations {#hashtofield-sec}
-
 The hash\_to\_field function is designed to be indifferentiable from a
 random oracle {{MRH04}} when expand\_message ({{hashtofield-expand}})
-is modeled as a random oracle (see {{security-considerations-hash-to-field}}).
+is modeled as a random oracle (see {{security-considerations-hash-to-field}}
+for details about its indifferentiability).
 Ensuring indifferentiability requires care; to see why, consider a prime
 p that is close to 3/4 * 2^256.
 Reducing a random 256-bit integer modulo this p yields a value that is in
@@ -1696,7 +1696,7 @@ L uniform bytes, where
 L = ceil((ceil(log2(p)) + k) / 8)
 ~~~
 
-These uniform bytes are then interpreted as an integer via OS2IP {{RFC8017}}.
+These uniform bytes are then interpreted as an integer via OS2IP.
 For example, for a 255-bit prime p, and k = 128-bit security,
 L = ceil((255 + 128) / 8) = 48 bytes.
 
@@ -1713,7 +1713,7 @@ field GF(p^m), hash\_to\_field requires expanding msg into m * L bytes (for L as
 For extension fields where log2(p) is significantly smaller than the security
 level k, this approach is inefficient: it requires expand\_message to output
 roughly m * log2(p) + m * k bits, whereas m * log2(p) + k bytes suffices to
-generate an element of GF(p^m) with bias at most 2^-k. In such cases, an
+generate an element of GF(p^m) with bias at most 2^-k. In such cases,
 applications MAY use an alternative hash\_to\_field function, provided it
 meets the following security requirements:
 
@@ -1748,7 +1748,7 @@ Parameters:
   parameter of the suite (e.g., k = 128).
 - expand_message, a function that expands a byte string and
   domain separation tag into a uniformly random byte string
-  (see Section 5.4).
+  (see Section 5.3).
 
 Inputs:
 - msg, a byte string containing the message to hash.
@@ -2435,7 +2435,7 @@ When a curve admits a fast cofactor clearing method, clear\_cofactor
 MAY be evaluated either via that method or via scalar multiplication
 by the equivalent h\_eff; these two methods give the same result.
 Note that in this case scalar multiplication by the cofactor h does not
-generally give the same result as the fast method, and SHOULD NOT be used.
+generally give the same result as the fast method, and MUST NOT be used.
 
 # Suites for hashing {#suites}
 
@@ -2465,7 +2465,7 @@ A hash-to-curve suite comprises the following parameters:
   the polynomial basis used to represent extension field elements.
 - k, the target security level of the suite in bits.
   (See {{security-considerations-targets}} for discussion.)
-- L, the length parameter for hash\_to\_field ({{hashtofield-sec}}).
+- L, the length parameter for hash\_to\_field ({{hashtofield}}).
 - expand\_message, one of the variants specified in {{hashtofield-expand}}
   plus any parameters required for the specified variant (for example, H,
   the underlying hash function).
@@ -2604,7 +2604,7 @@ to P-521 is given in {{straightline-sswu}}.
 ## Suites for curve25519 and edwards25519 {#suites-25519}
 
 This section defines ciphersuites for curve25519 and edwards25519 {{!RFC7748}}.
-Note that these ciphersuites SHOULD NOT be used when hashing to ristretto255
+Note that these ciphersuites MUST NOT be used when hashing to ristretto255
 {{?I-D.irtf-cfrg-ristretto255-decaf448}}.
 See {{appx-ristretto255}} for information on how to hash to that group.
 
@@ -2646,7 +2646,7 @@ Optimized example implementations of the above mappings are given in
 ## Suites for curve448 and edwards448 {#suites-448}
 
 This section defines ciphersuites for curve448 and edwards448 {{!RFC7748}}.
-Note that these ciphersuites SHOULD NOT be used when hashing to decaf448
+Note that these ciphersuites MUST NOT be used when hashing to decaf448
 {{I-D.irtf-cfrg-ristretto255-decaf448}}.
 See {{appx-decaf448}} for information on how to hash to that group.
 
@@ -2783,7 +2783,8 @@ to the curve E' isogenous to BLS12-381 G2 is given in {{straightline-sswu}}.
 
 ## Defining a new hash-to-curve suite {#new-suite}
 
-The RECOMMENDED way to define a new hash-to-curve suite is:
+For elliptic curves not listed elsewhere in {{suites}}, a new hash-to-curve
+suite can be defined by:
 
 1. E, F, p, and m are determined by the elliptic curve and its base field.
 
@@ -2794,7 +2795,7 @@ The RECOMMENDED way to define a new hash-to-curve suite is:
 
 3. Choose encoding type, either hash\_to\_curve or encode\_to\_curve ({{roadmap}}).
 
-4. Compute L as described in {{hashtofield-sec}}.
+4. Compute L as described in {{hashtofield}}.
 
 5. Choose an expand\_message variant from {{hashtofield-expand}} plus any
    underlying cryptographic primitives (e.g., a hash function H).
@@ -2807,9 +2808,6 @@ The RECOMMENDED way to define a new hash-to-curve suite is:
    as discussed in {{cofactor-clearing}}.
 
 8. Construct a Suite ID following the guidelines in {{suiteIDformat}}.
-
-When hashing to an elliptic curve not listed in this section, corresponding
-hash-to-curve suites SHOULD be fully specified as described above.
 
 ## Suite ID naming conventions {#suiteIDformat}
 
@@ -2886,12 +2884,10 @@ This document has no IANA actions.
 
 # Security considerations {#security-considerations}
 
-{{domain-separation}} describes considerations related to domain separation.
-See {{security-considerations-domain-separation}} for further discussion.
+This section contains additional security considerations about the hash-to-curve mechanisms
+described in this document.
 
-{{hashtofield}} describes considerations for uniformly hashing to field elements;
-see {{security-considerations-hash-to-field}} and {{security-considerations-expand-xmd}}
-for further discussion.
+## Properties of encodings {#security-considerations-props}
 
 Each encoding type ({{roadmap}}) accepts an arbitrary byte string and maps
 it to a point on the curve sampled from a distribution that depends on the
@@ -2928,6 +2924,8 @@ by indifferentiable functionalities.
 This limitation should be considered when analyzing the security of protocols
 relying on the hash\_to\_curve function.
 
+## Hashing passwords {#security-considerations-passwords}
+
 When hashing passwords using any function described in this document, an adversary
 who learns the output of the hash function (or potentially any intermediate value,
 e.g., the output of hash\_to\_field) may be able to carry out a dictionary attack.
@@ -2937,6 +2935,8 @@ derivation function (e.g., PBKDF2 {{?RFC2898}}, scrypt {{?RFC7914}}, or Argon2
 function to the target elliptic curve.
 For collision resistance, the hash underlying the key derivation function
 should be chosen according to the guidelines listed in {{hashtofield-expand-xmd}}.
+
+## Constant-time requirements {#security-considerations-constant}
 
 Constant-time implementations of all functions in this document are STRONGLY
 RECOMMENDED for all uses, to avoid leaking information via side channels.
@@ -3055,12 +3055,13 @@ function meeting one of the above criteria.
 Applications that use expand\_message\_xmd outside of hash\_to\_field should
 ensure domain separation by picking a distinct value for DST.
 
-## Domain separation recommendations {#security-considerations-domain-separation}
+## Domain separation for expand\_message variants {#security-considerations-domain-separation-expmsg-var}
 
 As discussed in {{term-domain-separation}}, the purpose of domain separation
 is to ensure that security analyses of cryptographic protocols that query
 multiple independent random oracles remain valid even if all of these random
 oracles are instantiated based on one underlying function H.
+
 The expand\_message variants in this document ({{hashtofield-expand}}) ensure
 domain separation by appending a suffix-free-encoded domain separation tag
 DST\_prime to all strings hashed by H, an underlying hash or
@@ -3246,9 +3247,10 @@ If x is the x-coordinate of a point on the elliptic curve, output that
 point. Otherwise, generate a new value x in F and try again.
 Since a random value x in F has probability about 1/2 of corresponding to
 a point on the curve, the expected number of tries is just two.
-However, the running time of this method depends on the input string,
-which means that it is not safe to use in protocols sensitive to timing
-side channels.
+However, the running time of this method, which is generally referred
+to as a probabilistic try-and-increment algorithm, depends on the input string.
+As such, it is not safe to use in protocols sensitive to timing
+side channels, as was exemplified by the Dragonblood attack {{VR20}}.
 
 Schinzel and Skalba {{SS04}} introduce a method of constructing
 elliptic curve points deterministically, for a restricted class of curves
@@ -3325,7 +3327,7 @@ The hash\_to\_ristretto255 function MUST be instantiated with an expand\_message
 function that conforms to the requirements given in {{hashtofield-expand}}.
 In addition, it MUST use a domain separation tag constructed as described
 in {{domain-separation}}, and all domain separation recommendations given
-in {{security-considerations-domain-separation}} apply when implementing
+in {{security-considerations-domain-separation-expmsg-var}} apply when implementing
 protocols that use hash\_to\_ristretto255.
 
 ~~~ pseudocode
@@ -3378,7 +3380,7 @@ The hash\_to\_decaf448 function MUST be instantiated with an expand\_message
 function that conforms to the requirements given in {{hashtofield-expand}}.
 In addition, it MUST use a domain separation tag constructed as described
 in {{domain-separation}}, and all domain separation recommendations given
-in {{security-considerations-domain-separation}} apply when implementing
+in {{security-considerations-domain-separation-expmsg-var}} apply when implementing
 protocols that use hash\_to\_decaf448.
 
 ~~~ pseudocode
