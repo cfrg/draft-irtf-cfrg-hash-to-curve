@@ -2717,8 +2717,6 @@ to the curve E' isogenous to secp256k1 is given in {{straightline-sswu}}.
 
 This section defines ciphersuites for groups G1 and G2 of
 the BLS12-381 elliptic curve {{BLS12-381}}.
-The curve parameters in this section match the ones listed in
-{{!I-D.irtf-cfrg-pairing-friendly-curves}}, Appendix C.
 
 ### BLS12-381 G1 {#suites-bls12381-g1}
 
