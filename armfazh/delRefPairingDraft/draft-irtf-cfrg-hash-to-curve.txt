@@ -5,14 +5,14 @@
 CFRG                                                    A. Faz-Hernandez
 Internet-Draft                                          Cloudflare, Inc.
 Intended status: Informational                                  S. Scott
-Expires: 17 December 2022                                   Cornell Tech
+Expires: 18 April 2023                                      Cornell Tech
                                                              N. Sullivan
                                                         Cloudflare, Inc.
                                                              R. S. Wahby
                                                      Stanford University
                                                               C. A. Wood
                                                         Cloudflare, Inc.
-                                                            15 June 2022
+                                                         15 October 2022
 
 
                        Hashing to Elliptic Curves
@@ -51,7 +51,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 17 December 2022.
+   This Internet-Draft will expire on 18 April 2023.
 
 Copyright Notice
 
@@ -84,14 +84,13 @@ Table of Contents
    4.  Utility functions
      4.1.  The sgn0 function
    5.  Hashing to a finite field
-     5.1.  Security considerations
-     5.2.  Efficiency considerations in extension fields
-     5.3.  hash_to_field implementation
-     5.4.  expand_message
-       5.4.1.  expand_message_xmd
-       5.4.2.  expand_message_xof
-       5.4.3.  Using DSTs longer than 255 bytes
-       5.4.4.  Defining other expand_message variants
+     5.1.  Efficiency considerations in extension fields
+     5.2.  hash_to_field implementation
+     5.3.  expand_message
+       5.3.1.  expand_message_xmd
+       5.3.2.  expand_message_xof
+       5.3.3.  Using DSTs longer than 255 bytes
+       5.3.4.  Defining other expand_message variants
    6.  Deterministic mappings
      6.1.  Choosing a mapping function
      6.2.  Interface
@@ -123,12 +122,15 @@ Table of Contents
      8.10. Suite ID naming conventions
    9.  IANA considerations
    10. Security considerations
-     10.1.  encode_to_curve: output distribution and
+     10.1.  Properties of encodings
+     10.2.  Hashing passwords
+     10.3.  Constant-time requirements
+     10.4.  encode_to_curve: output distribution and
             indifferentiability
-     10.2.  hash_to_field security
-     10.3.  expand_message_xmd security
-     10.4.  Domain separation recommendations
-     10.5.  Target security levels
+     10.5.  hash_to_field security
+     10.6.  expand_message_xmd security
+     10.7.  Domain separation for expand_message variants
+     10.8.  Target security levels
    11. Acknowledgements
    12. Contributors
    13. References
@@ -251,7 +253,8 @@ Table of Contents
    constant time.  Use of these rejection methods is NOT RECOMMENDED,
    because they have been a perennial cause of side-channel
    vulnerabilities.  See Dragonblood [VR20] as one example of this
-   problem in practice.
+   problem in practice, and see Appendix A for a further description of
+   rejection sampling methods.
 
    This document represents the consensus of the Crypto Forum Research
    Group (CFRG).
@@ -400,7 +403,7 @@ Table of Contents
    In some applications of hashing to elliptic curves, it is important
    that encodings do not leak information through side channels.  [VR20]
    is one example of this type of leakage leading to a security
-   vulnerability.  See Section 10 for further discussion.
+   vulnerability.  See Section 10.3 for further discussion.
 
 2.2.3.  Random oracle encodings
 
@@ -416,7 +419,7 @@ Table of Contents
 
    A random-oracle encoding with a uniform output distribution is
    suitable for use in many cryptographic protocols proven secure in the
-   random oracle model.  See Section 10 for further discussion.
+   random oracle model.  See Section 10.1 for further discussion.
 
 2.2.4.  Serialization
 
@@ -464,7 +467,7 @@ Table of Contents
    "RO1" and "RO2" have the same length and thus satisfy this
    requirement when used as prefixes.  The algorithms specified in this
    document take a different approach to ensuring injectivity; see
-   Section 5.4 and Section 10.4 for more details.
+   Section 5.3 and Section 10.7 for more details.
 
 3.  Encoding byte strings to elliptic curves
 
@@ -518,7 +521,7 @@ Table of Contents
       uniformly random in G: the set of possible outputs of
       encode_to_curve is only a fraction of the points in G, and some
       points in this set are more likely to be output than others.
-      Section 10.1 gives a more precise definition of encode_to_curve's
+      Section 10.4 gives a more precise definition of encode_to_curve's
       output distribution.
 
       encode_to_curve(msg)
@@ -538,8 +541,8 @@ Table of Contents
 
       This function is suitable for most applications requiring a random
       oracle returning points in G, when instantiated with any of the
-      map_to_curve functions described in Section 6.  See Section 10 for
-      further discussion.
+      map_to_curve functions described in Section 6.  See Section 10.1
+      for further discussion.
 
       hash_to_curve(msg)
 
@@ -629,7 +632,7 @@ Table of Contents
    patterns SHOULD NOT depend on the values of secret inputs,
    intermediate values, or outputs.  For such constant-time
    implementations, all arithmetic, comparisons, and assignments MUST
-   also be implemented in constant time.  Section 10 briefly discusses
+   also be implemented in constant time.  Section 10.3 briefly discusses
    constant-time security issues.
 
    Guidance on implementing low-level operations (in constant time or
@@ -780,7 +783,7 @@ Table of Contents
    [FIPS180-4] or SHA-3 [FIPS202], and another appropriate for
    extendable-output functions such as SHAKE128 [FIPS202].  Security
    considerations for each expand_message variant are discussed below
-   (Section 5.4.1, Section 5.4.2).
+   (Section 5.3.1, Section 5.3.2).
 
    Implementors MUST NOT use rejection sampling to generate a uniformly
    random element of F, to ensure that the hash_to_field function is
@@ -796,16 +799,14 @@ Table of Contents
    elliptic curve (sub)group with prime order r, it suffices to
    instantiate hash_to_field with target field GF(r).
 
-5.1.  Security considerations
-
    The hash_to_field function is designed to be indifferentiable from a
-   random oracle [MRH04] when expand_message (Section 5.4) is modeled as
-   a random oracle (see Section 10.2).  Ensuring indifferentiability
-   requires care; to see why, consider a prime p that is close to 3/4 *
-   2^256.  Reducing a random 256-bit integer modulo this p yields a
-   value that is in the range [0, p / 3] with probability roughly 1/2,
-   meaning that this value is statistically far from uniform in [0, p -
-   1].
+   random oracle [MRH04] when expand_message (Section 5.3) is modeled as
+   a random oracle (see Section 10.5 for details about its
+   indifferentiability).  Ensuring indifferentiability requires care; to
+   see why, consider a prime p that is close to 3/4 * 2^256.  Reducing a
+   random 256-bit integer modulo this p yields a value that is in the
+   range [0, p / 3] with probability roughly 1/2, meaning that this
+   value is statistically far from uniform in [0, p - 1].
 
    To control bias, hash_to_field instead uses random integers whose
    length is at least ceil(log2(p)) + k bits, where k is the target
@@ -816,15 +817,15 @@ Table of Contents
 
    L = ceil((ceil(log2(p)) + k) / 8)
 
-   These uniform bytes are then interpreted as an integer via OS2IP
-   [RFC8017].  For example, for a 255-bit prime p, and k = 128-bit
-   security, L = ceil((255 + 128) / 8) = 48 bytes.
+   These uniform bytes are then interpreted as an integer via OS2IP.
+   For example, for a 255-bit prime p, and k = 128-bit security, L =
+   ceil((255 + 128) / 8) = 48 bytes.
 
    Note that k is an upper bound on the security level for the
-   corresponding curve.  See Section 10.5 for more details, and
+   corresponding curve.  See Section 10.8 for more details, and
    Section 8.9 for guidelines on choosing k for a given curve.
 
-5.2.  Efficiency considerations in extension fields
+5.1.  Efficiency considerations in extension fields
 
    The hash_to_field function described in this section is inefficient
    for certain extension fields.  Specifically, when hashing to an
@@ -834,7 +835,7 @@ Table of Contents
    security level k, this approach is inefficient: it requires
    expand_message to output roughly m * log2(p) + m * k bits, whereas m
    * log2(p) + k bytes suffices to generate an element of GF(p^m) with
-   bias at most 2^-k.  In such cases, an applications MAY use an
+   bias at most 2^-k.  In such cases, applications MAY use an
    alternative hash_to_field function, provided it meets the following
    security requirements:
 
@@ -849,12 +850,12 @@ Table of Contents
    GF(9767^19) that meets these requirements while using fewer output
    bits from expand_message than hash_to_field would for that field.
 
-5.3.  hash_to_field implementation
+5.2.  hash_to_field implementation
 
    The following procedure implements hash_to_field.
 
    The expand_message parameter to this function MUST conform to the
-   requirements given in Section 5.4.  Section 3.1 discusses the
+   requirements given in Section 5.3.  Section 3.1 discusses the
    REQUIRED method for constructing DST, the domain separation tag.
    Note that hash_to_field may fail (abort) if expand_message fails.
 
@@ -869,7 +870,7 @@ Table of Contents
      parameter of the suite (e.g., k = 128).
    - expand_message, a function that expands a byte string and
      domain separation tag into a uniformly random byte string
-     (see Section 5.4).
+     (see Section 5.3).
 
    Inputs:
    - msg, a byte string containing the message to hash.
@@ -889,7 +890,7 @@ Table of Contents
    8.   u_i = (e_0, ..., e_(m - 1))
    9. return (u_0, ..., u_(count - 1))
 
-5.4.  expand_message
+5.3.  expand_message
 
    expand_message is a function that generates a uniformly random byte
    string.  It takes three arguments:
@@ -902,18 +903,18 @@ Table of Contents
 
    This document defines the following two variants of expand_message:
 
-   *  expand_message_xmd (Section 5.4.1) is appropriate for use with a
+   *  expand_message_xmd (Section 5.3.1) is appropriate for use with a
       wide range of hash functions, including SHA-2 [FIPS180-4], SHA-3
       [FIPS202], BLAKE2 [RFC7693], and others.
 
-   *  expand_message_xof (Section 5.4.2) is appropriate for use with
+   *  expand_message_xof (Section 5.3.2) is appropriate for use with
       extendable-output functions (XOFs) including functions in the
       SHAKE [FIPS202] or BLAKE2X [BLAKE2X] families.
 
    These variants should suffice for the vast majority of use cases, but
-   other variants are possible; Section 5.4.4 discusses requirements.
+   other variants are possible; Section 5.3.4 discusses requirements.
 
-5.4.1.  expand_message_xmd
+5.3.1.  expand_message_xmd
 
    The expand_message_xmd function produces a uniformly random byte
    string using a cryptographic hash function H that outputs b bits.
@@ -926,7 +927,7 @@ Table of Contents
 
    *  H MAY be a Merkle-Damgaard hash function like SHA-2.  In this
       case, security holds when the underlying compression function is
-      modeled as a random oracle [CDMP05].  (See Section 10.3 for
+      modeled as a random oracle [CDMP05].  (See Section 10.6 for
       discussion.)
 
    *  H MAY be a sponge-based hash function like SHA-3 or BLAKE2.  In
@@ -984,7 +985,7 @@ Table of Contents
 
    Note that the string Z_pad (step 6) is prefixed to msg before
    computing b_0 (step 7).  This is necessary for security when H is a
-   Merkle-Damgaard hash, e.g., SHA-2 (see Section 10.3).  Hashing this
+   Merkle-Damgaard hash, e.g., SHA-2 (see Section 10.6).  Hashing this
    additional data means that the cost of computing b_0 is higher than
    the cost of simply computing H(msg).  In most settings this overhead
    is negligible, because the cost of evaluating H is much less than the
@@ -997,7 +998,7 @@ Table of Contents
    b_0, initialize H using the saved state.  Further details are
    implementation dependent, and beyond the scope of this document.
 
-5.4.2.  expand_message_xof
+5.3.2.  expand_message_xof
 
    The expand_message_xof function produces a uniformly random byte
    string using an extendable-output function (XOF) H.  For security, H
@@ -1036,7 +1037,7 @@ Table of Contents
    4. uniform_bytes = H(msg_prime, len_in_bytes)
    5. return uniform_bytes
 
-5.4.3.  Using DSTs longer than 255 bytes
+5.3.3.  Using DSTs longer than 255 bytes
 
    The expand_message variants defined in this section accept domain
    separation tags of at most 255 bytes.  If applications require a
@@ -1057,13 +1058,13 @@ Table of Contents
    bytes, "H2C-OVERSIZE-DST-" is a 17-byte ASCII string literal, and k
    is the target security level in bits.
 
-5.4.4.  Defining other expand_message variants
+5.3.4.  Defining other expand_message variants
 
    When defining a new expand_message variant, the most important
    consideration is that hash_to_field models expand_message as a random
    oracle.  Thus, implementors SHOULD prove indifferentiability from a
    random oracle under an appropriate assumption about the underlying
-   cryptographic primitives; see Section 10.2 for more information.
+   cryptographic primitives; see Section 10.5 for more information.
 
    In addition, expand_message variants:
 
@@ -1554,7 +1555,7 @@ Table of Contents
    MAY be evaluated either via that method or via scalar multiplication
    by the equivalent h_eff; these two methods give the same result.
    Note that in this case scalar multiplication by the cofactor h does
-   not generally give the same result as the fast method, and SHOULD NOT
+   not generally give the same result as the fast method, and MUST NOT
    be used.
 
 8.  Suites for hashing
@@ -1593,11 +1594,11 @@ Table of Contents
       field elements.
 
    *  k, the target security level of the suite in bits.  (See
-      Section 10.5 for discussion.)
+      Section 10.8 for discussion.)
 
-   *  L, the length parameter for hash_to_field (Section 5.1).
+   *  L, the length parameter for hash_to_field (Section 5).
 
-   *  expand_message, one of the variants specified in Section 5.4 plus
+   *  expand_message, one of the variants specified in Section 5.3 plus
       any parameters required for the specified variant (for example, H,
       the underlying hash function).
 
@@ -1667,7 +1668,7 @@ Table of Contents
        addition and scalar multiplication.
 
    3.  The hash_to_field function; see Section 5.  This includes the
-       expand_message variant (Section 5.4) and any constituent hash
+       expand_message variant (Section 5.3) and any constituent hash
        function or XOF.
 
    4.  The suite-specified mapping function; see the corresponding
@@ -1702,7 +1703,7 @@ Table of Contents
 
    *  k: 128
 
-   *  expand_message: expand_message_xmd (Section 5.4.1)
+   *  expand_message: expand_message_xmd (Section 5.3.1)
 
    *  H: SHA-256
 
@@ -1742,7 +1743,7 @@ Table of Contents
 
    *  k: 192
 
-   *  expand_message: expand_message_xmd (Section 5.4.1)
+   *  expand_message: expand_message_xmd (Section 5.3.1)
 
    *  H: SHA-384
 
@@ -1783,7 +1784,7 @@ Table of Contents
 
    *  k: 256
 
-   *  expand_message: expand_message_xmd (Section 5.4.1)
+   *  expand_message: expand_message_xmd (Section 5.3.1)
 
    *  H: SHA-512
 
@@ -1804,7 +1805,7 @@ Table of Contents
 8.5.  Suites for curve25519 and edwards25519
 
    This section defines ciphersuites for curve25519 and edwards25519
-   [RFC7748].  Note that these ciphersuites SHOULD NOT be used when
+   [RFC7748].  Note that these ciphersuites MUST NOT be used when
    hashing to ristretto255 [I-D.irtf-cfrg-ristretto255-decaf448].  See
    Appendix B for information on how to hash to that group.
 
@@ -1824,7 +1825,7 @@ Table of Contents
 
    *  k: 128
 
-   *  expand_message: expand_message_xmd (Section 5.4.1)
+   *  expand_message: expand_message_xmd (Section 5.3.1)
 
    *  H: SHA-512
 
@@ -1866,7 +1867,7 @@ Table of Contents
 8.6.  Suites for curve448 and edwards448
 
    This section defines ciphersuites for curve448 and edwards448
-   [RFC7748].  Note that these ciphersuites SHOULD NOT be used when
+   [RFC7748].  Note that these ciphersuites MUST NOT be used when
    hashing to decaf448 [I-D.irtf-cfrg-ristretto255-decaf448].  See
    Appendix C for information on how to hash to that group.
 
@@ -1886,7 +1887,7 @@ Table of Contents
 
    *  k: 224
 
-   *  expand_message: expand_message_xof (Section 5.4.2)
+   *  expand_message: expand_message_xof (Section 5.3.2)
 
    *  H: SHAKE256
 
@@ -1941,7 +1942,7 @@ Table of Contents
 
    *  k: 128
 
-   *  expand_message: expand_message_xmd (Section 5.4.1)
+   *  expand_message: expand_message_xmd (Section 5.3.1)
 
    *  H: SHA-256
 
@@ -1972,9 +1973,7 @@ Table of Contents
 8.8.  Suites for BLS12-381
 
    This section defines ciphersuites for groups G1 and G2 of the
-   BLS12-381 elliptic curve [BLS12-381].  The curve parameters in this
-   section match the ones listed in
-   [I-D.irtf-cfrg-pairing-friendly-curves], Appendix C.
+   BLS12-381 elliptic curve [BLS12-381].
 
 8.8.1.  BLS12-381 G1
 
@@ -1991,7 +1990,7 @@ Table of Contents
 
    *  k: 128
 
-   *  expand_message: expand_message_xmd (Section 5.4.1)
+   *  expand_message: expand_message_xmd (Section 5.3.1)
 
    *  H: SHA-256
 
@@ -2043,7 +2042,7 @@ Table of Contents
 
    *  k: 128
 
-   *  expand_message: expand_message_xmd (Section 5.4.1)
+   *  expand_message: expand_message_xmd (Section 5.3.1)
 
    *  H: SHA-256
 
@@ -2079,22 +2078,23 @@ Table of Contents
 
 8.9.  Defining a new hash-to-curve suite
 
-   The RECOMMENDED way to define a new hash-to-curve suite is:
+   For elliptic curves not listed elsewhere in Section 8, a new hash-to-
+   curve suite can be defined by:
 
    1.  E, F, p, and m are determined by the elliptic curve and its base
        field.
 
    2.  k is an upper bound on the target security level of the suite
-       (Section 10.5).  A reasonable choice of k is ceil(log2(r) / 2),
+       (Section 10.8).  A reasonable choice of k is ceil(log2(r) / 2),
        where r is the order of the subgroup G of the curve E
        (Section 2.1).
 
    3.  Choose encoding type, either hash_to_curve or encode_to_curve
        (Section 3).
 
-   4.  Compute L as described in Section 5.1.
+   4.  Compute L as described in Section 5.
 
-   5.  Choose an expand_message variant from Section 5.4 plus any
+   5.  Choose an expand_message variant from Section 5.3 plus any
        underlying cryptographic primitives (e.g., a hash function H).
 
    6.  Choose a mapping following the guidelines in Section 6.1, and
@@ -2105,10 +2105,6 @@ Table of Contents
        that method as discussed in Section 7.
 
    8.  Construct a Suite ID following the guidelines in Section 8.10.
-
-   When hashing to an elliptic curve not listed in this section,
-   corresponding hash-to-curve suites SHOULD be fully specified as
-   described above.
 
 8.10.  Suite ID naming conventions
 
@@ -2139,21 +2135,21 @@ Table of Contents
 
       EXP_TAG indicates the expand_message variant:
 
-      -  "XMD" for expand_message_xmd (Section 5.4.1).
+      -  "XMD" for expand_message_xmd (Section 5.3.1).
 
-      -  "XOF" for expand_message_xof (Section 5.4.2).
+      -  "XOF" for expand_message_xof (Section 5.3.2).
 
       HASH_NAME is a human-readable name for the underlying hash
       primitive.  As examples:
 
-      1.  For expand_message_xof (Section 5.4.2) with SHAKE128, HASH_ID
+      1.  For expand_message_xof (Section 5.3.2) with SHAKE128, HASH_ID
           is "XOF:SHAKE128".
 
-      2.  For expand_message_xmd (Section 5.4.1) with SHA3-256, HASH_ID
+      2.  For expand_message_xmd (Section 5.3.1) with SHA3-256, HASH_ID
           is "XMD:SHA3-256".
 
       Suites that use an alternative hash_to_field function that meets
-      the requirements in Section 5.2 MUST indicate this by appending a
+      the requirements in Section 5.1 MUST indicate this by appending a
       tag identifying that function to the HASH_ID field, separated by a
       colon (":", ASCII 0x3A).
 
@@ -2191,11 +2187,10 @@ Table of Contents
 
 10.  Security considerations
 
-   Section 3.1 describes considerations related to domain separation.
-   See Section 10.4 for further discussion.
+   This section contains additional security considerations about the
+   hash-to-curve mechanisms described in this document.
 
-   Section 5 describes considerations for uniformly hashing to field
-   elements; see Section 10.2 and Section 10.3 for further discussion.
+10.1.  Properties of encodings
 
    Each encoding type (Section 3) accepts an arbitrary byte string and
    maps it to a point on the curve sampled from a distribution that
@@ -2231,6 +2226,8 @@ Table of Contents
    considered when analyzing the security of protocols relying on the
    hash_to_curve function.
 
+10.2.  Hashing passwords
+
    When hashing passwords using any function described in this document,
    an adversary who learns the output of the hash function (or
    potentially any intermediate value, e.g., the output of
@@ -2240,7 +2237,9 @@ Table of Contents
    [RFC7914], or Argon2 [I-D.irtf-cfrg-argon2]) on the password, then
    hash the output of that function to the target elliptic curve.  For
    collision resistance, the hash underlying the key derivation function
-   should be chosen according to the guidelines listed in Section 5.4.1.
+   should be chosen according to the guidelines listed in Section 5.3.1.
+
+10.3.  Constant-time requirements
 
    Constant-time implementations of all functions in this document are
    STRONGLY RECOMMENDED for all uses, to avoid leaking information via
@@ -2256,7 +2255,7 @@ Table of Contents
    outside the scope of this document, because the nature of the leakage
    and the appropriate defense depend on the application.
 
-10.1.  encode_to_curve: output distribution and indifferentiability
+10.4.  encode_to_curve: output distribution and indifferentiability
 
    The encode_to_curve function (Section 3) returns points sampled from
    a distribution that is statistically far from uniform.  This
@@ -2302,16 +2301,16 @@ Table of Contents
    element of F, so this value is uniformly random and induces the
    correct point P when passed through map_to_curve.
 
-10.2.  hash_to_field security
+10.5.  hash_to_field security
 
    The hash_to_field function defined in Section 5 is indifferentiable
-   from a random oracle [MRH04] when expand_message (Section 5.4) is
+   from a random oracle [MRH04] when expand_message (Section 5.3) is
    modeled as a random oracle.  By composability of indifferentiability
    proofs, this also holds when expand_message is proved
    indifferentiable from a random oracle relative to an underlying
    primitive that is modeled as a random oracle.  When following the
-   guidelines in Section 5.4, both variants of expand_message defined in
-   that section meet this requirement (see also Section 10.3).
+   guidelines in Section 5.3, both variants of expand_message defined in
+   that section meet this requirement (see also Section 10.6).
 
    We very briefly sketch the indifferentiability argument for
    hash_to_field.  Notice that each integer mod p that hash_to_field
@@ -2323,9 +2322,9 @@ Table of Contents
    by I2OSP.  (Notice that this is essentially the inverse of the
    hash_to_field procedure.)
 
-10.3.  expand_message_xmd security
+10.6.  expand_message_xmd security
 
-   The expand_message_xmd function defined in Section 5.4.1 is
+   The expand_message_xmd function defined in Section 5.3.1 is
    indifferentiable from a random oracle [MRH04] when one of the
    following holds:
 
@@ -2364,17 +2363,18 @@ Table of Contents
    Applications that use expand_message_xmd outside of hash_to_field
    should ensure domain separation by picking a distinct value for DST.
 
-10.4.  Domain separation recommendations
+10.7.  Domain separation for expand_message variants
 
    As discussed in Section 2.2.5, the purpose of domain separation is to
    ensure that security analyses of cryptographic protocols that query
    multiple independent random oracles remain valid even if all of these
    random oracles are instantiated based on one underlying function H.
-   The expand_message variants in this document (Section 5.4) ensure
+
+   The expand_message variants in this document (Section 5.3) ensure
    domain separation by appending a suffix-free-encoded domain
    separation tag DST_prime to all strings hashed by H, an underlying
    hash or extendable-output function.  (Other expand_message variants
-   that follow the guidelines in Section 5.4.4 are expected to behave
+   that follow the guidelines in Section 5.3.4 are expected to behave
    similarly, but these should be analyzed on a case-by-case basis.)
    For security, applications that use the same function H outside of
    expand_message should enforce domain separation between those uses of
@@ -2452,7 +2452,7 @@ Table of Contents
        This method ensures domain separation as follows.  First, since
        DST_ext contains at least one nonzero bit among its first b bits,
        it is guaranteed to be distinct from the value Z_pad
-       (Section 5.4.1, step 4), which ensures that all inputs to H are
+       (Section 5.3.1, step 4), which ensures that all inputs to H are
        distinct from the input used to generate b_0 in
        expand_message_xmd.  Second, since DST_ext is at least b bits
        long, it is almost certainly distinct from the values b_0 and
@@ -2468,7 +2468,7 @@ Table of Contents
        Specifically, this method applies when HMAC-H is used with a non-
        secret key to instantiate a random oracle based on a hash
        function H (note that expand_message_xmd can also be used for
-       this purpose; see Section 10.3).  When using HMAC-H with a high-
+       this purpose; see Section 10.6).  When using HMAC-H with a high-
        entropy secret key, domain separation is not necessary; see
        discussion below.
 
@@ -2507,7 +2507,7 @@ Table of Contents
        is domain separated by the same argument as for HMAC-H with a
        high-entropy secret key (since PRK is exactly that).
 
-10.5.  Target security levels
+10.8.  Target security levels
 
    Each ciphersuite specifies a target security level (in bits) for the
    underlying curve.  This parameter ensures the corresponding
@@ -2543,13 +2543,6 @@ Table of Contents
 
    [EID4730]  Langley, A., "RFC 7748, Errata ID 4730", July 2016,
               <https://www.rfc-editor.org/errata/eid4730>.
-
-   [I-D.irtf-cfrg-pairing-friendly-curves]
-              Sakemi, Y., Kobayashi, T., Saito, T., and R. S. Wahby,
-              "Pairing-Friendly Curves", Work in Progress, Internet-
-              Draft, draft-irtf-cfrg-pairing-friendly-curves-10, 30 July
-              2021, <https://datatracker.ietf.org/doc/html/draft-irtf-
-              cfrg-pairing-friendly-curves-10>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -2765,34 +2758,34 @@ Table of Contents
               argon2-13>.
 
    [I-D.irtf-cfrg-bls-signature]
-              Boneh, D., Gorbunov, S., Wahby, R. S., Wee, H., and Z.
-              Zhang, "BLS Signatures", Work in Progress, Internet-Draft,
-              draft-irtf-cfrg-bls-signature-04, 10 September 2020,
-              <https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-
-              bls-signature-04>.
+              Boneh, D., Gorbunov, S., Wahby, R. S., Wee, H., Wood, C.
+              A., and Z. Zhang, "BLS Signatures", Work in Progress,
+              Internet-Draft, draft-irtf-cfrg-bls-signature-05, 16 June
+              2022, <https://datatracker.ietf.org/doc/html/draft-irtf-
+              cfrg-bls-signature-05>.
 
    [I-D.irtf-cfrg-ristretto255-decaf448]
-              Valence, H. D., Grigg, J., Hamburg, M., Lovecruft, I.,
+              de Valence, H., Grigg, J., Hamburg, M., Lovecruft, I.,
               Tankersley, G., and F. Valsorda, "The ristretto255 and
               decaf448 Groups", Work in Progress, Internet-Draft, draft-
-              irtf-cfrg-ristretto255-decaf448-03, 25 February 2022,
+              irtf-cfrg-ristretto255-decaf448-04, 14 October 2022,
               <https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-
-              ristretto255-decaf448-03>.
+              ristretto255-decaf448-04>.
 
    [I-D.irtf-cfrg-voprf]
-              Davidson, A., Faz-Hernandez, A., Sullivan, N., and C. A.
+              Davidson, A., Faz-Hernández, A., Sullivan, N., and C. A.
               Wood, "Oblivious Pseudorandom Functions (OPRFs) using
               Prime-Order Groups", Work in Progress, Internet-Draft,
-              draft-irtf-cfrg-voprf-09, 8 February 2022,
+              draft-irtf-cfrg-voprf-14, 6 October 2022,
               <https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-
-              voprf-09>.
+              voprf-14>.
 
    [I-D.irtf-cfrg-vrf]
-              Goldberg, S., Reyzin, L., Papadopoulos, D., and J. Vcelak,
+              Goldberg, S., Reyzin, L., Papadopoulos, D., and J. Včelák,
               "Verifiable Random Functions (VRFs)", Work in Progress,
-              Internet-Draft, draft-irtf-cfrg-vrf-12, 26 May 2022,
+              Internet-Draft, draft-irtf-cfrg-vrf-15, 9 August 2022,
               <https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-
-              vrf-12>.
+              vrf-15>.
 
    [Icart09]  Icart, T., "How to Hash into Elliptic Curves", In Advances
               in Cryptology - CRYPTO 2009, pages 303-316,
@@ -3006,8 +2999,10 @@ Appendix A.  Related work
    a new value x in F and try again.  Since a random value x in F has
    probability about 1/2 of corresponding to a point on the curve, the
    expected number of tries is just two.  However, the running time of
-   this method depends on the input string, which means that it is not
-   safe to use in protocols sensitive to timing side channels.
+   this method, which is generally referred to as a probabilistic try-
+   and-increment algorithm, depends on the input string.  As such, it is
+   not safe to use in protocols sensitive to timing side channels, as
+   was exemplified by the Dragonblood attack [VR20].
 
    Schinzel and Skalba [SS04] introduce a method of constructing
    elliptic curve points deterministically, for a restricted class of
@@ -3086,9 +3081,9 @@ Appendix B.  Hashing to ristretto255
 
    The hash_to_ristretto255 function MUST be instantiated with an
    expand_message function that conforms to the requirements given in
-   Section 5.4.  In addition, it MUST use a domain separation tag
+   Section 5.3.  In addition, it MUST use a domain separation tag
    constructed as described in Section 3.1, and all domain separation
-   recommendations given in Section 10.4 apply when implementing
+   recommendations given in Section 10.7 apply when implementing
    protocols that use hash_to_ristretto255.
 
    hash_to_ristretto255(msg)
@@ -3142,9 +3137,9 @@ Appendix C.  Hashing to decaf448
 
    The hash_to_decaf448 function MUST be instantiated with an
    expand_message function that conforms to the requirements given in
-   Section 5.4.  In addition, it MUST use a domain separation tag
+   Section 5.3.  In addition, it MUST use a domain separation tag
    constructed as described in Section 3.1, and all domain separation
-   recommendations given in Section 10.4 apply when implementing
+   recommendations given in Section 10.7 apply when implementing
    protocols that use hash_to_decaf448.
 
    hash_to_decaf448(msg)
@@ -3248,7 +3243,7 @@ D.1.  Generic Montgomery to twisted Edwards map
    The following straight-line implementation of the above rational map
    handles the exceptional cases.
 
-   edw_to_monty_generic(s, t)
+   monty_to_edw_generic(s, t)
 
    Input: (s, t), a point on the curve K * t^2 = s^3 + J * s^2 + s.
    Output: (v, w), a point on an equivalent twisted Edwards curve.
@@ -6827,7 +6822,7 @@ J.10.2.  BLS12381G2_XMD:SHA-256_SSWU_NU_
 Appendix K.  Expand test vectors
 
    This section gives test vectors for expand_message variants specified
-   in Section 5.4.  The test vectors in this section were generated
+   in Section 5.3.  The test vectors in this section were generated
    using code that is available from [hash2curve-repo].
 
    Each test vector in this section lists the expand_message name, hash
