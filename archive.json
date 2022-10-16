@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-08-25T02:31:10.590825+00:00",
+  "timestamp": "2022-10-16T02:49:09.436336+00:00",
   "repo": "cfrg/draft-irtf-cfrg-hash-to-curve",
   "labels": [
     {
@@ -19,14 +19,14 @@
       "color": "84b6eb"
     },
     {
-      "name": "help wanted",
-      "description": null,
-      "color": "33aa3f"
-    },
-    {
       "name": "good first issue",
       "description": null,
       "color": "7057ff"
+    },
+    {
+      "name": "help wanted",
+      "description": null,
+      "color": "33aa3f"
     },
     {
       "name": "invalid",
@@ -35607,6 +35607,32 @@
           ]
         }
       ]
+    },
+    {
+      "number": 350,
+      "id": "PR_kwDOBtBsGM5A2f7F",
+      "title": "Removes a reference to pairing-friendly expired draft",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/pull/350",
+      "state": "OPEN",
+      "author": "armfazh",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Suggestion raised by Watson Ladd (@wbl) posted at \r\nhttps://mailarchive.ietf.org/arch/msg/cfrg/LYZ09KNhZj6cRQ26Yc0IYHEuOYg/",
+      "createdAt": "2022-10-15T02:02:03Z",
+      "updatedAt": "2022-10-15T02:02:04Z",
+      "baseRepository": "cfrg/draft-irtf-cfrg-hash-to-curve",
+      "baseRefName": "main",
+      "baseRefOid": "664b13592116cecc9e52fb192dcde0ade36f904e",
+      "headRepository": "cfrg/draft-irtf-cfrg-hash-to-curve",
+      "headRefName": "armfazh/delRefPairingDraft",
+      "headRefOid": "fb6f105d910d3805a96c7dffa2fedf8c29270b2a",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
