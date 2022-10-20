@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-10-16T02:49:09.436336+00:00",
+  "timestamp": "2022-10-20T02:40:23.229535+00:00",
   "repo": "cfrg/draft-irtf-cfrg-hash-to-curve",
   "labels": [
     {
@@ -35620,7 +35620,7 @@
       "labels": [],
       "body": "Suggestion raised by Watson Ladd (@wbl) posted at \r\nhttps://mailarchive.ietf.org/arch/msg/cfrg/LYZ09KNhZj6cRQ26Yc0IYHEuOYg/",
       "createdAt": "2022-10-15T02:02:03Z",
-      "updatedAt": "2022-10-15T02:02:04Z",
+      "updatedAt": "2022-10-18T18:58:18Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-hash-to-curve",
       "baseRefName": "main",
       "baseRefOid": "664b13592116cecc9e52fb192dcde0ade36f904e",
@@ -35632,7 +35632,21 @@
       "mergedBy": null,
       "mergeCommit": null,
       "comments": [],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOBtBsGM5EVBpm",
+          "commit": {
+            "abbreviatedOid": "fb6f105"
+          },
+          "author": "kwantam",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "LGTM!",
+          "createdAt": "2022-10-18T18:58:18Z",
+          "updatedAt": "2022-10-18T18:58:18Z",
+          "comments": []
+        }
+      ]
     }
   ]
 }
