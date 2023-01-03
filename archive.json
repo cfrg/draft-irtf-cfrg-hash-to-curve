@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-10-20T02:40:23.229535+00:00",
+  "timestamp": "2023-01-03T01:35:56.575173+00:00",
   "repo": "cfrg/draft-irtf-cfrg-hash-to-curve",
   "labels": [
     {
@@ -7334,9 +7334,17 @@
       "labels": [],
       "body": "Technically `hash_to_scalar` is not defined, but specified as an \"alias\" of `hash_to_field`. Would it still be in scope to provide test vectors for it?\r\n\r\nSee #301.",
       "createdAt": "2022-03-22T05:55:10Z",
-      "updatedAt": "2022-03-22T05:55:47Z",
+      "updatedAt": "2023-01-01T07:06:34Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "kayabaNerve",
+          "authorAssociation": "NONE",
+          "body": "This would be greatly appreciated to ensure implementations are complaint. While EXPAND can be tested on its own, the reduction cannot be.",
+          "createdAt": "2023-01-01T07:06:34Z",
+          "updatedAt": "2023-01-01T07:06:34Z"
+        }
+      ]
     },
     {
       "number": 344,
@@ -7453,6 +7461,22 @@
           "updatedAt": "2022-08-23T19:42:30Z"
         }
       ]
+    },
+    {
+      "number": 351,
+      "id": "I_kwDOBtBsGM5aVoS_",
+      "title": "Test suite for BLS12-377",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/issues/351",
+      "state": "OPEN",
+      "author": "mmagician",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "While helping with h2c for BLS12-377 in arkworks, I wanted to test the results against some vectors. AFAIK, there isn't any test suite published for BLS12-377 yet?\r\n\r\nIs there any interest in adding a test suite for another curve from the same family to the draft?\r\nRight now I have a fork with the new suites [here](https://github.com/mmagician/draft-irtf-cfrg-hash-to-curve/tree/bls12-377) generating the tests using the isogenies found by @drskalman, and I'll happily make a PR to include these if desirable.\r\n\r\nArkworks PR for reference (currently I think `zeta` is still to be adapted for consistency with the suites): https://github.com/arkworks-rs/curves/pull/138",
+      "createdAt": "2023-01-01T14:53:32Z",
+      "updatedAt": "2023-01-01T14:53:32Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": [
