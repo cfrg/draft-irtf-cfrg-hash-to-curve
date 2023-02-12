@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2023-01-03T01:35:56.575173+00:00",
+  "timestamp": "2023-02-12T01:45:50.311182+00:00",
   "repo": "cfrg/draft-irtf-cfrg-hash-to-curve",
   "labels": [
     {
@@ -7472,9 +7472,56 @@
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
-      "body": "While helping with h2c for BLS12-377 in arkworks, I wanted to test the results against some vectors. AFAIK, there isn't any test suite published for BLS12-377 yet?\r\n\r\nIs there any interest in adding a test suite for another curve from the same family to the draft?\r\nRight now I have a fork with the new suites [here](https://github.com/mmagician/draft-irtf-cfrg-hash-to-curve/tree/bls12-377) generating the tests using the isogenies found by @drskalman, and I'll happily make a PR to include these if desirable.\r\n\r\nArkworks PR for reference (currently I think `zeta` is still to be adapted for consistency with the suites): https://github.com/arkworks-rs/curves/pull/138",
+      "body": "While helping with h2c for BLS12-377 in arkworks, I wanted to test the results against some vectors. AFAIK, there isn't any test suite published for BLS12-377 yet?\r\n\r\nIs there any interest in adding a test suite for another curve from the same family to the draft?\r\nRight now I have a fork with the new suites [here](https://github.com/mmagician/draft-irtf-cfrg-hash-to-curve/tree/bls12-377) generating the tests using the isogenies found by @drskalman, and I'll happily make a PR to include these if desirable.\r\n\r\nArkworks PR for reference: https://github.com/arkworks-rs/curves/pull/138",
       "createdAt": "2023-01-01T14:53:32Z",
-      "updatedAt": "2023-01-01T14:53:32Z",
+      "updatedAt": "2023-02-10T14:06:02Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 352,
+      "id": "I_kwDOBtBsGM5eGeiA",
+      "title": "Should empty DST values be rejected?",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/issues/352",
+      "state": "OPEN",
+      "author": "davidben",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/pull/264 added some text to 3.1:\r\n\r\n> Tags MUST have nonzero length. A minimum length of 16 bytes is RECOMMENDED to reduce the chance of collisions with other applications.\r\n\r\nHowever, it did not update any of the actual procedures, notably `expand_message_xmd`, leaving the text inconsistent. Was the intention that implementations reject empty DST values, or not? If yes, the actual procedures should be updated. If no, I'm not sure what that text is meant to prescribe... just instructions for callers but the underlying function tolerates zero length?",
+      "createdAt": "2023-02-09T23:18:22Z",
+      "updatedAt": "2023-02-10T16:15:36Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "This is an oversight. I suppose one could assume the pseudocode implicitly rejects zero-length tags, but it doesn't hurt to add that to be explicit. We should do this.",
+          "createdAt": "2023-02-10T14:00:17Z",
+          "updatedAt": "2023-02-10T14:00:17Z"
+        },
+        {
+          "author": "kwantam",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Agreed! Thanks @davidben for spotting this.",
+          "createdAt": "2023-02-10T16:15:35Z",
+          "updatedAt": "2023-02-10T16:15:35Z"
+        }
+      ]
+    },
+    {
+      "number": 353,
+      "id": "I_kwDOBtBsGM5eLMPS",
+      "title": "Clarification in 6.6.3: if no isogeny exists, this method does not work",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/issues/353",
+      "state": "OPEN",
+      "author": "kwantam",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "I got a note from someone using the draft that they thought the wording in Section 6.6.3 could be clearer about the fact that the curve E' isogenous to E may not exist. Maybe one clarifying sentence at the end of the 3rd paragraph, roughly:\r\n\r\n    Note that it may not be possible to find a curve E' meeting these requirements, in which case this method does not apply.\r\n\r\nPer @chris-wood we should be able to make this change (right?)\r\n\r\n(note: stashing this conversation as an issue so that we don't lose track of it!)",
+      "createdAt": "2023-02-10T16:25:24Z",
+      "updatedAt": "2023-02-10T16:25:48Z",
       "closedAt": null,
       "comments": []
     }
