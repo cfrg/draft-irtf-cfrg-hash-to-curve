@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2023-02-12T01:45:50.311182+00:00",
+  "timestamp": "2023-02-26T01:52:43.614924+00:00",
   "repo": "cfrg/draft-irtf-cfrg-hash-to-curve",
   "labels": [
     {
@@ -6817,7 +6817,7 @@
       "labels": [],
       "body": "Just like hash_to_curve, maybe a function for hashing to a scalar (e.g. \"hash_to_scalar\") could be defined, that would be an alias of hash_to_field.\r\n\r\nhttps://github.com/armfazh/h2c-go-ref implements such a functions",
       "createdAt": "2021-02-19T00:41:15Z",
-      "updatedAt": "2021-02-20T01:19:24Z",
+      "updatedAt": "2023-02-23T21:39:11Z",
       "closedAt": "2021-02-20T01:19:24Z",
       "comments": [
         {
@@ -6854,6 +6854,13 @@
           "body": "Yup, clear :) thank you both!",
           "createdAt": "2021-02-20T01:19:20Z",
           "updatedAt": "2021-02-20T01:19:20Z"
+        },
+        {
+          "author": "paulmillr",
+          "authorAssociation": "NONE",
+          "body": "See caveat https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/issues/343#issuecomment-1442462295: hash_to_scalar produces 0..p-1 while scalars usually must be 1..p-1",
+          "createdAt": "2023-02-23T21:39:10Z",
+          "updatedAt": "2023-02-23T21:39:10Z"
         }
       ]
     },
@@ -7334,7 +7341,7 @@
       "labels": [],
       "body": "Technically `hash_to_scalar` is not defined, but specified as an \"alias\" of `hash_to_field`. Would it still be in scope to provide test vectors for it?\r\n\r\nSee #301.",
       "createdAt": "2022-03-22T05:55:10Z",
-      "updatedAt": "2023-01-01T07:06:34Z",
+      "updatedAt": "2023-02-24T22:27:02Z",
       "closedAt": null,
       "comments": [
         {
@@ -7343,6 +7350,48 @@
           "body": "This would be greatly appreciated to ensure implementations are complaint. While EXPAND can be tested on its own, the reduction cannot be.",
           "createdAt": "2023-01-01T07:06:34Z",
           "updatedAt": "2023-01-01T07:06:34Z"
+        },
+        {
+          "author": "paulmillr",
+          "authorAssociation": "NONE",
+          "body": "Keep in mind `hash_to_field` produces numbers is in range [0, p-1].\r\n\r\nScalars, however, most of the time should be [1, p-1], that is, without 0.\r\n\r\nThere are 2 ways to handle this:\r\n\r\n1. Set `p=p-1`, generate field element, increment the result by `+1`\r\n2. Rejection sampling, which is commonly non-constant-time, and messy\r\n\r\nI think the spec should at least mention it.",
+          "createdAt": "2023-02-23T21:35:35Z",
+          "updatedAt": "2023-02-23T21:35:35Z"
+        },
+        {
+          "author": "kwantam",
+          "authorAssociation": "COLLABORATOR",
+          "body": "For a field of reasonable size, the probability that the result is 0 is negligible. (For example, if p is 128 bits, the probability that you hash to 0 is the same as the probability that you guess someone's AES key on the first try. *This will never happen.*)\r\n\r\nReducing mod `p-1` will, in most instances, require implementing specialized arithmetic mod `p-1`, which could easily be a large amount of extra code that will need to be audited, maintained, etc. (No production implementation uses generic multi-precision arithmetic. For one, it's almost impossible to make it constant time.)\r\n\r\nIn sum: in almost all cases, it's much more dangerous to try and prevent hashing to zero than it is to assume that it will never happen. Because it will never happen!",
+          "createdAt": "2023-02-24T03:03:04Z",
+          "updatedAt": "2023-02-24T03:06:21Z"
+        },
+        {
+          "author": "paulmillr",
+          "authorAssociation": "NONE",
+          "body": "@kwantam fault attacks do happen. So it's not negligible, I would think it's pretty likely.",
+          "createdAt": "2023-02-24T10:57:43Z",
+          "updatedAt": "2023-02-24T10:57:43Z"
+        },
+        {
+          "author": "kwantam",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I'm curious about this security model. You're saying that fault attacks *specifically designed to induce a zero output* are a serious threat? That's the only kind of fault attack this would prevent against.\r\n\r\n(EDIT: to be clear, I do not find this argument persuasive in the least, absent some kind of evidence that zero-inducing fault attacks are a thing.)",
+          "createdAt": "2023-02-24T14:01:12Z",
+          "updatedAt": "2023-02-24T14:02:01Z"
+        },
+        {
+          "author": "paulmillr",
+          "authorAssociation": "NONE",
+          "body": "> You're saying that fault attacks specifically designed to induce a zero output are a serious threat\r\n\r\nNot serious, but a threat.\r\n\r\nI'm simply saying it needs to be kept in mind that this could happen, meaning at least CT rejection sampling should be put in place. Not that it would happen. The chance of a fault attack is much higher than selecting 1 element from all group elements",
+          "createdAt": "2023-02-24T18:24:05Z",
+          "updatedAt": "2023-02-24T18:27:42Z"
+        },
+        {
+          "author": "kwantam",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I'm not saying fault attacks don't matter. But fault attacks can do *lots* of different things, and I strongly suspect that among all the fault attacks one has to worry about, fault attacks that are specifically designed to induce zero outputs are a tiny fraction, if they even exist.\r\n\r\nDepending on your threat model, you might need to defend against fault attacks or you might not. If you aren't worried about fault attacks, preventing zero outputs from hash_to_field isn't necessary. If you are worried about fault attacks, preventing zero outputs from hash_to_field isn't sufficient.\r\n\r\nThere is no case where \"prevent zero output from hash_to_field\" defends against a meaningful threat. But it *does* add complexity. The cure is worse than the disease.\r\n\r\n---\r\n\r\nBy the way: if \"force hash_to_field output to be zero\" is a meaningful fault attack, then the idea of hashing to the range 0..p-1 and then adding 1 is probably not helping because the attacker has just caused you generate the value 1, which is just as bad in most cases.",
+          "createdAt": "2023-02-24T22:27:02Z",
+          "updatedAt": "2023-02-24T22:27:02Z"
         }
       ]
     },
