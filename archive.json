@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2023-08-15T01:11:16.095652+00:00",
+  "timestamp": "2023-08-17T01:09:45.209708+00:00",
   "repo": "cfrg/draft-irtf-cfrg-hash-to-curve",
   "labels": [
     {
@@ -7539,7 +7539,7 @@
       "labels": [],
       "body": "https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/pull/264 added some text to 3.1:\r\n\r\n> Tags MUST have nonzero length. A minimum length of 16 bytes is RECOMMENDED to reduce the chance of collisions with other applications.\r\n\r\nHowever, it did not update any of the actual procedures, notably `expand_message_xmd`, leaving the text inconsistent. Was the intention that implementations reject empty DST values, or not? If yes, the actual procedures should be updated. If no, I'm not sure what that text is meant to prescribe... just instructions for callers but the underlying function tolerates zero length?",
       "createdAt": "2023-02-09T23:18:22Z",
-      "updatedAt": "2023-08-15T00:45:23Z",
+      "updatedAt": "2023-08-15T02:30:24Z",
       "closedAt": null,
       "comments": [
         {
@@ -7562,6 +7562,13 @@
           "body": "Whoops, looks like this might have slipped through.",
           "createdAt": "2023-08-15T00:45:22Z",
           "updatedAt": "2023-08-15T00:45:22Z"
+        },
+        {
+          "author": "kwantam",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Argh. I'm very sorry about this.",
+          "createdAt": "2023-08-15T02:30:23Z",
+          "updatedAt": "2023-08-15T02:30:23Z"
         }
       ]
     },
