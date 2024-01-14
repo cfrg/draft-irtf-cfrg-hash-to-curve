@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-01-11T01:19:45.323187+00:00",
+  "timestamp": "2024-01-14T01:25:22.334045+00:00",
   "repo": "cfrg/draft-irtf-cfrg-hash-to-curve",
   "labels": [
     {
@@ -7017,7 +7017,7 @@
       "title": "New faster indifferentiable hash functions to elliptic curves, including BLS12-381",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/issues/316",
       "state": "OPEN",
-      "author": "dishport",
+      "author": "Dimitri-Koshelev",
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
@@ -7041,7 +7041,7 @@
           "updatedAt": "2021-09-14T16:36:59Z"
         },
         {
-          "author": "dishport",
+          "author": "Dimitri-Koshelev",
           "authorAssociation": "NONE",
           "body": "You are welcome, @chris-wood!\r\n\r\nFor the sake of completeness, let me add. Recently, I also wrote several texts ([https://eprint.iacr.org/2021/1034](https://eprint.iacr.org/2021/1034) and [https://eprint.iacr.org/2021/1082](https://eprint.iacr.org/2021/1082)) improving my previous results even more.\r\n\r\nBest regards.",
           "createdAt": "2021-09-14T16:38:16Z",
@@ -7062,7 +7062,7 @@
           "updatedAt": "2021-09-14T17:26:41Z"
         },
         {
-          "author": "dishport",
+          "author": "Dimitri-Koshelev",
           "authorAssociation": "NONE",
           "body": "@armfazh, yes, the new methods improve the ones currently described in the draft if j-invariant of an elliptic curve equals 0 or 1728. All the new methods require fewer exponentiations in the basic (prime) field Fp. More precisely, I constructed\r\n\r\n1. a hash function H to any elliptic curve of j-invariant 1728 (i.e., y^2 = x^3 + ax) with the cost of 1 square root in Fp (resp. 2 square roots to make H indifferentiable). The same is true for elliptic curves of j-invariant 0 (i.e., y^2 = x^3 + b) having a small divisor of the Frobenius trace (e.g., the curves BN512 and BN638 from some international standards of pairing-based cryptography). By the way, the smallest degree of an Fp-isogeny to BN512 (resp. BN638) is equal to 1291 (resp. 1523);\r\n\r\n2. an indifferentiable hash function to elliptic curves of j-invariant 0 whose the coefficient b is a quadratic residue in Fp (e.g., BLS12-381 E1 whose b = 4) with the cost of 1 cubic root in Fp (instead of 2 square roots). Moreover, I checked that the sliding window method (at least for BLS12-381) gives a quite small addition chain to compute a cubic root. Its length is even slightly smaller than the length of [the addition chain](https://github.com/supranational/blst/blob/c76b5ac69a0044432d16cfd2cce60c93c8b01872/src/sqrt-addchain.h) for a square root in Fp.",
           "createdAt": "2021-09-14T21:46:04Z",
@@ -7097,7 +7097,7 @@
           "updatedAt": "2021-10-04T13:41:45Z"
         },
         {
-          "author": "dishport",
+          "author": "Dimitri-Koshelev",
           "authorAssociation": "NONE",
           "body": "https://link.springer.com/article/10.1007/s10623-022-01012-8\r\nHi. My article about hashing to the subgroup G1 is published since yesterday in Designs, Codes and Cryptography.",
           "createdAt": "2022-02-02T09:11:53Z",
