@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-03-17T01:17:57.273754+00:00",
+  "timestamp": "2024-03-19T01:14:10.076215+00:00",
   "repo": "cfrg/draft-irtf-cfrg-hash-to-curve",
   "labels": [
     {
@@ -7585,6 +7585,22 @@
       "body": "I got a note from someone using the draft that they thought the wording in Section 6.6.3 could be clearer about the fact that the curve E' isogenous to E may not exist. Maybe one clarifying sentence at the end of the 3rd paragraph, roughly:\r\n\r\n    Note that it may not be possible to find a curve E' meeting these requirements, in which case this method does not apply.\r\n\r\nPer @chris-wood we should be able to make this change (right?)\r\n\r\n(note: stashing this conversation as an issue so that we don't lose track of it!)",
       "createdAt": "2023-02-10T16:25:24Z",
       "updatedAt": "2023-02-10T16:25:48Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 354,
+      "id": "I_kwDOBtBsGM6Cwi4v",
+      "title": "Finding Z for Elligator 2: -1 mod 2^255-19 is a square",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/issues/354",
+      "state": "OPEN",
+      "author": "koba-e964",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/blob/draft-irtf-cfrg-hash-to-curve-14/draft-irtf-cfrg-hash-to-curve.md?plain=1#L4586\r\n-1 is a square in $\\mathrm{GF}(2^{255}-19)$, so there is no point in checking F(-ctr) after checking F(ctr) because they have the same result:\r\n```python\r\n>>> p=2**255-19\r\n>>> pow(-1,(p-1)//2,p)\r\n1\r\n```\r\n\r\n2 is a non-square, so it may be worth considering checking ctr and 2*ctr instead:\r\n```python\r\n>>> pow(2,(p-1)//2,p)-p\r\n-1\r\n```",
+      "createdAt": "2024-03-19T00:38:49Z",
+      "updatedAt": "2024-03-19T00:41:37Z",
       "closedAt": null,
       "comments": []
     }
