@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-03-19T01:14:10.076215+00:00",
+  "timestamp": "2024-03-21T01:14:47.145257+00:00",
   "repo": "cfrg/draft-irtf-cfrg-hash-to-curve",
   "labels": [
     {
@@ -7593,16 +7593,31 @@
       "id": "I_kwDOBtBsGM6Cwi4v",
       "title": "Finding Z for Elligator 2: -1 mod 2^255-19 is a square",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/issues/354",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "koba-e964",
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
       "body": "https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/blob/draft-irtf-cfrg-hash-to-curve-14/draft-irtf-cfrg-hash-to-curve.md?plain=1#L4586\r\n-1 is a square in $\\mathrm{GF}(2^{255}-19)$, so there is no point in checking F(-ctr) after checking F(ctr) because they have the same result:\r\n```python\r\n>>> p=2**255-19\r\n>>> pow(-1,(p-1)//2,p)\r\n1\r\n```\r\n\r\n2 is a non-square, so it may be worth considering checking ctr and 2*ctr instead:\r\n```python\r\n>>> pow(2,(p-1)//2,p)-p\r\n-1\r\n```",
       "createdAt": "2024-03-19T00:38:49Z",
-      "updatedAt": "2024-03-19T00:41:37Z",
-      "closedAt": null,
-      "comments": []
+      "updatedAt": "2024-03-19T11:38:15Z",
+      "closedAt": "2024-03-19T11:38:15Z",
+      "comments": [
+        {
+          "author": "kwantam",
+          "authorAssociation": "COLLABORATOR",
+          "body": "You're absolutely right that this is true for 2^255 - 19, but it is not true generally (for example, -1 is not square modulo 2^251 - 9). Since this is intended to be a generic procedure, this optimization does not generalize.",
+          "createdAt": "2024-03-19T01:50:16Z",
+          "updatedAt": "2024-03-19T01:50:16Z"
+        },
+        {
+          "author": "koba-e964",
+          "authorAssociation": "NONE",
+          "body": "My apologies, I was **completely** mistaken.\r\n\r\nThe whole point of `find_z_ell2` is finding an appropriate value for Z ($u$ in Section 5 of [[BHKL13](https://dl.acm.org/doi/pdf/10.1145/2508859.2516734)]) for a *curve*, not a value determined for each invocation of Elligator 2. There is nothing wrong in `find_z_ell2`, it returns `2` for GF(2^255 - 19) as expected.\r\n",
+          "createdAt": "2024-03-19T11:38:15Z",
+          "updatedAt": "2024-03-19T11:38:15Z"
+        }
+      ]
     }
   ],
   "pulls": [
